@@ -1,0 +1,37 @@
+#LastModifyDate:　2024-03-29T11:45:33    Author:   pjb
+#LastModifyDate:　2024-03-29T11:45:16    Author:   pjb
+#LastModifyDate:　2022-10-21T17:42:28.641230    Author:   gsp
+#LastModifyDate:　2022-10-21T14:06:43.264167    Author:   gsp
+#LastModifyDate:　2022-10-21T13:55:25.238784    Author:   gsp
+#FEA脚本文件
+
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+#ipv = @udf udf0.new_df with key,value
+#ipv =@udf ipv by udf0.df_append with (ipv4,ipv4)
+#ipv =@udf ipv by udf0.df_append with (ipv6,ipv6)
+#ipv = @udf ipv by udf0.df_set_index with key
+#store ipv to ssdb by ssdb0 with dd:data_zichan_ipv
+#获取表单中的条件信息
+b = @udf SH.network_cards2
+b = distinct b by name with first
+#alter b.address.address6 as str
+#b.address = str address by (replace("[",''))
+#b.address = str address by (replace("]",''))
+#b.address = str address by (replace("'",''))
+#b.address = str address by (replace('/24',''))
+b = add id by b.name
+b = @udf b by udf0.df_set_index with id
+
+push b as table
+c = eval b by index.size
+c_df = @udf udf0.new_df with count
+c_df = @udf c_df by udf0.df_append with $c
+push c_df as count
+#清除工作区
+clear @FID

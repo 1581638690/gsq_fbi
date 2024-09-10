@@ -1,0 +1,38 @@
+#LastModifyDate:　2023-02-06T16:01:32.179227    Author:   superFBI
+#LastModifyDate:　2023-02-06T11:48:55.139792    Author:   superFBI
+#LastModifyDate:　2023-02-06T11:48:24.002755    Author:   superFBI
+#LastModifyDate:　2023-02-06T10:38:32.425438    Author:   superFBI
+#LastModifyDate:　2023-02-04T10:21:54.518108    Author:   pjb
+#LastModifyDate:　2023-02-04T09:41:55.986496    Author:   pjb
+#LastModifyDate:　2023-02-04T09:37:02.203857    Author:   pjb
+#LastModifyDate:　2023-02-03T18:21:25.310901    Author:   superFBI
+#LastModifyDate:　2023-02-01T18:25:57.241483    Author:   pjb
+#LastModifyDate:　2023-02-01T18:06:58.441219    Author:   superFBI
+#LastModifyDate:　2023-01-13T14:53:23.772916    Author:   pjb
+#LastModifyDate:　2023-01-13T14:49:57.837652    Author:   pjb
+#LastModifyDate:　2023-01-13T10:08:59.336750    Author:   shb
+#LastModifyDate:　2022-11-18T18:20:24.370238    Author:   shb
+#LastModifyDate:　2022-10-27T17:43:37.059527    Author:   shb
+#LastModifyDate:　2022-10-25T15:30:18.871827    Author:   shb
+#LastModifyDate:　2022-10-25T15:02:15.371826    Author:   shb
+#FBI脚本文件
+#文件名: snmp_save_run.fbi
+#作者: shb
+use @FID
+
+a = load ssdb by ssdb0 with snmp_config as json
+#b = @udf a by SNMP.config_save
+#c = @udf a by SNMP.config_save2
+b = @udf a by SNMP.config_save_part1
+b = @udf a by SNMP.config_save_part2
+b = @udf a by SNMP.config_save_part3
+b = @udf a by SNMP.config_save_part4
+
+res = eval b by iloc[0,0]
+
+# snmpwalk -v 3 -u test -a MD5 -A 123123123 -x DES -X 321321321 -l authPriv localhost .1.3.6.1.2.1.1.1.0
+# snmpwalk -v 2c -c test localhost .1.3.6.1.2.1.1.1.0
+
+assert $res == True as notice to SNMP配置成功！ with SNMP配置失败！
+
+clear @FID

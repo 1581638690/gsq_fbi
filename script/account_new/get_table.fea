@@ -1,0 +1,19 @@
+#FEA脚本文件
+
+#获取记录
+#@id  记录ID
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#根据id加载对象
+d = @udf CRUD.get_object_table with (@link,@table,@id)
+assert 'fix_tname(ptree, "d") in global_table' as alert with 数据加载失败！
+
+#存储对象到people:id:@FPS,页面会根据people:id:@FPS来显示对象
+store d to ssdb by ssdb0 with @table:id:@FPS as 600
+push d as table
+#清除工作区
+clear @FID

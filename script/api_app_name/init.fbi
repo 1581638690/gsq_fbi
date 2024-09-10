@@ -1,0 +1,50 @@
+#LastModifyDate:　2023-05-12T17:08:28.148851    Author:   pjb
+#LastModifyDate:　2023-05-10T10:53:14.630358    Author:   superFBI
+#LastModifyDate:　2023-05-10T10:39:26.463210    Author:   superFBI
+#LastModifyDate:　2023-05-09T17:52:39.141524    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:57:00.364739    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:55:14.124203    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:52:14.069085    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:50:20.905750    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:46:48.458352    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:43:15.798279    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:41:44.636116    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:33:07.295304    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:01:31.205615    Author:   superFBI
+#LastModifyDate:　2023-05-09T10:41:05.809492    Author:   superFBI
+#LastModifyDate:　2023-05-09T10:33:51.426363    Author:   superFBI
+#LastModifyDate:　2023-05-09T10:30:00.179653    Author:   superFBI
+#FBI脚本文件
+#文件名: api_app_name/init.fbi
+#作者: superFBI
+use @FID
+aa = load db by mysql1 with select name,app_merges from data_app_new where app='@app'
+app_merges=loc aa by app_merges
+#查询当前id对应的接口的接口名称
+api=load db by mysql1 with select name from data_api_new where id="@id"
+api_name=loc api by name
+rename api_name as ("name":"api_name")
+app=eval app_merges by iloc[0,0]
+if '$app'!="" and '$app' != 'None' with """
+	aa = load db by mysql1 with select name from data_app_new where  app="$app" and merge_state=2
+"""
+aa=loc aa by name
+aa=join aa,api_name
+store aa to ssdb by ssdb0 with apiapp_tab:@FPS as 600
+#names=@udf aa by udf0.df_T
+#names=@udf names by udf0.df_cs2l
+#names=str names by replace("[","")
+#names=str names by replace("]","")
+#rename names as ("s0":"name")
+#names=@udf names by udf0.df_cs2l
+#name=eval aa by iloc[0,0]
+#store names to ssdb by ssdb0 with apiapp_tab:@FPS as 600
+#push names as table 
+#Delete 注释 by superFBI on 2023-05-09 16:41:43
+#names=eval aa by iloc[0,0]
+#if '$name'=="" with """
+#	assert find_df_have_data('aa',ptree) as break with 请先添加给接口所属应用的应用名称！
+#"""
+
+
+clear @FID

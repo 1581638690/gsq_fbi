@@ -1,0 +1,15 @@
+#FBI脚本文件
+
+#删除记录
+#@id  记录ID
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#根据id加载对象
+d = @udf CRUD.delete_table with (@link,@table,@id)
+
+#清除工作区
+clear @FID

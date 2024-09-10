@@ -1,0 +1,139 @@
+#LastModifyDate:　2024-04-07T11:03:22    Author:   superFBI
+#LastModifyDate:　2024-04-01T11:23:26    Author:   superFBI
+#LastModifyDate:　2024-03-28T18:51:02    Author:   pjb
+#LastModifyDate:　2024-03-27T16:11:37    Author:   pjb
+#LastModifyDate:　2024-03-27T11:36:16    Author:   pjb
+#LastModifyDate:　2024-03-27T11:22:53    Author:   pjb
+#LastModifyDate:　2024-03-27T11:09:02    Author:   pjb
+#LastModifyDate:　2023-08-08T11:53:46.789382    Author:   pjb
+#LastModifyDate:　2023-07-17T17:53:04.217994    Author:   pjb
+#LastModifyDate:　2023-04-20T20:03:25.985093    Author:   superFBI
+#LastModifyDate:　2023-04-20T20:01:47.306429    Author:   superFBI
+
+
+#xlink脚本
+
+#初始化
+init => {
+	stream["meta_name"] = "[CSR]收集流程，根据页面配置"
+	stream["meta_desc"] = "处理redis数据到/tmp/csr_main"
+	stream["redis_l"] = load_ssdb_kv("agent")["redis"]
+	try:
+		stream["header"] = load_ssdb_kv("agent")["header"]
+	except:
+		stream["header"] = []
+	#取第一个topic
+	try:
+		stream["topic1"] = load_ssdb_kv("agent")["header"][0]["topic"]
+	except:
+		stream["topic1"] = ""
+	#字典 key-topic:value-destip
+	stream["cfg"] = {}
+	for flag in stream["header"]:
+		stream["cfg"][flag["topic"]] = flag["destip"]
+    	#value = list(flag.values())
+    	#stream["cfg"].setdefault("{}".format(value[0]), "{}".format(value[1]))
+	#把剩下的topic生成一个列表
+	stream["topics"] = []
+	for tp in stream["header"]:
+		topic = tp.get("topic")
+		stream["topics"].append(topic)
+	#stream["topics"].pop(0)
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["source"]= {"link":stream["redis_l"],"topic":stream["topic1"],"redis":"list_json","topics":stream["topics"]}
+	#stream["source"]= {"link":stream["redis"],"topic":"csr-data-1","redis":"list","topics":["csr-data-2"]}
+	#stream["cfg"] = {"csr-data-1":"192.168.1.175","csr-data-2":"192.168.1.86","csr-data-3":"192.168.1.187"}
+	stream["redis"]={"host":stream["redis_link"],"port":"16379"}
+	stream["st"]["st_10s"]={"times":3,"fun":"print10"}
+	stream["st"]["st_20s"]={"times":5,"fun":"print20"}
+	stream["count"] = 0
+	stream["count-10"] = 0
+	stream["m"] = {"count":0,"s-count":0,"ip":0,"stu":0,"surl":0,"jiance":0,"http_proto":0} 
+	stream["stul"] = []
+	stream["ipl"] = []
+	stream["potl"] = []
+	stream["ul"] = []
+	stream["size"] = 49
+
+
+}
+
+
+#事件处理函数
+events => {
+	printf(o["event_type"],o)
+	if o.get("dest_ip") == '127.0.0.1':
+		o["dest_ip"] = stream["cfg"][topic]
+	if o.get("http"):
+		if o.get("http").get("hostname") == "localhost" or o.get("http").get("hostname") == '127.0.0.1':
+			o.get("http")["hostname"] = stream["cfg"][topic]
+	to_unix_udp_n(o,"/tmp/csr_main",9)
+}
+
+
+
+#系统定时函数
+print10 => {
+	printf("print10已过滤消息数","count%d==http_proto%d==路径%d==超流量%d==限额%d"%(stream["count"],stream["m"]["http_proto"],stream["m"]["surl"],stream["m"]["jiance"],stream["size"]))
+}
+#系统定时函数
+print20 => {
+	stream["stul"] = []
+	stream["ul"] = []
+	stream["ipl"] = []
+	stream["potl"]
+	stream["size"] = load_ssdb_kv("Traffic")["Tra"]["flow_size"]["size"]
+	fstatus = ''
+	fip = ''
+	furi = ''
+	#ip和端口列表 [ { "ip": "10.99.20.00", "port": 9090 }, { "ip": "192.168.1.100", "port": 9009 } ] 
+	#过滤应用与端口数据[{"ip":"192.168.101.19","port":9002},{"ip":"10.99.40.248","port":9006}]
+	Tra = load_ssdb_kv("Traffic")["Tra"]
+	fips = Tra.get("fip")
+	if fips:
+		fip = fips.get("fi")
+	#黑名单 0 白名单 1
+		stream["ton"] = fips.get("onf")
+	#状态码列表 [ { "status": 200 }, { "status": 300 } ] 
+	#过滤状态码[{"status":400},{"status":501}]
+	fstatuss = Tra.get("fstatus")
+	if fstatuss:
+		fstatus = fstatuss.get("fs")
+	#黑名单0 白名单1
+		stream["fon"] = fstatuss.get("onf")
+	#过滤路径
+	#黑名单 白名单 [{"uri":"/sa/authToken"},{"uri":"/sa/home/logout"}]
+	furis = Tra.get("furi")
+	if furis:
+		furi = furis.get("fu")
+		stream["uon"] = furis.get("onf")
+	#遍历应用端口列表 把应用和端口分别放入列表中
+	if fip:
+		for TR in fip:
+			#应用名
+			ip = TR.get('ip')
+			#端口号
+			port = TR.get("port")
+			stream["ipl"].append(ip)
+			stream["potl"].append(port)
+	#遍历状态列表 取出状态码放入列表中
+	if fstatus:
+		for stu in fstatus:
+			status = stu.get('status')
+			stream["stul"].append(status)
+	#遍历接口列表，取出路径放入列表中
+	if furi:
+		for fu in furi:
+			uri = fu.get("uri")
+			stream["ul"].append(uri)
+		
+}
+
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+
+}

@@ -1,0 +1,10 @@
+#FBI脚本文件
+#文件名: docx.fbi
+#作者: admin
+use @FID
+a = @udf RS.exec_mysql_sql with (mysql41,select * from csv order by gmt_create desc)
+a = @udf a by udf0.df_set_index with (file)
+a = add value by (a.index)
+a = loc a by value
+store a to ssdb by ssdb0 with dd:docx
+clear @FID

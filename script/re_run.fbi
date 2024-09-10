@@ -1,0 +1,73 @@
+#LastModifyDate:　2022-10-18T19:00:37.496276    Author:   pjb
+#LastModifyDate:　2022-07-20T09:49:47.604231    Author:   admin
+#LastModifyDate:　2022-06-23T19:04:18.666137    Author:   admin
+#LastModifyDate:　2022-06-16T10:54:27.930285    Author:   liuhouqi
+#LastModifyDate:　2022-06-10T17:35:31.280779    Author:   liuhouqi
+#LastModifyDate:　2022-06-07T17:43:02.850131    Author:   liuhouqi
+#LastModifyDate:　2022-04-29T16:24:09.370945
+
+a = @udf FBI.x_finder3_stop2 with csr_2
+a = @udf FBI.x_finder3_stop2 with api_main_json
+a = @udf FBI.x_finder3_stop2 with api_apps_json
+a = @udf FBI.x_finder3_stop2 with api_urls_json
+a = @udf FBI.x_finder3_stop2 with api_ips_json
+a = @udf FBI.x_finder3_stop2 with api_users_json
+a = @udf FBI.x_finder3_stop2 with api_visit_json
+a = @udf FBI.x_finder3_stop2 with api_alerts_json
+a = @udf FBI.x_finder3_stop2 with api_monitor_ckh
+a = @udf FBI.x_finder3_stop2 with api_owasp1
+
+a = @udf FBI.x_finder3_stop2 with api_sensite_json
+a = @udf FBI.x_finder3_stop2 with api_risk_event
+a = @udf FBI.x_finder3_stop2 with api_risk_json
+a = @udf FBI.x_finder3_start with clear_distinct
+a = @udf FBI.x_finder3_stop2 with clear_distinct
+
+
+#清空数据库
+ip = @udf RS.exec_mysql_sql with (mysql1,truncate table data_ip_new)
+app = @udf RS.exec_mysql_sql with (mysql1,truncate table data_app_new)
+api = @udf RS.exec_mysql_sql with (mysql1,truncate table data_api_new)
+account = @udf RS.exec_mysql_sql with (mysql1,truncate table data_account_new)
+sen = @udf RS.exec_mysql_sql with (mysql1,truncate table sensitive_data)
+
+manage = @udf RS.exec_mysql_sql with (mysql1,truncate table Report_management)
+data = @udf RS.exec_mysql_sql with (mysql1,truncate data_risk)
+visit = load ckh by ckh with truncate table api_visit
+visit = load ckh by ckh with truncate table api_monitor
+visit = load ckh by ckh with truncate table api_risk
+visit = load ckh by ckh with truncate table risk_api
+#清空kfk
+define kfk as 192.168.1.190:9092
+k = @udf KFK.df_link with kfk
+
+#查看所有topic
+topic = @udf k by KFK.show_topics
+o = @udf k,topic by KFK.show_muli_offset 
+
+p = @udf k by KFK.show_offset with risk_api
+#主题详情
+d = @udf k by KFK.describe with risk_api
+d = @udf k by KFK.show_partitions with risk_api
+
+#删除主题
+d = @udf k by KFK.delete_topics with risk_api
+d = @udf k by KFK.delete_topics with api_app
+d = @udf k by KFK.delete_topics with api_sen
+d = @udf k by KFK.delete_topics with api_ip
+d = @udf k by KFK.delete_topics with api_alert
+d = @udf k by KFK.delete_topics with api_visit
+d = @udf k by KFK.delete_topics with api_url
+d = @udf k by KFK.delete_topics with api_user
+d = @udf k by KFK.delete_topics with api_monitor
+
+#消费数据-- 参数：主题，消费group_id, 链接超时时长，是否从0消费
+a = @udf k by KFK.fast_load with zichan,x1,30,30, False
+
+#生产数据-- 参数：链接名,主题
+a=@udf q by  by KFK.fast_store with kfk2,zichan_3
+
+
+
+
+

@@ -1,0 +1,398 @@
+#LastModifyDate:　2024-04-23T15:14:55    Author:   pjb
+#LastModifyDate:　2024-04-23T14:59:05    Author:   pjb
+#LastModifyDate:　2024-04-22T16:02:49    Author:   pjb
+#LastModifyDate:　2024-04-07T12:14:49    Author:   pjb
+#LastModifyDate:　2024-04-07T11:48:50    Author:   pjb
+#LastModifyDate:　2024-04-07T11:29:08    Author:   pjb
+#LastModifyDate:　2024-04-07T11:04:43    Author:   superFBI
+#LastModifyDate:　2024-04-07T11:01:22    Author:   superFBI
+#LastModifyDate:　2024-04-03T17:43:02    Author:   superFBI
+#LastModifyDate:　2024-03-26T11:23:33    Author:   rzc
+#LastModifyDate:　2024-03-16T11:38:17    Author:   pjb
+#xlink脚本
+#file: yuan_http.xlk
+#name: 原始http协议数据
+#描述： 从redis中取出分发的yuan_http数据,将原始的http存入ckh中
+
+
+#初始化
+init => {
+	stream["meta_name"] = "原始http协议数据"
+	stream["meta_desc"] = "处理main_process分发的yuan_http数据,判断请求异常、域内域外判断、接口合并(可选)、识别账号"
+	stream["max_mem"] = 2
+	stream["st"]["st_10s"]={"times":30,"fun":"print10"}
+	stream["st"]["st_60s"]={"times":60,"fun":"send60"}
+	#接口类型、账号识别
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["max_xlink"]=2
+	#stream["source"]={"link":stream["redis_link"]+":16379","topic":"yuan_http","redis":"list"}
+	stream["source"]= {"unix_udp":"/tmp/yuan_http"}
+	stream["content"] = handle_content_type(a["setting"]["content_type"]["type"])
+	##账号检索子项开关
+	account1 = a["setting"]["account"]["account_key"]
+	stream["account"] = []
+	for account_key in account1:
+		if account_key["off"]==1:
+			stream["account"].append(account_key.get("name"))
+	stream["api_merge1"]=load_ssdb_hall("api_merge1")
+	stream["api_merge"]=load_ssdb_hall("api_merge")
+	b = load_ssdb_kv("manage_type")
+	stream["login"] = handle_login(b["mtype"]["login"]["table"])
+	stream["logout"] = handle_login(b["mtype"]["logout"]["table"])
+	stream["download"] = handle_login(b["mtype"]["download"]["table"])
+	stream["upload"] = handle_login(b["mtype"]["upload"]["table"])
+	#接口合并
+	#stream["trie"] = Trie()
+	event=load_ssdb_kv("protocol_data")["function"]["event"]
+	stream["merge_off"]=event["merge_off"]
+#Delete 注释 by rzc on 2024-01-18 16:42:04
+#解除注释 by rzc on 2024-01-18 16:53:47
+	if stream["merge_off"]=="true":
+		stream["trie"] = Trie()
+		#读取接口合并的数据
+		try:
+			stream["merge"]=remove_file("/dev/shm/merge.pkl","/data/xlink","merge.pkl")
+		except:
+			stream["merge"]={}
+	#syslog开关
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	if "api_http" in a:
+		stream["sends"] = 1
+	else:
+		stream["sends"] = 0
+	send = load_ssdb_kv("qh_send")["sends"].split(',')
+	stream["sends2"] = send
+	#域内域外
+	stream["json_wdgl"] = load_ssdb_kv("json_wdgl")
+	stream["wd"]=jk_tf(stream["json_wdgl"])
+	#功能开关
+	a = load_ssdb_kv("protocol_data")
+	stream["req_alm_store"] = a["function"]["event"]["req_alm_store"]
+	stream["req_s"] = a["function"]["event"]["req_s"]
+	stream["resources_off"] = a["function"]["event"]["resources_off"]
+	##账户检索功能总开关
+	stream["account_all_key"] = a["function"]["event"]["account_all_key"]
+	#redis的链接
+	stream["redis"]={"host":stream["redis_link"],"port":"6380","batch":500}
+	#数据接口认证方式
+	stream["auth_data"]=load_ssdb_kv("api_auth")["data"]
+	owasp = load_ssdb_kv("qh_owasp")
+	stream["token_rule"] = ""
+	if owasp['setting']['API19-2']['API19-2-3-1']:
+		for i in owasp['setting']['API19-2']['API19-2-3-1'].split('/'):
+			stream["token_rule"] += i + "|"
+	stream["token_rule"] = stream["token_rule"].strip("|")
+	
+	stream["ak_rule"] = ""
+	if owasp['setting']['API19-2']['API19-2-3-2']:
+		for i in owasp['setting']['API19-2']['API19-2-3-2'].split('/'):
+			stream["ak_rule"] += i + "|"
+	stream["ak_rule"] = stream["ak_rule"].strip("|")
+	try:
+		stream["user_info"]=load_pkl("user_info.pkl")
+	except:
+		stream["user_info"]={}
+}
+
+
+#事件处理函数
+events => {
+	timestamp = o.get("timestamp")
+	flow_id = o.get("flow_id", 0)
+	http=o.get("http")
+	http_port = http.get("http_port")
+	http_url = http.get("url")
+	http_url = unquote(http_url)
+	http_url = unquote(http_url)
+	app=http.get("hostname")
+	dstip = o.get("dest_ip")
+	destport = o.get("dest_port")
+	src_ip = o.get("src_ip")
+	src_port = o.get("src_port", 0)
+	content_type=stream["content"]
+	ht_type = http.get("http_content_type","")
+	#d_timestamp = iso_to_datetime(timestamp)
+	#t_timestamp = iso_to_timestamp(timestamp)
+	if app == '127.0.0.1' or not app:
+		app = dstip
+	else:
+		app=http.get("hostname").split(",")[0]
+	if http_port:
+		destport = http_port
+	if destport != 80:
+		app = app + ":" + str(destport)
+	status1 = str(http.get("status","")).strip()
+	end = http.get("end","")
+	start = http.get("start","")
+	age = str(http.get("age",""))
+	if "?" in http_url:
+	# 剔除参数
+		suri = http_url.split('?')
+		uri = suri[0]
+		parameter = suri[1]
+	else:
+		uri = http_url
+		parameter = ''
+	
+	if "1970-01-01" in start or "1970-01-01" in end or not status1.startswith("2") or len(uri)>=4000 or len(app)>=4000 or len(parameter)>=4000 or len(age)>=18:
+		if stream["req_s"] == "true":
+			# 异常请求
+			url = "http://" + app + uri
+			if stream["req_alm_store"] == "true":
+				httpjson = ujson.dumps(o,ensure_ascii=False)
+			else:
+				httpjson = ""
+			status = "状态码异常"
+			status2 = "状态码异常:"+status1
+			if status1 != "":
+				if status1[0] == '1':
+					info = '信息，服务器收到请求，需要请求者继续执行操作'
+				elif status1[0] == '3':
+					info = '重定向，需要进一步的操作以完成请求'
+				elif status1[0] == '4':
+					info = '客户端错误，请求包含语法错误或无法完成请求'
+				elif status1[0] == '5':
+					info = '服务器错误，服务器在处理请求的过程中发生了错误'
+				else:
+					info = status1
+			else:
+				status = "状态码丢失"
+				status2 = "其他"
+				info = "状态码丢失"
+			if "1970-01-01" in end:
+				status = "响应数据缺失"
+				status2 = "其他"
+				info = "响应数据缺失"
+			if "1970-01-01" in start:
+				status = "请求数据缺失"
+				status2 = "其他"
+				info = "请求数据缺失"
+			if len(app) >= 4000:
+				status = "应用过长"
+				status2 = "其他"
+				info = "超过" + str(len(app)) + '个字符'
+			if len(uri) >= 4000:
+				status = "uri过长"
+				status2 = "其他"
+				info = "超过" + str(len(uri)) + '个字符'
+			if len(parameter) >= 4000:
+				status = "参数过长"
+				status2 = "其他"
+				info = "超过" + str(len(parameter)) + '个字符'
+			if len(age) >= 18:
+				status = "age过长"
+				status2 = "其他"
+				info = "超过" + str(len(age)) + '个字符'
+			a = {"timestamp":timestamp,"id":xlink_uuid(0),"src_ip":src_ip,"dest_ip":dstip,"dest_port":destport,"app":app,"url":url,"parameter":parameter,"httpjson":httpjson,"flow_id":flow_id,"src_port":src_port,"info":info,"status":status,"status2":status2}
+			#to_redis("stat_req_alm",a)
+			to_unix_udp(a,"/tmp/api_data_req_alm")
+			if "api_req" in stream["sends2"]:
+				s = deepcopy(a)
+				s["event_type"] = "request"
+				#to_kfk2("api_send",s)
+				s["timestamp"] = str(s["timestamp"])
+				to_json_file("/data/syslog_file/eve",s)
+	else:
+		yuw = yn(dstip,stream["wd"])
+		if yuw:
+			d_timestamp = iso_to_datetime(timestamp)
+			if http_url.startswith('/'):
+				data_type,counts=type_class(content_type,ht_type,uri,parameter)
+				if stream["resources_off"] == "false":
+					if data_type=="资源文件":
+						o["http_response_body"] = ""
+						o["http_request_body"] = ""
+				o["http_response_body"] = unquote(base64_decode(o.get("http_response_body","")))
+				o["http_request_body"] = unquote(base64_decode(o.get("http_request_body","")))
+				o["http"]["url"] = unquote(http_url)
+				#账号信息
+				user = ""
+				jsessionid = ""
+				if o.get("http_response_body") and o.get("http_response_body").get("data") and o.get("http_response_body").get("data").get("ext"):
+					printf("user",o)
+					for i in o["http"]["request_headers"]:
+						if i.get("name") == 'Cookie':
+							pattern = r"JSESSIONID=([A-Za-z0-9]*(?:;|$))"
+							match = re.findall(pattern, i.get("value"))
+							if match:
+								jsessionid = match[0]
+								user_info = {}
+								user_info["user"] = o.get("http_response_body").get("data").get("cractName")
+								user_info["position"] = o.get("http_response_body").get("data").get("ext").get("position")
+								stream["user_info"][jsessionid] = user_info
+				if jsessionid in stream["user_info"]:
+					user = stream["user_info"][jsessionid]
+				
+				req_headers=http["request_headers"]
+				if stream["merge_off"]=="true":
+					#对原始的url进行判断
+					if data_type in ["CSS","JS","资源文件"] or uri.lower().endswith((".gif",".png",".jpg")):
+						#courl=0
+						#直接对其最后一段进行合并,如果最后一段为空 则改原接口就是合并的接口
+						an=uri.split("/")
+						#先对长度进行判断
+						if counts>2 and an[-1] == "":
+							an[-2]="{dst}"
+						elif an[-1]!="":
+							an[-1]="{dst}"
+						url_c="/".join(an)
+					elif counts==2:
+						#courl=0
+						url_c=uri
+					else:
+						#进行接口规则对比
+						url_c,courl=stream["trie"].match_url(stream["merge"],uri,counts,app)#从main_json出来的数据 进行对比处理
+						if 0< courl <5:
+							url_c=uri
+					url_c,url=urlc(url_c,uri,app)
+
+					###############对手工合并接口进行处理
+				else:
+					url_c=uri
+					#拼接接口数据
+					url_c,url=urlc(url_c,uri,app)
+				#手动拆分 合并接口 可以保留  
+				if url_c in stream["api_merge1"]:#判断接口是否存在于拆分得数据中
+					url_c=url
+				#判断接口是否合并
+				if stream["api_merge"]: #合并的接口
+					api_values=stream["api_merge"].values()
+					for apis in api_values:
+						api=apis.get("url_sum").split(";|")
+						if url_c in api:#判断url_c是否存在
+							url_c=apis.get("url")
+				api_type=api_types(o,data_type, stream["logout"],uri)
+				http_request_body=o.get("http_request_body","")
+				auth_type=ats(status1, stream["token_rule"], stream["ak_rule"], parameter, http_request_body, req_headers, url_c, stream["auth_data"],app)
+				#api_type=0
+				#auth_type=0
+				if stream["account_all_key"]=="true":
+					try:
+						re_acc, type= account_search(o,parameter,o["http_request_body"],stream["account"])
+					except Exception as e:
+						re_acc = ''
+						type = ''
+					if not re_acc:
+						re_acc = ''
+				else:
+					o["account"] = ""
+					o["type"] = ""
+				update_data = {
+					"url_c": url_c,
+					"url": url,
+					"app": app,
+					"parameter": parameter,
+					"account": re_acc,
+					"user": json.dumps(user ,ensure_ascii=False),
+					"type": type,
+					"api_type": api_type,
+					"auth_type": auth_type,
+					"data_type": data_type,
+					"counts": counts,
+					"d_timestamp": d_timestamp
+				}
+				o.update(update_data)
+				if stream["sends"]:
+					s = deepcopy(o)
+					s["event_type"] = "api_http"
+					s["timestamp"] = str(s["timestamp"])
+					s["d_timestamp"] = str(s["d_timestamp"])
+					to_json_file("/data/syslog_file/eve",s)
+				printf(o["event_type"],o)
+				to_unix_udp_n(o,"/tmp/http_proto",2)
+				#to_unix_udp(o,"/tmp/o_rules")
+					#pass
+}
+
+#系统定时函数
+print10 => {
+	#数据接口认证方式
+	stream["auth_data"]=load_ssdb_kv("api_auth")["data"]
+	#功能开关
+	a = load_ssdb_kv("protocol_data")
+	stream["req_alm_store"] = a["function"]["event"]["req_alm_store"]
+	stream["req_s"] = a["function"]["event"]["req_s"]
+	stream["resources_off"] = a["function"]["event"]["resources_off"]
+	##账户检索功能总开关
+	stream["account_all_key"] = a["function"]["event"]["account_all_key"]
+	#接口类型、账号识别
+	a = load_ssdb_kv("setting")
+	##账号检索子项开关
+	account1 = a["setting"]["account"]["account_key"]
+	stream["account"] = []
+	for account_key in account1:
+		if account_key["off"]==1:
+			stream["account"].append(account_key.get("name"))
+	stream["content"] = handle_content_type(a["setting"]["content_type"]["type"])
+	stream["api_merge1"]=load_ssdb_hall("api_merge1")
+	stream["api_merge"]=load_ssdb_hall("api_merge")
+	b = load_ssdb_kv("manage_type")
+	stream["login"] = handle_login(b["mtype"]["login"]["table"])
+	stream["logout"] = handle_login(b["mtype"]["logout"]["table"])
+	stream["download"] = handle_login(b["mtype"]["download"]["table"])
+	stream["upload"] = handle_login(b["mtype"]["upload"]["table"])
+	#接口合并
+	event=load_ssdb_kv("protocol_data")["function"]["event"]
+	stream["merge_off"]=event["merge_off"]
+	if stream["merge_off"]=="true":
+		stream["trie"] = Trie()
+		if os.path.exists("/data/xlink/merge.pkl"):
+			try:
+				with open("/data/xlink/merge.pkl",'rb')as fp:
+					merge_json=pickle.load(fp)
+					stream["merge"]=merge_json
+			except:
+				with open("/data/xlink/merge.pkl",'rb')as fp:
+					merge_json=pickle.load(fp)
+					stream["merge"]=merge_json
+		else:
+			stream["merge"]={}
+}
+send60 => {
+	store_pkl(stream["user_info"], "user_info.pkl")
+	stream["json_wdgl"] = load_ssdb_kv("json_wdgl")
+	stream["wd"]=jk_tf(stream["json_wdgl"])
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	if "api_http" in a:
+		stream["sends"] = 1
+	else:
+		stream["sends"] = 0
+}
+
+
+#拼接接口
+urlc =>(url_m,http_url,app){
+	if not app:
+		app=""
+	# 然后进行接口合并
+	url_c = "http://" + app + url_m
+	url = "http://" + app + http_url
+	return url_c,url
+}
+xlink_uuid =>(x){
+	return str(time.time_ns())
+}
+unquote =>(value){
+	#if "%" in value:
+	if value.find("%") != -1:
+		return unquote2(value)
+	return value
+}
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import random
+	import json
+	import uuid
+	#from jk_ip import *
+	#import base64
+	from unix_utils import *
+	from stream_official_1119_sw import *
+	from url_merge import *
+	from urllib.parse import unquote as unquote2
+	from mondic import *
+	
+	#from api_auth import *
+}

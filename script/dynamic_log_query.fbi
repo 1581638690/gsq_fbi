@@ -1,0 +1,74 @@
+#LastModifyDate:　2024-06-26T14:55:55    Author:   xzb
+#LastModifyDate:　2024-06-26T14:34:13    Author:   xzb
+#LastModifyDate:　2024-06-26T14:30:28    Author:   xzb
+#LastModifyDate:　2024-06-26T14:28:09    Author:   xzb
+#LastModifyDate:　2024-06-26T14:15:44    Author:   xzb
+#LastModifyDate:　2024-06-26T14:11:47    Author:   xzb
+#LastModifyDate:　2024-06-26T14:04:06    Author:   xzb
+#LastModifyDate:　2024-06-20T16:24:50    Author:   xzb
+#LastModifyDate:　2024-06-20T15:49:05    Author:   xzb
+#LastModifyDate:　2024-06-20T15:46:51    Author:   xzb
+#LastModifyDate:　2024-06-20T11:29:16    Author:   xzb
+
+use @FID
+
+a = load ssdb by ssdb0 with @data_key
+a = @udf a by udf0.df_fillna 
+
+# 应用
+app_name = eval a by param0.values[0]
+# 用户
+user_name = eval a by param1.values[0]
+# 动作
+action = eval a by param2.values[0]
+# 开始时间和结束时间
+time1 = eval a by beginTime.values[0]
+time2 = eval a by endTime.values[0]
+
+
+# 获取数据
+ll = load ssdb by ssdb0 with logList_all
+
+if '$app_name' != '' and '$app_name' != '全部' with """
+	ll = filter ll by 应用名 == '$app_name'
+"""
+
+if '$user_name' != '' and '$user_name' != '全部' with """
+	ll = filter ll by 用户 == '$user_name'
+"""
+
+if '$action' != '' and '$action' != '全部' with """
+	ll = filter ll by 动作行为 == '$action'
+"""
+
+if '$time1' != '' with """
+	time1 = @sdf sys_lambda with ($time1,x:x.replace(' ','T')) 
+	time1 = @sdf sys_lambda with ($time1,x:x + ':00') 
+	ll = filter ll by 时间 >= '$time1'
+"""
+
+if '$time2' != '' with """
+	time2 = @sdf sys_lambda with ($time2,x:x.replace(' ','T')) 
+	time2 = @sdf sys_lambda with ($time2,x:x + ':00') 
+	ll = filter ll by 时间 <= '$time2'
+"""
+# 处理时间,保留到分钟
+alter ll.时间 as str
+ll.时间 = lambda 时间 by (x:x[0:16])
+ll.时间 = lambda 时间 by (x:x.replace('T',' '))
+
+# 防止返回条数过多,限制200条
+ll = order ll by 时间 with desc limit 200
+
+# 设置187插件表格的宽度
+new = @udf udf0.new_df with (时间,用户,应用名,接口事件,动作行为,操作参数,width)
+new = @udf new by udf0.df_append with (170,100,180,220,150,460,td_width)
+new = loc new by width to index
+ll = union new,ll
+ll = loc ll by 时间,用户,应用名,接口事件,动作行为,操作参数
+
+
+push ll as table
+
+
+clear @FID

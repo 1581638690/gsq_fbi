@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.ip</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.ip</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/ip.py">/opt/openfbi/fbi-bin/udf/ip.py</a></td></tr></table>
+    <p><span class="code">和ip处理相关的函数，可以处理&nbsp;ipv4&nbsp;和ipv6</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="ipaddress.html">ipaddress</a><br>
+<a href="json.html">json</a><br>
+<a href="math.html">math</a><br>
+</td><td class="multicolumn"><a href="numpy.html">numpy</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="random.html">random</a><br>
+</td><td class="multicolumn"><a href="re.html">re</a><br>
+<a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-db_conn"><strong>db_conn</strong></a>(server='127.0.0.1', port=8888)</dt><dd><span class="code">###连接ssdb链接</span></dd></dl>
+ <dl><dt><a name="-get_ssdb_data1"><strong>get_ssdb_data1</strong></a>(key)</dt><dd><span class="code">#建立数据链接&nbsp;返回key的字符串</span></dd></dl>
+ <dl><dt><a name="-ip_check"><strong>ip_check</strong></a>(ip, whitelists)</dt><dd><span class="code">#&nbsp;检验ip是否存在</span></dd></dl>
+ <dl><dt><a name="-is_private"><strong>is_private</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180906<br>
+@函数：根据列判断是不是私有地址，会增加is_private列<br>
+@参数：<br>
+列名<br>
+@描述：<br>
+根据列判断是不是私有地址，会增加is_private列<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-net_area"><strong>net_area</strong></a>(df, p='')</dt><dd><span class="code">#入口函数</span></dd></dl>
+ <dl><dt><a name="-net_area1"><strong>net_area1</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-repeat"><strong>repeat</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-subnet16"><strong>subnet16</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180906<br>
+@函数：根据列新增一个所属子网的列(16位)192.168.x.x,10.68.x.x<br>
+@参数：<br>
+列名<br>
+@描述：<br>
+根据列新增一个所属子网的列(16位)192.168.x.x,10.68.x.x<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-subnet24"><strong>subnet24</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180906<br>
+@函数：根据列新增一个所属子网的列(24位)，192.168.0.0,10.68.128.0<br>
+@参数：<br>
+列名<br>
+@描述：<br>
+根据列新增一个所属子网的列(24位)，192.168.0.0,10.68.128.0<br>
+@返回：<br>
+df表</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>etree</strong> = None<br>
+<strong>fbi_global</strong> = &lt;avenger.fglobals.FbiGlobal object&gt;<br>
+<strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>nan</strong> = nan</td></tr></table>
+</body></html>

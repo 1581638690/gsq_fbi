@@ -1,0 +1,11 @@
+#FBI脚本文件
+#文件名: bpf_config.fbi
+#作者: superFBI
+
+#保存配置文件
+a = load ssdb by ssdb0 with @data_key
+store a to ssdb with  znsm:BPF:config
+
+#生成配置文件
+s = @udf a by ZNSM.build_bpf_file
+assert find_df('s',ptree) as altert to 保存成功 with 保存失败！

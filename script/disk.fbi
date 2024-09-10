@@ -1,0 +1,26 @@
+use @FID
+disk = load ssdb by ssdb0 with @data_key
+#获取网卡IP
+ip = @udf SH.network_cards2
+ip.address = lambda address by (x:str(x).replace("\'","").replace("[","").replace("]","").split('/')[0])
+ip = eval ip by iloc[0,1]
+#store disk to ssdb by ssdb0 with disk
+disk = eval disk by iloc[0,3]
+b,b1=@udf getHostInfo.sshComment with '$ip|22|df'
+b.total = str total by ( replace('%','' ) )
+total = eval b by loc[0,'total']
+disk = add disk_new by ('$total')
+store disk to ssdb by ssdb0 with disk
+pd = @sdf sys_eval with ($total>=$disk or $total>80)
+c = @sdf sys_if_run with ($pd, """
+    date = @sdf sys_now
+    date = @sdf format_now with ($date,"%Y-%m-%d %H:%M:%S")
+    disk = @udf udf0.new_df with (date,nowrate,thresholdrate)
+    disk = @udf disk by udf0.df_append with ($date,$total,$disk)
+    store disk to es by es7 with disk.noid
+
+    curl = @udf getHostInfo.udc with $ip|22|curl -u elastic:HW3KWy2dK5EWMwNTftAY -H "Content-Type: application/json" -XPOST http://$ip:9200/_cache/clear|root
+    #curl = @udf getHostInfo.udc with 192.168.1.175|22|curl -u elastic:HW3KWy2dK5EWMwNTftAY -H "Content-Type: application/json" -XDELETE http://127.0.0.1:9200/xie3|root
+""")
+assert find_df('curl',ptree) as altert to 清理成功 with 未达到所设阈值,暂不清理！
+clear @FID

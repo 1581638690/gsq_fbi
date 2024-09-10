@@ -1,0 +1,424 @@
+#LastModifyDate:　2024-03-04T15:34:14    Author:   pjb
+#LastModifyDate:　2023-11-29T17:00:15.285910    Author:   pjb
+#LastModifyDate:　2023-11-27T14:46:57.355406    Author:   chw
+#LastModifyDate:　2023-11-24T16:32:42.334135    Author:   sgy
+#LastModifyDate:　2023-11-24T16:06:03.511415    Author:   chw
+#LastModifyDate:　2023-11-24T16:00:00.637655    Author:   chw
+#LastModifyDate:　2023-11-24T15:58:15.201642    Author:   sgy
+#LastModifyDate:　2023-11-24T15:56:05.876464    Author:   sgy
+#LastModifyDate:　2023-11-24T15:44:52.633175    Author:   chw
+#LastModifyDate:　2023-11-24T15:36:52.782955    Author:   pjb
+#LastModifyDate:　2023-11-24T15:27:38.961412    Author:   pjb
+
+#Delete 注释 by superFBI on 2023-10-30 18:13:06
+#a= @udf SSDB.hclear with FF:dbms
+#a= @udf SSDB.hclear with FF:dbms_user
+#s = @udf RS.exec_mysql_sql with (mysql1,truncate table dbms_obj)
+#s = @udf RS.exec_mysql_sql with (mysql1,truncate table dbms_user)
+#s = @udf RS.exec_mysql_sql with (mysql1,truncate table dbms_sql)
+#store s to pkl by dbms_sql.pkl
+#dbms_sql = load pkl by dbms_sql.pkl
+
+#s = load ckh by ckh with TRUNCATE TABLE dbms
+
+#构建唯一工作区，处理并发
+use @FID
+
+
+#更新数据库对象last_time数据
+dbms_time = load ckh by ckh with SELECT CONCAT(dest_ip, ':', cast(dest_port as String)) AS dbms_obj,max(timestamp) AS last_time FROM dbms group by dbms_obj
+alter dbms_time.last_time as str
+dbms_obj = load db by mysql1 with select id,dbms_obj from dbms_obj
+last_time_data = join dbms_time,dbms_obj by dbms_obj,dbms_obj
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,dbms_obj)
+
+#数据库账号最后访问时间
+dbms = load ckh by ckh with select dest_ip,dest_port,user,max(timestamp) as timestamp from dbms where user !='' group by dest_ip,dest_port,user
+alter dbms.dest_port as str
+dbms = add dbms_obj by dbms["dest_ip"] + ":" + dbms["dest_port"]
+dbms = loc dbms by user,dbms_obj,timestamp
+dbms_user = load db by mysql1 with select dbms_obj,user,id from dbms_user
+dbms = join dbms_user,dbms by [dbms_obj,user],[dbms_obj,user] with left
+dbms = @udf dbms by udf0.df_fillna with 0
+dbms = order dbms by timestamp with desc
+dbms = distinct dbms by dbms_obj,user
+dbms = order dbms by id with asc
+rename dbms as ("timestamp":"last_time")
+alter dbms.last_time as str
+dbms = loc dbms by id,last_time
+dbms = @udf dbms by udf0.df_set_index with id
+dbms = @udf dbms by CRUD.save_table with (mysql1,dbms_user)
+dbms = load ckh by ckh with show create table dbms
+# 数据库
+# 账号终端数量
+dbms = load ckh by ckh with select distinct CONCAT(dest_ip, ':', cast(dest_port as String)) AS dbms_obj,src_ip src from dbms where src_ip != '127.0.0.1'
+dbms = group dbms by dbms_obj agg src:count
+dbms = @udf dbms by udf0.df_reset_index
+a = load db by mysql1 with select dbms_obj,id from dbms_obj
+dbms = join a,dbms by dbms_obj,dbms_obj with left
+dbms = @udf dbms by udf0.df_fillna with 0
+dbms = loc dbms by id,src_count
+dbms = @udf dbms by udf0.df_set_index with id
+dbms = @udf dbms by CRUD.save_table with (mysql1,dbms_obj)
+#dbms = load ckh by ckh with select distinct CONCAT(dest_ip, ':', cast(dest_port as String)) AS dbms_obj,user from dbms where user !=''
+dbms = load db by mysql1 with select dbms_obj,user from dbms_user where user !=''
+dbms = group dbms by dbms_obj agg user:count
+dbms = @udf dbms by udf0.df_reset_index
+a = load db by mysql1 with select dbms_obj,id from dbms_obj
+dbms = join a,dbms by dbms_obj,dbms_obj with left
+dbms = @udf dbms by udf0.df_fillna with 0
+dbms = loc dbms by id,user_count
+dbms = @udf dbms by udf0.df_set_index with id
+dbms = @udf dbms by CRUD.save_table with (mysql1,dbms_obj)
+#访问数量
+dbms = load ckh by ckh with select dest_ip,dest_port,count() count from dbms group by dest_ip,dest_port
+alter dbms.dest_port as str
+dbms = add dbms_obj by dbms["dest_ip"] + ":" + dbms["dest_port"]
+dbms = loc dbms by dbms_obj,count
+a = load db by mysql1 with select dbms_obj,id from dbms_obj
+dbms = join a,dbms by dbms_obj,dbms_obj with left
+dbms = @udf dbms by udf0.df_fillna with 0
+alter dbms.count as int
+dbms = loc dbms by id,count
+dbms = @udf dbms by udf0.df_set_index with id
+dbms = @udf dbms by CRUD.save_table with (mysql1,dbms_obj)
+# 账号
+dbms = load ckh by ckh with select dest_ip,dest_port,user,count() count from dbms where user !='' group by dest_ip,dest_port,user
+alter dbms.dest_port as str
+dbms = add dbms_obj by dbms["dest_ip"] + ":" + dbms["dest_port"]
+dbms = loc dbms by dbms_obj,user,count
+a = load db by mysql1 with select dbms_obj,user,id from dbms_user
+dbms = join a,dbms by [dbms_obj,user],[dbms_obj,user] with left
+dbms = @udf dbms by udf0.df_fillna with 0
+alter dbms.count as int
+dbms = loc dbms by id,count
+dbms = @udf dbms by udf0.df_set_index with id
+dbms = @udf dbms by CRUD.save_table with (mysql1,dbms_user)
+# sql指纹
+dbms = load ckh by ckh with select sql dbms_sql,count() count from dbms where cmd =='query' group by sql
+a = load db by mysql1 with select dbms_sql,id from dbms_sql
+dbms = join a,dbms by dbms_sql,dbms_sql with left
+dbms = @udf dbms by udf0.df_fillna with 0
+alter dbms.count as int
+dbms = loc dbms by id,count
+dbms = @udf dbms by udf0.df_set_index with id
+dbms = @udf dbms by CRUD.save_table with (mysql1,dbms_sql)
+#数据库版本信息
+dbms = load ckh by ckh with select distinct dest_ip,dest_port,req,resp,db_type from dbms where cmd = 'version'
+dbms = @udf dbms by udf0.df_row_lambda with x: x["req"] if x["req"] != ''  else x["resp"]
+alter dbms.dest_port as str
+dbms = add dbms_obj by dbms["dest_ip"] + ":" + dbms["dest_port"]
+dbms = loc dbms by dbms_obj,lambda1,db_type
+rename dbms as ("lambda1":"version")
+a = load db by mysql1 with select dbms_obj,id from dbms_obj where version =''
+dbms = join a,dbms by dbms_obj,dbms_obj with left
+dbms = @udf dbms by udf0.df_fillna with ''
+dbms = filter dbms by db_type !=''
+dbms = loc dbms by id,version,db_type
+dbms = @udf dbms by udf0.df_set_index with id
+dbms = @udf dbms by CRUD.save_table with (mysql1,dbms_obj)
+###################################################
+# 数据库账号对象敏感等级，敏感标签，文件对象
+sens = load pq by sensitive/sens_dbms.pq
+alter sens.dest_port as str
+sens = add dest_ip by sens["dest_ip"] +':'+ sens["dest_port"]
+# 更新数据库对象请求敏感标签
+sens1 = filter sens by total_type == 'Sql语句'
+sens1 = loc sens1 by dest_ip,user,key
+sens1 = distinct sens1 by dest_ip,user,key
+sens1.key = str key by (replace('身份证','0'))
+sens1.key = str key by (replace('手机号','1'))
+sens1.key = str key by (replace('邮箱','2'))
+sens1.key = str key by (replace('地址','3'))
+sens1.key = str key by (replace('婚姻状况','4'))
+sens1.key = str key by (replace('宗教信仰','5'))
+sens1.key = str key by (replace('发票代码','6'))
+sens1.key = str key by (replace('纳税人识别号或社会统一信用代码','7'))
+sens1.key = str key by (replace('纳税人名称或公司名称','8'))
+sens1.key = str key by (replace('银行卡号','9'))
+sens1.key = str key by (replace('收入','10'))
+sens1.key = str key by (replace('姓名','11'))
+#对sens1进行去重
+sens1 = filter sens1 by key !="发票号码"
+#根据url列 将key值 替换到 req_label
+sens1 = add key by (sens1.key+',')
+sens2 = group sens1 by dest_ip,user agg key:sum
+sens2.key_sum = lambda key_sum by x:x.split(",")[0:-1]
+alter sens2.key_sum as str
+sens2.key_sum = lambda key_sum by x:x.replace("'",'"')
+sens2 = @udf sens2 by udf0.df_reset_index
+rename sens2 as ("key_sum":"req_label")
+dbms_user = load db by mysql1 with select id,dbms_obj,user from dbms_user 
+sens2 = join dbms_user,sens2 by [dbms_obj,user],[dest_ip,user]
+sens2 = loc sens2 by id,req_label
+sens2 = @udf sens2 by udf0.df_set_index with id
+sens2 = @udf sens2 by CRUD.save_table with (mysql1,dbms_user)
+
+#
+dbms = load db by mysql1 with select id,dbms_obj from dbms_obj 
+sens1 = group sens1 by dest_ip agg key:sum
+sens1.key_sum = lambda key_sum by x:x.split(",")[0:-1]
+alter sens1.key_sum as str
+sens1.key_sum = lambda key_sum by x:x.replace("'",'"')
+sens1 = @udf sens1 by udf0.df_reset_index
+rename sens1 as ("key_sum":"req_label")
+#将sens1与api1进行联合
+sens1 = join dbms,sens1 by dbms_obj,dest_ip
+sens1 = loc sens1 by id,req_label
+sens1 = @udf sens1 by udf0.df_set_index with id
+sens1 = @udf sens1 by CRUD.save_table with (mysql1,dbms_obj)
+
+
+#数据库对象请求标签数量
+sens3 = load load pq by sensitive/sens_dbms.pq
+alter sens3.dest_port as str
+sens3 = add dest_ip by sens3["dest_ip"] +':'+ sens3["dest_port"]
+# 更新数据库对象请求敏感标签
+sens4 = filter sens3 by total_type == 'Sql语句'
+sens4 = loc sens4 by dest_ip,key,num
+sens4 = distinct sens4 by dest_ip,key,num
+#sens4
+sens4 = filter sens4 by key !="发票号码"
+sens4 = group sens4 by dest_ip,key agg num:sum
+sens4 = @udf sens4 by udf0.df_reset_index
+alter sens4.num_sum as str
+sens4 = add key_count by (sens4["key"]+"("+sens4["num_sum"]+")")
+sens4 = add key_count1 by (sens4.key_count+',')
+sens4 = loc sens4 by dest_ip,key_count1
+sens5 = group sens4 by dest_ip agg key_count1:sum
+sens5 = @udf sens5 by udf0.df_reset_index
+dbms_obj = load db by mysql1 with select id,dbms_obj from dbms_obj
+sens5 = join dbms_obj,sens5 by dbms_obj,dest_ip
+sens5 = loc sens5 by id,key_count1_sum
+rename sens5 as ("key_count1_sum":"req_label_count")
+sens5 = @udf sens5 by udf0.df_set_index with id
+sens5.req_label_count = lambda  req_label_count by (x:x[:-1])
+sens5 = @udf sens5 by CRUD.save_table with (mysql1,dbms_obj)
+#数据库账号请求标签数量
+sens_0 = filter sens by total_type == 'Sql语句'
+sens_0 = loc sens_0 by dest_ip,user,key,num
+sens_0 = distinct sens_0 by dest_ip,user,key,num
+#对sens1进行去重
+sens_0 = filter sens_0 by key !="发票号码"
+alter sens_0.num as int
+#根据列 计算count，且显示请求标签
+sens_1 = group sens_0 by dest_ip,user,key agg num:sum
+sens_1 = @udf sens_1 by udf0.df_reset_index
+alter sens_1.num_sum as str
+sens_1 = add key by (sens_1.key+'('+sens_1.num_sum+')')
+alter sens_1.num_sum as str
+sens_1 = add key by (sens_1.key+',')
+sens_1 = group sens_1 by dest_ip,user agg key:sum
+sens_1.key_sum = lambda key_sum by (x:x[0:-1])
+rename sens_1 as ("key_sum":"req_label_count")
+dbms_user = load db by mysql1 with select id,dbms_obj,user from dbms_user 
+sens_1 = join dbms_user,sens_1 by [dbms_obj,user],[dest_ip,user]
+sens_1 = loc sens_1 by id,req_label_count
+sens_1 = @udf sens_1 by udf0.df_set_index with id
+sens_1 = @udf sens_1 by CRUD.save_table with (mysql1,dbms_user)
+
+
+
+# 更新数据库对象响应敏感标签
+sens1 = filter sens by total_type == 'Msg值'
+sens1 = loc sens1 by dest_ip,user,key
+sens1 = distinct sens1 by dest_ip,user,key
+sens1.key = str key by (replace('身份证','0'))
+sens1.key = str key by (replace('手机号','1'))
+sens1.key = str key by (replace('邮箱','2'))
+sens1.key = str key by (replace('地址','3'))
+sens1.key = str key by (replace('婚姻状况','4'))
+sens1.key = str key by (replace('宗教信仰','5'))
+sens1.key = str key by (replace('发票代码','6'))
+sens1.key = str key by (replace('纳税人识别号或社会统一信用代码','7'))
+sens1.key = str key by (replace('纳税人名称或公司名称','8'))
+sens1.key = str key by (replace('银行卡号','9'))
+sens1.key = str key by (replace('收入','10'))
+sens1.key = str key by (replace('姓名','11'))
+#对sens1进行去重
+sens1 = filter sens1 by key !="发票号码"
+#根据url列 将key值 替换到 req_label
+sens1 = add key by (sens1.key+',')
+sens2 = group sens1 by dest_ip,user agg key:sum
+sens2.key_sum = lambda key_sum by x:x.split(",")[0:-1]
+alter sens2.key_sum as str
+sens2.key_sum = lambda key_sum by x:x.replace("'",'"')
+sens2 = @udf sens2 by udf0.df_reset_index
+rename sens2 as ("key_sum":"res_llabel")
+dbms_user = load db by mysql1 with select id,dbms_obj,user from dbms_user 
+sens2 = join dbms_user,sens2 by [dbms_obj,user],[dest_ip,user]
+sens2 = loc sens2 by id,res_llabel
+sens2 = @udf sens2 by udf0.df_set_index with id
+sens2 = @udf sens2 by CRUD.save_table with (mysql1,dbms_user)
+
+#
+sens1 = group sens1 by dest_ip agg key:sum
+sens1.key_sum = lambda key_sum by x:x.split(",")[0:-1]
+alter sens1.key_sum as str
+sens1.key_sum = lambda key_sum by x:x.replace("'",'"')
+sens1 = @udf sens1 by udf0.df_reset_index
+#将sens1与api1进行联合
+rename sens1 as ("key_sum":"res_llabel")
+dbms = load db by mysql1 with select id,dbms_obj from dbms_obj 
+sens1 = join dbms,sens1 by dbms_obj,dest_ip
+sens1 = loc sens1 by id,res_llabel
+sens1 = @udf sens1 by udf0.df_set_index with id
+sens1 = @udf sens1 by CRUD.save_table with (mysql1,dbms_obj)
+
+
+#更新数据库对象响应标签数量
+sens3 = load pq by sensitive/sens_dbms.pq
+alter sens3.dest_port as str
+sens3 = add dest_ip by sens3["dest_ip"] +':'+ sens3["dest_port"]
+sens4 = filter sens3 by total_type == 'Msg值'
+sens4 = loc sens4 by dest_ip,key,num
+sens4 = distinct sens4 by dest_ip,key,num
+#sens4
+sens4 = filter sens4 by key !="发票号码"
+sens4 = group sens4 by dest_ip,key agg num:sum
+sens4 = @udf sens4 by udf0.df_reset_index
+alter sens4.num_sum as str
+sens4 = add key_count by (sens4["key"]+"("+sens4["num_sum"]+")")
+sens4 = add key_count1 by (sens4.key_count+',')
+sens4 = loc sens4 by dest_ip,key_count1
+sens5 = group sens4 by dest_ip agg key_count1:sum
+sens5 = @udf sens5 by udf0.df_reset_index
+dbms_obj = load db by mysql1 with select id,dbms_obj from dbms_obj
+sens5 = join dbms_obj,sens5 by dbms_obj,dest_ip
+sens5 = loc sens5 by id,key_count1_sum
+rename sens5 as ("key_count1_sum":"res_llabel_count")
+sens5 = @udf sens5 by udf0.df_set_index with id
+sens5.res_llabel_count = lambda  res_llabel_count by (x:x[:-1])
+sens5 = @udf sens5 by CRUD.save_table with (mysql1,dbms_obj)
+#数据库账号返回标签数量
+sens_0 = filter sens by total_type == 'Msg值'
+sens_0 = loc sens_0 by dest_ip,user,key,num
+sens_0 = distinct sens_0 by dest_ip,user,key,num
+#对sens1进行去重
+sens_0 = filter sens_0 by key !="发票号码"
+alter sens_0.num as int
+#根据列 计算count，且显示请求标签
+sens_1 = group sens_0 by dest_ip,user,key agg num:sum
+sens_1 = @udf sens_1 by udf0.df_reset_index
+alter sens_1.num_sum as str
+sens_1 = add key by (sens_1.key+'('+sens_1.num_sum+')')
+alter sens_1.num_sum as str
+sens_1 = add key by (sens_1.key+',')
+sens_1 = group sens_1 by dest_ip,user agg key:sum
+sens_1.key_sum = lambda key_sum by (x:x[0:-1])
+rename sens_1 as ("key_sum":"res_llabel_count")
+dbms_user = load db by mysql1 with select id,dbms_obj,user from dbms_user 
+sens_1 = join dbms_user,sens_1 by [dbms_obj,user],[dest_ip,user]
+sens_1 = loc sens_1 by id,res_llabel_count
+sens_1 = @udf sens_1 by udf0.df_set_index with id
+sens_1 = @udf sens_1 by CRUD.save_table with (mysql1,dbms_user)
+
+#####更新数据库是否敏感
+#senapi = load ckh by ckh with select distinct url_c as url from sensitive_data
+# 获取等级
+sen_level = load ssdb by ssdb0 with sensitive as json
+sen_level = @udf sen_level by FBI.json2df
+alter sen_level.data as str
+sen_level.sensitive_label = str data by (findall("level': '(.*?)'"))
+sen_level.key = str data by (findall("rekey': '(.*?)',"))
+sen_level = @udf sen_level by udf0.df_drop_col with data
+alter sen_level.key as str
+alter sen_level.sensitive_label as str
+sen_level.key = lambda key by (x:x[2:-2])
+sen_level.sensitive_label = lambda sensitive_label by (x:x[2:-2])
+# join更新 数据库对象
+sen_dbms = loc sens by dest_ip,key
+sen_dbms = join sen_dbms,sen_level by key,key with left
+sen_dbms = @udf sen_dbms by udf0.df_fillna
+sen_dbms = filter sen_dbms by sensitive_label != ""
+sen_dbms = @udf sen_dbms by udf0.df_drop_col with key
+sen_dbms = distinct sen_dbms by dest_ip,sensitive_label
+alter sen_dbms.sensitive_label as str
+sen_dbms.sensitive_label = lambda sensitive_label by x:x + ',' if x != "" else x
+sen_dbms = group sen_dbms by dest_ip agg sensitive_label:sum
+sen_dbms = @udf sen_dbms by udf0.df_reset_index
+rename sen_dbms as ("sensitive_label_sum":"sensitive_label")
+sen_dbms.sensitive_label = lambda sensitive_label by x:'3' if '3' in x else x
+sen_dbms.sensitive_label = lambda sensitive_label by x:'2' if '2' in x else x
+sen_dbms.sensitive_label = lambda sensitive_label by x:'1' if '1' in x else x
+dbms_obj = load db by mysql1 with select dbms_obj,id from dbms_obj
+dbms_obj = join dbms_obj,sen_dbms by dbms_obj,dest_ip 
+dbms_obj = @udf dbms_obj by udf0.df_set_index with id
+dbms_obj = loc dbms_obj by sensitive_label
+dbms_obj = @udf dbms_obj by CRUD.save_table with (mysql1,dbms_obj)
+# join更新 数据库账号
+sen_dbms = loc sens by dest_ip,user,key
+sen_dbms = join sen_dbms,sen_level by key,key with left
+sen_dbms = @udf sen_dbms by udf0.df_fillna
+sen_dbms = filter sen_dbms by sensitive_label != ""
+sen_dbms = @udf sen_dbms by udf0.df_drop_col with key
+sen_dbms = distinct sen_dbms by dest_ip,user,sensitive_label
+alter sen_dbms.sensitive_label as str
+sen_dbms.sensitive_label = lambda sensitive_label by x:x + ',' if x != "" else x
+sen_dbms = group sen_dbms by dest_ip,user agg sensitive_label:sum
+sen_dbms = @udf sen_dbms by udf0.df_reset_index
+rename sen_dbms as ("sensitive_label_sum":"sensitive_label")
+sen_dbms.sensitive_label = lambda sensitive_label by x:'3' if '3' in x else x
+sen_dbms.sensitive_label = lambda sensitive_label by x:'2' if '2' in x else x
+sen_dbms.sensitive_label = lambda sensitive_label by x:'1' if '1' in x else x
+dbms_obj = load db by mysql1 with select dbms_obj,user,id from dbms_user
+dbms_obj = join dbms_obj,sen_dbms by [dbms_obj,user],[dest_ip,user]
+dbms_obj = @udf dbms_obj by udf0.df_set_index with id
+dbms_obj = loc dbms_obj by sensitive_label
+dbms_obj = @udf dbms_obj by CRUD.save_table with (mysql1,dbms_user)
+# 文件敏感数据、等级
+file = load ckh by ckh with select distinct sha256 md5,rekey key from datafilter
+fileinfo = distinct file by md5,key
+fileinfo.key = str key by (replace('身份证','0'))
+fileinfo.key = str key by (replace('手机号','1'))
+fileinfo.key = str key by (replace('邮箱','2'))
+fileinfo.key = str key by (replace('地址','3'))
+fileinfo.key = str key by (replace('婚姻状况','4'))
+fileinfo.key = str key by (replace('宗教信仰','5'))
+fileinfo.key = str key by (replace('发票代码','6'))
+fileinfo.key = str key by (replace('纳税人识别号或社会统一信用代码','7'))
+fileinfo.key = str key by (replace('纳税人名称或公司名称','8'))
+fileinfo.key = str key by (replace('银行卡号','9'))
+fileinfo.key = str key by (replace('收入','10'))
+fileinfo.key = str key by (replace('姓名','11'))
+#对sens1进行去重
+fileinfo = filter fileinfo by key !="发票号码"
+#根据url列 将key值 替换到 req_label
+fileinfo = add key by (fileinfo.key+',')
+fileinfo = group fileinfo by md5 agg key:sum
+fileinfo.key_sum = lambda key_sum by x:x.split(",")[0:-1]
+alter fileinfo.key_sum as str
+fileinfo.key_sum = lambda key_sum by x:x.replace("'",'"')
+fileinfo = @udf fileinfo by udf0.df_reset_index
+rename fileinfo as ("key_sum":"sen_label")
+file_obj = load db by mysql1 with select md5,id from fileinfo
+file_obj = join file_obj,fileinfo by md5,md5
+file_obj = loc file_obj by id,sen_label
+file_obj = @udf file_obj by udf0.df_set_index with id
+file_obj = @udf file_obj by CRUD.save_table with (mysql1,fileinfo)
+# 文件敏感等级
+file_level = distinct file by md5,key
+sen_file = join file_level,sen_level by key,key with left
+sen_file = @udf sen_file by udf0.df_fillna
+sen_file = filter sen_file by sensitive_label != ""
+sen_file = @udf sen_file by udf0.df_drop_col with key
+sen_file = distinct sen_file by md5,sensitive_label
+alter sen_file.sensitive_label as str
+sen_file.sensitive_label = lambda sensitive_label by x:x + ',' if x != "" else x
+sen_file = group sen_file by md5 agg sensitive_label:sum
+sen_file = @udf sen_file by udf0.df_reset_index
+rename sen_file as ("sensitive_label_sum":"sensitive_label")
+sen_file.sensitive_label = lambda sensitive_label by x:'3' if '3' in x else x
+sen_file.sensitive_label = lambda sensitive_label by x:'2' if '2' in x else x
+sen_file.sensitive_label = lambda sensitive_label by x:'1' if '1' in x else x
+fileinfo = load db by mysql1 with select md5,id from fileinfo
+fileinfo = join fileinfo,sen_file by md5,md5
+fileinfo = @udf fileinfo by udf0.df_set_index with id
+fileinfo = loc fileinfo by sensitive_label
+fileinfo = @udf fileinfo by CRUD.save_table with (mysql1,fileinfo)
+
+clear @FID
+
+
+

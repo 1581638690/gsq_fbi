@@ -1,0 +1,71 @@
+#LastModifyDate:　2024-01-15T10:36:42    Author:   pjb
+#LastModifyDate:　2023-08-07T17:05:49.518465    Author:   zwl
+#LastModifyDate:　2023-06-12T14:58:00.484157    Author:   zwl
+#LastModifyDate:　2023-05-16T10:31:06.533765    Author:   zwl
+#LastModifyDate:　2023-05-15T10:57:54.593348    Author:   zwl
+#LastModifyDate:　2023-04-21T11:11:12.350340    Author:   zwl
+#LastModifyDate:　2023-04-12T17:37:48.049548    Author:   zwl
+#LastModifyDate:　2023-03-01T17:52:05.352048    Author:   zwl1
+#FBI脚本文件
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+
+#获取表单中的条件信息
+a = load ssdb by ssdb0 with @data_key
+aa = eval a by index.size
+###过滤分组条件  
+##判断条件信息的最后一条是否为 visits_num ，若不是重新判断取值,取到数第二个索引进行判断   
+num1 = @sdf sys_eval with ($aa - 1)
+tt1 = eval a by iloc[$num1,0]
+ss1 = if '$tt1' == 'visits_num' or '$tt1' == '' with a = filter a by index <= $num1
+if '$ss1' == 'False' with num2 = @sdf sys_eval with ($aa - 2)
+if '$ss1' == 'False' with tt2 = eval a by iloc[$num2,0]
+ss2 = if '$tt2' == 'visits_num' or '$tt2' == ''  with a = filter a by index <= $num2
+if '$ss2' == 'False' and '$ss1' == 'False' with num3 = @sdf sys_eval with ($aa - 3)
+if '$ss2' == 'False' and '$ss1' == 'False' with tt3 = eval a by iloc[$num3,0]
+ss3 = if '$tt3' == 'visits_num' or '$tt3' == ''  with a = filter a by index <= $num3
+###分组查询
+d = load ssdb by ssdb0 with @group_count
+dd = eval d by index.size
+
+#保存
+##无分组条件
+if $dd == 0 with b,c = @udf a by CRUD.query_mtable with (@link,@table,data_type in ('XML','JSON','数据文件'))
+##1条分组条件
+if $dd == 1 with """
+d1 = eval d by iloc[0,0]
+b,c = @udf a by CRUD.query_mtable with (@link,@table,data_type in ('XML','JSON','数据文件') and $d1)
+""" 
+##2条分组条件
+if $dd == 2 with """
+d1 = eval d by iloc[0,0]
+d2 = eval d by iloc[1,0]
+b,c = @udf a by CRUD.query_mtable with (@link,@table,data_type in ('XML','JSON','数据文件') and $d1 and $d2) 
+""" 
+##3条分组条件
+if $dd == 3 with """
+d1 = eval d by iloc[0,0]
+d2 = eval d by iloc[1,0]
+d3 = eval d by iloc[2,0]
+b,c = @udf a by CRUD.query_mtable with (@link,@table,data_type in ('XML','JSON','数据文件') and $d1 and $d2 and $d3) 
+""" 
+
+alter b.portrait_status.api_status as str
+b = add btn_show by (b['portrait_status']+','+b['api_status'])
+b.btn_show = lambda btn_show by (x: '1,1,1,0,1,0,1' if x == '0,0'  else x)
+b.btn_show = lambda btn_show by (x: '1,1,1,0,0,1,1' if x == '0,1'  else x)
+b.btn_show = lambda btn_show by (x: '1,1,0,1,1,0,1' if x == '1,0'  else x)
+b.btn_show = lambda btn_show by (x: '1,1,0,1,0,1,1' if x == '1,1'  else x)
+
+assert find_df('b',ptree) as  alert with 数据查询失败！
+
+push b as table
+push c as count
+#清除工作区
+clear @FID

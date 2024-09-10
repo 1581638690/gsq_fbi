@@ -1,0 +1,12 @@
+#LastModifyDate:　2024-03-14T16:47:01    Author:   zwl
+#LastModifyDate:　2023-08-23T17:02:52.920387    Author:   zwl
+#LastModifyDate:　2023-03-15T15:26:17.651202    Author:   zwl
+#LastModifyDate:　2023-02-08T13:42:56.986917    Author:   zwl
+use @FID
+
+b = load pq by dt_table/visit_app.pq
+b = filter b by _id == @_id
+rename b as ("app":"应用IP/域名","url":"接口","dest_ip":"目的IP","src_ip":"源IP","account":"账号")
+push b as look
+
+clear @FID

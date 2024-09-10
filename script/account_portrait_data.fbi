@@ -1,0 +1,68 @@
+#LastModifyDate:　2023-12-01T14:49:00.785545    Author:   zwl
+#LastModifyDate:　2023-08-23T17:07:59.018289    Author:   zwl
+#LastModifyDate:　2023-06-20T18:26:25.568013    Author:   zwl
+#LastModifyDate:　2023-04-14T10:42:30.298866    Author:   zwl
+#LastModifyDate:　2023-03-22T10:25:40.871264    Author:   zwl
+#LastModifyDate:　2022-12-15T18:36:53.995101    Author:   zwl
+#LastModifyDate:　2022-12-14T14:31:38.399250    Author:   zwl
+#LastModifyDate:　2022-12-03T09:46:35.326107    Author:   zwl
+#LastModifyDate:　2022-12-02T14:44:20.616357    Author:   zwl
+#LastModifyDate:　2022-12-01T17:44:50.385319    Author:   zwl
+#LastModifyDate:　2022-11-02T15:22:38.900411    Author:   pjb
+use @FID
+
+s = load db by mysql1 with select visit_num,visit_flow,api_num,ip_num,app_num,flag,firsttime,portrait_time from data_account_new where account = '@account'
+s = filter s by flag == '@account'
+s = @udf s by udf0.df_fillna
+s.firsttime = str firsttime by [0:19]
+s.firsttime = str firsttime by (replace('T',' '))
+s.portrait_time = str portrait_time by [0:19]
+s.portrait_time = str portrait_time by (replace('T',' '))
+s = loc s by visit_num,visit_flow,api_num,ip_num,app_num,flag,firsttime,portrait_time
+##增加判断  精确流量信息
+v_flow = eval s by iloc[0,1]
+aa = @sdf sys_eval with 0 <= $v_flow < 1024
+bb = @sdf sys_eval with 1024 <= $v_flow < 1048576
+cc = @sdf sys_eval with 1048576 <= $v_flow < 1073741824
+dd = @sdf sys_eval with 1073741824 <= $v_flow 
+aa = @sdf sys_if_run with ($aa,"s = add 1 by ('(B)')")
+bb = @sdf sys_if_run with ($bb,"s.visit_flow = lambda visit_flow by (x:round(x/1024,2))")
+bb = @sdf sys_if_run with ($bb,"s = add 1 by ('(KB)')")
+cc = @sdf sys_if_run with ($cc,"s.visit_flow = lambda visit_flow by (x:round(x/1024/1024,2))")
+cc = @sdf sys_if_run with ($cc,"s = add 1 by ('(M)')")
+dd = @sdf sys_if_run with ($dd,"s.visit_flow = lambda visit_flow by (x:round(x/1024/1024/1024,2))")
+dd = @sdf sys_if_run with ($dd,"s = add 1 by ('(G)')")
+#alter s.visit_flow as int
+alter s.visit_flow as str
+s = add visit_flow by s["visit_flow"]+s["1"]
+s = loc s drop 1
+alter s.flag as str
+s.flag = str flag by (replace("None","无"))
+alter s.visit_num as str
+alter s.api_num as str
+alter s.ip_num as str
+alter s.app_num as str
+rename s by ("visit_num":"访问量","visit_flow":"访问流量","api_num":"接口数量","ip_num":"访问IP数量","app_num":"访问应用数量","flag":"标签","portrait_time":"画像访问时间","firsttime":"首次发现时间")
+#2022-04-06 修改画像管理-账号概览，添加新表zts_s1到zts_s8
+#Delete 注释 by superFBI on 2022-06-16 16:29:16
+#zts_s1 = loc s by 访问数量
+#store zts_s1 to ssdb with acc:@account:profile_s1
+#Delete 注释 by zhangtianshun on 2022-04-06 09:20:15
+##2022-4-1 修改账号画像 使用zts_s表
+#zts_s = loc s by 访问应用数量,访问流量(K),接口数量,访问IP数量
+s = @udf s by udf0.df_T
+s = loc s by index to name
+#s = @udf s by udf0.df_reset_index
+rename s as (0:'value')
+s = add icon by ('F396','F352','F307','F146','F019','F298','F306','F150')
+#s = add pageid by ('','','modeling:api_new','','modeling:app_new','','','')
+s = loc s by name,value,icon
+store s to ssdb with acc:@account:profile
+
+###账号名称
+t = load db by mysql1 with select account from data_account_new where account = '@account'
+name = loc t by account
+rename name as ("account":"账号名")
+store name to ssdb with acc:@account:name
+
+clear @FID

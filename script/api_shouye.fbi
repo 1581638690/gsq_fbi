@@ -1,0 +1,365 @@
+#LastModifyDate:　2024-01-17T16:37:30    Author:   zwl
+#LastModifyDate:　2023-08-01T16:45:44.138870    Author:   zwl
+#LastModifyDate:　2023-07-26T11:28:09.698339    Author:   zwl
+#LastModifyDate:　2023-07-17T14:05:59.297502    Author:   zwl
+#LastModifyDate:　2023-06-07T17:21:40.354996    Author:   zwl
+#LastModifyDate:　2023-05-11T10:12:02.791858    Author:   zwl
+#LastModifyDate:　2023-05-10T10:54:16.764776    Author:   zwl
+#LastModifyDate:　2023-05-06T14:47:44.309387    Author:   zwl
+#LastModifyDate:　2023-03-21T15:39:45.090685    Author:   zwl
+#LastModifyDate:　2023-02-16T19:04:07.340581    Author:   zwl
+#LastModifyDate:　2023-02-10T15:58:17.619308    Author:   zwl
+
+use @FID
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_httpdata limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+#################天#######################天########################天#######################天####################天#################天################天####################天########（今天）
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d 00:00:00")
+#总访问次数
+visit1 = load ckh by ckh with select sum(visit_num) as visit_count,sum(visit_flow) as flow,left(toString(min(time)),19) as min_time,left(toString(max(time)),19) as max_time from api_visit_hour where time >= toDateTime('$day')
+if visit1.index.size == 0 with visit1 = @udf visit1 by udf0.df_append with (0,0,,)
+alter visit1 by visit_count:int,flow:int,min_time:str,max_time:str
+max_visit1 = loc visit1 by min_time,visit_count,flow
+rename max_visit1 as ('min_time':'day')
+max_visit1.day = str day by (slice(0,10))
+t_visit1 = loc visit1 by visit_count,flow
+
+###带图标信息块
+#总访问次数
+visit_1 = loc visit1 by visit_count
+rename visit_1 as ('visit_count':'value')
+aa_num = eval visit_1 by iloc[0,0]
+if $aa_num < 100000 with visit_1 = add name by ('总访问量')
+if 100000 <= $aa_num < 1000000000 with visit_1.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 1000000000 with visit_1 = add name by ('总访问量(万次)')
+if $aa_num >= 1000000000 with visit_1.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 1000000000 with visit_1 = add name by ('总访问量(亿次)')
+visit_1 = add icon by ('F396')
+tt1 = eval visit1 by iloc[0,2]
+tt2 = eval visit1 by iloc[0,3]
+visit_1 = add details by ("自$tt1至$tt2以来的总访问次数(HTTP协议)")
+visit_1 = loc visit_1 by name,value,icon,details
+
+#总访问流量
+#大屏总流量：展示增加流量单位（aa）
+flow = loc visit1 by flow
+aa_num = eval flow by iloc[0,0]
+if 0 <= $aa_num < 1024  with flow = add name by ('应用总流量(B)')
+if 1024 <= $aa_num < 1048576  with flow.flow = lambda flow by (x:round(x/1024,2))
+if 1024 <= $aa_num < 1048576  with flow = add name by ('应用总流量(KB)')
+if 1048576 <= $aa_num < 1073741824  with flow.flow = lambda flow by (x:round(x/1048576,2))
+if 1048576 <= $aa_num < 1073741824  with flow = add name by ('应用总流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow.flow = lambda flow by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow = add name by ('应用总流量(G)')
+if $aa_num > 10995116277760 with flow.flow = lambda flow by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow = add name by ('应用总流量(T)')
+rename flow as ('flow':'value')
+flow = add icon by ('F352')
+flow = add details by ('自$tt1至$tt2以来的总访问流量(HTTP协议)')
+##总流量
+flow = loc flow by name,value,icon,details
+##日最大访问量
+if max_visit1.index.size == 0 with max_visit1 = @udf max_visit1 by udf0.df_append with (,0,0)
+visit_m = order max_visit1 by visit_count with desc limit 1
+dd = eval visit_m by iloc[0,0]
+visit_m = loc visit_m by visit_count
+rename visit_m as ('visit_count':'value')
+aa_num = eval visit_m by iloc[0,0]
+if $aa_num < 100000 with visit_m = add name by ('日最大访问量')
+if 100000 <= $aa_num < 1000000000 with visit_m.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 1000000000 with visit_m = add name by ('日最大访问量(万)')
+if $aa_num >= 1000000000 with visit_m.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 1000000000 with visit_m = add name by ('日最大访问量(亿)')
+visit_m = add icon by ('F156')
+visit_m = add details by ('$dd产生了自$tt1至$tt2以来的日最大访问量(HTTP协议)')
+##日最大流量
+flow_m = order max_visit1 by flow with desc limit 1
+dd = eval flow_m by iloc[0,0]
+flow_m = loc flow_m by flow
+rename flow_m as ('flow':'value')
+aa_num = eval flow_m by iloc[0,0]
+if $aa_num <= 1024 with flow_m = add name by ('日最大流量(B)')
+if 1024 < $aa_num <= 1048576 with flow_m.value = lambda value by (x:round(x/1024,2))
+if 1024 < $aa_num <= 1048576 with flow_m = add name by ('日最大流量(k)')
+if 1048576 < $aa_num <= 1073741824 with flow_m.value = lambda value by (x:round(x/1048576,2))
+if 1048576 < $aa_num <= 1073741824 with flow_m = add name by ('日最大流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow_m.value = lambda value by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow_m = add name by ('日最大流量(G)')
+if $aa_num > 10995116277760 with flow_m.value = lambda value by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow_m = add name by ('日最大流量(T)')
+flow_m = add icon by ('F159')
+flow_m = add details by ('$dd产生了自$tt1至$tt2以来的日最大流量(HTTP协议)')
+#今日访问次数
+visit_t = loc t_visit1 by visit_count
+rename visit_t as ('visit_count':'value')
+aa_num = eval visit_t by iloc[0,0]
+if $aa_num < 100000 with visit_t = add name by ('今日访问量')
+if 100000 <= $aa_num < 100000000 with visit_t.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 100000000 with visit_t = add name by ('今日访问量(万)')
+if $aa_num >= 100000000 with visit_t.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 100000000 with visit_t = add name by ('今日访问量(亿)')
+visit_t = add icon by ('F171')
+visit_t = add details by ('')
+#今日流量
+flow_t = loc t_visit1 by flow
+rename flow_t as ('flow':'value')
+aa_num = eval flow_t by iloc[0,0]
+if $aa_num <= 1024 with flow_t = add name by ('今日流量(B)')
+if 1024 < $aa_num <= 1048576 with flow_t.value = lambda value by (x:round(x/1024,2))
+if 1024 < $aa_num <= 1048576 with flow_t = add name by ('今日流量(k)')
+if 1048576 < $aa_num <= 1073741824 with flow_t.value = lambda value by (x:round(x/1048576,2))
+if 1048576 < $aa_num <= 1073741824 with flow_t = add name by ('今日流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow_t.value = lambda value by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow_t = add name by ('今日流量(G)')
+if $aa_num > 10995116277760 with flow_t.value = lambda value by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow_t = add name by ('今日流量(T)')
+flow_t = add icon by ('F172')
+flow_t = add details by ('')
+##合并
+tj = union visit_1,flow,visit_m,flow_m,visit_t,flow_t
+tj = loc tj by name,value,icon,details
+store tj to ssdb by ssdb0 with visit_days:tj_zdy_天
+
+#################周#######################周#########################周#######################周####################周#################周################周####################周########
+week = @sdf sys_now with -0 week
+week = @sdf format_now with ($week,"%Y-%m-%d 00:00:00")
+#总访问次数
+visit1 = load ckh by ckh with select sum(visit_num) as visit_count,sum(visit_flow) as flow,left(toString(min(time)),10) as min_time,left(toString(max(time)),10) as max_time from api_visit_hour where time >= toDateTime('$week')
+if visit1.index.size == 0 with visit1 = @udf visit1 by udf0.df_append with (0,0,,)
+alter visit1 by visit_count:int,flow:int,min_time:str,max_time:str
+max_visit1 = load ckh by ckh with select left(toString(time),10) as day,sum(visit_num) as visit_count,sum(visit_flow) as flow from api_visit_hour where time >= toDateTime('$week') group by day
+alter max_visit1 by visit_count:int,flow:int
+
+#总访问次数
+visit_1 = loc visit1 by visit_count
+rename visit_1 as ('visit_count':'value')
+aa_num = eval visit_1 by iloc[0,0]
+if $aa_num < 100000 with visit_1 = add name by ('总访问量')
+if 100000 <= $aa_num < 1000000000 with visit_1.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 1000000000 with visit_1 = add name by ('总访问量(万次)')
+if $aa_num >= 1000000000 with visit_1.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 1000000000 with visit_1 = add name by ('总访问量(亿次)')
+visit_1 = add icon by ('F396')
+tt1 = eval visit1 by iloc[0,2]
+tt2 = eval visit1 by iloc[0,3]
+visit_1 = add details by ("自$tt1至$tt2以来的总访问次数(HTTP协议)")
+visit_1 = loc visit_1 by name,value,icon,details
+
+#总访问流量
+flow = loc visit1 by flow
+aa_num = eval flow by iloc[0,0]
+if 0 <= $aa_num < 1024  with flow = add name by ('应用总流量(B)')
+if 1024 <= $aa_num < 1048576  with flow.flow = lambda flow by (x:round(x/1024,2))
+if 1024 <= $aa_num < 1048576  with flow = add name by ('应用总流量(KB)')
+if 1048576 <= $aa_num < 1073741824  with flow.flow = lambda flow by (x:round(x/1048576,2))
+if 1048576 <= $aa_num < 1073741824  with flow = add name by ('应用总流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow.flow = lambda flow by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow = add name by ('应用总流量(G)')
+if $aa_num > 10995116277760 with flow.flow = lambda flow by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow = add name by ('应用总流量(T)')
+rename flow as ('flow':'value')
+flow = add icon by ('F352')
+flow = add details by ('自$tt1至$tt2以来的总访问流量(HTTP协议)')
+##总流量
+flow = loc flow by name,value,icon,details
+##日最大访问量
+if max_visit1.index.size == 0 with max_visit1 = @udf max_visit1 by udf0.df_append with (,0,0)
+if max_visit1.index.size == 0 with alter max_visit1.visit_count.flow as int
+visit_m = order max_visit1 by visit_count with desc limit 1
+dd = eval visit_m by iloc[0,0]
+visit_m = loc visit_m by visit_count
+rename visit_m as ('visit_count':'value')
+aa_num = eval visit_m by iloc[0,0]
+if $aa_num < 100000 with visit_m = add name by ('日最大访问量')
+if 100000 <= $aa_num < 1000000000 with visit_m.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 1000000000 with visit_m = add name by ('日最大访问量(万)')
+if $aa_num >= 1000000000 with visit_m.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 1000000000 with visit_m = add name by ('日最大访问量(亿)')
+visit_m = add icon by ('F156')
+visit_m = add details by ('$dd产生了自$tt1至$tt2以来的日最大访问量(HTTP协议)')
+##日最大流量
+flow_m = order max_visit1 by flow with desc limit 1
+dd = eval flow_m by iloc[0,0]
+flow_m = loc flow_m by flow
+rename flow_m as ('flow':'value')
+aa_num = eval flow_m by iloc[0,0]
+if $aa_num <= 1024 with flow_m = add name by ('日最大流量(B)')
+if 1024 < $aa_num <= 1048576 with flow_m.value = lambda value by (x:round(x/1024,2))
+if 1024 < $aa_num <= 1048576 with flow_m = add name by ('日最大流量(k)')
+if 1048576 < $aa_num <= 1073741824 with flow_m.value = lambda value by (x:round(x/1048576,2))
+if 1048576 < $aa_num <= 1073741824 with flow_m = add name by ('日最大流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow_m.value = lambda value by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow_m = add name by ('日最大流量(G)')
+if $aa_num > 10995116277760 with flow_m.value = lambda value by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow_m = add name by ('日最大流量(T)')
+flow_m = add icon by ('F159')
+flow_m = add details by ('$dd产生了自$tt1至$tt2以来的日最大流量(HTTP协议)')
+##合并
+tj = union visit_1,flow,visit_m,flow_m,visit_t,flow_t
+tj = loc tj by name,value,icon,details
+store tj to ssdb by ssdb0 with visit_days:tj_zdy_周
+
+#################月#######################月#########################月#######################月####################月#################月################月###################月########
+month = @sdf sys_now with -1 month
+month = @sdf format_now with ($month,"%Y-%m-%d 00:00:00")
+#总访问次数
+visit1 = load ckh by ckh with select sum(visit_num) as visit_count,sum(visit_flow) as flow,left(toString(min(time)),10) as min_time,left(toString(max(time)),10) as max_time from api_visit_hour where time >= toDateTime('$month')
+if visit1.index.size == 0 with visit1 = @udf visit1 by udf0.df_append with (0,0,,)
+alter visit1 by visit_count:int,flow:int,min_time:str,max_time:str
+max_visit1 = load ckh by ckh with select left(toString(time),10) as day,sum(visit_num) visit_count,sum(visit_flow) as flow from api_visit_hour where time >= toDateTime('$month') group by day
+alter max_visit1 by visit_count:int,flow:int
+
+#总访问次数
+visit_1 = loc visit1 by visit_count
+rename visit_1 as ('visit_count':'value')
+aa_num = eval visit_1 by iloc[0,0]
+if $aa_num < 100000 with visit_1 = add name by ('总访问量')
+if 100000 <= $aa_num < 1000000000 with visit_1.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 1000000000 with visit_1 = add name by ('总访问量(万次)')
+if $aa_num >= 1000000000 with visit_1.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 1000000000 with visit_1 = add name by ('总访问量(亿次)')
+visit_1 = add icon by ('F396')
+tt1 = eval visit1 by iloc[0,2]
+tt2 = eval visit1 by iloc[0,3]
+visit_1 = add details by ("自$tt1至$tt2以来的总访问次数(HTTP协议)")
+visit_1 = loc visit_1 by name,value,icon,details
+
+#总访问流量
+flow = loc visit1 by flow
+aa_num = eval flow by iloc[0,0]
+if 0 <= $aa_num < 1024  with flow = add name by ('应用总流量(B)')
+if 1024 <= $aa_num < 1048576  with flow.flow = lambda flow by (x:round(x/1024,2))
+if 1024 <= $aa_num < 1048576  with flow = add name by ('应用总流量(KB)')
+if 1048576 <= $aa_num < 1073741824  with flow.flow = lambda flow by (x:round(x/1048576,2))
+if 1048576 <= $aa_num < 1073741824  with flow = add name by ('应用总流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow.flow = lambda flow by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow = add name by ('应用总流量(G)')
+if $aa_num > 10995116277760 with flow.flow = lambda flow by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow = add name by ('应用总流量(T)')
+rename flow as ('flow':'value')
+flow = add icon by ('F352')
+flow = add details by ('自$tt1至$tt2以来的总访问流量(HTTP协议)')
+##总流量
+flow = loc flow by name,value,icon,details
+##日最大访问量
+if max_visit1.index.size == 0 with max_visit1 = @udf max_visit1 by udf0.df_append with (,0,0)
+if max_visit1.index.size == 0 with alter max_visit1.visit_count.flow as int
+visit_m = order max_visit1 by visit_count with desc limit 1
+dd = eval visit_m by iloc[0,0]
+visit_m = loc visit_m by visit_count
+rename visit_m as ('visit_count':'value')
+aa_num = eval visit_m by iloc[0,0]
+if $aa_num < 100000 with visit_m = add name by ('日最大访问量')
+if 100000 <= $aa_num < 1000000000 with visit_m.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 1000000000 with visit_m = add name by ('日最大访问量(万)')
+if $aa_num >= 1000000000 with visit_m.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 1000000000 with visit_m = add name by ('日最大访问量(亿)')
+visit_m = add icon by ('F156')
+visit_m = add details by ('$dd产生了自$tt1至$tt2以来的日最大访问量(HTTP协议)')
+##日最大流量
+flow_m = order max_visit1 by flow with desc limit 1
+dd = eval flow_m by iloc[0,0]
+flow_m = loc flow_m by flow
+rename flow_m as ('flow':'value')
+aa_num = eval flow_m by iloc[0,0]
+if $aa_num <= 1024 with flow_m = add name by ('日最大流量(B)')
+if 1024 < $aa_num <= 1048576 with flow_m.value = lambda value by (x:round(x/1024,2))
+if 1024 < $aa_num <= 1048576 with flow_m = add name by ('日最大流量(k)')
+if 1048576 < $aa_num <= 1073741824 with flow_m.value = lambda value by (x:round(x/1048576,2))
+if 1048576 < $aa_num <= 1073741824 with flow_m = add name by ('日最大流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow_m.value = lambda value by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow_m = add name by ('日最大流量(G)')
+if $aa_num > 10995116277760 with flow_m.value = lambda value by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow_m = add name by ('日最大流量(T)')
+flow_m = add icon by ('F159')
+flow_m = add details by ('$dd产生了自$tt1至$tt2以来的日最大流量(HTTP协议)')
+##合并
+tj = union visit_1,flow,visit_m,flow_m,visit_t,flow_t
+tj = loc tj by name,value,icon,details
+store tj to ssdb by ssdb0 with visit_days:tj_zdy_月
+
+#################年#######################年#########################年#######################年####################年#################年###############年###################年########
+year = @sdf sys_now with -0 year
+year = @sdf format_now with ($year,"%Y-%m-%d 00:00:00")
+#总访问次数
+visit1 = load ckh by ckh with select sum(visit_num) as visit_count,sum(visit_flow) as flow,left(toString(min(time)),10) as min_time,left(toString(max(time)),10) as max_time from api_visit_hour where time >= toDateTime('$year')
+if visit1.index.size == 0 with visit1 = @udf visit1 by udf0.df_append with (0,0,,)
+alter visit1 by visit_count:int,flow:int,min_time:str,max_time:str
+max_visit1 = load ckh by ckh with select left(toString(time),10) as day,sum(visit_num) as visit_count,sum(visit_flow) as flow from api_visit_hour where time >= toDateTime('$year') group by day
+alter max_visit1 by visit_count:int,flow:int
+
+#总访问次数
+visit_1 = loc visit1 by visit_count
+rename visit_1 as ('visit_count':'value')
+aa_num = eval visit_1 by iloc[0,0]
+if $aa_num < 100000 with visit_1 = add name by ('总访问量')
+if 100000 <= $aa_num < 1000000000 with visit_1.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 1000000000 with visit_1 = add name by ('总访问量(万次)')
+if $aa_num >= 1000000000 with visit_1.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 1000000000 with visit_1 = add name by ('总访问量(亿次)')
+visit_1 = add icon by ('F396')
+tt1 = eval visit1 by iloc[0,2]
+tt2 = eval visit1 by iloc[0,3]
+visit_1 = add details by ("自$tt1至$tt2以来的总访问次数(HTTP协议)")
+visit_1 = loc visit_1 by name,value,icon,details
+
+#总访问流量
+flow = loc visit1 by flow
+aa_num = eval flow by iloc[0,0]
+if 0 <= $aa_num < 1024  with flow = add name by ('应用总流量(B)')
+if 1024 <= $aa_num < 1048576  with flow.flow = lambda flow by (x:round(x/1024,2))
+if 1024 <= $aa_num < 1048576  with flow = add name by ('应用总流量(KB)')
+if 1048576 <= $aa_num < 1073741824  with flow.flow = lambda flow by (x:round(x/1048576,2))
+if 1048576 <= $aa_num < 1073741824  with flow = add name by ('应用总流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow.flow = lambda flow by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow = add name by ('应用总流量(G)')
+if $aa_num > 10995116277760 with flow.flow = lambda flow by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow = add name by ('应用总流量(T)')
+rename flow as ('flow':'value')
+flow = add icon by ('F352')
+flow = add details by ('自$tt1至$tt2以来的总访问流量(HTTP协议)')
+##总流量
+flow = loc flow by name,value,icon,details
+##日最大访问量
+if max_visit1.index.size == 0 with max_visit1 = @udf max_visit1 by udf0.df_append with (,0,0)
+if max_visit1.index.size == 0 with alter max_visit1.visit_count.flow as int
+visit_m = order max_visit1 by visit_count with desc limit 1
+dd = eval visit_m by iloc[0,0]
+visit_m = loc visit_m by visit_count
+rename visit_m as ('visit_count':'value')
+aa_num = eval visit_m by iloc[0,0]
+if $aa_num < 100000 with visit_m = add name by ('日最大访问量')
+if 100000 <= $aa_num < 1000000000 with visit_m.value = lambda value by (x:round(x/10000,2))
+if 100000 <= $aa_num < 1000000000 with visit_m = add name by ('日最大访问量(万)')
+if $aa_num >= 1000000000 with visit_m.value = lambda value by (x:round(x/100000000,2))
+if $aa_num >= 1000000000 with visit_m = add name by ('日最大访问量(亿)')
+visit_m = add icon by ('F156')
+visit_m = add details by ('$dd产生了自$tt1至$tt2以来的日最大访问量(HTTP协议)')
+##日最大流量
+flow_m = order max_visit1 by flow with desc limit 1
+dd = eval flow_m by iloc[0,0]
+flow_m = loc flow_m by flow
+rename flow_m as ('flow':'value')
+aa_num = eval flow_m by iloc[0,0]
+if $aa_num <= 1024 with flow_m = add name by ('日最大流量(B)')
+if 1024 < $aa_num <= 1048576 with flow_m.value = lambda value by (x:round(x/1024,2))
+if 1024 < $aa_num <= 1048576 with flow_m = add name by ('日最大流量(k)')
+if 1048576 < $aa_num <= 1073741824 with flow_m.value = lambda value by (x:round(x/1048576,2))
+if 1048576 < $aa_num <= 1073741824 with flow_m = add name by ('日最大流量(M)')
+if 1073741824 < $aa_num <= 10995116277760 with flow_m.value = lambda value by (x:round(x/1073741824,2))
+if 1073741824 < $aa_num <= 10995116277760 with flow_m = add name by ('日最大流量(G)')
+if $aa_num > 10995116277760 with flow_m.value = lambda value by (x:round(x/1099511627776,2))
+if $aa_num > 10995116277760 with flow_m = add name by ('日最大流量(T)')
+flow_m = add icon by ('F159')
+flow_m = add details by ('$dd产生了自$tt1至$tt2以来的日最大流量(HTTP协议)')
+##合并
+tj = union visit_1,flow,visit_m,flow_m,visit_t,flow_t
+tj = loc tj by name,value,icon,details
+store tj to ssdb by ssdb0 with visit_days:tj_zdy_年
+
+
+clear @FID

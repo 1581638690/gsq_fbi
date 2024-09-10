@@ -1,0 +1,143 @@
+#LastModifyDate:　2024-04-28T16:10:35    Author:   pjb
+#LastModifyDate:　2024-03-04T17:58:23    Author:   pjb
+#LastModifyDate:　2024-03-04T17:45:54    Author:   pjb
+#LastModifyDate:　2024-01-09T15:43:38    Author:   zwl
+#LastModifyDate:　2024-01-05T09:32:05.556688    Author:   superFBI
+#LastModifyDate:　2023-12-28T10:19:28.048222    Author:   superFBI
+#LastModifyDate:　2023-12-28T10:07:14.626893    Author:   superFBI
+#LastModifyDate:　2023-10-08T16:04:14.834360    Author:   superFBI
+#LastModifyDate:　2023-09-13T15:01:29.057230    Author:   superFBI
+#LastModifyDate:　2023-09-13T11:31:37.215206    Author:   rzc
+#LastModifyDate:　2023-08-08T11:43:18.694906    Author:   pjb
+#xlink脚本
+#4主体信息
+
+
+
+#初始化
+init => {
+	stream["meta_name"] = "对象管理:终端、接口、应用、账户"
+	stream["meta_desc"] = "从redis中消费数据，存入mariadb数据库data_*_new等4个表"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["source"]= {"unix_udp":"/tmp/api_object"}
+	stream["count"] = 0
+	stream["count-10"] = 0
+	stream["st"]["st_60s"]={"times":60,"fun":"send60"}
+	stream["sends"] = load_ssdb_kv("qh_send")["sends"].split(',')
+	pool["app"] = []
+	pool["api"] = []
+	pool["account"] = []
+	pool["ip"] = []
+	stream["scw"]["scw_api"] = {"count":1,"fun":"flow"}
+	stream["scw"]["scw_app"] = {"count":1,"fun":"flow1"}
+	stream["scw"]["scw_account"] = {"count":1,"fun":"flow2"}
+	stream["scw"]["scw_ip"] = {"count":1,"fun":"flow3"}
+}
+
+
+#事件处理函数
+events => {
+	o["last_time"]=o.get("first_time")
+	o["first_time"] = str(o["first_time"])
+	o["last_time"] = str(o["last_time"])
+	account = o.get("account") # account
+	srcip =o.get("srcip") # ip
+	api = o.get("api") # api
+	app_title =o.get("app_title")
+	#if topic == "http_app":
+	if app_title or app_title == "":
+		push_scw("scw_app",o)
+		#to_pool("app",o)
+		if "api_app" in stream["sends"]:
+			s = deepcopy(o)
+			s["event_type"] = "app"
+			#to_kfk(s)
+			s["timestamp"] = str(s["timestamp"])
+			to_json_file("/data/syslog_file/eve",s)
+	#elif topic == "http_api":
+	elif api or api =="":
+		#to_pool("api",o)
+		push_scw("scw_api",o)
+		if "api_url" in stream["sends"]:
+			s = deepcopy(o)
+			s["event_type"] = "api"
+			#to_kfk(s)
+			s["timestamp"] = str(s["timestamp"])
+			to_json_file("/data/syslog_file/eve",s)
+	#elif topic == "http_account":
+	elif account or account == "":
+		#to_pool("account",o)
+		push_scw("scw_account",o)
+		if "api_account" in stream["sends"]:
+			s = deepcopy(o)
+			s["event_type"] = "account"
+			#to_kfk(s)
+			s["timestamp"] = str(s["timestamp"])
+			to_json_file("/data/syslog_file/eve",s)
+	#elif topic == "http_ip":
+	elif srcip or srcip == "":
+		#to_pool("ip",o)
+		push_scw("scw_ip",o)
+		if "api_ip" in stream["sends"]:
+			s = deepcopy(o)
+			s["event_type"] = "ip"
+			s["timestamp"] = str(s["timestamp"])
+			to_json_file("/data/syslog_file/eve",s)
+
+
+}
+
+
+
+#系统定时函数
+print10 => {
+	push_arrays_to_df(pool["app"],"apps")
+	push_arrays_to_df(pool["api"],"apis")
+	push_arrays_to_df(pool["account"],"accounts")
+	push_arrays_to_df(pool["ip"],"ips")
+	save()
+}
+
+send60 => {
+	stream["sends"] = load_ssdb_kv("qh_send")["sends"].split(',')
+}
+flow => stw{
+	#store df to ssdb by ssdb0 with apis11
+	#df = load ssdb by ssdb0 with apis11
+	apis = @udf df by udf0.df_fillna
+	apis = @udf apis by udf0.df_zero_index
+	apis = add name by ('')
+	aa = @udf apis by CRUD.save_table with (mysql1,data_api_new)
+	drop apis
+	drop df
+}
+flow1 => stw{
+	#store df to ssdb by ssdb0 with apps11
+	apps = @udf df by udf0.df_fillna
+	apps = @udf apps by udf0.df_zero_index
+	apps= add name by ('')
+	@udf apps by CRUD.save_table with (mysql1,data_app_new)
+	drop apps
+	drop df
+}
+flow2 => stw{
+	accounts = @udf df by udf0.df_fillna
+	accounts = @udf accounts by udf0.df_zero_index
+	@udf accounts by CRUD.save_table with (mysql1,data_account_new)
+	drop accounts
+	drop df
+}
+flow3 => stw {
+	ips = @udf df by udf0.df_fillna
+	ips = @udf ips by udf0.df_zero_index
+	@udf ips by CRUD.save_table with (mysql1,data_ip_new)
+	drop ips
+	drop df
+}
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	from copy import deepcopy
+}

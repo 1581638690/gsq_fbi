@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.SDA</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.SDA</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/SDA.py">/opt/openfbi/fbi-bin/udf/SDA.py</a></td></tr></table>
+    <p><span class="code">SQL语句检测分析：<br>
+add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;2021-1027<br>
+&nbsp;<br>
+SQL指纹，SQL类型等</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="datetime.html">datetime</a><br>
+<a href="hashlib.html">hashlib</a><br>
+</td><td class="multicolumn"><a href="numpy.html">numpy</a><br>
+<a href="pandas.html">pandas</a><br>
+</td><td class="multicolumn"><a href="sqlparse.html">sqlparse</a><br>
+<a href="sys.html">sys</a><br>
+</td><td class="multicolumn"><a href="sqlparse.tokens.html">sqlparse.tokens</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-extract_from_part"><strong>extract_from_part</strong></a>(parsed)</dt><dd><span class="code">提取from,into,TABLE,update&nbsp;等之后模块</span></dd></dl>
+ <dl><dt><a name="-extract_join_part"><strong>extract_join_part</strong></a>(parsed)</dt><dd><span class="code">提取join之后模块</span></dd></dl>
+ <dl><dt><a name="-extract_table_identifiers"><strong>extract_table_identifiers</strong></a>(token_stream)</dt><dd><span class="code">提取表名</span></dd></dl>
+ <dl><dt><a name="-extract_tables"><strong>extract_tables</strong></a>(parsed)</dt><dd><span class="code">提取sql中的表名（select语句）</span></dd></dl>
+ <dl><dt><a name="-is_subselect"><strong>is_subselect</strong></a>(parsed)</dt><dd><span class="code">是否子查询<br>
+:param&nbsp;parsed:&nbsp;T.Token</span></dd></dl>
+ <dl><dt><a name="-sql_a1_md5"><strong>sql_a1_md5</strong></a>(df, p='')</dt></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>ALL_JOIN_TYPE</strong> = ('LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'FULL JOIN', 'LEFT OUTER JOIN', 'FULL OUTER JOIN')<br>
+<strong>Keyword</strong> = Token.Keyword<br>
+<strong>Name</strong> = Token.Name<br>
+<strong>Token</strong> = Token<br>
+<strong>nan</strong> = nan</td></tr></table>
+</body></html>

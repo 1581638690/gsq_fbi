@@ -1,0 +1,92 @@
+#LastModifyDate:　2024-04-29T17:08:38    Author:   superFBI
+#LastModifyDate:　2024-04-29T17:04:35    Author:   superFBI
+#LastModifyDate:　2024-04-29T16:24:57    Author:   rzc
+#LastModifyDate:　2024-04-29T16:20:52    Author:   rzc
+#xlink脚本
+#file: api_operation_event.xlk
+#name: 对API接口数据进行分析
+#描述： 分析API接口数据，账户做了什么操作行为
+#创建时间: 2024-04-29T16:12:39.400971
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with api_operation_event
+
+#停止
+#a = @udf FBI.x_finder3_stop with api_operation_event
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:api_operation_event,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::api_operation_event
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "对API接口数据进行分析"
+	stream["meta_desc"] = "分析API接口数据，账户做了什么操作行为"
+	stream["source"]= {"unix_udp":"/tmp/operation_events"}
+	
+
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+	stream["st"]["st_30f"]={"times":30,"fun":"print30"}
+	stream["st"]["st_10f"]={"times":10,"fun":"print10"}
+	#chk的链接
+	stream["CKH"] = CKH_Client(host="127.0.0.1",port=19000,user="default",password="client")
+	
+	#创建ckh的pool
+	pool["ckh"] = []
+
+	stream["con_rules"] = load_model_data("gsqevent")
+}
+
+
+#事件处理函数
+events => {
+	ify_result = read_model_identify(stream["con_rules"],o)
+	if "data" in ify_result:
+		printf("dd",ify_result)
+	if ify_result and isinstance(ify_result,dict):
+		url_name = ify_result.get("label_info",{}).get("name","")
+		data_event = ify_result.get("data",{})
+		event_lst = []
+		if data_event:
+			# 获取事件信息,做一个列表 对事件信息进行处理
+			event_lst = []
+			# {"parameters":{"搜索账户"：["人大"]}}
+			for http_pos,operations in data_event.items():
+				event = operations
+				event_lst.append(event)
+		if event_lst:
+		# 需要进行 存储数据信息
+			event_dic = {"url":o.get("url"),"time":o.get("time"),"cookie":o.get("cookie"),"flow_id":o.get("flow_id",""),"app":o.get("app"),"account":o.get("account"),"name":url_name,"parameter":o.get("parameter"),"app_name":o.get("app_name"),"id":o.get("id"),"dstip":o.get("dstip"),"user_info": o.get("user_info"),"event":event_lst}
+			to_pool("ckh",event_dic)
+		
+}
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+	store_ckh(pool["ckh"],"event_monitor")
+}
+print30 => {
+	stream["con_rules"] = load_model_data("gsqevent")
+}
+
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	from intell_analy_new import *
+}

@@ -1,0 +1,54 @@
+#LastModifyDate:　2024-02-28T14:35:19    Author:   pjb
+#LastModifyDate:　2023-07-11T17:53:57.728624    Author:   zwl
+#LastModifyDate:　2023-03-28T17:15:57.249441    Author:   zwl
+#LastModifyDate:　2023-03-24T15:12:39.285872    Author:   zwl
+use @FID
+##时间
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%dT%H:00:00")
+day1 = @sdf sys_now with -7d
+day1 = @sdf format_now with ($day1,"%Y-%m-%dT%H:00:00")
+##查丢包
+aa = @udf ZNSM.dpdk_stats
+##判断aa为空时
+dd = assert find_df('aa',ptree) as altert with 数据库查询失败！
+if not dd with aa = @udf udf0.new_df with ipackets,ibytes,imissed,处理率
+if aa.index.size == 0 with aa = @udf aa by udf0.df_append with (0,0,0,0)
+aa = add times by ('$day')
+##加载历史数据
+bb = load ssdb by ssdb0 with dbdk_day
+##过滤7天之前的数据
+bb = filter bb by times >= '$day1'
+##合并数据
+dd = union aa,bb
+dd = loc dd by times,ipackets,ibytes,imissed,处理率
+##保存
+store dd to ssdb by ssdb0 with dbdk_day
+
+#a = @udf ZNSM.dpdk_stats1
+
+#修改密码提示
+a = load ssdb by ssdb0 with loginl as json
+b = jaas a by a["login_pwdTime"] as sdf
+user = load db by mysql1 with select name,left(gmt_modified,10) gmt_modified,curdate() now from user
+user = @udf udfA.get_users
+user = loc user by name,modificationdate
+now = @sdf sys_now
+user = add now by ('$now')
+user.modificationdate = lambda modificationdate by x: int(str(x).split(".")[0])
+user.modificationdate = lambda modificationdate by x:time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(x))
+rename user by ("modificationdate":"gmt_modified")
+user.gmt_modified = lambda gmt_modified by x: x.split(" ")[0]
+user.now = lambda now by x: x.split(" ")[0]
+user = add time by $b - 10
+alter user.gmt_modified as datetime64
+alter user.now as datetime64
+user = @udf user by udf0.df_row_lambda with x:'t' if (x[2] - x[1]).days >= x[3] else 'f'
+user = filter user by lambda1 == 't'
+user = filter user by name != 'superFBI'
+foreach user run """
+	time = eval user by iloc[0,3]
+	assert False as notice push @name with 密码即将到期，请及时修改密码！
+""" with (name = $1)
+
+clear @FID

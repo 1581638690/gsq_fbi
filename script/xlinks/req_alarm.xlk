@@ -1,0 +1,255 @@
+#LastModifyDate:　2024-01-09T10:22:49    Author:   rzc
+#LastModifyDate:　2024-01-08T09:47:10    Author:   superFBI
+#LastModifyDate:　2024-01-06T15:39:10    Author:   superFBI
+#LastModifyDate:　2024-01-06T14:05:53    Author:   superFBI
+#LastModifyDate:　2023-12-29T10:06:59.058711    Author:   superFBI
+#LastModifyDate:　2023-12-28T09:35:01.750064    Author:   superFBI
+#LastModifyDate:　2023-12-27T13:55:54.173940    Author:   superFBI
+#LastModifyDate:　2023-08-08T18:34:57.394570    Author:   pjb
+#LastModifyDate:　2023-08-02T16:24:00.824722    Author:   pjb
+#LastModifyDate:　2023-08-02T16:20:38.084917    Author:   pjb
+#LastModifyDate:　2023-07-27T16:27:58.917113    Author:   superFBI
+
+
+#初始化
+init => {
+	stream["meta_name"] = "异地访问、耗时告警告警、境外访问风险告警"
+	stream["meta_desc"] = "从api_visit1主题中消费数据，处理异地访问、耗时告警告、境外访问"
+	#b = load_ssdb_kv("setting")
+	#stream["link"] = b["kfk"]["visit"]["link"]
+	#stream["topic"] = b["kfk"]["visit"]["topic"]
+	#stream["group"] = b["kfk"]["visit"]["group"] + "reqalarm"
+	#stream["reset"] = b["kfk"]["visit"]["reset"]
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["redis"]={"host":stream["redis_link"],"port":"16379"}
+	stream["ckh_link"] = a["kfk"]["data"]["addr_c"]
+	#stream["source"]= {"link":stream["redis"],"topic":stream["topic1"],"redis":"list","topics":stream["topics"]}
+	#stream["source"] = {"link":"10.99.20.105:9092","topic":"zichan","group":"hs","start-0":True}
+	#stream["source"] = {"link":stream["link"],"topic":stream["topic"],"group":stream["group"],"start-0":stream["reset"]}
+	#stream["source"]= {"link":"127.0.0.1:16379","topic":"api_visit","redis":"pubsub"}
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	#stream["source"]= {"unix_udp":"/tmp/req_alm"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	#stream["source"]= {"link":"127.0.0.1:16379","topic":"api_visit","redis":"list"}
+	stream["CKH"] = CKH_Client(host=stream["ckh_link"],port=19000,user="default",password="client")
+	stream["content"] = handle_content_type(load_ssdb_kv("setting")["setting"]["content_type"]["type"])
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	stream["sends"] = a
+	if "api_req" in a:
+		stream["send1"] = 1
+	else:
+		stream["send1"] = 0
+	if "api_place" in a:
+		stream["send2"] = 1
+	else:
+		stream["send2"] = 0
+	#add by by gjw 增加文件的kafka队列和IP地域库
+	#stream["kfk"]={"link":stream["link"],"topic":"api_send","key":""}
+	stream["ipdb"] = IPIPDatabase( '/opt/openfbi/workspace/ipdb.datx')
+	
+	#stream["kfk"]={"link":stream["link"],"topic":"api_send","key":""}
+	stream["st"]["ip"]={"times":10,"fun":"store_ip"}
+	#stream["st"]["port"]={"times":10,"fun":"store_port"}
+	stream["st"]["st_60s"]={"times":60,"fun":"send60"}
+	stream["st"]["abroad"]={"times":10,"fun":"abroad_store"}
+	
+	stream["sight"] = []
+	stream["sign"] = []
+	stream["severity"] = []
+	stream["t_cons_app"] = ""
+	c = load_ssdb_kv("alarm")
+	if c.get("setting").get("delay_time"):
+		#延迟定义
+		stream["sight"] = c["setting"]["delay_time"]["sight"]
+		stream["sign"] = c["setting"]["delay_time"]["sign"]
+		stream["severity"] = c["setting"]["delay_time"]["severity"]
+		app = c.get("setting").get("delay_time").get("app")
+		if app:
+			stream["t_cons_app"] = app.split('/')
+		else:
+			stream["t_cons_app"] = ""
+	
+	
+	stream["ip_white"] = []
+	stream["vi_status"] = {}
+	stream["app_temp"] = []
+	stream["ip_app"] = {}
+	stream['vi_app'] = []
+	# 异地访问告警准备数据
+	if c.get("setting").get("remote_access_alarm"):
+		r_alarm_ip = c.get("setting").get("remote_access_alarm").get("remote_alarm_ip")
+		if r_alarm_ip:
+			# 将所有应用去重后，创建对应的字典
+			for ip in r_alarm_ip:
+				for i in ip.get('app').split('/'):
+					stream["app_temp"].append(i)
+			stream["app_temp"] = list(set(stream["app_temp"]))
+			for app in stream["app_temp"]:
+				stream["ip_app"][app] = []
+			# 将对应的ip插入相应的元组中
+			for ip in r_alarm_ip:
+				for i in ip.get('app').split('/'):
+					stream["ip_app"][i].append(ip.get('ip'))
+			# 去重stream["ip_app"]中的值
+			for key in stream["ip_app"]:
+				stream["ip_app"][key] = list(set(stream["ip_app"][key]))
+	pool["ip"] = []
+	pool["port"] = []
+	pool["abroad"] = []
+	stream["api_abroad"] = load_ssdb_kv("protocol_data")["function"]["event"]["api_abroad"]
+
+}
+
+#事件处理函数
+events => {
+	if stream["api_abroad"] == "true":
+		ip_is,res = ip_lookup(o.get('src_ip'))
+		if ip_is:
+			printf("res",res)
+			b = {}
+			b["id"] = xlink_uuid(0)
+			b["timestamp"] = iso_to_datetime(o.get("timestamp"))
+			b["srcip"] = o.get('src_ip')
+			b["srcport"] = int(o.get('src_port'))
+			b["dstip"] = o.get('dest_ip')
+			b["dstport"] = o.get('dest_port')
+			b["address"] = res
+			#event_type = o.get("event_type")
+			#b["type"] = event_type
+			b["data"] = o.get("id")
+			to_pool("abroad",b)
+			if "api_abroad" in stream["sends"]:
+				s = deepcopy(b)
+				s["event_type"] = "external"
+				#to_kfk(s)
+				s["timestamp"] = str(s["timestamp"])
+				to_json_file("/data/syslog_file/eve",s)
+	# 异地访问告警
+	app = o.get('app')
+	if stream["ip_app"]:
+		in_white = 0
+		in_white1 = 0
+		for ip_app in stream["ip_app"]:
+			# 过滤ipv6
+			# if o.get("proto") == "IPv6-ICMP":
+			# 	break
+			# 比对应用是否在监控列表中
+			if app == ip_app:
+				in_white = 1
+				# 比对是否在白名单中
+				for ip in stream["ip_app"][ip_app]:
+					ip_len = len(ip)
+					if o.get("src_ip")[0:ip_len] == ip:
+						in_white1 = 1
+						break
+				if in_white1 == 1:
+					break
+		if in_white == 1 and in_white1 == 0 :
+			temp = {}
+			temp["timestamp"] = iso_to_datetime(o.get("timestamp"))
+			temp["src_ip"] = str(o.get("src_ip"))
+			temp["src_port"] = int(o.get("src_port"))
+			temp["url"] = o.get("url_c")
+			temp["dest_ip"] = str(o.get("dest_ip"))
+			temp["dest_port"] = o.get("dest_port")
+			to_pool("ip",temp)
+			if stream["send2"]:
+				s = deepcopy(temp)
+				s["event_type"] = "outside"
+				#to_kfk(s)
+				s["timestamp"] = str(s["timestamp"])
+				to_json_file("/data/syslog_file/eve",s)
+	det = time.time()
+	if o.get("app") in stream["t_cons_app"]:
+		url_c = o.get("url_c")
+		#http = ujson.loads(o.get("httpjson"))
+		delay_am = delay_alarm(o, url_c, stream["sight"], stream["sign"], stream["severity"])
+		if delay_am:
+			delay_am["time"]= o.get("timestamp")
+			delay_am["id"] = xlink_uuid(0)
+			delay_am["srcip"] = o.get('src_ip')
+			#to_redis("delay_time", delay_am)
+			to_unix_udp(delay_am,"/tmp/delay_time")
+
+}
+
+store_ip => {
+	store_ckh(pool["ip"],"r_req_alm")
+}
+
+#Delete 注释 by pjb on 2023-02-07 15:59:20
+#store_port => {
+#	store_ckh(pool["port"],"stat_req_alm")
+#}
+
+
+abroad_store => {
+	store_ckh(pool["abroad"],"api_abroad")
+}
+
+send60 => {
+	#延迟定义
+	c = load_ssdb_kv("alarm")
+	stream["t_cons_app"] = ""
+	if c.get("setting").get("delay_time"):
+		#延迟定义
+		stream["sight"] = c["setting"]["delay_time"]["sight"]
+		stream["sign"] = c["setting"]["delay_time"]["sign"]
+		stream["severity"] = c["setting"]["delay_time"]["severity"]
+		app = c.get("setting").get("delay_time").get("app")
+		if app:
+			stream["t_cons_app"] = app.split('/')
+		else:
+			stream["t_cons_app"] = ""
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	stream["sends"] = load_ssdb_kv("qh_send")["sends"].split(',')
+	if "api_req" in a:
+		stream["send1"] = 1
+	else:
+		stream["send1"] = 0
+	if "api_place" in a:
+		stream["send2"] = 1
+	else:
+		stream["send2"] = 0
+	# 异地访问告警准备数据
+	r_alarm_ip = load_ssdb_kv("alarm")["setting"]["remote_access_alarm"]["remote_alarm_ip"]
+	if r_alarm_ip:
+		# 将所有应用去重后，创建对应的字典
+		for ip in r_alarm_ip:
+			for i in ip.get('app').split('/'):
+				stream["app_temp"].append(i)
+		stream["app_temp"] = list(set(stream["app_temp"]))
+		for app in stream["app_temp"]:
+			stream["ip_app"][app] = []
+		# 将对应的ip插入相应的元组中
+		for ip in r_alarm_ip:
+			for i in ip.get('app').split('/'):
+				stream["ip_app"][i].append(ip.get('ip'))
+		# 去重stream["ip_app"]中的值
+		for key in stream["ip_app"]:
+			stream["ip_app"][key] = list(set(stream["ip_app"][key]))
+}
+ip_lookup => (ip){
+	try:
+		ip_is = False
+		result = stream["ipdb"].lookup(ip).split('	')[0]
+		if result not in ["中国","局域网","本地链路","共享地址","本机地址","保留地址"]:
+			ip_is = True
+	except Exception as e:
+		ip_is = False
+		result = ''
+	return ip_is,result
+}
+xlink_uuid =>(x){
+	return str(time.time_ns())
+}
+#需要额外引入的包
+imports => {
+	import base64
+	from stream_official import * 
+	from copy import deepcopy
+	import json
+	from pyipip import IPIPDatabase
+}
+

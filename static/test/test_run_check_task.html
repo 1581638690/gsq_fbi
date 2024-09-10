@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>图形窗口</title>
+
+ <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js"></script> 
+   
+    <script type="text/javascript" src="/static/js/jquery.jUploader-1.0.min.js" ></script>
+        <script type="text/javascript">
+      $(document).ready(function() {
+         
+         var ST="";
+         var TI="";
+        //put
+		  $.ajax({
+                 type: "get",
+                 dataType : 'jsonp',
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/execp?prmtv=run people3.fea with (@ws=public)",       
+                 success: function(response) { 
+					 console.info(response);
+					 ST = response["result"][0].ST;
+					 TI = response["result"][0].TI;
+					 console.info(ST);
+					 console.info(TI);
+					getStatus();
+     
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+     //get
+		function getStatus(){
+			
+			$.ajax({
+						 type: "get",
+						 async: true,
+						 dataType : 'jsonp',
+						 timeout : 1000*600, //超时时间设置，单位毫秒
+						 url: "/execp?prmtv=check task by "+TI+" with ("+ST+")",             
+						 success: function(response) { 
+							 console.info(response);
+							 $("#info").text(response.result.progress);
+							 if (response.result.isAlive==true){
+								setTimeout(getStatus(),5000);
+							}else{
+								$("#info").text("100%");
+							}
+						 },
+						 error: function(XMLHttpRequest, textStatus, errorThrown) {
+								alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+						 }
+					});
+			
+		
+		};
+        
+      });
+    </script>
+</head>
+<body>
+<div id="info"></div>
+</body>
+</html>

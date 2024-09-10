@@ -1,0 +1,32 @@
+#LastModifyDate:　2023-12-05T19:46:53.610810    Author:   superFBI
+#FBI脚本文件
+#文件名: jsonFrom.fbi
+#作者: admin
+
+#表单中json表单的操作过程，不支持智能表单
+
+
+#表单一
+a = @udf udf0.new_df with 参数,中文名,默认值,类型,字典关联,排版,状态,必填,提示,显示,宽度
+a = @udf a by udf0.df_append with @dd2,zz,dfgdfdfsdfs.fea,文本框,没有关联字典,2,均能操作,false,false,true,
+a = @udf a by udf0.df_append with @dd3,姓名,admin,文本框,没有关联字典,2,均能操作,true,false,true,
+a = @udf a by udf0.df_append with @dd4,性别,男,文本框,没有关联字典,2,均能操作,false,false,true,
+store a to ssdb with  jsonForm:k1
+
+#表单二
+b = @udf udf0.new_df with 参数,中文名,默认值,类型,字典关联,排版,状态,必填,提示,显示,宽度
+b = @udf b by udf0.df_append with @ddd2,zz,dfgdfdfsdfs.fea,文本框,没有关联字典,2,均能操作,false,false,true,
+b = @udf b by udf0.df_append with @ddd3,姓名,admin,标签式单选,dd:data_gov_ak_usename,2,均能操作,false,false,true,
+store b to ssdb with  jsonForm:k2
+
+#生成字典
+dd = @udf udf0.new_df with name,value
+dd = @udf dd by udf0.df_append with 表单1,jsonForm:k1
+dd = @udf dd by udf0.df_append with 表单2,jsonForm:k2
+dd = loc dd by value to index
+
+store dd to ssdb with dd:Form_test
+
+#https://127.0.0.1/dbd/am/am_5_run.h5?key=am:am_5:smpgNpoahj&atitle=动态&editor=admin&JF=jsonForm:k2
+
+#https://192.168.124.247/dbd/am/am_5_run.h5?key=am:am_5:AJAKnaw&atitle=json%E5%8A%A8%E6%80%81%E8%A1%A8%E5%8D%95&@JF=jsonForm:k1

@@ -1,0 +1,33 @@
+# 文件名: user_man--imp_users.fbi
+
+#@file:	 	script/user_man/imp_users.fbi
+#@name: 		文件的中文名称
+#@desc: 		FBI脚本的简要描述
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2020-11-28T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+#@filename 导入文件名
+use @FID
+
+user = load csv by @filename
+user = @udf user by udf0.df_zero_index 
+user = add isadmin by ("N")
+user = add whitelist by ("0.0.0.0/0")
+user = add pot by (9002)
+user = @udf user by udf0.df_fillna with ()
+
+#################################################################################################
+#导入IM
+
+
+#先删除再添加
+cc= @udf user by udfA.drop_users
+d=@udf user by udfA.imp_users
+
+user1 = @udf user by CRUD.batch_delete_users with (@link,@table)
+user = @udf user by CRUD.save_object_mtable with (@link,@table)
+store user to ssdb by ssdb0 with @table:import_user:@FPS as 600
+
+clear @FID

@@ -1,0 +1,42 @@
+#LastModifyDate:　2023-03-01T18:27:52.212810    Author:   pjb
+#LastModifyDate:　2023-03-01T11:55:32.874505    Author:   superFBI
+#LastModifyDate:　2023-02-27T09:54:40.936144    Author:   superFBI
+#LastModifyDate:　2022-12-26T17:15:11.365647    Author:   pjb
+#LastModifyDate:　2022-11-18T17:23:55.282163    Author:   pjb
+#LastModifyDate:　2022-11-18T10:44:36.000583    Author:   pjb
+#LastModifyDate:　2022-11-17T16:46:30.436078    Author:   superFBI
+#LastModifyDate:　2022-11-17T15:31:53.379414    Author:   superFBI
+#LastModifyDate:　2022-11-17T15:31:20.929833    Author:   superFBI
+use @FID
+
+#创建用户
+user = @udf udf0.new_df with (name,realname,isadmin,pot,nav)
+user = @udf user by udf0.df_append with (admin,系统管理员,N,9009,use:APP-DLP-SW)
+@udf user by SSDB2.del_option
+@udf user by udfA.imp_users
+user = @udf udf0.new_df with (name,realname,isadmin,pot,nav)
+user = @udf user by udf0.df_append with (auditAdm,审计管理员,N,9008,use:APP-DLP-SWsj)
+@udf user by udfA.imp_users
+user = @udf udf0.new_df with (name,realname,isadmin,pot,nav)
+user = @udf user by udf0.df_append with (secAdm,安全管理员,N,9007,use:APP-DLP-SWaq)
+@udf user by udfA.imp_users
+user = @udf udf0.new_df with (name,realname,isadmin,pot,nav)
+user = @udf user by udf0.df_append with (operateAdm,操作管理员,N,9006,use:APP-DLP-SWcz)
+@udf user by udfA.imp_users
+#SE
+user = @udf udf0.new_df with (name,realname,isadmin,pot,nav)
+user = @udf user by udf0.df_append with (dsaw,系统管理员,N,9005,use:APP-DLP-SE)
+@udf user by SSDB2.del_option
+@udf user by udfA.imp_users
+user = @udf udf0.new_df with (name,realname,isadmin,pot,nav)
+user = @udf user by udf0.df_append with (auditadm,审计管理员,N,9004,use:APP-DLP-SEsj)
+@udf user by udfA.imp_users
+user = @udf udf0.new_df with (name,realname,isadmin,pot,nav)
+user = @udf user by udf0.df_append with (secadm,安全管理员,N,9003,use:APP-DLP-SEaq)
+@udf user by udfA.imp_users
+user = @udf udf0.new_df with (name,realname,isadmin,pot,nav)
+user = @udf user by udf0.df_append with (operateadm,操作管理员,N,9002,use:APP-DLP-SEcz)
+@udf user by udfA.imp_users
+
+
+clear @FID

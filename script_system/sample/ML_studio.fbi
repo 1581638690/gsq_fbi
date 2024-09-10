@@ -1,0 +1,127 @@
+#FBI脚本文件
+#文件名: ML_studio.fbi
+#作者: admin
+#机器学习培训导论
+
+use pub
+#装载数据
+a =@udf  ML.load_A
+rename a as (0:"0",1:"1",2:"2",3:"3")
+types = @udf a by udf0.df_types
+dump a
+#原始数据两维分析
+a1 = loc a by (0,1)
+store a1 to ssdb by ssdb0 with A:1
+a2 = loc a by (1,2)
+store a2 to ssdb by ssdb0 with A:2
+a3 = loc a by (2,3)
+store a3 to ssdb by ssdb0 with A:3
+a4 = loc a by (3,0)
+store a4 to ssdb by ssdb0 with A:4
+
+#分类结果两维分析
+c = @udf df0@sys by ML.load_A with target
+ac1 = join a1,c by index
+store ac1 to ssdb by ssdb0 with AC:1
+ac2 = join a2,c by index
+store ac2 to ssdb by ssdb0 with AC:2
+ac3 = join a3,c by index
+store ac3 to ssdb by ssdb0 with AC:3
+ac4 = join a4,c by index
+store ac4 to ssdb by ssdb0 with AC:4
+
+#ML的kmeans
+mk = @udf a by ML.kmeans with (3)
+#重要区别
+mk = join a,mk by index
+mk1 = loc mk by (0,1,k)
+store mk1 to ssdb by ssdb0 with MK:1
+mk2 = loc mk by (1,2,k)
+store mk2 to ssdb by ssdb0 with MK:2
+mk3 = loc mk by (2,3,k)
+store mk3 to ssdb by ssdb0 with MK:3
+mk4 = loc mk by (3,0,k)
+store mk4 to ssdb by ssdb0 with MK:4
+
+#降维处理
+#第一种方式主成份分析
+a2 = @udf a by ML.pca with (2)
+#各种聚类分析比较
+
+
+#kmeans
+a2_mk = @udf a2 by ML.kmeans with (3)
+a2_mk = join a2,a2_mk by index
+store a2_mk to ssdb by ssdb0 with A2:mk
+
+#层次聚类
+a2_ac = @udf a2 by ML.ac with (3)
+a2_ac = join a2,a2_ac by index
+store a2_ac to ssdb by ssdb0 with A2:ac
+
+#传播聚类,不需要类数
+a2_ap = @udf a2 by ML.ap
+a2_ap = join a2,a2_ap by index
+store a2_ap to ssdb by ssdb0 with A2:ap
+
+
+#密度聚类，不需要类数
+a2_db = @udf a2 by ML.dbscan
+a2_db = join a2,a2_db by index
+store a2_db to ssdb by ssdb0 with A2:db
+
+#综合层次聚类，不需要类数
+a2_br = @udf a2 by ML.brich
+a2_br = join a2,a2_br by index
+store a2_br to ssdb by ssdb0 with A2:br
+
+#=========================================================
+#第二种方式多维数据分析
+a2 = @udf a by ML.mds
+#各种聚类分析比较
+
+
+#kmeans
+a2_mk = @udf a2 by ML.kmeans with (3)
+a2_mk = join a2,a2_mk by index
+store a2_mk to ssdb by ssdb0 with A2_1:mk
+
+#层次聚类
+a2_ac = @udf a2 by ML.ac with (3)
+a2_ac = join a2,a2_ac by index
+store a2_ac to ssdb by ssdb0 with A2_1:ac
+
+#传播聚类,不需要类数
+a2_ap = @udf a2 by ML.ap
+a2_ap = join a2,a2_ap by index
+store a2_ap to ssdb by ssdb0 with A2_1:ap
+
+#密度聚类，不需要类数
+a2_db = @udf a2 by ML.dbscan
+a2_db = join a2,a2_db by index
+store a2_db to ssdb by ssdb0 with A2_1:db
+
+#综合层次聚类，不需要类数
+a2_br = @udf a2 by ML.brich
+a2_br = join a2,a2_br by index
+store a2_br to ssdb by ssdb0 with A2_1:br
+
+#=====================================================
+#svm 分类预测
+svm = @udf a,c by ML.svm
+svm_1 = @udf svm,a by ML.predict
+svm_a2 = join a2,svm_1 by index
+store svm_a2 to ssdb by ssdb0 with A2:svm_a2
+
+#=====================================================
+#朴素贝页斯 分类预测
+gnb = @udf a,c by ML.gnb
+gnb_1 = @udf gnb, a by ML.predict 
+gnb_a2 = join a2,gnb_1 by index
+store gnb_a2 to ssdb by ssdb0 with A2:gnb_a2
+
+#=====================================================
+#决策数 分类预测
+dt = @udf a,c by ML.dt
+dt_score = @udf dt, a,c by ML.score 
+

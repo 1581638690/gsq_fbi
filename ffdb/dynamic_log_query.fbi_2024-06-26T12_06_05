@@ -1,0 +1,37 @@
+#LastModifyDate:　2024-06-20T16:24:50    Author:   xzb
+#LastModifyDate:　2024-06-20T15:49:05    Author:   xzb
+#LastModifyDate:　2024-06-20T15:46:51    Author:   xzb
+#LastModifyDate:　2024-06-20T11:29:16    Author:   xzb
+#LastModifyDate:　2024-06-20T11:27:06    Author:   xzb
+
+use @FID
+
+a = load ssdb by ssdb0 with @data_key
+a = @udf a by udf0.df_fillna 
+
+app_name = eval a by param0.values[0]
+user_name = eval a by param1.values[0]
+time1 = eval a by beginTime.values[0]
+time2 = eval a by endTime.values[0]
+
+ll = load ssdb by ssdb0 with logList
+
+if '$app_name' != '' and '$app_name' != '全部' with """
+	ll = filter ll by 应用名 == '$app_name'
+"""
+
+if '$user_name' != '' and '$user_name' != '全部' with """
+	ll = filter ll by 用户 == '$user_name'
+"""
+
+if '$time1' != '' with """
+	ll = filter ll by 时间 >= '$time1'
+"""
+
+if '$time2' != '' with """
+	ll = filter ll by 时间 <= '$time2'
+"""
+
+push ll as table
+
+clear @FID

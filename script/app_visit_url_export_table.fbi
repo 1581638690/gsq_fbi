@@ -1,0 +1,28 @@
+#LastModifyDate:　2024-01-20T14:47:30    Author:   zwl
+#LastModifyDate:　2023-07-07T16:46:20.398839    Author:   zwl
+#LastModifyDate:　2023-03-23T10:01:47.592766    Author:   zwl
+#LastModifyDate:　2023-03-21T14:13:11.793925    Author:   zwl
+#LastModifyDate:　2023-03-15T15:20:53.064856    Author:   zwl
+#LastModifyDate:　2023-03-07T10:47:51.956742    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/app_visit_url1_@app.pq
+datas = @udf datas by udf0.df_fillna_cols with app:'',url:'',url_num:0
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+""" 
+rename datas as ("app":"应用IP/域名","url":"路径","url_num":"访问数量")
+store datas to csv by 应用画像接口清单_@app_$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 应用画像接口清单_@app_$day.csv
+push name as file_name
+
+clear @FID

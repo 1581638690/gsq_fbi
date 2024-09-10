@@ -1,0 +1,260 @@
+#LastModifyDate:　2024-01-08T09:41:49    Author:   superFBI
+#LastModifyDate:　2023-12-28T09:34:08.244580    Author:   superFBI
+#LastModifyDate:　2023-12-27T15:20:22.205728    Author:   superFBI
+#LastModifyDate:　2023-12-27T10:22:54.296727    Author:   superFBI
+#LastModifyDate:　2023-08-09T10:41:11.076201    Author:   pjb
+#LastModifyDate:　2023-08-08T12:23:05.950900    Author:   pjb
+#LastModifyDate:　2023-05-25T16:21:23.069556    Author:   pjb
+#LastModifyDate:　2023-05-25T15:15:51.361564    Author:   pjb
+#LastModifyDate:　2023-05-25T14:12:16.344686    Author:   pjb
+#LastModifyDate:　2023-05-25T14:09:05.338396    Author:   pjb
+#LastModifyDate:　2023-05-25T14:05:17.928336    Author:   pjb
+#xlink脚本
+#file: object_active.xlk
+#name: 对象活跃值
+#描述： 计算对象的活跃值
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with object_active
+
+#停止
+#a = @udf FBI.x_finder3_stop with object_active
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:object_active,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::object_active
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "对象活跃值"
+	stream["meta_desc"] = "计算对象的活跃值"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	#stream["source"]= {"link":stream["link"],"topic":stream["topic"],"group":"object_active","start-0":True}
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	#stream["source"]={"unix_udp":"/tmp/object_active"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	#stream["source"]= {"link":"127.0.0.1:16379","topic":"api_visit","redis":"pubsub"}
+	stream["st"]["st_10s"]={"times":60,"fun":"print10"}
+	
+	stream["stw"]["flow_app2"]={"times":10,"fun":"flow_app2"}
+	stream["stw"]["flow_api2"]={"times":10,"fun":"flow_api2"}
+	stream["stw"]["flow_ip2"]={"times":10,"fun":"flow_ip2"}
+	stream["stw"]["flow_account2"]={"times":10,"fun":"flow_account2"}
+	#从ssdb中加载一个hashmap的字典，用于比对去重等
+	#Delete 注释 by pjb on 2023-01-07 09:32:49
+	#当前访问时间
+	stream["app_date"] = load_ssdb_hall("FF:app_date")
+	stream["api_date"] = load_ssdb_hall("FF:api_date")
+	stream["ip_date"] = load_ssdb_hall("FF:ip_date")
+	stream["account_date"] = load_ssdb_hall("FF:account_date")
+	#上次访问时间
+	stream["app_date2"] = load_ssdb_hall("FF:app_date2")
+	stream["api_date2"] = load_ssdb_hall("FF:api_date2")
+	stream["ip_date2"] = load_ssdb_hall("FF:ip_date2")
+	stream["account_date2"] = load_ssdb_hall("FF:account_date2")
+	#stream["break"]= True
+}
+
+
+#事件处理函数
+events => {
+	#当前时间
+	the_day = str(datetime.datetime.now()).split(" ")[0]
+	date = str(o.get("timestamp")).split("T")[0]
+	if the_day == date :
+		k = iso_to_timestamp(o.get("timestamp"))
+		printf("date",date)
+		app = o.get("app")
+		api = o.get("url_c")
+		ip = o.get("src_ip")
+		account = o.get("account")
+		if app not in stream["app_date"] :
+			stream["app_date"][app] = date
+			to_ssdb_h("FF:app_date", app, date)
+			stream["app_date2"][app] = date
+			to_ssdb_h("FF:app_date2", app, date)
+		else:
+			if stream["app_date"][app] != date:
+				stream["app_date2"][app] = stream["app_date"][app]
+				to_ssdb_h("FF:app_date2", app, stream["app_date"][app])
+				stream["app_date"][app] = date
+				to_ssdb_h("FF:app_date", app, date)
+
+		if api not in stream["api_date"] :
+			stream["api_date"][api] = date
+			to_ssdb_h("FF:api_date", api, date)
+			stream["api_date2"][api] = date
+			to_ssdb_h("FF:api_date2", api, date)
+		else:
+			if stream["api_date"][api] != date:
+				stream["api_date2"][api] = stream["api_date"][api]
+				to_ssdb_h("FF:api_date2", api, stream["api_date"][api])
+				stream["api_date"][api] = date
+				to_ssdb_h("FF:api_date", api, date)
+
+		if ip not in stream["ip_date"] :
+			stream["ip_date"][ip] = date
+			to_ssdb_h("FF:ip_date", ip, date)
+			stream["ip_date2"][ip] = date
+			to_ssdb_h("FF:ip_date2", ip, date)
+		else:
+			if stream["ip_date"][ip] != date:
+				stream["ip_date2"][ip] = stream["ip_date"][ip]
+				to_ssdb_h("FF:ip_date2", ip, stream["ip_date"][ip])
+				stream["ip_date"][ip] = date
+				to_ssdb_h("FF:ip_date", ip, date)
+
+		if account not in stream["account_date"] and account !='' :
+			stream["account_date"][account] = date
+			to_ssdb_h("FF:account_date", account, date)
+			stream["account_date2"][account] = date
+			to_ssdb_h("FF:account_date2", account, date)
+		elif account !='':
+			if stream["account_date"][account] != date:
+				stream["account_date2"][account] = stream["account_date"][account]
+				to_ssdb_h("FF:account_date2", account, stream["account_date"][account])
+				stream["account_date"][account] = date
+				to_ssdb_h("FF:account_date", account, date)
+}
+
+print10 => {
+	#复活
+	k = iso_to_timestamp(str(datetime.datetime.now()))
+	#当前访问时间
+	app_2 = stream["app_date"].copy()
+	api_2 = stream["api_date"].copy()
+	ip_2 = stream["ip_date"].copy()
+	account_2 = stream["account_date"].copy()
+	#上次访问时间
+	app_1 = stream["app_date2"].copy()
+	api_1 = stream["api_date2"].copy()
+	ip_1 = stream["ip_date2"].copy()
+	account_1 = stream["account_date2"].copy()
+	for key,value in app_2.items():
+		if value != app_1[key] :
+			app_date = (datetime.datetime.strptime(value, '%Y-%m-%d') - datetime.datetime.strptime(app_1[key], '%Y-%m-%d')).days
+			if app_date > 30 :
+				app3 = {}
+				app3["app"] = key
+				app3["active"] = 2
+				push_stw("flow_app2",k,app3)
+				printf("app3",app3)
+	for key,value in api_2.items():
+		if value != api_1[key] :
+			api_date = (datetime.datetime.strptime(value, '%Y-%m-%d') - datetime.datetime.strptime(api_1[key], '%Y-%m-%d')).days
+			if api_date > 30 :
+				printf("value",value)
+				printf('app_1[key]',api_1[key])
+				printf("api_date",api_date)
+				printf("key",key)
+				api3 = {}
+				api3["url"] = key
+				api3["active"] = 2
+				push_stw("flow_api2",k,api3)
+	for key,value in ip_2.items():
+		if value != ip_1[key] :
+			ip_date = (datetime.datetime.strptime(value, '%Y-%m-%d') - datetime.datetime.strptime(ip_1[key], '%Y-%m-%d')).days
+			if ip_date > 30 :
+				ip3 = {}
+				ip3["srcip"] = key
+				ip3["active"] = 2
+				push_stw("flow_ip2",k,ip3)
+	for key,value in account_2.items():
+		if value != account_1[key] :
+			account_date = (datetime.datetime.strptime(value, '%Y-%m-%d') - datetime.datetime.strptime(account_1[key], '%Y-%m-%d')).days
+			if account_date > 30 :
+				account3 = {}
+				account3["account"] = key
+				account3["active"] = 2
+				push_stw("flow_account2",k,account3)
+}
+
+
+flow_app2 => stw{
+
+#Delete 注释 by pjb on 2023-01-12 14:20:56
+#	set param by xlink as k with flow_stat
+#	t2 = @sdf format_timestamp with (@k,"%Y-%m-%dT%H:%M:%S")
+#	assert True as xlink to 调度成功[$t2] with 调度失败
+#	store df to pkl by flow_stat30.pkl
+#	df = load pkl by flow_stat30.pkl
+	
+	size = eval df by (index.size)
+	if $size > 0 with """
+		app = load db by mysql1 with select app,id from data_app_new where app_type = 1 and active != 2
+		app = join app,df by app,app
+		size = eval app by (index.size)
+	"""
+	if $size > 0 with """
+		app = @udf app by udf0.df_set_index with id
+		@udf app by CRUD.save_table with (mysql1,data_app_new)
+		drop df
+		drop app
+	"""
+}
+
+flow_api2 => stw{
+	
+	size = eval df by (index.size)
+	if $size > 0 with """
+		url = load db by mysql1 with select url,id from data_api_new where active != 2
+		url = join url,df by url,url
+		size = eval url by (index.size)
+	"""
+	if $size > 0 with """
+		url = @udf url by udf0.df_set_index with id
+		@udf url by CRUD.save_table with (mysql1,data_api_new)
+		drop df
+		drop url
+	"""
+}
+
+flow_ip2 => stw{
+	
+	size = eval df by (index.size)
+	if $size > 0 with """
+		ip = load db by mysql1 with select srcip,id from data_ip_new where active != 2
+		ip = join ip,df by srcip,srcip
+		size = eval ip by (index.size)
+	"""
+	if $size > 0 with """
+		ip = @udf ip by udf0.df_set_index with id
+		@udf ip by CRUD.save_table with (mysql1,data_ip_new)
+		drop df
+		drop ip
+	"""
+}
+
+flow_account2 => stw{
+	
+	size = eval df by (index.size)
+	if $size > 0 with """ 
+		account = load db by mysql1 with select account,id from data_account_new where active != 2
+		account = join account,df by account,account
+		size = eval account by (index.size)
+	"""
+	if $size > 0 with """
+		account = @udf account by udf0.df_set_index with id
+		@udf account by CRUD.save_table with (mysql1,data_account_new)
+		drop df
+		drop account
+	"""
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import datetime
+	from time import strftime
+}

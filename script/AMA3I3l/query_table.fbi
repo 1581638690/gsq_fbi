@@ -1,0 +1,25 @@
+#LastModifyDate:　2023-05-26T11:55:14.954568    Author:   zwl
+#LastModifyDate:　2023-04-19T16:03:22.978658    Author:   zwl
+#FBI脚本文件
+
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单中的条件信息
+a = load ssdb by ssdb0 with @data_key
+
+#保存
+b,c = @udf a by CRUD.query_table with (@link,@table,merge_state != 1)
+b.btn_show = lambda api_status by (x: '0,1' if x == '1'  else '1,0')
+
+assert find_df('b',ptree) as  alert with 数据查询失败！
+
+push b as table
+push c as count
+#清除工作区
+clear @FID

@@ -1,0 +1,18 @@
+#FBI脚本文件
+
+#获取记录
+#@id  记录ID
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#根据id加载对象
+d = @udf CRUD.get_object_table with (@link,@table,@id)
+
+assert find_df('d',ptree) as  alert with 数据加载失败！
+
+push d as table
+#清除工作区
+clear @FID

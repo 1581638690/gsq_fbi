@@ -1,0 +1,9 @@
+#FBI脚本文件
+#文件名: restart_znsm.fbi
+#作者: superFBI
+
+#停止一定放在第一句，给启动留下时间
+c = @udf FBI.local_cmd with /opt/znsm/bin/stop.sh
+c = @udf FBI.sleep with 6
+c = @udf FBI.local_cmd with /opt/znsm/bin/start.sh
+assert c by df.index.size >5 as notice  to 引擎重启成功！ with 引擎重启失败！

@@ -1,0 +1,161 @@
+#LastModifyDate:　2024-01-23T10:21:57    Author:   rzc
+#LastModifyDate:　2024-01-08T09:18:20    Author:   superFBI
+#LastModifyDate:　2024-01-05T09:59:48.144098    Author:   superFBI
+#LastModifyDate:　2023-12-28T09:22:04.612867    Author:   superFBI
+#LastModifyDate:　2023-12-27T15:18:17.436986    Author:   superFBI
+#LastModifyDate:　2023-12-27T10:14:53.545171    Author:   superFBI
+#LastModifyDate:　2023-12-26T14:39:10.050521    Author:   superFBI
+#LastModifyDate:　2023-11-27T14:55:13.739967    Author:   pjb
+#LastModifyDate:　2023-10-08T17:31:35.349726    Author:   superFBI
+#LastModifyDate:　2023-10-08T16:24:59.297979    Author:   superFBI
+#LastModifyDate:　2023-09-25T18:09:23.605943    Author:   superFBI
+#xlink脚本
+#file: api_owasp1.xlk
+#name: OWASP_API19-1处理进程
+#描述： 从api_visit主题中消费数据
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with api_owasp1
+
+#停止
+#a = @udf FBI.x_finder3_stop with api_owasp1
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:api_owasp1,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::api_owasp1
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "OWASP_API19-1-2处理进程"
+	stream["meta_desc"] = "从api_visit主题中消费数据"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	#stream["source"]= {"unix_udp":"/tmp/owp_1_2"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	stream["stw"]["stw_flow"]={"times":20,"fun":"flow"}
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+	try:
+		stream["object_guess"]=remove_file("/dev/shm/object_guess.pkl","/data/xlink","object_guess.pkl")
+		#pickle.load(fp)
+	except:
+		stream["object_guess"]={}
+}
+events => {
+	data_type=o.get("data_type")
+	#if data_type == "XML" or data_type == "数据文件" or data_type == "JSON" or data_type == "动态脚本":
+	total_info=o.get("total_info")
+	response_body=o.get("http_response_body","")
+	k = iso_to_timestamp(o["timestamp"])
+	if total_info:
+		http=o.get("http")
+		purl=http.get("url")
+		app=o.get("app")
+		if "?" in purl:
+			uri=purl.split("?")[0]
+		else:
+			uri=purl
+		url=o.get("url")
+		url_c=o.get("url_c")
+		length=http.get("length")
+		#返回总字典，类似接口内容，对象可猜测接口数
+		url_dic,object_str,similar_url,lengths,url_c=guess_object(url,uri,url_c,stream["object_guess"],app,length)
+		printf("similar_url",similar_url)
+		stream["object_guess"]=url_dic
+		if similar_url:
+			#end={"对象可猜测":object_str,"类似接口内容":similar_url,"敏感信息":total_info}
+			end={"对象可猜测":object_str,"类似接口内容":similar_url}
+			e=clone_event(o)
+			e["more"]=json.dumps(end,ensure_ascii=False).encode("utf-8")
+			e["api"]=url_c
+			e["state"]="待确认"
+			e["type"]="API19-1-2"
+			e["length"]=lengths
+			#to_table(e)
+			#push_scw("scw_e",e)
+			push_stw("stw_flow",k,e)
+			stream["count"]+=1
+}
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+}
+print120 => {
+	
+	with open("/data/xlink/object_guess.pkl",'wb') as fp:
+		object_guess=copy.copy(stream["object_guess"])
+		pickle.dump(object_guess,fp)
+
+}
+flow => stw{
+	API19 = distinct df by (api,type)
+	#store API19 to pkl by API19.pkl
+	#API192 = load pkl by API19.pkl
+	cc = load db by mysql1 with select api,app,type,id,state states,length lengths from api19_risk where type = 'API19-1-2'
+	#API19=join API19,cc by api with left
+	#cc = @udf RS.exec_mysql_sql with mysql1,select api,type,id,state states,length lengths from api19_risk where type = 'API19-1-1' and api = 'http://192.168.1.129:9200/event/_search'
+	API19 = join API19,cc by [api,app,type],[api,app,type] with left
+	API19 = @udf API19 by udf0.df_fillna with 0
+	API19 = @udf API19 by udf0.df_set_index with id
+	API191 = filter API19 by index == 0 and states !='忽略'
+	API191 = loc API191 drop states,lengths
+	@udf API191 by CRUD.save_table with (mysql1,api19_risk)
+	API192 = filter API19 by index != 0 and states !='忽略'
+	API193 = loc API192 drop first_time,state,states,length,lengths
+	@udf API193 by CRUD.save_table with (mysql1,api19_risk)
+	API194 = loc API192 by last_time
+	@udf API194 by CRUD.save_table with (mysql1,api19_risk)
+	drop cc
+	drop API19
+	drop API191
+	drop API192
+	drop API193
+	drop API194
+	drop df
+}
+
+#克隆一个新事件,创建一个新的变量，并返回
+clone_event =>(o){
+	e={}
+	e["api"]=o.get('url','')
+	e["app"]=o.get('app','')
+	e["method"]=o.get("http").get("http_method","")
+	#e["url_c"]=o.get("url","")
+	e["dest_ip"]=o.get("dest_ip")
+	e["dest_port"]=o.get("dest_port")
+	e["length"]=o.get("http").get('length',0)
+	e["first_time"]= str(iso_to_datetime(o["timestamp"]))
+	e["last_time"] = str(iso_to_datetime(o["timestamp"]))
+	return e
+}
+is_json_string =>(s){
+	try:
+		json.loads(s)
+		return True
+	except ValueError:
+		return False
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	
+	import regex as re
+	import difflib
+	#from API1912 import contrast
+	from API19_1_2 import *
+	from mondic import *
+}

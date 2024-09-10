@@ -1,0 +1,80 @@
+<html>
+  <head>
+    <title>FEA-交互分析引擎</title>
+        <meta http-equiv="Content-Type" content="text/html;">
+    <!--
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>    
+    -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/jquery-ui-custom.css" />
+    <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js"></script> 
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.1.custom.min.js"></script> 
+ 
+    
+    <script type="text/javascript">
+		
+    var a = 1;
+
+	function test() {  
+
+          console.log("a="+a); //这里a为undefined
+    }
+    function test() {  
+
+          console.log("a=222"); //这里a为undefined
+    }
+    
+    test();
+    /*
+    stack: 'a',
+				areaStyle: {
+					normal: {}
+				},
+				
+	*/
+    </script>
+    <style>
+		#hhr {
+			margin:10px;
+			width:95%;
+			color:green;
+			border:1px solid;
+			border-radius:10px;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+		}
+		#upcsv,#upudf,#upfea {
+			margin : 5px 50px 15px 5px;
+			width: 150px;
+			float: left;
+			
+		}
+		#csvs,#feas{
+			margin : 10px 50px 10px 5px;
+			width: 400px;
+			height: 500px;
+			color:green;
+			border:1px solid;
+			border-radius:10px;
+			OVERFLOW-y:auto;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+			float: left;
+		}
+		.t{
+			margin : 0px;
+		}
+		li{
+			margin : 5px;
+			list-style-type:none;
+		}
+    </style>
+  </head>
+  <body>
+	<div id="log_buf"></div>
+	
+</body> 
+</html>
+
+

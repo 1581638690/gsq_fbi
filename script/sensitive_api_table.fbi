@@ -1,0 +1,75 @@
+#LastModifyDate:　2024-03-08T15:25:54    Author:   zwl
+#LastModifyDate:　2024-01-16T13:54:39    Author:   zwl
+#LastModifyDate:　2023-10-12T16:13:27.706803    Author:   zwl
+#LastModifyDate:　2023-09-12T15:22:11.856175    Author:   zwl
+#LastModifyDate:　2023-09-11T10:03:33.741040    Author:   zwl
+#LastModifyDate:　2023-09-06T18:21:52.757164    Author:   zwl
+#LastModifyDate:　2023-08-24T17:45:45.062551    Author:   zwl
+#LastModifyDate:　2023-08-23T17:06:18.756559    Author:   zwl
+#LastModifyDate:　2023-08-01T16:53:43.979055    Author:   zwl
+#LastModifyDate:　2023-07-25T15:24:30.764279    Author:   zwl
+#LastModifyDate:　2023-05-24T09:41:21.230500    Author:   zwl
+use @FID
+
+ccc = load ckh by ckh with select app from sen_http_count limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+########################################获取接口id
+#api1 = load db by mysql1 with select id,url from data_api_new where merge_state != 1
+#alter api1 by id:int,url:str
+#######################################计算敏感接口--终端数量
+url = load ckh by ckh with select url,count(*) srcip_count from (select url,src_ip from sen_http_count where url != '' group by url,src_ip) group by url
+alter url by url:str,srcip_count:int
+#######################################计算敏感接口--账号数量
+account = load ckh by ckh with select url,count(*) account_count from (select url,account from sen_http_count where url != '' and account != '' group by url,account) group by url
+alter account by url:str,account_count:int
+
+##############取以及处理好的数据 （sensitive_tab.fbi）
+sens = load pq by sensitive/sens_data.pq
+#alter sens.num as int
+alter sens by app:str,url:str,src_ip:str,account:str,key:str,num:int
+sens = loc sens by url,key,num
+sens = group sens by url,key agg num:sum
+sens = @udf sens by udf0.df_reset_index
+rename sens as ('num_sum':'num')
+#######################################敏感数据数量
+sensitive = load ckh by ckh with select url,count(*) as sensitive_count from sen_http_count where url != '' group by url 
+alter sensitive by url:str,sensitive_count:int
+#sensitive = group sens by url agg num:sum
+#sensitive = @udf sensitive by udf0.df_reset_index
+#rename sensitive as ('num_sum':'sensitive_count')
+#######################################敏感数据分类数量
+sensitive2 = loc sens by url,key,num
+sensitive2 = order sensitive2 by num with desc
+rename sensitive2 as ('key':'sensitive_count','num':'s_num')
+#alter sensitive2.s_num as str
+alter sensitive2 by url:str,sensitive_count:str,s_num:str
+sensitive2 = add s_num by  df['sensitive_count'] +"("+ df['s_num'] + ")"
+sensitive2.s_num = lambda s_num by x: x+'，'
+sensitive2 = group sensitive2 by url agg s_num:sum
+sensitive2 = @udf sensitive2 by udf0.df_reset_index 
+sensitive2.s_num_sum = lambda s_num_sum by x:x[:-1]
+url = join url,account by url,url with left
+#url = @udf url by udf0.df_fillna with 0
+url = join url,sensitive by url,url with left
+#url = @udf url by udf0.df_fillna with 0
+url = join url,sensitive2 by url,url with left
+url = @udf url by udf0.df_fillna_cols with srcip_count:0,account_count:0,sensitive_count:0,s_num_sum:''
+api = order url by sensitive_count with desc
+api = filter api by s_num_sum != ''
+api = distinct api by url,srcip_count,account_count,sensitive_count,s_num_sum
+api = loc api by url,srcip_count,account_count,sensitive_count,s_num_sum
+#保存为pkl文件
+#store api to pkl by sensitive/sensitive_api.pkl
+store api to pq by sensitive/sensitive_api.pq
+api = order api by sensitive_count with desc limit 10000
+#重命名
+rename api as ("url":"接口","srcip_count":"终端数量","account_count":"账号数量","sensitive_count":"敏感数据数量","s_num_sum":"敏感数据分类数量")
+#清空Q
+b = load ssdb by ssdb0 query qclear,sensitive_api,-,-
+#保存Q
+store api to ssdb by ssdb0 with sensitive_api as Q
+
+
+
+clear @FID

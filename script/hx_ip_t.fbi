@@ -1,0 +1,25 @@
+#LastModifyDate:　2023-08-29T18:26:52.106674    Author:   zwl
+#LastModifyDate:　2023-06-20T17:02:51.138676    Author:   zwl
+#LastModifyDate:　2023-06-12T18:39:50.260041    Author:   zwl
+#FBI脚本文件
+#文件名: hx_t.fbi
+#作者: zwl
+
+use hx_t
+
+a = load ssdb by ssdb0 with @data_key
+alter a.id as int
+a = add portrait_status by (1)
+tt = @sdf sys_now
+a = add portrait_time by ('$tt')
+
+
+a = @udf a by udf0.df_set_index with id
+b = @udf a by CRUD.save_table with (@link,@table)
+push b as table
+
+
+
+clear hx_t
+
+

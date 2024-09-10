@@ -1,0 +1,127 @@
+#LastModifyDate:　2024-01-18T09:52:09    Author:   superFBI
+#LastModifyDate:　2022-11-18T16:23:42.699637    Author:   hs
+#LastModifyDate:　2022-11-18T16:01:51.005675    Author:   hs
+#LastModifyDate:　2022-11-17T19:09:04.264323    Author:   hs
+#LastModifyDate:　2022-10-29T17:05:34.912524    Author:   hs
+#LastModifyDate:　2022-10-28T16:46:29.488934    Author:   hs
+#LastModifyDate:　2022-10-28T15:52:47.150332    Author:   hs
+#FBI生成docx文档脚本文件
+
+#@link 链接
+#@table 表名
+#@data_key 数据
+#@zh 中文表名
+
+#@vars 模板文档里面变量的前缀，比如{{info.name}}变量,vars就是info
+#@var_keys代表变量的值对应的df表的key，比如name
+#@id 模板填充好生成的文件目录位置，目录为workspace/temp_word/@id
+#@table_vars,docx模板文件的table里面变量名
+#@table_keys,存储表格数据的key
+#@report_name,生成报告的文件名称
+
+
+use @FID
+
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+# 测试
+#store a to ssdb with fafasg
+
+now = @sdf sys_now
+now = @sdf format_now with ($now,"%Y-%m-%dT%H:%M:%S")
+
+#先判断报告名称是否为空
+if "@report_name".strip() in ["","undefined"] with """
+	set param by define as report_name with @zh-$now
+""" else """
+	set param by define as report_name with @report_name-$now
+"""
+
+a = add name by  ('@report_name')
+
+#生成报告记录
+t = @udf a by CRUD.save_table with (@link,@table)
+assert True as notice to @report_name 报告开始生成! with 报告生成发现错误!
+
+
+######################################################基本变量信息(根据实际情况修改)###############################################
+# 测试
+#a = load ssdb by ssdb0 with fafasg
+
+start_time = eval a by loc[0,'start_time']
+end_time = eval a by loc[0,'end_time']
+
+
+#先判断是否为空时间
+if "$start_time".strip() in ["","undefined"] with """
+	start_time = @sdf sys_now with -1m
+	start_time = @sdf format_now with ($start_time,"%Y-%m-%d")
+"""
+if "$end_time".strip() in ["","undefined"] with """
+	end_time = @sdf sys_now with +1d
+	end_time = @sdf format_now with ($end_time,"%Y-%m-%d")
+"""
+
+now_time = @sdf sys_now
+now_time = @sdf format_now with ($now_time,"%Y-%m-%d")
+# 存储时间
+alarm_time = @udf udf0.new_df with (start_time,end_time,now_time)
+alarm_time = @udf alarm_time by udf0.df_append with ($start_time,$end_time,$now_time)
+store alarm_time to ssdb by ssdb0 with alarm_time
+# 分割协议名
+alarm = loc a by (alarm)
+alarm = eval alarm by (iloc[0,0])
+alarm = @udf alarm by FBI.json2df
+#a.alarm = str alarm by (split(","))
+#alarm = @udf a by udf0.df_l2df with alarm
+alm_report = @udf udf0.new_df with (告警类型,告警记录数)
+
+# 准备工作
+df2 = @udf udf0.new_df with (risk_api,api_risk,api_delay,r_req_alm,stat_req_alm,api_abroad,sensitive_data_alarm,datafilter_alarm)
+df2 = @udf df2 by udf0.df_append with (OWASP-API,访问阈值告警,访问耗时告警,异地访问告警,请求异常告警,境外访问告警,敏感数据告警,文件敏感信息告警)
+
+df3 = @udf udf0.new_df with (risk_api,api_risk,api_delay,r_req_alm,stat_req_alm,api_abroad,sensitive_data_alarm,datafilter_alarm)
+df3 = @udf df3 by udf0.df_append with (first_time,first_time,time,timestamp,timestamp,timestamp,time,timestamp)
+
+# 查询数据
+foreach alarm run """
+	time_name = loc df3 by (@prot)
+	time_name = eval time_name by (iloc[0,0])
+	alm_count = load ckh by ckh with select count(*) as `告警记录数` from @prot where left(toString($time_name),10) <= '$end_time' and left(toString($time_name),10) > '$start_time'
+	alm_count = eval alm_count by (iloc[0,0])
+	alm_name = loc df2 by (@prot)
+	alm_name = eval alm_name by (iloc[0,0])
+	alm_report = @udf alm_report by udf0.df_append with ($alm_name,$alm_count)
+""" with (@prot=$1)
+
+store alm_report to ssdb by ssdb0 with alarm_list_tab
+
+alm_report = loc alm_report by 告警类型 to index
+alter alm_report by 告警记录数:int
+store alm_report to ssdb by ssdb0 with alarm_list
+
+
+
+##############################################################################下面脚本不需要修改##################################################################
+#加载图片数据的key
+data=load ssdb by ssdb0 with @pics_data
+#生成图片
+@udf data by doc.generate_pic with @id
+#生成模板,result表返回的是是否成功生成模板，result表有两列，一列是status，一列是errMessage，status为1代表成功生成模板,为0代表生成模板失败
+result=@udf data by doc.modifiy_doc with (@id,@base,@var_data,@tbs_data,@report_name)
+
+#生成在线文档
+html = @udf doc.word2html with @report_name
+#页面提示
+assert not_have_error() as alert to 报告生成完成! with 报告生成发现错误!
+
+#保存
+t = add status with ('报告生成完毕')
+t = @udf t by CRUD.save_table with (@link,@table)
+assert t by df.index[0] >0  as notice to @report_name 报告生成完毕! with @report_name 报告生成发现错误!
+
+push t as table
+
+#清理工作区
+clear @FID

@@ -1,0 +1,35 @@
+#FBI脚本文件
+#文件名: sqlite3.fbi
+#作者: admin
+
+#实现对sqlite3数据库的操作
+
+#1初始化kv.db数据文件，会创建一张seq表，用于记录该数据库下每张通过create_stable创建的表，当前状态下的下一个索引值：
+s = @udf CRUD.init_stable with (s.db)
+
+#2准备带有需要创建的表字段名（name,age）和对应字段类型（varchar(10),int）的DF表t：
+a = @udf udf0.new_df with (name,age)
+a = @udf a by udf0.df_append with (varchar(10),int)
+@udf a by CRUD.create_stable with (s.db,people)
+
+#3将jdny.db数据文件中的所有表信息存储到df表a中：
+a = @udf RS.list_s3 with s.db
+
+#4保存数据
+a = @udf udf0.new_df with (name,age)
+a = @udf a by udf0.df_append with (胡,14)
+a = @udf a by udf0.df_append with (胡,15)
+a = @udf a by udf0.df_append with (胡,16)
+#把DF表a中所有数据的索引列的内容变为0
+a = @udf a by udf0.df_zero_index
+alter a.age as int
+#将df表a的数据，存储（新增）到4.3.12示例中的people表。
+@udf a by CRUD.save_object_stable with (s.db,people)
+
+#5将4.3.13示例中，people表中id为2的数据加载到df表a。
+a = @udf CRUD.get_object_stable with (s.db,people,3)
+
+#6删除
+a = @udf CRUD.delete_object_stable with (s.db,people,3)
+
+

@@ -1,0 +1,223 @@
+#LastModifyDate:　2024-01-09T11:34:52    Author:   qh
+#LastModifyDate:　2024-01-09T11:27:20    Author:   qh
+#LastModifyDate:　2024-01-09T11:24:09    Author:   qh
+#LastModifyDate:　2024-01-09T10:18:55    Author:   rzc
+#LastModifyDate:　2024-01-09T09:13:00    Author:   superFBI
+#LastModifyDate:　2024-01-08T19:45:44    Author:   superFBI
+#LastModifyDate:　2024-01-08T18:57:08    Author:   superFBI
+#LastModifyDate:　2024-01-08T09:32:57    Author:   superFBI
+#LastModifyDate:　2024-01-06T16:14:21    Author:   superFBI
+#LastModifyDate:　2024-01-06T15:45:09    Author:   superFBI
+#LastModifyDate:　2024-01-06T13:57:02    Author:   superFBI
+
+init => {
+	
+	# 消费kfk 
+	stream["meta_name"] = "model处理进程"
+	stream["meta_desc"] = "从api_visit主题中消费数据，分析高频次访问敏感，访问敏感接口频次过高存入ckh数据库api_model表"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	#stream["source"]= {"unix_udp":"/tmp/owp_model"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	stream["max_mem"] = 6
+	stream["stw"]["stw_flow"]={"times":60,"fun":"flow"}
+	stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	if "api_model" in a:
+		set_param("model_syslog","1")
+	else:
+		set_param("model_syslog","0")
+	s = load_ssdb_kv("monitor_url_xlk")["data"]
+	stream["monitor_url"] = []
+	for item in s:
+		stream["monitor_url"].append(item[0])
+	c = load_ssdb_kv("model_config")
+	stream["all_combo"] = c["setting"]["switch"]["all_combo"]
+}
+
+events => {
+	if o.get('url_c') in stream["monitor_url"] or stream["all_combo"]:
+		k = iso_to_timestamp(o["timestamp"])
+		temp = {
+			'srcip': o.get('src_ip'),
+			'dest_ip': o.get('dest_ip'),
+			'dest_port': int(o.get('dest_port')),
+			'first_time': iso_to_datetime(o.get('timestamp')),
+			'last_time': iso_to_datetime(o.get('timestamp')),
+			'app': o.get('app'),
+			'api': o.get('url_c'),
+			'method': o.get("http").get('method'),
+			'length': o.get("http").get('length', 0),
+			'age': o.get("http").get('age'),
+			'state': "待确认",
+			'srcport': o.get('src_port'),
+			'url_a': o.get('url'),
+			'account': o.get('account'),
+			'real_ip': o.get('realip'),
+			'id': xlink_uuid(0),
+			'suid': o.get('id')
+		}
+		push_stw("stw_flow",k,temp)
+}
+#窗口函数，使用FBI的原语
+flow => stw{
+	#store df to pkl by 01094.pkl
+	#df = load pkl by 01094.pkl
+	src_model = load ssdb by ssdb0 with srcip_model_xlk
+	model_config = load ssdb by ssdb0 with model_config as json
+	on = jaas model_config by model_config["setting"]["switch"]["model2"] as sdf
+	if "$on" == "true" with """
+		df2 = join src_model,df by srcip,srcip
+	""" else """
+		df2 = @udf udf0.new_df
+	"""
+	monitor_url = load ssdb by ssdb0 with monitor_url_xlk
+	rename monitor_url as ("url":"api")
+	#monitor_url = loc df2 by api
+	#monitor_url = distinct monitor_url by api
+	all_combo = jaas model_config by model_config["setting"]["switch"]["all_combo"] as sdf
+	if "$all_combo" == "false" with """
+		df2 = join monitor_url,df2 by api,api
+	"""
+	wl = jaas model_config by model_config["setting"]["model2"]["whitelist"]
+	wl = @udf wl by FBI.json2df
+	wll = @udf wl by model.dropem
+	wl = @udf wl by udf0.df_reset_index
+	rename wl as ("dstip":"dest_ip","dstport":"dest_port","url":"api")
+	wls = @udf udf0.new_df
+	foreach wl run """
+		wl1 = filter wl by (index == @idx)
+		wl1 = @udf wl1 by model.dropem
+		wl1 = loc wl1 drop index
+		wl2 = @udf wl1,df2 by model.join2
+		wls = union (wls,wl2)
+	""" with (idx=$1)
+	wls = distinct wls by id
+	if wll.iloc[0,:].size == 0 with """
+		wls = limit df2 by 500000
+	"""
+	df22 = filter wls by (real_ip == '')
+	df222 = filter wls by (real_ip != '')
+	#df2 = @udf df2 by udf0.df_row_lambda with (x: x[9] if x[9]!="" else x[0])
+	b = jaas model_config by model_config["setting"]["model2"]["count"] as sdf
+	df3 = group df22 by srcip agg srcip:count
+	df3 = @udf df3 by udf0.df_reset_index
+	df3 = filter df3 by srcip_count > $b
+	df3 = join df3,wls by srcip,srcip
+	df3 = distinct df3 by srcip
+	model2 = loc df3 drop (state,method,length,age,last_time)
+	#rux = loc model2 by url
+	rux = load ssdb by ssdb0 with risk_url_xlk
+	rename model2 by ("api":"url","dest_ip":"dstip","dest_port":"dstport","first_time":"timestamp")
+	s = join rux,model2 by url,url
+	proof = @udf udf0.new_df
+	proofs = @udf udf0.new_df
+	b = @sdf sys_str with ($b,strip())
+	foreach s run """
+		f = filter df22 by (srcip == "@srcip" and api == "@url")
+		bb = loc f by suid
+		bb= @udf bb by udf0.df_T
+		bb = @udf bb by udf0.df_cs2l
+		proof = union (proof,bb)
+		c = loc f by first_time,suid
+		rename c as ("first_time":"timestamp")
+		d = @udf c by model.proof2 with @srcip,@url,$b,@srcip_count
+		proofs = union (proofs,d)
+	""" with (url=$1,srcip=$2,srcip_count=$3)
+	proof = @udf proof by udf0.df_reset_index
+	proof = loc proof drop index
+	s = @udf s by udf0.df_fillna
+	s = @udf s by udf0.df_reset_index
+	s = loc s drop index
+	s = join s,proof by index,index with left
+	rename s by ("s0":"proof")
+	alter s.srcip_count as str
+	s = add message with ('终端“' + s["srcip"] + '”访问敏感接口频次过高，一分钟内访问' + s["srcip_count"] + '次')
+	proofs = @udf proofs by udf0.df_reset_index
+	proofs = loc proofs drop index
+	s = join s,proofs by index,index with left
+	df3 = group df222 by real_ip agg real_ip:count
+	df3 = @udf df3 by udf0.df_reset_index
+	df3 = filter df3 by real_ip_count > $b
+	df3 = join df3,wls by real_ip,real_ip
+	df3 = distinct df3 by real_ip
+	model2 = loc df3 drop (state,method,length,age,last_time)
+	rename model2 by ("api":"url","dest_ip":"dstip","dest_port":"dstport","first_time":"timestamp")
+	ss = join rux,model2 by url,url
+	proof = @udf udf0.new_df
+	proofs = @udf udf0.new_df
+	b = @sdf sys_str with ($b,strip())
+	foreach ss run """
+		f = filter df222 by (real_ip == "@real_ip" and api == "@url")
+		bb = loc f by suid
+		bb= @udf bb by udf0.df_T
+		bb = @udf bb by udf0.df_cs2l
+		proof = union (proof,bb)
+		c = loc f by first_time,suid
+		rename c as ("first_time":"timestamp")
+		d = @udf c by model.proof2 with @real_ip,@url,$b,@real_ip_count
+		proofs = union (proofs,d)
+	""" with (url=$1,real_ip=$2,real_ip_count=$3)
+	proof = @udf proof by udf0.df_reset_index
+	proof = loc proof drop index
+	ss = @udf ss by udf0.df_fillna
+	ss = @udf ss by udf0.df_reset_index
+	ss = loc ss drop index
+	ss = join ss,proof by index,index with left
+	rename ss by ("s0":"proof")
+	alter ss.real_ip_count as str
+	ss = add message with ('终端“' + ss["real_ip"] + '”访问敏感接口频次过高，一分钟内访问' + ss["real_ip_count"] + '次')
+	proofs = @udf proofs by udf0.df_reset_index
+	proofs = loc proofs drop index
+	ss = join ss,proofs by index,index with left
+	s = loc s drop (srcip_count,suid)
+	ss = loc ss drop (real_ip_count,suid)
+	s = union (s,ss)
+	alter s.proof as str
+	s = add type with (2)
+	s = add level with (1)
+	s = add desc with ("同一终端或同一账号高频次访问敏感接口")
+	#s = @udf s by udf0.df_fillna
+	store s to ckh by ckh with api_model
+	if "@model_syslog" == "1" and s.iloc[0,:].size == 17 with """
+		#define kfka as "@link"
+		#k = @udf KFK.df_link with kfka
+		alter s.timestamp as str
+		s = add event_type by ("model")
+		#a = @udf s by KFK.fast_store with kfka,api_send
+		a = @udf s by df2jsonfile.pushf
+	"""
+	drop df
+	drop model2
+	drop s
+	drop ss
+	drop df2
+	drop df22
+	drop df222
+	drop df3
+	drop wls
+	drop rux
+	drop proof
+	drop proofs
+}
+print10 => {
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	#set_param("link",stream["link"])
+	if "api_model" in a:
+		set_param("model_syslog","1")
+	else:
+		set_param("model_syslog","0")
+	s = load_ssdb_kv("monitor_url_xlk")["data"]
+	b = []
+	for item in s:
+		b.append(item[0])
+	stream["monitor_url"] = b
+	c = load_ssdb_kv("model_config")
+	stream["all_combo"] = c["setting"]["switch"]["all_combo"]
+}
+xlink_uuid =>(x){
+	return str(time.time_ns())
+}
+
+

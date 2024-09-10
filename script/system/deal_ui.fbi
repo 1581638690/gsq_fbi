@@ -1,0 +1,32 @@
+#@file:	 	script/update_ui.fbi
+#@name: 		文件的中文名称
+#@desc: 		FBI脚本的简要描述
+#@author: 	gjw
+#@version: 	v1.0
+#@date: 	2020-07-01
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+
+#更新json方案到SSDB中
+a = @udf FBI.update_scheme
+
+# 更新默认的数据
+b = @udf FBI.update_data
+
+#拆分总方案到各个插件方案当中
+aa =@udf  udf0.new_df_range with (1,6)
+foreach aa run   """
+    a = load ssdb by ssdb0 with scheme:@f
+    a = add var by a.index
+    b = @udf a by udf0.df_like_query with (var like @)
+    b1 = @udf a by udf0.df_like_query with (var like g_SI_)
+    b = union b,b1
+    b = loc b by (value,备注)
+    a.var2 = str var by (findall("g_\d{2,4}"))
+    a.var3 = str var2 by ([0])
+    c = distinct a by var3
+    c = loc c by var3
+    a = loc a by (value,备注,var3)
+    foreach c by run system/deal_scheme.fbi with (id=$1,f=@f)
+""" with (f=$2)

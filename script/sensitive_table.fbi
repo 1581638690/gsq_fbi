@@ -1,0 +1,36 @@
+#LastModifyDate:　2024-03-13T18:28:11    Author:   zwl
+#LastModifyDate:　2024-02-29T14:10:18    Author:   zwl
+#LastModifyDate:　2023-08-23T17:01:25.078373    Author:   zwl
+#LastModifyDate:　2023-06-15T13:40:20.262828    Author:   zwl
+#LastModifyDate:　2023-06-06T14:13:23.804489    Author:   zwl
+#LastModifyDate:　2023-05-31T19:04:55.027606    Author:   zwl
+#LastModifyDate:　2023-05-18T18:29:35.329314    Author:   zwl
+
+#FBI脚本文件
+#文件名: sensitive_table.fbi
+#作者: zwl
+
+##断点取值-----首页---24小时敏感数据分布
+run sensitive_tab.fbi
+
+###四个敏感信息分布  3.9
+#敏感数据————应用分布
+run sensitive_app_table.fbi
+#敏感数据————接口分布
+run sensitive_api_table.fbi
+#敏感数据————终端分布
+run sensitive_ip_table.fbi
+#敏感数据————账号分布
+run sensitive_account_table.fbi
+
+###可视化     风险监控 -> 弱点分析、弱点应用      树型容器脚本   ---3.14增加[动态表格]脚本
+run api19_tree.fbi
+
+###可视化   数据流动、敏感数据分布 10-31     --转移到定时器【敏感数据分布_动态表格】
+run data_sensitive_portal.fbi
+
+###可视化  风险监控->风险趋势
+run lhq_risk_ov_time.fbi
+
+#### 敏感数据库
+run sens_dbms.fbi

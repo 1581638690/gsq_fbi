@@ -1,0 +1,180 @@
+#LastModifyDate:　2023-10-08T17:42:30.026934    Author:   zwl
+#LastModifyDate:　2023-08-04T15:45:27.570632    Author:   zwl
+#LastModifyDate:　2023-08-01T16:55:56.354866    Author:   zwl
+#LastModifyDate:　2023-07-25T16:44:41.575342    Author:   zwl
+#LastModifyDate:　2023-07-21T11:13:07.460088    Author:   zwl
+#LastModifyDate:　2023-07-20T19:01:15.913073    Author:   zwl
+#LastModifyDate:　2023-07-19T19:01:56.038823    Author:   zwl
+#LastModifyDate:　2023-05-06T10:44:56.633430    Author:   zwl
+#LastModifyDate:　2023-03-23T17:49:02.621641    Author:   zwl
+#LastModifyDate:　2023-03-17T17:24:56.145840    Author:   zwl
+#LastModifyDate:　2023-03-09T14:45:12.243520    Author:   zwl
+#LastModifyDate:　2023-03-08T12:01:03.478676    Author:   zwl
+#LastModifyDate:　2023-03-01T18:32:07.678109    Author:   zwl1
+#LastModifyDate:　2023-02-24T14:28:30.917691    Author:   zwl
+#LastModifyDate:　2023-02-23T19:03:00.442788    Author:   zwl
+#LastModifyDate:　2023-02-22T18:44:19.374114    Author:   zwl
+#LastModifyDate:　2023-02-21T11:35:39.871182    Author:   zwl
+use @FID
+
+##清空图谱数据、初始化图谱
+#run init_tupu.
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with app_agent
+##判断key是否为空，若为空，app_datalink
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load db by mysql1 with select min(gmt_modified) as time from app_datalink
+#aa = load db by mysql1 with select min(gmt_modified) as time from app_datalink
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load db by mysql1 with select max(gmt_modified) as time from app_datalink
+time2 = eval aa by iloc[0,0]
+
+#####数据库未连接 或 无数据
+ccc = load db by mysql1 with select app from app_datalink where gmt_modified >= '$time1' and gmt_modified < '$time2' limit 1
+assert find_df_have_data('ccc',ptree) as exit with 数据库未连接 或 无数据更新！
+
+store aa to ssdb by ssdb0 with app_agent
+
+############关系数据--------------------------------------------------------------------------关系数据--------
+##应用关系    api_link:已写入图谱的关系数据
+#api_link = load ckh by ckh with truncate api_link
+app_datalink = load db by mysql1 with select distinct src_ip,app,url from app_datalink where gmt_modified >= '$time1' and gmt_modified < '$time2'
+##visit 访问关系
+yy_jj = loc app_datalink by src_ip,url
+yy_jj = distinct yy_jj by src_ip,url
+rename yy_jj as ('src_ip':'A','url':'B')
+yy_jj = add C by ('visit')
+
+##属于关系
+jj_md = loc app_datalink by app,url 
+jj_md = distinct jj_md by app,url
+rename jj_md as ('url':'A','app':'B')
+jj_md = add C by ('belong')
+
+##父子关系
+ff = load db by mysql1 with select app,app_sum from data_app_new where merge_state = 2
+aaa = loc ff by app
+father = @udf udf0.new_df with A,B
+foreach aaa run """
+	app_1 = filter ff by app == '@app'
+	app_1.app_sum = lambda app_sum by (x:x.split(","))
+	app_1 = @udf app_1 by udf0.df_l2cs with app_sum
+	app_1 = @udf app_1 by udf0.df_reset_index
+	app_1 = loc app_1 drop index,app,app_sum
+	app_1 = @udf app_1 by udf0.df_T
+	rename app_1 as (0:'B')
+	app_1 = filter app_1 by B != '@app'
+	app_1 = add A by ('@app')
+	father = union father,app_1
+""" with (app=$1)
+father = loc father by index to aa
+father = loc father drop aa
+father = add C by ('father')
+store father to ssdb by ssdb0 with father_data
+
+##合并
+app_link = union yy_jj,jj_md,father
+app_ll = load ckh by ckh with select distinct A,B,C from api_link
+app_ll = add aa by 1
+app_link = join app_link,app_ll by [A,B,C],[A,B,C] with left
+app_link = @udf app_link by udf0.df_fillna with 0
+app_link = filter app_link by aa == 0
+app_link = loc app_link drop aa
+rename app_link as ('A':'S','B':'O','C':'P')
+
+## 新数据入图谱(计算数据写入次数)
+new_count = eval app_link by index.size
+add_count = @sdf sys_eval with (int($new_count/5000) + 2)
+
+new_pd = @udf udf0.new_df
+new_pd = add num by (range(1,$add_count))
+
+foreach new_pd run """
+	add1 = filter app_link by index >= 5000 * (@num -1) and index < 5000 * @num
+	ret = @udf add1 by GL.add_http_mkd
+	ret_pd = @sdf sys_lambda with ($ret,x: 'Successfully' in x )
+	if $ret_pd == True with rename app_link as ('S':'A','O':'B','P':'C')
+	if $ret_pd == True with store add1 to ckh by ckh with api_link
+""" with (num = $1)
+
+########节点类型数据----------------------------------------------------------------节点类型数据------------------
+###新发现的节点 及其节点类型存入  api_link_data
+#api_link_data = load ckh by ckh with truncate api_link_data
+##应用
+app11 = loc app_datalink by src_ip
+rename app11 as ('src_ip':'app')
+app22 = loc app_datalink by app
+app33 = loc father by B
+rename app33 as ('B':'app')
+app = union app11,app22,aaa,app33
+app = distinct app by app
+
+##内、外部应用
+app_1 = load db by mysql1 with select distinct app as S,app_type as O from data_app_new 
+alter app_1.O as str
+app_type = load ssdb by ssdb0 with dd:APP-app_type
+app_1 = @udf app_1,app_type by SP.tag2dict with O
+app_1 = add P by ('type')
+app_1 = join app_1,app by S,app with right
+app_1 = loc app_1 by S,O,P
+app_1 = @udf app_1 by udf0.df_fillna with ''
+app_1 = filter app_1 by S != ''
+
+##接口
+api = loc app_datalink by url
+rename api as ('url':'S')
+api = add O by ('接口')
+api = add P by ('type')
+
+##合并  过滤已写入图谱的数据
+app_un = union app_1,api
+app_data = load ckh by ckh with select distinct S,O,P from api_link_data 
+app_data = add aa by 1
+app_un = join app_un,app_data by [S,O,P],[S,O,P] with left
+app_un = @udf app_un by udf0.df_fillna with 0
+app_un = filter app_un by aa == 0
+app_un = loc app_un by S,O,P
+
+## 新数据入图谱(计算数据写入次数)
+new_count = eval app_un by index.size
+add_count = @sdf sys_eval with (int($new_count/5000) + 2)
+
+new_pd = @udf udf0.new_df
+new_pd = add num by (range(1,$add_count))
+
+foreach new_pd run """
+	add1 = filter app_un by index >= 5000 * (@num -1) and index < 5000 * @num
+	ret = @udf add1 by GL.add_http_mkd
+	ret_pd = @sdf sys_lambda with ($ret,x: 'Successfully' in x )
+	if $ret_pd == True with store add1 to ckh by ckh with api_link_data
+""" with (num = $1)
+
+########图谱节点的弹窗信息--------------------------------------------------------------图谱节点的弹窗信息------------
+###内外部应用
+app_node1 = loc app_datalink by src_ip
+rename app_node1 as ('src_ip':'id')
+app_node2 = loc app_datalink by app
+rename app_node2 as ('app':'id')
+app_node = union (app_node1,app_node2)
+app_node = distinct app_node by id
+#####节点信息
+app_data = load db by mysql1 with select app,sensitive_label,app_type,active from data_app_new 
+app_active = load ssdb by ssdb0 with dd:api_active
+alter app_data.active.app_type.sensitive_label as str
+app_data = @udf app_data,app_active by SP.tag2dict with active
+#app_type = load ssdb by ssdb0 with dd:APP-app_type
+app_data = @udf app_data,app_type by SP.tag2dict with app_type
+sens = load ssdb by ssdb0 with dd:sensitive_label
+app_data = @udf app_data,sens by SP.tag2dict with sensitive_label
+rename app_data as ('sensitive_label':'敏感类型','app_type':'应用类型','active':'活跃状态')
+
+foreach app_node run """
+	app_node1 = filter app_data by app == '@app'
+	rename app_node1 as ('app':'应用IP/域名')
+	store app_node1 to ssdb by ssdb0 with app_node:@app
+""" with (app=$1)
+
+
+clear @FID

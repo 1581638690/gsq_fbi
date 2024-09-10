@@ -1,0 +1,47 @@
+#LastModifyDate:　2023-07-06T15:46:31.048712    Author:   zwl
+#LastModifyDate:　2023-07-05T18:23:07.253751    Author:   zwl
+#LastModifyDate:　2023-03-30T17:26:07.559353    Author:   zwl
+#LastModifyDate:　2023-03-22T15:20:47.312255    Author:   zwl
+#LastModifyDate:　2023-03-15T15:09:01.364167    Author:   zwl
+#LastModifyDate:　2023-03-13T18:30:19.104733    Author:   zwl
+use @FID
+
+ss = load ssdb by ssdb0 with @datakey
+if ss.index.size != 0 with """
+	ss = loc ss by key
+	#ss.key = str key by ( replace('.000Z','' ) )
+"""
+
+#a = load pkl by dt_table/api19_risk_@type.pkl
+a = load db by mysql1 with select a.id as _id,a.api,a.api_name,a.app,a.app_name,a.dest_ip,a.dest_port,a.method,a.length,a.first_time,a.last_time,a.state,b.type1,a.more from api19_risk a join api19_type b on a.type = b.type where b.type1 = '@type' order by a.last_time desc
+#a = loc a by index to __index
+#a = order a by last_time with desc
+
+##判断是否进行   搜索--------------------------------------------
+ppp = load ssdb by ssdb0 with @filterKey
+ppp = filter ppp by api != ''
+ppp_num = eval ppp by index.size
+ppp_num = @sdf sys_eval with $ppp_num != 0
+#全文检索
+q = @sdf sys_if_run with ($ppp_num, "api = eval ppp by iloc[0,0]")
+q = @sdf sys_if_run with ($ppp_num, "a = filter a with $api")
+
+
+##判断是否进行   筛选--------------------------------------------
+sss_num = eval ss by index.size 
+sss_num = @sdf sys_eval with $sss_num != 0
+q = @sdf sys_if_run with ($sss_num, "ss1 = eval ss by iloc[0,0]")
+q = @sdf sys_if_run with ($sss_num, "a = filter a by $ss1")
+
+
+b = loc a by _id,api,app,dest_ip,dest_port,method,last_time,state
+count = eval b by index.size
+c = @udf udf0.new_df with count
+c = @udf c by udf0.df_append with $count
+b = limit b by 1000
+rename b as ('id':'_id','api':'接口','app':'应用','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','last_time':'最新监测时间','state':'弱点状态')
+
+push b as table
+push c as count
+
+clear @FID

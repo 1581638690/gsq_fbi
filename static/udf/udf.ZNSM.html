@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.ZNSM</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.ZNSM</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/ZNSM.py">/opt/openfbi/fbi-bin/udf/ZNSM.py</a></td></tr></table>
+    <p><span class="code">@author:&nbsp;GJW<br>
+@date:&nbsp;2020-1229<br>
+@desc:<br>
+&nbsp;<br>
+用于网络监控所需的UDF函数</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="lxml.etree.html">lxml.etree</a><br>
+<a href="json.html">json</a><br>
+<a href="math.html">math</a><br>
+</td><td class="multicolumn"><a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+<a href="pandas.html">pandas</a><br>
+</td><td class="multicolumn"><a href="random.html">random</a><br>
+<a href="re.html">re</a><br>
+<a href="socket.html">socket</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-build_bpf_file"><strong>build_bpf_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20210108<br>
+@函数：根据DF表，生成BPF过滤规则<br>
+@参数：<br>
+df为规则数据<br>
+@描述：<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-build_rules_file_v1"><strong>build_rules_file_v1</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20210106<br>
+@函数：根据DF表，生成规则文件，以添加的方式<br>
+@参数：<br>
+df为规则数据，p为规则文件名<br>
+@描述：<br>
+&nbsp;<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-calculate_logger_count"><strong>calculate_logger_count</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;2021-0109<br>
+@函数：统计每个文件的发送量和错误量<br>
+@参数：<br>
+p&nbsp;为统计的日志名称<br>
+@描述：<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-clear_rules_file"><strong>clear_rules_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20210106<br>
+@函数：清空规则文件<br>
+@参数：<br>
+列名<br>
+@描述：<br>
+清空规则文件<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-command"><strong>command</strong></a>(df, p='')</dt><dd><span class="code">监控znsm的command,支持：<br>
+shutdown,&nbsp;command-list,&nbsp;help,&nbsp;version,&nbsp;uptime,&nbsp;running-mode,&nbsp;capture-mode,&nbsp;conf-get,&nbsp;dump-counters,&nbsp;iface-stat,&nbsp;iface-list,&nbsp;quit</span></dd></dl>
+ <dl><dt><a name="-dpdk_mempool"><strong>dpdk_mempool</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;2021-0126&nbsp;dpdk网卡状态</span></dd></dl>
+ <dl><dt><a name="-dpdk_stats"><strong>dpdk_stats</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;2021-0126&nbsp;dpdk网卡状态</span></dd></dl>
+ <dl><dt><a name="-dpdk_stats1"><strong>dpdk_stats1</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;2022-0126&nbsp;dpdk处理流量</span></dd></dl>
+ <dl><dt><a name="-dpdk_stats5"><strong>dpdk_stats5</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;2022-0126&nbsp;dpdk处理流量</span></dd></dl>
+ <dl><dt><a name="-dumps"><strong>dumps</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;2024-0306&nbsp;内部计数状态</span></dd></dl>
+ <dl><dt><a name="-load_rules_file_v1"><strong>load_rules_file_v1</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20202-1229<br>
+@函数：加载规则文件为DF,&nbsp;生成v1格式的<br>
+@参数：<br>
+p&nbsp;为文件名<br>
+@描述：<br>
+根据列判断是不是私有地址，会增加is_private列<br>
+@返回：<br>
+df表</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>nan</strong> = nan</td></tr></table>
+</body></html>

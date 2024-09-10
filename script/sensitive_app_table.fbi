@@ -1,0 +1,81 @@
+#LastModifyDate:　2024-03-08T15:25:43    Author:   zwl
+#LastModifyDate:　2024-01-16T16:09:47    Author:   gjw
+#LastModifyDate:　2024-01-16T13:54:47    Author:   zwl
+#LastModifyDate:　2023-10-12T16:08:35.272312    Author:   zwl
+#LastModifyDate:　2023-09-12T15:21:52.206648    Author:   zwl
+#LastModifyDate:　2023-09-11T09:59:38.807429    Author:   zwl
+#LastModifyDate:　2023-09-06T18:21:31.446700    Author:   zwl
+#LastModifyDate:　2023-08-24T18:47:23.149023    Author:   zwl
+#LastModifyDate:　2023-08-23T17:01:10.255047    Author:   zwl
+#LastModifyDate:　2023-08-01T16:53:32.857867    Author:   zwl
+#LastModifyDate:　2023-07-25T15:29:34.354041    Author:   zwl
+use @FID
+
+ccc = load ckh by ckh with select app from sen_http_count limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+#######################################获取应用的id
+#app1 = load db by mysql1 with select id,app from data_app_new where merge_state != 1
+#alter app1 by id:int,app:str
+#######################################计算敏感应用--接口数量
+app = load ckh by ckh with select app,count(*) url_count from (select app,url from sen_http_count where app != '' group by app,url) group by app
+alter app by app:str,url_count:int
+#######################################计算敏感应用--终端数量
+srcip = load ckh by ckh with select app,count(*) srcip_count from (select app,src_ip from sen_http_count where app != '' and src_ip != '' group by app,src_ip) group by app
+alter srcip by app:str,srcip_count:int
+#######################################计算敏感应用--账号数量
+account = load ckh by ckh with select app,count(*) account_count from (select app,account from sen_http_count where app != '' and account != '' group by app,account) group by app
+alter account by app:str,account_count:int
+
+##############取以及处理好的数据 （sensitive_tab.fbi）
+#sens = load pkl by sensitive/sens_data.pkl
+sens = load pq by sensitive/sens_data.pq
+#alter sens.num as int
+alter sens by app:str,url:str,src_ip:str,account:str,key:str,num:int
+sens = loc sens by app,key,num
+sens = group sens by app,key agg num:sum
+sens = @udf sens by udf0.df_reset_index
+rename sens as ('num_sum':'num')
+#######################################敏感数据数量
+sensitive = load ckh by ckh with select app,count(*) as sensitive_count from sen_http_count where app != '' group by app 
+alter sensitive by app:str,sensitive_count:int
+#sensitive = group sens by app agg num:sum
+#sensitive = @udf sensitive by udf0.df_reset_index
+#rename sensitive as ('num_sum':'sensitive_count')
+#######################################敏感数据分类数量
+sensitive2 = loc sens by app,key,num
+sensitive2 = order sensitive2 by num with desc
+rename sensitive2 as ('key':'sensitive_count','num':'s_num')
+#alter sensitive2.s_num as str
+alter sensitive2 by app:str,sensitive_count:str,s_num:str
+sensitive2 = add s_num by  df['sensitive_count'] +"("+ df['s_num'] + ")"
+sensitive2.s_num = lambda s_num by (x: x+'，')
+sensitive2 = group sensitive2 by app agg s_num:sum
+sensitive2 = @udf sensitive2 by udf0.df_reset_index 
+sensitive2.s_num_sum = lambda s_num_sum by x:x[:-1]
+app = join app,srcip by app,app with left
+#app = @udf app by udf0.df_fillna with 0
+app = join app,account by app,app with left
+#app = @udf app by udf0.df_fillna with 0
+app = join app,sensitive by app,app with left
+#app = @udf app by udf0.df_fillna with 0
+app = join app,sensitive2 by app,app with left
+app = @udf app by udf0.df_fillna_cols with url_count:0,srcip_count:0,account_count:0,sensitive_count:0,s_num_sum:''
+app = order app by sensitive_count with desc
+app = filter app by s_num_sum != ''
+app = distinct app by app,url_count,srcip_count,account_count,sensitive_count,s_num_sum
+app = loc app by app,url_count,srcip_count,account_count,sensitive_count,s_num_sum
+#保存为pkl文件
+#store app to pkl by sensitive/sensitive_app.pkl
+store app to pq by sensitive/sensitive_app.pq
+app = order app by sensitive_count with desc limit 10000
+#重命名
+rename app as ("app":"应用","url_count":"接口数量","srcip_count":"终端数量","account_count":"账号数量","sensitive_count":"敏感数据数量","s_num_sum":"敏感数据分类数量")
+#清空Q
+b = load ssdb by ssdb0 query qclear,sensitive_app,-,-
+#保存Q
+store app to ssdb by ssdb0 with sensitive_app as Q
+
+
+
+clear @FID

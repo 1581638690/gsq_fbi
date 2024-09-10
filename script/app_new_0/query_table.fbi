@@ -1,0 +1,29 @@
+#LastModifyDate:　2023-03-17T15:34:24.548945    Author:   zwl
+#LastModifyDate:　2023-03-09T11:36:43.738743    Author:   zwl
+#LastModifyDate:　2023-01-10T17:19:05.704854    Author:   pjb
+#LastModifyDate:　2022-12-29T16:45:27.082404    Author:   pjb
+#LastModifyDate:　2022-10-21T15:10:43.636302    Author:   gsp
+#LastModifyDate:　2022-10-21T11:51:19.826248    Author:   gsp
+#LastModifyDate:　2022-10-21T11:50:36.902168    Author:   gsp
+#FBI脚本文件
+
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单中的条件信息
+a = load ssdb by ssdb0 with @data_key
+
+#保存
+b,c = @udf a by CRUD.query_table with (@link,@table,app_type = 0 and merge_state != 1)
+#b.btn_show = lambda app_status by (x: '1,1,1,0,1' if x == '1'  else '1,1,1,1,0')
+assert find_df('b',ptree) as  alert with 数据查询失败！
+
+push b as table
+push c as count
+#清除工作区
+clear @FID

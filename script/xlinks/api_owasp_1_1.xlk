@@ -1,0 +1,214 @@
+#LastModifyDate:　2024-01-23T10:10:10    Author:   rzc
+#LastModifyDate:　2024-01-06T21:12:27    Author:   superFBI
+#LastModifyDate:　2024-01-06T16:15:52    Author:   superFBI
+#LastModifyDate:　2024-01-05T10:54:29.420614    Author:   superFBI
+#LastModifyDate:　2023-12-28T09:23:51.807691    Author:   superFBI
+#LastModifyDate:　2023-12-27T15:19:04.324486    Author:   superFBI
+#LastModifyDate:　2023-12-27T10:16:24.962013    Author:   superFBI
+#LastModifyDate:　2023-12-26T14:54:07.417491    Author:   superFBI
+#LastModifyDate:　2023-12-26T14:40:19.764035    Author:   superFBI
+#LastModifyDate:　2023-12-26T14:38:34.525008    Author:   superFBI
+#LastModifyDate:　2023-12-12T16:47:49.332904    Author:   superFBI
+#xlink脚本
+#file: api_owasp_1_1.xlk
+#name: 
+#描述： 
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with api_owasp_1_1
+
+#停止
+#a = @udf FBI.x_finder3_stop with api_owasp_1_1
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:api_owasp_1_1,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::api_owasp_1_1
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "OWASP_API19-1-1处理进程"
+	stream["meta_desc"] = "进行参数可遍历操作"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	#stream["source"]= {"unix_udp":"/tmp/owp_1_1"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	#stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	stream["st"]["st_785s"]={"times":785,"fun":"print785"}
+	#stream["scw"]["scw_e1"] = {"count":10,"fun":"flow"}
+	stream["stw"]["stw_flow"]={"times":20,"fun":"flow"}
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+	owasp = load_ssdb_kv("qh_owasp")
+	owasp_list=owasp["setting"]["API19-1"]["API19-1-1"]
+	stream["token_rule"] = ""
+	for i in owasp_list:
+		stream["token_rule"]+=i.get("bianli")+"|"
+	#stream["token_rule"]=stream["token_rule"].rstrip("|")
+	try:
+		stream["parm_iter"]=remove_file("/dev/shm/parm_iter.pkl","/data/xlink","parm_iter.pkl")
+	except:
+		stream["parm_iter"]={}
+}
+
+
+#事件处理函数
+events => {
+	data_type=o.get("data_type")
+	#if data_type == "XML" or data_type == "数据文件" or data_type == "JSON" or data_type == "动态脚本":
+	total_info=o.get("total_info")
+	k = iso_to_timestamp(o["timestamp"])
+	#printf("total_info",total_info)
+	message=[]
+	#response_body=o.get("http_response_body","")
+	#if total_info and "响应体" in total_info and is_json_string(response_body):
+	if total_info:
+		#printf("total_info",total_info)
+		for pos,info in total_info.items():
+			if info!={} and len(info)>=1:
+				message.append(pos)
+		#printf("message",message)
+		status=o.get("http").get("status","")
+		parameter=o.get("parameter","")
+		if message and parameter != "" and status ==200:
+			token_rule=stream["token_rule"].rstrip("|")
+			#printf("token_rule",token_rule)
+			url=o.get("url_c","")
+			length=o.get("http").get('length',0)
+
+			stream["parm_iter"],length,zj=parameter_iterable(url,stream["parm_iter"],length,parameter,token_rule)
+			#printf("parm_iter",parm_iter)
+			#printf("s1",s1)
+			#stream["parm_iter"]=parm_iter
+			printf("zj",zj)
+			if zj:
+			#存在数据则进行存储
+				#end = {"参数可遍历": "", "类似参数": {},"证据样例":{}}
+				end = {"参数可遍历": "", "证据样例":{}}
+				for k, v in zj.items():
+					v = list(set(v))
+					if len(v) > 1:
+						end["参数可遍历"] = end["参数可遍历"] + k + ","
+						#end["类似参数"][k] = v
+						#end["证据样例"][k]=list(set(zj[k]))
+						end["证据样例"][k]=v
+				if end["参数可遍历"]:
+					end["参数可遍历"]=end["参数可遍历"].rstrip(",")
+					#end["敏感信息"]=total_info
+					end = ujson.dumps(end, ensure_ascii=False).replace("\\","")
+					e=clone_event(o)
+					e["length"]=length
+					e["state"] = "待确认"
+					e["type"] = "API19-1-1"
+					e["more"]=end
+					#to_table(e)
+					#push_scw("scw_e1",e)
+					push_stw("stw_flow",k,e)
+					stream["count"]+=1
+				
+
+}
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	owasp = load_ssdb_kv("qh_owasp")
+	owasp_list=owasp["setting"]["API19-1"]["API19-1-1"]
+	stream["token_rule"] = ""
+	for i in owasp_list:
+		stream["token_rule"]+=i.get("bianli")+"|"
+
+}
+print785 =>{
+	
+	with open("/data/xlink/parm_iter.pkl",'wb') as fp:
+		parm_iter=copy.copy(stream["parm_iter"])
+		pickle.dump(parm_iter,fp)
+
+}
+#克隆一个新事件,创建一个新的变量，并返回
+clone_event =>(o){
+	e = {
+		"api": o.get('url_c', ''),
+		"app": o.get('app', ''),
+		"method": o.get("http").get("http_method", ""),
+		"dest_ip": o.get("dest_ip"),
+		"dest_port": o.get("dest_port"),
+		# "url": o.get("url", ""),
+		"first_time": str(iso_to_datetime(o["timestamp"])),
+		"last_time": str(iso_to_datetime(o["timestamp"]))
+	}
+	return e
+}
+flow => stw {
+	API19 = distinct df by (api,type)
+	#API19 = load pkl by API19_1_1.pkl
+	cc = load db by mysql1 with select api,type,id,state states,length lengths from api19_risk where type = 'API19-1-1'
+	#cc = @udf RS.exec_mysql_sql with mysql1,select api,type,id,state states,length lengths from api19_risk where type = 'API19-1-1' and api = 'http://192.168.1.201:9200/event_2022-10-21/_search'
+	API19 = join API19,cc by [api,type],[api,type] with left
+	API19 = @udf API19 by udf0.df_fillna with 0
+	API19 = @udf API19 by udf0.df_set_index with id
+	API191 = filter API19 by states !='忽略'
+	API191 = loc API191 drop states,lengths
+	@udf API191 by CRUD.save_table with (mysql1,api19_risk)
+	API192 = filter API19 by index != 0 and states !='忽略'
+	API193 = loc API192 drop first_time,state,states,length,lengths
+	#@udf API193 by CRUD.save_table with (mysql1,api19_risk,more)
+	@udf API193 by CRUD.save_table with (mysql1,api19_risk)
+	API194 = loc API192 by last_time
+	@udf API194 by CRUD.save_table with (mysql1,api19_risk)
+	drop API19
+	drop API191
+	drop API192
+	drop API193
+	drop API194
+	drop cc
+	drop df
+}
+save => fbi{
+	API19 = distinct API192 by (api,type)
+	#API19 = load pkl by API19_1_1.pkl
+	cc = load db by mysql1 with select api,type,id,state states,length lengths from api19_risk where type = 'API19-1-1'
+	#cc = @udf RS.exec_mysql_sql with mysql1,select api,type,id,state states,length lengths from api19_risk where type = 'API19-1-1' and api = 'http://192.168.1.201:9200/event_2022-10-21/_search'
+	API19 = join API19,cc by [api,type],[api,type] with left
+	API19 = @udf API19 by udf0.df_fillna with 0
+	API19 = @udf API19 by udf0.df_set_index with id
+	API191 = filter API19 by states !='忽略'
+	API191 = loc API191 drop states,lengths
+	@udf API191 by CRUD.save_table with (mysql1,api19_risk)
+	API192 = filter API19 by index != 0 and states !='忽略'
+	API193 = loc API192 drop first_time,state,states,length,lengths
+	#@udf API193 by CRUD.save_table with (mysql1,api19_risk,more)
+	@udf API193 by CRUD.save_table with (mysql1,api19_risk)
+	API194 = loc API192 by last_time
+	@udf API194 by CRUD.save_table with (mysql1,api19_risk)
+	drop API19
+	drop API191
+	drop API192
+	drop API193
+	drop API194
+	drop cc
+}
+is_json_string =>(s){
+	try:
+		json.loads(s)
+		return True
+	except ValueError:
+		return False
+}
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	from API19_1_2 import *
+}

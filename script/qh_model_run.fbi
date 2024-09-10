@@ -1,0 +1,7 @@
+#LastModifyDate:　2023-05-16T17:27:02.068457    Author:   pjb
+#LastModifyDate:　2023-05-16T10:21:44.473397    Author:   pjb
+use @FID
+
+run qh_model.fbi
+
+clear @FID

@@ -1,0 +1,10 @@
+#LastModifyDate:　2024-05-06T18:06:13    Author:   superFBI
+a = load excel by api_test.xls
+rename a as ("api":"url")
+api = load db by mysql1 with select id,url from data_api_new
+
+aa = join a,api by url,url
+
+aa = loc aa by id,name
+aa = @udf aa by udf0.df_set_index with id
+aa = @udf aa by CRUD.save_table with (mysql1,data_api_new)

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.RS</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.RS</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/RS.py">/opt/openfbi/fbi-bin/udf/RS.py</a></td></tr></table>
+    <p><span class="code">RS.py<br>
+加载外部数据资源的资源，包括外部文件和mysql数据库，zbus和sqlite3<br>
+#=========================<br>
+http_load&nbsp;加载http资源<br>
+s3_load&nbsp;加载sqlite3资源<br>
+excel_load&nbsp;加载excel资源</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="gc.html">gc</a><br>
+<a href="hashlib.html">hashlib</a><br>
+<a href="json.html">json</a><br>
+<a href="logging.html">logging</a><br>
+<a href="math.html">math</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td class="multicolumn"><a href="os.html">os</a><br>
+<a href="urllib.parse.html">urllib.parse</a><br>
+<a href="email.parser.html">email.parser</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="poplib.html">poplib</a><br>
+<a href="pymysql.html">pymysql</a><br>
+</td><td class="multicolumn"><a href="random.html">random</a><br>
+<a href="re.html">re</a><br>
+<a href="redis.html">redis</a><br>
+<a href="sys.html">sys</a><br>
+<a href="threading.html">threading</a><br>
+<a href="time.html">time</a><br>
+</td><td class="multicolumn"><a href="ujson.html">ujson</a><br>
+<a href="urllib.html">urllib</a><br>
+<a href="uuid.html">uuid</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-db_conn"><strong>db_conn</strong></a>(dbfile)</dt><dd><span class="code">#读的时候采用unicode</span></dd></dl>
+ <dl><dt><a name="-db_conn_w"><strong>db_conn_w</strong></a>(dbfile)</dt><dd><span class="code">#写的时候使用str</span></dd></dl>
+ <dl><dt><a name="-exec_mysql_sql"><strong>exec_mysql_sql</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170719<br>
+@函数：exec_mysql_sql<br>
+@参数：<br>
+config_name,sql<br>
+@描述：<br>
+执行sql语句<br>
+@返回：<br>
+无返回值</span></dd></dl>
+ <dl><dt><a name="-foreach_mysql_df"><strong>foreach_mysql_df</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170719<br>
+@函数：foreach_mysql_df<br>
+@参数：<br>
+config_name(配置),col_name(列名)<br>
+@描述：<br>
+根据列名批量执行sql语句<br>
+@返回：<br>
+无返回值</span></dd></dl>
+ <dl><dt><a name="-list_dir"><strong>list_dir</strong></a>(df, p='')</dt><dd><span class="code">@author&nbsp;wly<br>
+@date&nbsp;20170306<br>
+@函数列出指定文件夹下的所有文件</span></dd></dl>
+ <dl><dt><a name="-list_file"><strong>list_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161007<br>
+@函数：list_file,列出文件<br>
+@参数：<br>
+file_name,文件名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-list_file2"><strong>list_file2</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200120<br>
+@函数：list_file,列出文件名和文件大小<br>
+@参数：<br>
+file_name,文件名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-list_s3"><strong>list_s3</strong></a>(df, p)</dt><dd><span class="code">#列出所有的表和条数（sqlite3）</span></dd></dl>
+ <dl><dt><a name="-load_csv_excel"><strong>load_csv_excel</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-load_csv_shm"><strong>load_csv_shm</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-load_excel"><strong>load_excel</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-load_hbase"><strong>load_hbase</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161027<br>
+@函数：load_hbase,<br>
+@参数：<br>
+ip,table,key,cf<br>
+@描述：<br>
+装载Hhbase的一张表到DF<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-load_http"><strong>load_http</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20160926<br>
+@函数：http_load,从http资源中下载文件<br>
+@参数：<br>
+url,下载资源的url<br>
+@描述：<br>
+http资源中下载文件<br>
+@返回：<br>
+df表,文件名</span></dd></dl>
+ <dl><dt><a name="-load_https"><strong>load_https</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20160926<br>
+@函数：http_load,从https资源中下载文件<br>
+@参数：<br>
+url,下载资源的url<br>
+@描述：<br>
+http资源中下载文件<br>
+@返回：<br>
+df表,文件名</span></dd></dl>
+ <dl><dt><a name="-load_json"><strong>load_json</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161007<br>
+@函数：load_json,<br>
+@参数：<br>
+file_name<br>
+@描述：<br>
+装载json文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-load_mysql_sql"><strong>load_mysql_sql</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170719<br>
+@函数：load_mysql_sql<br>
+@参数：<br>
+config_name,sql<br>
+@描述：<br>
+从mysql中加载sql语句要的数据<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-load_mysql_table"><strong>load_mysql_table</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170719<br>
+@函数：load_mysql_table<br>
+@参数：<br>
+config_name,table_name<br>
+@描述：<br>
+从mysql中加载一张完整的表<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-load_pkl_shm"><strong>load_pkl_shm</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-load_zbus"><strong>load_zbus</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161110<br>
+@函数：load_zbus,从队列加载数据到DF表<br>
+@参数：<br>
+host,主机ip<br>
+qname,队列名称<br>
+topic,主题<br>
+size,条数，<br>
+@描述：<br>
+从队列加载数据到DF表,最大返回size条,1秒钟超时结束<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-load_zbus2"><strong>load_zbus2</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161110<br>
+@函数：load_zbus2,从队列加载数据到DF表<br>
+@参数：<br>
+link,链接名<br>
+qname,队列名称<br>
+size,条数，<br>
+@描述：<br>
+从队列加载数据到DF表,最大返回size条,1秒钟超时结束<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-make_cfg"><strong>make_cfg</strong></a>(config)</dt><dd><span class="code">#增加mysql的默认配置项目</span></dd></dl>
+ <dl><dt><a name="-mk_dir"><strong>mk_dir</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161212<br>
+@函数：mk_dir,建立数据目录<br>
+@参数：<br>
+path_name,路径名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-mv_file"><strong>mv_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161212<br>
+@函数：rm_file,删除数据文件<br>
+@参数：<br>
+file_name,文件名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-remove_zbus"><strong>remove_zbus</strong></a>(df, p='')</dt><dd><span class="code">redis&nbsp;发布模式无需该方法</span></dd></dl>
+ <dl><dt><a name="-remove_zbus2"><strong>remove_zbus2</strong></a>(df, p='')</dt><dd><span class="code">redis&nbsp;发布模式无需该方法</span></dd></dl>
+ <dl><dt><a name="-rm_file"><strong>rm_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161007<br>
+@函数：rm_file,删除数据文件<br>
+@参数：<br>
+file_name,文件名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-save_excel"><strong>save_excel</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-show_zbus"><strong>show_zbus</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180724<br>
+@函数：show_zbus<br>
+@参数：<br>
+host:port<br>
+@描述：<br>
+显示所有队列信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-show_zbus2"><strong>show_zbus2</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180724<br>
+@函数：show_zbus2<br>
+@参数：<br>
+link,链接名<br>
+@描述：<br>
+显示所有队列信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-store_csv_excel"><strong>store_csv_excel</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-store_excel"><strong>store_excel</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-store_excel2"><strong>store_excel2</strong></a>(*dfs)</dt></dl>
+ <dl><dt><a name="-store_hbase"><strong>store_hbase</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161027<br>
+@函数：load_hbase,<br>
+@参数：<br>
+ip,table,key,cf<br>
+@描述：<br>
+装载Hhbase的一张表到DF<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-store_json"><strong>store_json</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161007<br>
+@函数：store_json,<br>
+@参数：<br>
+file_name<br>
+@描述：<br>
+存储json文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-store_mysql"><strong>store_mysql</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170719<br>
+@函数：store_mysql<br>
+@参数：<br>
+config_name(配置),table_name(表名)<br>
+@描述：<br>
+存储DF表到mysql中，index忽略,字段名对应<br>
+@返回：<br>
+无返回值</span></dd></dl>
+ <dl><dt><a name="-store_zbus"><strong>store_zbus</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161110<br>
+@函数：store_zbus,将DF表的数据发布到zbus<br>
+@参数：<br>
+host,主机ip<br>
+qname,队列名称<br>
+topic,主题<br>
+@描述：<br>
+将DF表的数据发布到zbus<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-store_zbus2"><strong>store_zbus2</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161110<br>
+@函数：store_zbus2,将DF表的数据发布到zbus<br>
+@参数：<br>
+link，链接名<br>
+qname,队列名称<br>
+@描述：<br>
+将DF表的数据发布到zbus<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-store_zbus_df"><strong>store_zbus_df</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170222<br>
+@函数：store_zbus_df,将DF表的整个结果发布,适用于心电图等流图形展示<br>
+@参数：<br>
+host,主机ip<br>
+qname,队列名称<br>
+-,缺省符号<br>
+b&nbsp;=&nbsp;@udf&nbsp;a&nbsp;by&nbsp;RS.store_zbus_df&nbsp;with&nbsp;(127.0.0.1,system:cpu,-)<br>
+@描述：<br>
+将DF表的数据发布到zbus<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-store_zbus_df2"><strong>store_zbus_df2</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170222<br>
+@函数：store_zbus_df2,将DF表的整个结果发布成zbus的一条消息<br>
+@参数：<br>
+link,链接名<br>
+qname,队列名称<br>
+@描述：<br>
+将DF表的数据发布到zbus<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-test_dir"><strong>test_dir</strong></a>(df, p='')</dt></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>CK</strong> = 'IamFBI@2035'<br>
+<strong>Gpushs</strong> = {}<br>
+<strong>LCR</strong> = {}<br>
+<strong>NaN</strong> = nan<br>
+<strong>STT</strong> = 'System:diaodu:now'<br>
+<strong>TCache</strong> = {}<br>
+<strong>Tasks_Q</strong> = []<br>
+<strong>config</strong> = {'autorun': False, 'kv_eng': 'ssdb', 'logging': False, 'password': '4d7d4f6ef5d627f43a65d9b4b2ccc875', 'redis_host': '127.0.0.1', 'redis_password': '4d7d4f6ef5d627f43a65d9b4b2ccc875', 'redis_port': 6379, 'ssdb_host': '127.0.0.1', 'ssdb_port': 8888, 'timer': False, ...}<br>
+<strong>f</strong> = &lt;_io.TextIOWrapper name='/opt/openfbi/conf/config' mode='r' encoding='UTF-8'&gt;<br>
+<strong>fbi_global</strong> = &lt;avenger.fglobals.FbiGlobal object&gt;<br>
+<strong>fh</strong> = &lt;RotatingFileHandler /opt/openfbi/fbi-bin/logs/fbi_server.log (NOTSET)&gt;<br>
+<strong>formatter</strong> = &lt;logging.Formatter object&gt;<br>
+<strong>global_pools</strong> = {}<br>
+<strong>global_tasks</strong> = {}<br>
+<strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>nan</strong> = nan<br>
+<strong>root_logger</strong> = &lt;Logger fbi-server (INFO)&gt;<br>
+<strong>run_task</strong> = {}</td></tr></table>
+</body></html>

@@ -1,0 +1,44 @@
+#LastModifyDate:　2023-02-28T15:11:24.527562    Author:   pjb
+#LastModifyDate:　2023-02-06T09:42:59.511412    Author:   qh
+#LastModifyDate:　2023-02-03T16:44:45.872797    Author:   qh
+#LastModifyDate:　2023-02-03T11:21:15.563896    Author:   qh
+use @FID
+
+t = @sdf sys_now
+t = @sdf sys_str by $t,[0:10]
+s = @udf udf0.new_df with time
+s = @udf s by udf0.df_append with $t
+sa = load ssdb by ssdb0 with syslog_cz
+zz = load ssdb by ssdb0 with qh_send as json
+sends = jaas zz by zz["sends"] as sdf
+if "api_opt" in $sends with """
+	aa = @udf udf0.new_df with a
+	aa = @udf aa by udf0.df_append with 1
+	a = eval aa by iloc[0,0]
+""" else """
+	aa = @udf udf0.new_df with a
+	aa = @udf aa by udf0.df_append with 0
+	a = eval aa by iloc[0,0]
+"""
+
+if sa.iloc[0,0] != s.iloc[0,0] and $a == 1 with """
+	data,count =load ssdb by ssdb0 query qrange,Q_log_$t,0,10000
+"""
+
+if sa.iloc[0,0] == s.iloc[0,0] and $a == 1 with """
+	c = eval sa by iloc[0,1]
+	data,count =load ssdb by ssdb0 query qrange,Q_log_$t,$c,10000
+	#data = add event_type by ("operation")
+	#d = @udf data by KFK.fast_store with kfk,api_send
+	#c = eval count by iloc[0,1]
+	#s = add count by $c
+	#store s to ssdb with syslog_cz
+"""
+
+data = add event_type by ("operation")
+d = @udf data by KFK.fast_store with kfk,api_send
+c = eval count by iloc[0,1]
+s = add count by $c
+store s to ssdb with syslog_cz
+
+clear @FID

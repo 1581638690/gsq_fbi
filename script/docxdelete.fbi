@@ -1,0 +1,15 @@
+#FBI脚本文件
+#文件名: docxdelete.fbi
+#作者: admin
+use @FID
+a = @udf RS.exec_mysql_sql with (mysql41,delete from csv where file='@file')
+b = @udf getHostInfo.udc with 192.168.1.175|22|rm /opt/openfbi/workspace/csv/'@file'|root
+assert find_df('a',ptree) as altert to 删除成功 with 删除成功！
+#生成字典
+a = @udf RS.exec_mysql_sql with (mysql41,select * from csv order by gmt_create desc)
+a = @udf a by udf0.df_set_index with (file)
+a = add value by (a.index)
+a = loc a by value
+store a to ssdb by ssdb0 with dd:docx
+
+clear @FID

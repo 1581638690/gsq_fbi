@@ -1,0 +1,236 @@
+#LastModifyDate:　2024-03-04T17:34:44    Author:   pjb
+#LastModifyDate:　2024-01-10T14:37:50    Author:   zwl
+#LastModifyDate:　2024-01-10T14:37:22    Author:   zwl
+#LastModifyDate:　2023-11-20T11:18:44.856272    Author:   zwl
+#LastModifyDate:　2023-10-12T17:11:46.130100    Author:   superFBI
+#LastModifyDate:　2023-09-15T17:38:30.502699    Author:   zwl
+#LastModifyDate:　2023-08-18T17:42:17.889585    Author:   superFBI
+#LastModifyDate:　2023-07-31T09:46:45.853202    Author:   pjb
+#LastModifyDate:　2023-07-28T10:25:33.586747    Author:   rzc
+#LastModifyDate:　2023-07-26T11:05:31.999322    Author:   superFBI
+#LastModifyDate:　2023-07-26T10:50:23.329507    Author:   superFBI
+#FBI脚本文件
+#文件名: factory_reset.fbi
+#作者: superFBI
+use @FID
+
+reset = load ssdb by ssdb0 with factory_reset as json
+date_num = jaas reset by reset['reset'] as sdf
+d = load ssdb by ssdb0 with factory_reset as json
+d = @sdf sys_lambda with ($d, x:{"reset": ""})
+store d to ssdb by ssdb0 with factory_reset
+assert  $date_num == "ABC@2020" as altert to 密码正确,正在重置 with 密码错误！
+assert  $date_num == "ABC@2020" as log to 重置密码正确，一键清除执行 with 输入重置密码错误
+
+if $date_num == "ABC@2020" with """
+	a = @udf FBI.x_finder3_stop2 with /opt/openfbi/fbi-bin/stop-fst.sh
+	#停止xlink
+	a = @udf FBI.x_finder3_stop2 with api_aaai_json
+	a = @udf FBI.x_finder3_stop2 with req_alm
+	a = @udf FBI.x_finder3_stop2 with dns
+	a = @udf FBI.x_finder3_stop2 with api_visit
+	a = @udf FBI.x_finder3_stop2 with api_owasp_2_3
+	a = @udf FBI.x_finder3_stop2 with api_owasp_sen_data
+	a = @udf FBI.x_finder3_stop2 with api_aaai_jso
+	a = @udf FBI.x_finder3_stop2 with api_mege
+	a = @udf FBI.x_finder3_stop2 with api_owasp2
+	a = @udf FBI.x_finder3_stop2 with api_owasp4
+	a = @udf FBI.x_finder3_stop2 with api_risk_event
+	a = @udf FBI.x_finder3_stop2 with api_monitor_ckh
+	a = @udf FBI.x_finder3_stop2 with api_delay_json
+	a = @udf FBI.x_finder3_stop2 with api_proto
+	a = @udf FBI.x_finder3_stop2 with api_visit_hx
+	a = @udf FBI.x_finder3_stop2 with data_filter
+	a = @udf FBI.x_finder3_stop2 with req_alarm
+	a = @udf FBI.x_finder3_stop2 with ip_datalink_ckh
+	a = @udf FBI.x_finder3_stop2 with yuan_http
+	a = @udf FBI.x_finder3_stop2 with object_active
+	a = @udf FBI.x_finder3_stop2 with api_main_json2
+	a = @udf FBI.x_finder3_stop2 with main_process
+	a = @udf FBI.x_finder3_stop2 with api_owasp_1_1
+	a = @udf FBI.x_finder3_stop2 with api_owasp1_2
+	a = @udf FBI.x_finder3_stop2 with http_datafilter
+	a = @udf FBI.x_finder3_stop2 with api_model
+	a = @udf FBI.x_finder3_stop2 with modsecurity
+	a = @udf FBI.x_finder3_stop2 with api_owasp4_model
+	a = @udf FBI.x_finder3_stop2 with api_owasp4_2
+	a = @udf FBI.x_finder3_stop2 with api_business
+		# 清空 hashmap
+	a= @udf SSDB.hclear with FF:urldis
+	a= @udf SSDB.hclear with FF:url2
+	a= @udf SSDB.hclear with FF:url3
+	a= @udf SSDB.hclear with FF:ip2
+	a= @udf SSDB.hclear with FF:app2
+	a= @udf SSDB.hclear with FF:user3
+	a= @udf SSDB.hclear with FF:alert2
+	a= @udf SSDB.hclear with FF:urll
+	a= @udf SSDB.hclear with FF:urll2
+	a= @udf SSDB.hclear with FF:app_js
+	a= @udf SSDB.hclear with FF:api_js
+	a= @udf SSDB.hclear with FF:rule_file
+	a= @udf SSDB.hclear with api_merge
+	a= @udf SSDB.hclear with api_merge1
+	a= @udf SSDB.hclear with app_merge
+	a= @udf SSDB.hclear with FF:y_url
+	a= @udf SSDB.hclear with FF:app_datalink
+	a= @udf SSDB.hclear with FF:ip_datalink
+	a= @udf SSDB.hclear with FF:acc_ip
+	a= @udf SSDB.hclear with FF:url_ip
+	a= @udf SSDB.hclear with FF:url_acc
+	a= @udf SSDB.hclear with FF:acc_url
+	a= @udf SSDB.hclear with FF:ip_url
+	a= @udf SSDB.hclear with FF:app_time
+	a= @udf SSDB.hclear with FF:app_active
+	a= @udf SSDB.hclear with FF:app_active2
+	a= @udf SSDB.hclear with FF:api_time
+	a= @udf SSDB.hclear with FF:api_active
+	a= @udf SSDB.hclear with FF:api_active2
+	a= @udf SSDB.hclear with FF:ip_time
+	a= @udf SSDB.hclear with FF:ip_active
+	a= @udf SSDB.hclear with FF:ip_active2
+	a= @udf SSDB.hclear with FF:account_time
+	a= @udf SSDB.hclear with FF:account_active
+	a= @udf SSDB.hclear with FF:account_active2
+	#删除文件数据和数据库
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/FF_url2.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/FF_ip2.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/FF_app2.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/FF_user3.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/merge.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/parm_iter.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/urlimit.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/dic.pkl
+	s=  @udf FBI.local_cmd with sudo rm -rf /data/xlink/api_mon.pkl
+	s=  @udf FBI.local_cmd with sudo rm -rf /data/xlink/app_mon.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /data/xlink/object_guess.pkl
+	s = @udf FBI.local_cmd with sudo rm -rf /opt/openfbi/workspace/xlink
+	s = @udf FBI.local_cmd with sudo rm -rf /opt/openfbi/workspace/dt_table
+	s = @udf FBI.local_cmd with sudo rm -rf /opt/openfbi/workspace/hx
+	s = @udf FBI.local_cmd with sudo rm -rf /opt/openfbi/workspace/sensitive
+	s = load ckh by ckh with TRUNCATE TABLE agent_datalink
+	s = load ckh by ckh with TRUNCATE TABLE api_abroad
+	s = load ckh by ckh with TRUNCATE TABLE api_delay
+	s = load ckh by ckh with TRUNCATE TABLE api_dns
+	s = load ckh by ckh with TRUNCATE TABLE api_fileinfo
+	s = load ckh by ckh with TRUNCATE TABLE api_ftp
+	s = load ckh by ckh with TRUNCATE TABLE api_httpdata
+	s = load ckh by ckh with TRUNCATE TABLE api_hx
+	s = load ckh by ckh with TRUNCATE TABLE api_imap
+	s = load ckh by ckh with TRUNCATE TABLE api_link
+	s = load ckh by ckh with TRUNCATE TABLE api_link_data
+	s = load ckh by ckh with TRUNCATE TABLE api_model
+	s = load ckh by ckh with TRUNCATE TABLE api_modsecurity
+	s = load ckh by ckh with TRUNCATE TABLE api_monitor
+	s = load ckh by ckh with TRUNCATE TABLE api_pop3
+	s = load ckh by ckh with TRUNCATE TABLE api_risk
+	s = load ckh by ckh with TRUNCATE TABLE api_smb
+	s = load ckh by ckh with TRUNCATE TABLE api_smtp
+	s = load ckh by ckh with TRUNCATE TABLE api_tftp
+	s = load ckh by ckh with TRUNCATE TABLE api_visit_day
+	s = load ckh by ckh with TRUNCATE TABLE api_visit_hour
+	s = load ckh by ckh with TRUNCATE TABLE datafilter
+	s = load ckh by ckh with TRUNCATE TABLE compress
+	s = load ckh by ckh with TRUNCATE TABLE datafilter_alarm
+	s = load ckh by ckh with TRUNCATE TABLE date_alm
+	s = load ckh by ckh with TRUNCATE TABLE filter_count
+	s = load ckh by ckh with TRUNCATE TABLE ip_link
+	s = load ckh by ckh with TRUNCATE TABLE ip_link_data
+	s = load ckh by ckh with TRUNCATE TABLE merge_urls
+	s = load ckh by ckh with TRUNCATE TABLE r_req_alm
+	s = load ckh by ckh with TRUNCATE TABLE risk_api
+	s = load ckh by ckh with TRUNCATE TABLE sen_http_count
+	s = load ckh by ckh with TRUNCATE TABLE sensitive_data
+	s = load ckh by ckh with TRUNCATE TABLE sensitive_data_alarm
+	s = load ckh by ckh with TRUNCATE TABLE stat_req_alm
+	s = load ckh by ckh with TRUNCATE TABLE api_business
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table user)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table data_app_new)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table aaa)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table sensitive_data)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table data_account_new)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table middle_biao)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table ip_label_library)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table account_label_library)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table report_app)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table risk_api)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table disk_resource)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table app_label_library)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table app_sx)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table owasp_report)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table monitor_data)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table data_ip_new)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table ip_datalink)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table Report_management)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table data_api_new)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table SNMP_test)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table api_daily)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table report_test)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table data_risk)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table rule_file)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table alarm_report)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table dgydelme)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table data_fbiuser)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table audit_statistics)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table app_datalink)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table api_label_library)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table agreement_report)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table api19_risk)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table hx_account)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table hx_api)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table hx_app)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table hx_ip)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table app_word)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table report)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table dbms_obj)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table dbms_user)
+	s = @udf RS.exec_mysql_sql with (mysql1,truncate table fileinfo)
+	run sensitive_table.fbi
+	run zts_Audit_overview.fbi
+	run dsaw_overview.fbi
+	s = @udf FBI.local_cmd with sleep 60s
+	s = @udf FBI.local_cmd with init 6
+"""
+	#启动xlink
+	#Delete 注释 by pjb on 2023-06-15 17:52:49
+#a = @udf FBI.x_finder3_start2 with api_aaai_json
+#	a = @udf FBI.x_finder3_start2 with req_alm
+#	a = @udf FBI.x_finder3_start2 with dns
+#	a = @udf FBI.x_finder3_start2 with api_visit
+#	a = @udf FBI.x_finder3_start2 with api_owasp_2_3
+#	a = @udf FBI.x_finder3_start2 with api_owasp_sen_data
+#	a = @udf FBI.x_finder3_start2 with api_aaai_jso
+#	a = @udf FBI.x_finder3_start2 with api_mege
+#	a = @udf FBI.x_finder3_start2 with api_owasp2
+#	a = @udf FBI.x_finder3_start2 with api_owasp4
+#	a = @udf FBI.x_finder3_start2 with api_risk_event
+#	a = @udf FBI.x_finder3_start2 with api_monitor_ckh
+#	a = @udf FBI.x_finder3_start2 with api_delay_json
+#	a = @udf FBI.x_finder3_start2 with api_proto
+#	a = @udf FBI.x_finder3_start2 with api_visit_hx
+#	a = @udf FBI.x_finder3_start2 with data_filter
+#	a = @udf FBI.x_finder3_start2 with req_alarm
+#	a = @udf FBI.x_finder3_start2 with ip_datalink_ckh
+#	a = @udf FBI.x_finder3_start2 with yuan_http
+#	a = @udf FBI.x_finder3_start2 with object_active
+#	a = @udf FBI.x_finder3_start2 with api_main_json2
+#	a = @udf FBI.x_finder3_start2 with main_process
+#	a = @udf FBI.x_finder3_start2 with api_owasp_1_1
+#	a = @udf FBI.x_finder3_start2 with api_owasp1_2
+#	a = @udf FBI.x_finder3_start2 with http_datafilter
+#	a = @udf FBI.x_finder3_start2 with api_model
+#	a = @udf FBI.x_finder3_start2 with modsecurity
+#	a = @udf FBI.x_finder3_start2 with api_owasp4_model
+#	a = @udf FBI.x_finder3_start2 with api_owasp4_2
+
+"""
+#Delete 注释 by pjb on 2023-06-10 11:06:36
+#s = @udf FBI.local_cmd with sudo rm -rf /dev/shm/merge.pkl
+#s = @udf FBI.local_cmd with sudo rm -rf /dev/shm/parm_iter.pkl
+#s = @udf FBI.local_cmd with sudo rm -rf /dev/shm/urlimit.pkl
+#s = @udf FBI.local_cmd with sudo rm -rf /dev/shm/dic.pkl
+#c=load ckh by ckh with TRUNCATE TABLE merge_urls
+
+
+
+
+clear @FID

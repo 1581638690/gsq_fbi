@@ -1,0 +1,162 @@
+#LastModifyDate:　2024-03-14T16:52:13    Author:   zwl
+#LastModifyDate:　2023-12-08T11:00:59.510744    Author:   zwl
+#LastModifyDate:　2023-12-06T17:44:21.036869    Author:   zwl
+#LastModifyDate:　2023-12-05T17:45:38.819920    Author:   zwl
+#LastModifyDate:　2023-11-03T17:53:48.898758    Author:   zwl
+#LastModifyDate:　2023-11-02T14:22:19.176575    Author:   zwl
+#LastModifyDate:　2023-10-26T17:15:35.187571    Author:   zwl
+#LastModifyDate:　2023-10-25T18:40:09.072241    Author:   zwl
+#FBI脚本文件
+#文件名: link_data_open.fbi
+#作者: zwl
+use @FID
+
+dd = load ssdb by ssdb0 with @data_key
+dd = loc dd by nodeType,nodeName,nodeExpandTypes
+type = eval dd by iloc[0,0]
+nodes = eval dd by iloc[0,1]
+type1 = eval dd by iloc[0,2]
+
+###节点
+node_type = load pq by link/link_type.pq
+
+####   展开的节点的关系    ==============================================================================================================================
+##  出度
+edge_out = @udf GL.query_http_mkd with g.V('$nodes').Tag('aaa').Out(['link_sql','link_http','link_http1','link_belong','link_belong1'],'path').All()
+text1 = if $edge_out != None with edge_out = @udf edge_out by FBI.json2df
+aa = if $text1 == False with edge_out = @udf udf0.new_df with (aaa,id,path)
+rename edge_out as ('aaa':'S','id':'O','path':'P')
+
+##  入度
+edge_in = @udf GL.query_http_mkd with g.V('$nodes').Tag('aaa').In(['link_sql','link_http','link_http1','link_belong','link_belong1'],'path').All()
+text2 = if $edge_in != None with edge_in = @udf edge_in by FBI.json2df
+aa = if $text2 == False with edge_in = @udf udf0.new_df with (aaa,id,path)
+rename edge_in as ('aaa':'O','id':'S','path':'P')
+
+##  应用账号
+if '$type' == '应用账号' with edge1 = join edge_out,node_type by O,id with left
+
+##  管理终端
+if '$type' == '管理终端' with """
+	if '$type1' == '应用账号' with edge1 = join edge_in,node_type by S,id with left
+	if '$type1' == '应用' or '$type1' == '接口' or '$type1' == '数据库' with edge1 = join edge_out,node_type by O,id with left
+"""
+
+##  业务终端
+if '$type' == '业务终端' with """
+	if '$type1' == '应用账号' with edge1 = join edge_in,node_type by S,id with left
+	if '$type1' == '应用' or '$type1' == '接口' with edge1 = join edge_out,node_type by O,id with left
+"""
+
+##  接口
+if '$type' == '接口' with """
+	if '$type1' == '终端' with edge1 = join edge_in,node_type by S,id with left
+	if '$type1' == '应用' with edge1 = join edge_out,node_type by O,id with left
+"""
+
+##  应用
+if '$type' == '应用' with """
+	if '$type1' == '终端' or '$type1' == '接口' with edge1 = join edge_in,node_type by S,id with left
+	if '$type1' == '数据库' with edge1 = join edge_out,node_type by O,id with left
+"""
+
+##  数据库
+if '$type' == '数据库' with edge1 = join edge_in,node_type by S,id with left
+
+##  数据终端
+if '$type' == '数据终端' with edge1 = join edge_out,node_type by O,id with left
+
+edge1.type = str type by replace('业务','')
+edge1.type = str type by replace('管理','')
+edge1.type = str type by replace('数据','')
+edge1 = filter edge1 by type == '$type1'
+edge1 = loc edge1 by S,O,P
+###  对页面已有图谱数据去重
+edge = load ssdb by ssdb0 with link_edges
+edge = add aa by 1
+eee = join edge,edge1 by [S,O,P],[S,O,P] with outer
+eee = @udf eee by udf0.df_fillna with 0
+edges = filter eee by aa == 0
+edges = loc edges by S,O,P
+####   判断是否有新增关系数据
+if edges.index.size > 0 with """
+	### http、sql关系线加字  D  ----------------------------------------
+	ddd = load pq by link/link_http_acc.pq
+	edges = join edges,ddd by [S,O],[zd,url_name] with left
+	edges = @udf edges by udf0.df_fillna with ''
+	edges = loc edges by S,O,P,account
+	ddd = load pq by link/link_http1_acc.pq
+	edges = join edges,ddd by [S,O],[zd,app] with left
+	edges = @udf edges by udf0.df_fillna with ''
+	edges = loc edges by S,O,P,account,account1
+	ddd = load pq by link/link_sql_user.pq
+	edges = join edges,ddd by [S,O],[app,db] with left
+	edges = @udf edges by udf0.df_fillna with ''
+	edges = loc edges by S,O,P,account,account1,user
+	edges = @udf edges by udf0.df_row_lambda with (x: x[3] if x[3] != '' else x[4])
+	rename edges as ('lambda1':'D1')
+	edges = @udf edges by udf0.df_row_lambda with (x: x[5] if x[5] != '' else x[6])
+	rename edges as ('lambda1':'D')
+	edges = loc edges by S,O,P,D
+	edges = distinct edges by S,O,P,D
+	### http、sql关系线加字  D  ----------------------------------------
+	edge = union edge,edges
+	edge = loc edge by S,O,P,D
+	edge = distinct edge by S,O,P,D
+"""
+push edge as edges
+###   展开的关系
+aa1 = load pq by link/link_edge_open.pq
+edges = union edges,aa1
+edges = distinct edges by S,O,P,D
+store edges to pq by link/link_edge_open.pq
+edges = load pq by link/link_edge_open.pq 
+
+###########过滤节点  ==============================================================================================================================
+tt1 = loc edges by S
+tt2 = loc edges by O 
+rename tt2 as ('O':'S')
+tt = union tt1,tt2
+###  对页面已有节点数据去重
+node = load ssdb by ssdb0 with link_nodes
+node = add aa by 1
+eee = join node,tt by id,S with outer
+eee = @udf eee by udf0.df_fillna with 0
+nodes = filter eee by aa == 0
+###  判断是否有新增节点  
+if nodes.index.size > 0 with """
+	nodes = loc nodes by S
+	nodes = join nodes,node_type by S,id with left
+	nodes = @udf nodes by udf0.df_fillna with ''
+	##  计算节点关系数量
+	num1 = group edge by S agg S:count
+	num1 = loc num1 by index to id
+	num2 = group edge by O agg O:count
+	num2 = loc num2 by index to id
+	nodes = join nodes,num1 by id,id with left
+	nodes = join nodes,num2 by id,id with left
+	nodes = @udf nodes by udf0.df_fillna with 0
+	nodes = add num by (df["S_count"]+df["O_count"])
+	nodes = add light by ('false')
+	nodes = add count by 10
+#	##过滤节点
+#	nodes.detail_type = lambda type by (x:x)
+#	nodes.detail_type = lambda detail_type by (x:x if x != '业务终端' else '终端')
+#	nodes.detail_type = lambda detail_type by (x:x if x != '管理终端' else '终端')
+#	nodes = loc nodes by id,type,light,count,num,detail_type
+#	nodes = distinct nodes by id,type,light,count,num,detail_type
+	node = union nodes,node1
+	node = @udf node by udf0.df_fillna with ''
+	node = loc node by id,type,light,count,num,detail_type,top10,detail_type_count
+	node = distinct node by id,type,light,count,num,detail_type,top10,detail_type_count
+"""
+push node as nodes
+###  展开的节点信息
+aa1 = load pq by link/link_node_open.pq
+nodes = union nodes,aa1
+nodes = loc nodes by id,type,light,count,num
+nodes = distinct nodes by id,type,light,count,num
+store nodes to pq by link/link_node_open.pq
+nodes = load pq by link/link_node_open.pq
+
+clear @FID

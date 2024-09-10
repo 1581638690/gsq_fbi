@@ -1,0 +1,180 @@
+#LastModifyDate:　2024-01-18T17:03:20    Author:   zwl
+#LastModifyDate:　2023-08-01T16:46:33.156530    Author:   zwl
+#LastModifyDate:　2023-07-26T11:32:07.433612    Author:   zwl
+#LastModifyDate:　2023-07-25T15:34:00.025682    Author:   zwl
+#LastModifyDate:　2023-05-12T09:33:28.549787    Author:   zwl
+#LastModifyDate:　2023-05-06T18:01:31.680951    Author:   zwl
+#LastModifyDate:　2023-04-07T14:57:42.199204    Author:   zwl
+#LastModifyDate:　2023-03-21T17:46:13.259651    Author:   zwl
+#LastModifyDate:　2023-02-16T13:55:33.890552    Author:   zwl
+#LastModifyDate:　2022-12-19T17:28:08.321988    Author:   zwl
+#LastModifyDate:　2022-12-12T11:07:01.101076    Author:   zwl
+#FBI脚本文件
+#文件名: lhq_visit_flow.fbi
+#作者: test
+use @FID
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_httpdata limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+#总访问次数
+#visit1 = load ckh by ckh with select count(timestamp) as visit_count,sum(content_length) as flow,left(toString(min(timestamp)),19) as time from api_visit
+visit1 = load ckh by ckh with select sum(visit_num) as visit_count,sum(visit_flow) as flow,left(toString(min(time)),19) as time from api_visit_hour
+if visit1.index.size == 0 with visit1 = @udf visit1 by udf0.df_append with (0,0,)
+alter visit1 by visit_count:int,flow:int,time:str
+visit = loc visit1 by visit_count
+visit.vi_count = lambda visit_count by (x:round(x/10000,2))
+visit = loc visit by vi_count
+rename visit as ('vi_count':'总访问量(万次)')
+tt = eval visit1 by iloc[0,2]
+visit = add tips by ("自$tt以来的总访问次数(HTTP协议)")
+store visit to ssdb by ssdb0 with visit:count 
+
+
+#总访问流量
+#大屏总流量：展示增加流量单位（aa）
+#flow = load ckh by ckh with select sum(content_length) as flow from api_visit
+flow = loc visit1 by flow
+v_flow = eval flow by iloc[0,0]
+if 0 <= $v_flow < 1024  with """
+	#大屏
+	aa = loc flow by flow
+	alter aa by flows:str
+	aa.flow = lambda flow by (x:x+'(B)')
+	store aa to ssdb by ssdb0 with visit_days1:sum
+"""
+
+if 1024 <= $v_flow < 1048576  with """
+	#大屏
+	#flow = add flows by flow.flow//1024
+	flow.flows = lambda flow by (x:round(x/1024,2))
+	aa = loc flow by flows
+	alter aa by flows:str
+	aa.flows = lambda flows by (x:x+'(KB)')
+	store aa to ssdb by ssdb0 with visit_days1:sum
+"""
+
+if 1048576 <= $v_flow < 1073741824  with """
+	#大屏
+	#flow = add flows by flow.flow//1048576
+	flow.flows = lambda flow by (x:round(x/1048576,2))
+	aa = loc flow by flows
+	alter aa by flows:str
+	aa.flows = lambda flows by (x:x+'(M)')
+	store aa to ssdb by ssdb0 with visit_days1:sum
+"""
+
+if 1073741824 <= $v_flow   with """
+	#大屏
+	#flow = add flows by flow.flow//1073741824
+	flow.flows = lambda flow by (x:round(x/1073741824,2))
+	aa = loc flow by flows
+	alter aa by flows:str
+	aa.flows = lambda flows by (x:x+'(G)')
+	store aa to ssdb by ssdb0 with visit_days1:sum
+"""
+
+################################################lhq_visit_flow.fbi  已增加到该脚本  保持与首页面板数据一致###################################
+#Delete 注释 by zwl on 2022-10-28 10:07:54
+#a = load ssdb by ssdb0 with visit_flow_hour:trend
+#store a to ssdb by ssdb0 with day:data
+#
+#b = load ssdb by ssdb0 with visit_flow_day:trend
+#store b to ssdb by ssdb0 with month:data
+#
+#c = load ssdb by ssdb0 with visit_seven_day:trend
+#c = @udf c by udf0.df_sort_index with (ascending=True)
+#store c to ssdb by ssdb0 with week:data
+
+
+#Delete 注释 by zwl on 2022-10-28 10:12:57   ###？？？
+#d = load ssdb by ssdb0 with warn_api
+#d = @udf d by VL.set_col_width with (300,150)
+#store d to ssdb by ssdb0 with warn_api:data
+
+
+##风险预警--------------------------------------------------------------#10-31：1，2，3 --》 0、1、2
+e = @udf RS.load_mysql_sql with (mysql1,select app,risk_level,first_time,risk_label from data_api_new where risk_level != "0" order by first_time desc limit 500)
+alter e by app:str,risk_level:str,first_time:str,risk_label:str
+e = distinct e by app with first
+e.first_time = str first_time by (replace('T',' '))
+e.first_time = str first_time by (slice(0,19))
+sens = load db by mysql1 with select risk_label,risk_name from data_api_risk
+alter sens by risk_label:str,risk_name:str
+sens = loc sens by risk_label to index
+rename sens by ("risk_name":"value")
+e = @udf e,sens by SP.tag2dict with risk_label
+level = load ssdb by ssdb0 with dd:API-risk_level
+e = @udf e,level by SP.tag2dict with risk_level
+e.risk_level = lambda risk_level by (x:x+'风险')
+e = loc e by app,risk_level,first_time,risk_label
+e= @udf e by VL.set_col_width with (250,80,200,220)
+e = @udf e by VL.set_col_color with (#fff,#fff,#fff,#f00)
+rename e by ("app":"风险应用","risk_level":"风险等级","first_time":"首次发现时间","risk_label":"风险内容")
+store e to ssdb by ssdb0 with risk:data
+
+##终端地域分布------------------------------------------------
+g = @udf RS.load_mysql_sql with (mysql1,select region,count(*) as 数量 from data_ip_new group by region order by 数量 desc limit 10 ;)
+g = @udf g by udf0.df_fillna_cols with region:'',数量:0
+g = filter g by region != ''
+g = order g by 数量 with desc limit 5
+g.详情 = lambda region by (x:x)
+g = loc g by region to index
+g = rename g by ("count(*)":"数量")
+store g to ssdb with ppregion:data
+
+##接受访问频次排名----------------------------------------------
+h = load db by mysql1 with select srcip,visit_num from data_ip_new order by visit_num desc limit 5
+alter h by srcip:str,visit_num:int
+rename h by ("srcip":"终端IP","maxcount":"数量") 
+store h to ssdb with riskipcount:data
+
+###（万次）------------------------
+#aa = @udf udf0.new_df with 访问次数
+#aa = @udf aa by udf0.df_append with ((万次))
+#store aa to ssdb by ssdb0 with fwcs:data
+
+
+###（G）-----------------------------------
+#aa = @udf udf0.new_df with 总流量
+#aa = @udf aa by udf0.df_append with ((G))
+#store aa to ssdb by ssdb0 with ll:data
+
+###高、中、低风险  数量-----------------------------------#10-31
+a = @udf udf0.new_df with risk_level
+a = @udf a by udf0.df_append with 0
+a = @udf a by udf0.df_append with 1
+a = @udf a by udf0.df_append with 2
+alter a by risk_level:str
+aa = load db by mysql1 with select risk_level,count(url) as num from data_api_new group by risk_level
+alter aa by risk_level:str,num:int
+aa = join a,aa by risk_level,risk_level with left
+aa = @udf aa by udf0.df_fillna_cols with num:0
+##低
+di = filter aa by risk_level == '0'
+di = loc di by num
+rename di by ('num':'低风险')
+store di to ssdb by ssdb0 with risklevel1:data
+##中
+zhong = filter aa by risk_level == '1'
+zhong = loc zhong by num
+rename zhong as ('num':'中风险')
+store zhong to ssdb by ssdb0 with risklevel2:data
+##高
+gao = filter aa by risk_level == '2'
+gao = loc gao by num
+rename gao as ('num':'高风险')
+store gao to ssdb by ssdb0 with risklevel3:data
+
+###弱点分布------------------------------------------------------------------------
+api19_risk = load db by mysql1 with select b.type1,count(a.api) as num from api19_risk a left join api19_type b on a.type = b.type group by b.type1 order by num desc limit 10
+alter api19_risk by type1:str,num:int
+api19_risk.弱点类型 = lambda type1 by (x:x)
+api19_risk = loc api19_risk by type1 to index 
+api19_risk = order api19_risk by num with asc
+rename api19_risk as ('num':'类型数量')
+store api19_risk to ssdb by ssdb0 with api19_risk:data
+
+
+clear @FID

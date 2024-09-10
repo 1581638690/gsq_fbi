@@ -1,0 +1,15 @@
+#LastModifyDate:　2023-02-27T18:52:07.454913    Author:   pjb
+#LastModifyDate:　2023-02-27T13:53:09.711837    Author:   superFBI
+#LastModifyDate:　2023-02-27T13:48:39.299564    Author:   superFBI
+#FBI脚本文件
+#文件名: json_dump/生效.init.fbi
+#作者: superFBI
+
+use @FID
+a = load ssdb by ssdb0 with @data_key
+fname = loc a by fname
+assert fname by df.iloc[0,0] !='' as break with 请先上传配置文件
+fname = eval fname by iloc[0,0]
+a1 = @udf SSDB.load_file with '$fname'
+assert find_df('a1',ptree) as break to 配置文件已生效 with 配置文件异常！
+clear @FID

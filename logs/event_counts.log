@@ -1,0 +1,389 @@
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.652479","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.657771","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.658146","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.658661","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.658800","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.659352","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.660037","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.660150","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.660246","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:03.758636","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:08.658780","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:17:08.659282","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.021536","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.026373","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.026728","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.027213","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.027350","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.027887","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.028596","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.028719","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.028819","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:04.127208","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:09.027334","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:18:09.027870","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.352717","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.358634","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.359010","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.359698","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.359850","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.360551","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.361456","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.361578","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.361683","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:04.459728","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:09.359816","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:19:09.360466","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.447011","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.453051","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.453425","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.454245","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.454419","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.455129","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.456001","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.456114","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.456211","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:04.554174","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:09.454367","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:20:09.454979","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.551877","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.557201","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.557577","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.558278","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.558447","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.559183","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.560065","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.560179","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.560285","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:04.658304","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:09.558398","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:21:09.559047","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.802711","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.809165","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.809599","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.810438","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.810597","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.811401","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.812466","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.812591","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.812697","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:04.910409","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:09.810550","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:22:09.811254","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.243499","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.248886","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.249264","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.249782","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.249934","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.250519","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.251231","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.251354","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.251457","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:05.349771","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:10.249901","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:23:10.250485","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.360084","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.366212","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.366572","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.367337","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.367516","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.368286","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.369263","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.369378","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.369476","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:05.467307","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:10.367468","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:24:10.368095","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.344669","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.350408","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.350789","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.351499","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.351650","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.352352","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.353272","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.353392","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.353498","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:05.451479","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:10.351615","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:10.352155","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.679324","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.684215","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.684532","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.685010","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.685147","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.685325","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.685951","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.686062","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.686160","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:25:56.784990","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:01.685139","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:01.685576","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.472442","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.478143","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.478507","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.478996","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.479135","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.479318","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.480031","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.480142","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.480240","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:05.578976","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:10.479119","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:26:10.479600","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.493530","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.501121","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.501575","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.502650","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.502830","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.503135","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.504902","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.505049","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.505159","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:05.602538","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:10.502712","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:27:10.503475","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.719417","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.726332","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.726786","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.727724","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.727893","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.728139","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.729647","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.729784","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.729891","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:05.827682","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:10.727839","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:28:10.728508","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.131423","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.137262","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.137650","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.138169","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.138307","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.138500","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.139183","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.139293","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.139387","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:06.238167","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:11.138292","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:11.138753","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:30.993844","nav_name":"event_counts","action":"启动参数","params":"link: 127.0.0.1:9092,topic: suricata,group: x,start-0: False,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:30.999553","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:30.999878","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:31.000630","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T15:29:31.000776","nav_name":"event_counts","action":"事件主循环","params":"KFK Source 连接中...","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.473816","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.479816","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.480213","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.480746","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.480893","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.481097","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.481833","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.481948","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.482051","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:32.580764","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:37.480888","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:15:37.481469","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.512219","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.519114","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.519503","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.520583","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.520758","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.521035","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.522499","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.522626","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.522743","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:12.620406","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:17.520691","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:16:17.521447","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.816725","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.822099","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.822455","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.823089","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.823233","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.823422","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.824307","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.824425","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.824523","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:12.923052","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:17.823194","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:17:17.823669","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:12.999169","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.005866","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.006275","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.007082","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.007252","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.007502","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.008507","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.008629","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.008735","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:13.107052","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:18.007198","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:18.007879","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.447374","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.452861","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.453187","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.453853","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.453997","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.454589","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.455401","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.455515","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.455613","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:47.553803","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:52.453941","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:18:52.454396","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.190979","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.196236","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.196611","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.197131","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.197278","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.197846","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.198558","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.198676","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.198779","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:13.297101","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:18.197238","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:18.197835","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.895419","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.900601","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.900955","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.901475","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.901620","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.902144","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.902858","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.902974","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:48.903078","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:49.001445","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:53.901572","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:19:53.902060","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.435445","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.440646","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.440991","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.441646","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.441793","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.442483","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.443353","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.443482","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.443592","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:13.541653","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:18.441768","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:20:18.442506","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.592646","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.598800","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.599154","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.599823","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.599995","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.600706","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.601621","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.601749","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.601853","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:13.699813","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:18.599950","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:21:18.600611","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.750278","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.756463","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.756844","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.757488","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.757673","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.758270","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.758992","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.759115","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.759220","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:13.857411","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:18.757592","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:22:18.758151","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.797112","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.802711","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.803117","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.803770","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.803910","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.804492","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.805323","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.805453","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.805551","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:13.903796","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:18.803902","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:18.804487","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.322347","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.328180","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.328571","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.329121","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.329270","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.329833","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.330576","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.330706","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.330820","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:47.429119","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:52.329240","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:23:52.329812","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.043121","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.048495","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.048852","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.049516","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.049668","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.050353","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.051213","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.051335","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.051438","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:14.149499","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:19.049642","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:24:19.050291","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.907315","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 13,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.913868","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.914259","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.915001","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.915165","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.915943","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.917006","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.917133","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:13.917239","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:14.015008","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:18.915127","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:18.915653","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.161129","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.165822","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.166144","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.166600","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.166737","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.167229","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.167913","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.168025","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.168123","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:47.266587","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:52.166726","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:25:52.167183","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.192157","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.199420","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.199857","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.200912","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.201107","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.202042","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.203588","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.203765","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.203872","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:14.300789","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:19.201029","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:26:19.201773","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.403305","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,count: 1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.408614","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.408966","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.409492","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.409634","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.410173","nav_name":"event_counts","action":"启动出错","params":"PubShm","operate_result":"错误","failed_reason":"[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.410864","nav_name":"event_counts","action":"主函数","params":"异常退出PubShm:[Errno 2] No such file or directory: '\/xlink_shm_events_0.pub'","operate_result":"错误","failed_reason":"错误跟踪Traceback (most recent call last):\n  File \"xlink_core.pyx\", line 820, in xlink_core.Main5\n  File \"\/opt\/fbi-base\/lib\/python3.11\/multiprocessing\/shared_memory.py\", line 104, in __init__\n    self._fd"}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.410978","nav_name":"event_counts","action":"停止","params":"二阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.411079","nav_name":"event_counts","action":"停止","params":"三阶段开始停止!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:14.509475","nav_name":"event_counts","action":"停止","params":"数据窗口任务停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:19.409611","nav_name":"event_counts","action":"监控程序","params":"printf::收到消息退出","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:19.410139","nav_name":"event_counts","action":"停止","params":"全部停止完毕!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:42.154337","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:42.159875","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:42.160230","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:42.160861","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:42.161006","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:27:42.161507","nav_name":"event_counts","action":"启动完成","params":"PubShm 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:36:45.130893","nav_name":"event_counts","action":"启动参数","params":"shm_name: events,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:36:45.136229","nav_name":"event_counts","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:36:45.136583","nav_name":"event_counts","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:36:45.137111","nav_name":"event_counts","action":"组件启动","params":"数据窗口函数-3, 定时任务函数--1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:36:45.137256","nav_name":"event_counts","action":"事件主循环","params":"PubShm 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-07T16:36:45.137797","nav_name":"event_counts","action":"启动完成","params":"PubShm 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}

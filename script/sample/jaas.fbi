@@ -1,0 +1,22 @@
+#FBI脚本文件
+#文件名: sample/jaas.fbi
+#作者: abc
+
+#从ssdb 加载json对象
+d = load ssdb by ssdb0 with dashboard2:001 as json
+
+#json对象转换成单值变量
+j2 = jaas d by json.dumps(d) as sdf
+
+a = add content by ('$j2')
+
+b = @udf a by CRUD.save_table with (@link,@table)
+
+#从单值变量转换成json对象
+j3 = jaas j3 by json.loads('$j2')
+
+#允许直接定义json对象
+jaas j47 by j47["1"]=1
+
+#保存json对象
+store j3 to ssdb by ssdb0 with test:0

@@ -1,0 +1,49 @@
+#FBI脚本文件
+#文件名: ckh_test.fbi
+#作者: admin
+
+define ckh as 192.168.1.192:19000:default:client
+
+b = load ckh by ckh with """
+
+CREATE TABLE flow (src_ip String, dest_ip String, src_port Int32, dest_port Int32, bytes_toserver Int64, bytes_toclient Int64,
+ flow_start DateTime64(6),
+ flow_end DateTime64(6)
+)
+ENGINE = MergeTree() 
+PARTITION BY toYYYYMMDD(flow_start)
+order by flow_start
+
+"""
+
+
+c = load ckh by ckh with show tables
+
+
+c = load ckh by ckh with select * from flow2 limit 10
+
+c = load ckh by ckh with select src_ip,dest_ip, count(*)  as links from flow2 group by src_ip,dest_ip
+
+#24小时全量连接数统计
+h = load ckh by ckh with select toHour(flow_start) as hour,count(*) as links from flow2 group by hour
+
+#30天的区间的数据，只能用单引号
+h30 = load ckh by ckh with select toHour(flow_start) as hour,count(*) as links from flow2 where toDate(flow_start)>toDate('2020-05-15') and toDate(flow_start) <toDate('2020-06-15') group by hour
+
+#不同的日期转换
+t = load ckh by ckh with select toYYYYMMDD(flow_start), toDate(flow_start),toWeek(flow_start) from flow2 limit 10
+
+#今天的数据
+t = load ckh by ckh with select toYYYYMMDD(flow_start), toDate(flow_start) from flow2 where toDate(flow_start)=toDate(now()) limit 10
+
+#昨天的数据
+t = load ckh by ckh with select toYYYYMMDD(flow_start), toDate(flow_start) from flow2 where toDate(flow_start)=toDate(now())-1 limit 10
+
+#两个时间的差值，单位小时
+t = load ckh by ckh with SELECT dateDiff('hour', toDateTime('2018-01-01 22:00:00'), toDateTime('2018-01-02 23:00:00'));
+
+
+rename c as {"src_ip":"source","dest_ip":"target","links":"value"}
+
+
+

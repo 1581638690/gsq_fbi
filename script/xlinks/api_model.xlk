@@ -1,0 +1,494 @@
+#LastModifyDate:　2024-01-09T11:43:47    Author:   qh
+#LastModifyDate:　2024-01-09T10:26:37    Author:   rzc
+#LastModifyDate:　2024-01-08T09:15:09    Author:   superFBI
+#LastModifyDate:　2024-01-06T15:47:30    Author:   superFBI
+#LastModifyDate:　2024-01-06T13:53:28    Author:   superFBI
+#LastModifyDate:　2024-01-05T09:54:25.740756    Author:   superFBI
+#LastModifyDate:　2023-12-27T13:59:12.229975    Author:   superFBI
+#LastModifyDate:　2023-12-20T11:19:07.229000    Author:   superFBI
+#LastModifyDate:　2023-12-20T11:05:32.958214    Author:   superFBI
+#LastModifyDate:　2023-09-25T18:03:04.434533    Author:   superFBI
+#LastModifyDate:　2023-08-08T18:37:17.256513    Author:   pjb
+#处理访问信息，最终数据保存在clickhouse中
+#初始化
+init => {
+	stream["meta_name"] = "数据泄露风险模型"
+	stream["meta_desc"] = "风险模型构建1479，从api_visit主题中消费数据，存入ckh数据库表api_model"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["ckh_link"] = a["kfk"]["data"]["addr_c"]
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	#stream["source"]= {"unix_udp":"/tmp/model"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	if "api_model" in a:
+		stream["sends"] = 1
+		set_param("syslog","1")
+	else:
+		stream["sends"] = 0
+		set_param("syslog","0")
+	stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	stream["st"]["st_60s"]={"times":60,"fun":"send60"}
+	stream["stw"]["stw_flow"]={"times":60,"fun":"flow"}
+	stream["count"] = 0
+	stream["count-10"] = 0
+	stream["ap"] = load_ssdb_hall("FF:acc_ip")
+	stream["up"] = load_ssdb_hall("FF:url_ip")
+	stream["ua"] = load_ssdb_hall("FF:url_acc")
+	stream["au"] = load_ssdb_hall("FF:acc_url")
+	stream["pu"] = load_ssdb_hall("FF:ip_url")
+	#stream["risk_url"] = load_ssdb_hall("FF:risk_url")
+	r = load_ssdb_kv("risk_url_xlk")["data"]
+	stream["risk_url"] = []
+	for item in r:
+		stream["risk_url"].append(item[0])
+	s = load_ssdb_kv("monitor_url_xlk")["data"]
+	stream["monitor_url"] = []
+	for item in s:
+		stream["monitor_url"].append(item[0])
+	c = load_ssdb_kv("model_config")
+	stream["model1_count"] = c["setting"]["model1"]["srcip_count"]
+	stream["model1_on"] = c["setting"]["switch"]["model1"]
+	stream["model4_on"] = c["setting"]["switch"]["model4"]
+	stream["model6_on"] = c["setting"]["switch"]["model6"]
+	stream["model7_on"] = c["setting"]["switch"]["model7"]
+	stream["model8_on"] = c["setting"]["switch"]["model8"]
+	stream["model9_on"] = c["setting"]["switch"]["model9"]
+	stream["model1_conf"] = delem(c["setting"]["model1"]["whitelist"])
+	stream["model4_conf"] = delem(c["setting"]["model4"]["whitelist"])
+	stream["model6_conf"] = delem(c["setting"]["model6"]["whitelist"])
+	stream["model7_conf"] = delem(c["setting"]["model7"]["whitelist"])
+	stream["model8_conf"] = delem(c["setting"]["model8"]["whitelist"])
+	stream["model9_conf"] = delem(c["setting"]["model9"]["whitelist"])
+	stream["all_combo"] = c["setting"]["switch"]["all_combo"]
+	srcip_model = load_ssdb_kv("srcip_model_xlk")["data"]
+	stream["srcip_model"] = []
+	for item in srcip_model:
+		stream["srcip_model"].append(item[0])
+	stream["CKH"] = CKH_Client(host=stream["ckh_link"],port=19000,user="default",password="client")
+}
+
+
+#事件处理函数
+events => {
+	data_type=o.get("data_type")
+	if data_type == "XML" or data_type == "数据文件" or data_type == "JSON" or data_type == "动态脚本":
+		srcip = o.get("src_ip")
+		if srcip in stream["srcip_model"]:
+			url = o.get("url")
+			if stream["all_combo"] or url in stream["monitor_url"]:
+				account = o.get("account")
+				ktimestamp = o["timestamp"]
+				o["timestamp"] = iso_to_datetime(o["timestamp"])
+				v = clone_o(o)
+				if o.get("realip"):
+					srcip = o.get("realip")
+			#1.同一账号多终端访问敏感数据
+				#if stream["model1_on"]:
+				http_api = deepcopy(v)
+				ps = 0
+				for i in stream["model1_conf"]:
+					a = 0
+					for k in i:
+						if http_api[k] == i[k]:
+							a = a + 1
+					if len(i) == a:
+						ps = 1
+						break
+				if not stream["model1_conf"] or ps:
+					if account and url in stream["risk_url"]:
+						if account not in stream["ap"]:
+							list1 = []
+							list1.append(srcip)
+							stream["ap"][account] = list1
+							to_ssdb_h("FF:acc_ip", account, stream["ap"][account])
+						elif srcip not in stream["ap"][account]:
+							stream["ap"][account].append(srcip)
+							to_ssdb_h("FF:acc_ip", account, stream["ap"][account])
+							if stream["model1_on"]:
+								if len(stream["ap"][account]) > stream["model1_count"]:
+									http_api = deepcopy(v)
+									http_api["id"] = xlink_uuid(1)
+									http_api["type"] = 1
+									http_api["level"] = 1
+									http_api["proof"] = o.get("id")
+									http_api["desc"] = "一个账号在多个终端上登录并访问敏感接口"
+									srcips = stream["ap"][account]
+									http_api["message"] = "账号“" + account + "”在多个终端上登录并访问敏感接口，其他登录终端有" + str(srcips)
+									proofs = {}
+									proofs["判定标准"] = "账号多终端访问敏感数据：同一账号在终端上访问敏感数据接口，当该账号出现在不同终端的数据大于设定的阈值时发出告警"
+									proofs["账号"] = account
+									proofs["终端"] = srcips
+									proofs["阈值"] = stream["model1_count"]
+									proofs["结果"] = "同一账号在" + str(len(stream["ap"][account])) + "个终端上登录过，且都访问了敏感接口"
+									proofs["证据"] = {}
+									proofs["证据"]["时间"] = "HTTP协议ID"
+									proofs["证据"][str(o.get("timestamp"))] = o.get("id")
+									proofs = ujson.dumps(proofs, ensure_ascii=False)
+									http_api["proofs"] = proofs
+									to_table(http_api)
+									if stream["sends"]:
+										s = deepcopy(http_api)
+										s["event_type"] = "model"
+										#to_kfk(s)
+										to_json_file("/data/syslog_file/eve",s)
+			#9.重要接口新终端或账户访问行为
+				#if stream["model8_on"]:
+				http_api = deepcopy(v)
+				ps = 0
+				for i in stream["model8_conf"]:
+					a = 0
+					for k in i:
+						if http_api[k] == i[k]:
+							a = a + 1
+					if len(i) == a:
+						ps = 1
+						break
+				if not stream["model8_conf"] or ps:
+					if url not in stream["up"]:
+						list1 = []
+						list1.append(srcip)
+						stream["up"][url] = list1
+						to_ssdb_h("FF:url_ip", url, stream["up"][url])
+					elif srcip not in stream["up"][url]:
+						stream["up"][url].append(srcip)
+						to_ssdb_h("FF:url_ip", url, stream["up"][url])
+						if stream["model8_on"]:
+							http_api["id"] = xlink_uuid(1)
+							http_api["type"] = 8
+							http_api["level"] = 0
+							http_api["proof"] = o.get("id")
+							http_api["desc"] = "重要接口新终端访问行为"
+							http_api["message"] = "新终端“" + srcip + "”访问审计接口" + url
+							proofs = {}
+							proofs["判定标准"] = "新终端访问重要接口：重要接口（开启审计的接口）在被首次出现的终端访问时发出告警"
+							proofs["接口"] = url
+							proofs["终端"] = srcip
+							proofs["结果"] = "终端第一次访问了开启审计功能的接口"
+							proofs["证据"] = {}
+							proofs["证据"]["时间"] = "HTTP协议ID"
+							proofs["证据"][str(o.get("timestamp"))] = o.get("id")
+							proofs = ujson.dumps(proofs, ensure_ascii=False)
+							http_api["proofs"] = proofs
+							to_table(http_api)
+							if stream["sends"]:
+								s = deepcopy(http_api)
+								s["event_type"] = "model"
+								#to_kfk(s)
+								to_json_file("/data/syslog_file/eve",s)
+				#if stream["model9_on"]:
+				if account:
+					http_api = deepcopy(v)
+					ps = 0
+					for i in stream["model9_conf"]:
+						a = 0
+						for k in i:
+							if http_api[k] == i[k]:
+								a = a + 1
+						if len(i) == a:
+							ps = 1
+							break
+					if not stream["model9_conf"] or ps:
+						if url not in stream["ua"]:
+							list1 = []
+							list1.append(account)
+							stream["ua"][url] = list1
+							to_ssdb_h("FF:url_ip", url, stream["ua"][url])
+						elif account not in stream["ua"][url]:
+							stream["ua"][url].append(account)
+							to_ssdb_h("FF:url_ip", url, stream["ua"][url])
+							if stream["model9_on"]:
+								http_api["id"] = xlink_uuid(1)
+								http_api["type"] = 9
+								http_api["level"] = 0
+								http_api["proof"] = o.get("id")
+								http_api["desc"] = "重要接口新终端或账户访问行为"
+								http_api["message"] = "新账号“" + account + "”访问审计接口" + url
+								proofs = {}
+								proofs["判定标准"] = "新账号访问重要接口：重要接口（开启审计的接口）在被首次出现的账号访问时发出告警"
+								proofs["接口"] = url
+								proofs["账号"] = account
+								proofs["结果"] = "账号第一次访问了开启审计功能的接口"
+								proofs["证据"] = {}
+								proofs["证据"]["时间"] = "HTTP协议ID"
+								proofs["证据"][str(o.get("timestamp"))] = o.get("id")
+								proofs = ujson.dumps(proofs, ensure_ascii=False)
+								http_api["proofs"] = proofs
+								to_table(http_api)
+								if stream["sends"]:
+									s = deepcopy(http_api)
+									s["event_type"] = "model"
+									#to_kfk(s)
+									to_json_file("/data/syslog_file/eve",s)
+			#7.同一终端或账户访问操作基线偏离行为
+				#if stream["model6_on"]:
+				http_api = deepcopy(v)
+				ps = 0
+				for i in stream["model6_conf"]:
+					a = 0
+					for k in i:
+						if http_api[k] == i[k]:
+							a = a + 1
+					if len(i) == a:
+						ps = 1
+						break
+				if not stream["model6_conf"] or ps:
+					if srcip not in stream["pu"]:
+						list1 = []
+						list1.append(url)
+						stream["pu"][srcip] = list1
+						to_ssdb_h("FF:ip_url", srcip, stream["pu"][srcip])
+					elif url not in stream["pu"][srcip]:
+						stream["pu"][srcip].append(url)
+						to_ssdb_h("FF:ip_url", srcip, stream["pu"][srcip])
+						if stream["model6_on"]:
+							http_api["id"] = xlink_uuid(1)
+							http_api["type"] = 6
+							http_api["level"] = 0
+							http_api["proof"] = o.get("id")
+							http_api["desc"] = "终端访问操作非常用接口"
+							http_api["message"] = "终端“" + srcip + "”访问了非常用接口" + url
+							proofs = {}
+							proofs["判定标准"] = "终端访问操作基线偏离行为：终端在第一访问之前未访问过的接口时发出告警"
+							proofs["接口"] = url
+							proofs["终端"] = srcip
+							proofs["结果"] = "终端访问了之前没有访问过的接口"
+							proofs["证据"] = {}
+							proofs["证据"]["时间"] = "HTTP协议ID"
+							proofs["证据"][str(o.get("timestamp"))] = o.get("id")
+							proofs = ujson.dumps(proofs, ensure_ascii=False)
+							http_api["proofs"] = proofs
+							to_table(http_api)
+							if stream["sends"]:
+								s = deepcopy(http_api)
+								s["event_type"] = "model"
+								#to_kfk(s)
+								to_json_file("/data/syslog_file/eve",s)
+				#if stream["model7_on"]:
+				if account:
+					http_api = deepcopy(v)
+					ps = 0
+					for i in stream["model7_conf"]:
+						a = 0
+						for k in i:
+							if http_api[k] == i[k]:
+								a = a + 1
+						if len(i) == a:
+							ps = 1
+							break
+					if not stream["model7_conf"] or ps:
+						if srcip not in stream["au"]:
+							list1 = []
+							list1.append(url)
+							stream["au"][account] = list1
+							to_ssdb_h("FF:acc_url", account, stream["au"][account])
+						elif url not in stream["au"][account]:
+							stream["au"][account].append(url)
+							to_ssdb_h("FF:acc_url", account, stream["au"][account])
+							if stream["model7_on"]:
+								http_api["id"] = xlink_uuid(1)
+								http_api["type"] = 7
+								http_api["level"] = 0
+								http_api["proof"] = o.get("id")
+								http_api["desc"] = "账户访问操作非常用接口"
+								http_api["message"] = "账户“" + account + "”访问了非常用接口" + url
+								proofs = {}
+								proofs["判定标准"] = "账号访问操作基线偏离行为：账号在第一访问之前未访问过的接口时发出告警"
+								proofs["接口"] = url
+								proofs["账号"] = account
+								proofs["结果"] = "账号访问了之前没有访问过的接口"
+								proofs["证据"] = {}
+								proofs["证据"]["时间"] = "HTTP协议ID"
+								proofs["证据"][str(o.get("timestamp"))] = o.get("id")
+								proofs = ujson.dumps(proofs, ensure_ascii=False)
+								http_api["proofs"] = proofs
+								to_table(http_api)
+								if stream["sends"]:
+									s = deepcopy(http_api)
+									s["event_type"] = "model"
+									#to_kfk(s)
+									to_json_file("/data/syslog_file/eve",s)
+			#4.频繁身份登陆验证行为
+				if stream["model4_on"]:
+					http_api = deepcopy(v)
+					ps = 0
+					for i in stream["model4_conf"]:
+						a = 0
+						for k in i:
+							if http_api[k] == i[k]:
+								a = a + 1
+						if len(i) == a:
+							ps = 1
+							break
+					if not stream["model4_conf"] or ps:
+						api_type = o.get("api_type")
+						if api_type == "1":
+							k = iso_to_timestamp(ktimestamp)
+							#http_api = deepcopy(v)
+							http_api["id"] = xlink_uuid(1)
+							http_api["type"] = 4
+							http_api["level"] = 1
+							http_api["suid"] = o.get("id")
+							http_api["response"] = o.get("http_response_body")
+							http_api["desc"] = "单一终端频繁访问登录接口"
+							http_api["message"] = "终端“" + srcip + "”频繁登录接口" + http_api.get("url")
+							push_stw("stw_flow",k,http_api)
+
+
+}
+
+flow => stw{
+	#store df to pkl by flow_stat0010.pkl
+	#df = load pkl by flow_stat44.pkl
+	model_config = load ssdb by ssdb0 with model_config as json
+	bcount = jaas model_config by model_config["setting"]["model4"]["count"] as sdf
+	df2 = group df by srcip,url agg srcip:count
+	df2 = @udf df2 by udf0.df_reset_index
+	df2 = filter df2 by srcip_count > $bcount
+	df3 = join df2,df by [srcip,url],[srcip,url]
+	df3 = distinct df3 by (srcip,url)
+	acc = @udf udf0.new_df
+	proof = @udf udf0.new_df
+	proofs = @udf udf0.new_df
+	bcount = @sdf sys_str with ($bcount,strip())
+	foreach df3 run """
+		f = filter df by (srcip == "@srcip" and url == "@url")
+		a = loc f by account
+		a = distinct a by account
+		a = @udf a by udf0.df_T
+		a = @udf a by udf0.df_cs2l
+		acc = union (acc,a)
+		b = loc f by suid
+		b= @udf b by udf0.df_T
+		b = @udf b by udf0.df_cs2l
+		proof = union (proof,b)
+		c = loc f by timestamp,suid,response
+		#rename c as ("uid":"suid")
+		#assert $b == 10 as break with 123
+		d = @udf c by model.proof4 with @srcip,@url,$bcount,@srcip_count
+		proofs = union (proofs,d)
+	""" with (url=$2,srcip=$1,srcip_count=$3)
+	acc = @udf acc by udf0.df_reset_index
+	acc = loc acc drop index
+	df3 = @udf df3 by udf0.df_fillna
+	df3 = @udf df3 by udf0.df_reset_index
+	df3 = loc df3 drop index
+	proof = @udf proof by udf0.df_reset_index
+	proof = loc proof drop index
+	proofs = @udf proofs by udf0.df_reset_index
+	proofs = loc proofs drop index
+	df3 = join df3,acc by index,index with left
+	alter df3.srcip_count as str
+	alter df3.s0 as str
+	df3 = add message with (df3["message"] + ',次数:' + df3["srcip_count"] + '尝试账号：' + df3["s0"])
+	df3 = loc df3 drop (srcip_count,s0,suid,response)
+	df3 = join df3,proof by index,index with left
+	rename df3 by ("s0":"proof")
+	alter df3.proof as str
+	df3 = join df3,proofs by index,index with left
+	alter df3.timestamp as datetime64
+	store df3 to ckh by ckh with api_model
+	if "@syslog" == "1" with """
+		#define kfka as "@ss"
+		#k = @udf KFK.df_link with kfka
+		alter df3.timestamp as str
+		df3 = add event_type by ("model")
+		#a = @udf df3 by KFK.fast_store with kfka,api_send
+		a = @udf df3 by df2jsonfile.pushf
+	"""
+	drop df
+	drop df2
+	drop df3
+}
+
+#系统定时函数
+print10 => {
+	store_ckh(table,"api_model")
+
+}
+
+send60 => {
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	if "api_model" in a:
+		stream["sends"] = 1
+		set_param("syslog","1")
+	else:
+		stream["sends"] = 0
+		set_param("syslog","0")
+	r = load_ssdb_kv("risk_url_xlk")["data"]
+	b = []
+	for item in r:
+		b.append(item[0])
+	stream["risk_url"] = b
+	s = load_ssdb_kv("monitor_url_xlk")["data"]
+	c = []
+	for item in s:
+		c.append(item[0])
+	stream["monitor_url"] = c
+	srcip_model = load_ssdb_kv("srcip_model_xlk")["data"]
+	src = []
+	for item in srcip_model:
+		src.append(item[0])
+	stream["srcip_model"] = src
+	cc = load_ssdb_kv("model_config")
+	stream["model1_count"] = cc["setting"]["model1"]["srcip_count"]
+	stream["model1_on"] = cc["setting"]["switch"]["model1"]
+	stream["model4_on"] = cc["setting"]["switch"]["model4"]
+	stream["model6_on"] = cc["setting"]["switch"]["model6"]
+	stream["model7_on"] = cc["setting"]["switch"]["model7"]
+	stream["model8_on"] = cc["setting"]["switch"]["model8"]
+	stream["model9_on"] = cc["setting"]["switch"]["model9"]
+	stream["model1_conf"] = delem(cc["setting"]["model1"]["whitelist"])
+	stream["model4_conf"] = delem(cc["setting"]["model4"]["whitelist"])
+	stream["model6_conf"] = delem(cc["setting"]["model6"]["whitelist"])
+	stream["model7_conf"] = delem(cc["setting"]["model7"]["whitelist"])
+	stream["model8_conf"] = delem(cc["setting"]["model8"]["whitelist"])
+	stream["model9_conf"] = delem(cc["setting"]["model9"]["whitelist"])
+	stream["all_combo"] = cc["setting"]["switch"]["all_combo"]
+}
+
+xlink_uuid =>(x){
+	return str(time.time_ns())
+}
+
+clone_o =>(o){
+	http_api = {}
+	http_api["timestamp"] = o.get("timestamp")
+	http_api["url_a"] = o.get("url")
+	http_api["account"] = o.get("account")
+	http_api["url"] = o.get("url_c")
+	http_api["srcip"] = o.get("src_ip")
+	http_api["real_ip"] = o.get("realip")
+	http_api["srcport"] = o.get("src_port")
+	http_api["dstip"] = o.get("dest_ip")
+	http_api["dstport"] = o.get("dest_port")
+	http_api["app"] = o.get("app")
+	return http_api
+}
+
+
+delem =>(a){
+	for i in a:
+		for k in list(i.keys()):
+			if not i[k]:
+				del i[k]
+	for i in range(len(a)):
+		a.remove({})
+	return a
+}
+
+save => fbi {
+	model = @udf model by udf0.df_fillna
+	store model to ckh by ckh with api_model
+	#assert visit by df.index.size >0 as notice to save[api_visit]成功[$t2][$t1] with 访问表无数据保存!
+	drop model
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	#from method_fun import *
+	from copy import deepcopy
+	import ujson
+}

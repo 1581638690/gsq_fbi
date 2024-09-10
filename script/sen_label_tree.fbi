@@ -1,0 +1,148 @@
+#LastModifyDate:　2024-03-28T16:01:36    Author:   pjb
+#LastModifyDate:　2024-03-22T16:15:24    Author:   pjb
+#LastModifyDate:　2024-03-22T10:30:10    Author:   pjb
+#LastModifyDate:　2024-03-15T10:06:16    Author:   pjb
+#LastModifyDate:　2024-03-14T12:24:31    Author:   pjb
+#LastModifyDate:　2024-03-14T11:15:59    Author:   pjb
+#LastModifyDate:　2023-11-17T15:52:12.967216    Author:   pjb
+#LastModifyDate:　2023-11-15T18:41:43.203031    Author:   pjb
+#LastModifyDate:　2023-11-15T15:16:58.229029    Author:   pjb
+#LastModifyDate:　2023-11-14T18:59:31.120453    Author:   pjb
+#LastModifyDate:　2023-11-13T19:00:48.247801    Author:   pjb
+use @FID
+
+sen = load pq by sensitive/sens_data.pq
+rename sen as ("key":"sen_key")
+#api
+sen_api = group sen by url,sen_key agg num:sum
+sen_api = @udf sen_api by udf0.df_reset_index
+count = load ckh by ckh with select url,count() count from sen_http_count group by url
+sen_api = join sen_api,count by url,url
+sen_api = add type by ('流动')
+sen_api = @udf sen_api by udf0.df_fillna with 0
+rename sen_api as ("num_sum":"num")
+sen_api = @udf sen_api by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_api_tree)
+@udf sen_api by CRUD.save_table with (mysql1,sen_api_tree)
+# app
+sen_api = group sen by app,sen_key agg num:sum
+sen_api = @udf sen_api by udf0.df_reset_index
+count = load ckh by ckh with select app,count() count from sen_http_count group by app
+sen_api = join sen_api,count by app,app
+sen_api = add type by ('流动')
+sen_api = @udf sen_api by udf0.df_fillna with 0
+rename sen_api as ("num_sum":"num")
+sen_api = @udf sen_api by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_app_tree)
+@udf sen_api by CRUD.save_table with (mysql1,sen_app_tree)
+#account
+sen_api = group sen by account,sen_key agg num:sum
+sen_api = @udf sen_api by udf0.df_reset_index
+sen_api = filter sen_api by account !=''
+count = load ckh by ckh with select account,count() count from sen_http_count where account !='' group by account 
+sen_api = join sen_api,count by account,account
+sen_api = add type by ('使用')
+sen_api = @udf sen_api by udf0.df_fillna with 0
+rename sen_api as ("num_sum":"num")
+sen_api = @udf sen_api by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_acc_tree)
+@udf sen_api by CRUD.save_table with (mysql1,sen_acc_tree)
+#src
+sen_api = group sen by src_ip,sen_key agg num:sum
+sen_api = @udf sen_api by udf0.df_reset_index
+count = load ckh by ckh with select src_ip,count() count from sen_http_count group by src_ip 
+sen_api = join sen_api,count by src_ip,src_ip
+sen_api = add type by ('使用')
+sen_api = @udf sen_api by udf0.df_fillna with 0
+rename sen_api as ("num_sum":"num")
+sen_api = @udf sen_api by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_src_tree)
+@udf sen_api by CRUD.save_table with (mysql1,sen_src_tree)
+sen = load pq by sensitive/sens_dbms.pq
+alter sen.dest_port as str
+sen = add dest_ip by sen.dest_ip +":"+ sen.dest_port
+rename sen as ("key":"sen_key")
+#dbms
+sen_dbms = group sen by dest_ip,sen_key agg num:sum
+sen_dbms = @udf sen_dbms by udf0.df_reset_index
+count = load ckh by ckh with select CONCAT(dest_ip, ':', cast(dest_port as String)) AS dest_ip,count() count from dbms_sendata group by dest_ip 
+sen_dbms = join sen_dbms,count by dest_ip,dest_ip
+sen_dbms = add type by ('存储')
+sen_dbms = @udf sen_dbms by udf0.df_fillna with 0
+rename sen_dbms as ("num_sum":"num")
+sen_dbms = @udf sen_dbms by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_dbms_tree)
+@udf sen_dbms by CRUD.save_table with (mysql1,sen_dbms_tree)
+#dbuser
+sen_dbms = group sen by user,sen_key agg num:sum
+sen_dbms = @udf sen_dbms by udf0.df_reset_index
+sen_dbms = filter sen_dbms by user !=''
+count = load ckh by ckh with select user,count() count from dbms_sendata where user !='' group by user 
+sen_dbms = join sen_dbms,count by user,user
+sen_dbms = add type by ('使用')
+sen_dbms = @udf sen_dbms by udf0.df_fillna with 0
+rename sen_dbms as ("num_sum":"num")
+sen_dbms = @udf sen_dbms by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_dbuser_tree)
+a = @udf sen_dbms by CRUD.save_table with (mysql1,sen_dbuser_tree)
+
+
+sen_file = load ckh by ckh with select sha256 md5,rekey sen_key,filename,count() num from datafilter group by md5,sen_key,filename
+sen_file = @udf sen_file by udf0.df_zero_index
+sen_file = add type by ('存储')
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_file_tree)
+a = @udf sen_file by CRUD.save_table with (mysql1,sen_file_tree)
+
+sen_file = load ckh by ckh with select sha256 md5,filename,count() count from filter_count group by md5,filename
+a = load db by mysql1 with select md5,filename,id from sen_file_tree
+sen_file = join sen_file,a by [md5,filename],[md5,filename] with left
+sen_file = @udf sen_file by udf0.df_fillna with 0
+sen_file = @udf sen_file by udf0.df_set_index with id
+sen_file = loc sen_file by count
+#sen_file = @udf sen_file by udf0.df_zero_index
+#@udf RS.exec_mysql_sql with (mysql1,truncate table sen_file_tree)
+@udf sen_file by CRUD.save_table with (mysql1,sen_file_tree)
+
+
+app = load db by mysql1 with select count(id) o_count,sum(count) f_count,sum(num) m_count,sen_key from sen_app_tree group by sen_key
+app = add obj by ("应用")
+api = load db by mysql1 with select count(id) o_count,sum(count) f_count,sum(num) m_count,sen_key from sen_api_tree group by sen_key
+api = add obj by ("接口")
+acc = load db by mysql1 with select count(id) o_count,sum(count) f_count,sum(num) m_count,sen_key from sen_acc_tree group by sen_key
+acc = add obj by ("应用账号")
+src = load db by mysql1 with select count(id) o_count,sum(count) f_count,sum(num) m_count,sen_key from sen_src_tree group by sen_key
+src = add obj by ("终端")
+dbms = load db by mysql1 with select count(id) o_count,sum(count) f_count,sum(num) m_count,sen_key from sen_dbms_tree group by sen_key
+dbms = add obj by ("数据库对象")
+dbuser = load db by mysql1 with select count(id) o_count,sum(count) f_count,sum(num) m_count,sen_key from sen_dbuser_tree group by sen_key
+dbuser = add obj by ("数据库账号")
+aa = union app,api,acc,src,dbms,dbuser
+aa = @udf aa by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_obj)
+a = @udf aa by CRUD.save_table with (mysql1,sen_obj)
+
+
+
+a = load db by mysql1 with select sen_key,sum(o_count) o_count,sum(f_count) f_count, sum(m_count) m_count from sen_obj group by sen_key
+sen_class = load ssdb by ssdb0 with dd:reqs_label1
+rename sen_class as ("data":"sen_key","class":"obj")
+a = join a,sen_class by sen_key,sen_key
+a = @udf a by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_class)
+a = @udf a by CRUD.save_table with (mysql1,sen_class)
+
+#a = group a by obj agg o_count:sum,f_count:sum,m_count:sum
+#sen_dbms = @udf sen_dbms by udf0.df_reset_index
+app = load db by mysql1 with select '流动' type,sen_key,count(id) o_count,sum(count) f_count,sum(num) m_count,'应用' name from sen_app_tree group by type,sen_key
+api = load db by mysql1 with select '流动' type,sen_key,count(id) o_count,sum(count) f_count,sum(num) m_count,'接口' name from sen_api_tree group by type,sen_key
+acc = load db by mysql1 with select '使用' type,sen_key,count(id) o_count,sum(count) f_count,sum(num) m_count,'应用账号' name from sen_acc_tree group by type,sen_key
+src = load db by mysql1 with select '使用' type,sen_key,count(id) o_count,sum(count) f_count,sum(num) m_count,'终端' name from sen_src_tree group by type,sen_key
+dbms = load db by mysql1 with select '存储' type,sen_key,count(id) o_count,sum(count) f_count,sum(num) m_count,'数据库' name from sen_dbms_tree group by type,sen_key
+dbuser = load db by mysql1 with select '使用' type,sen_key,count(id) o_count,sum(count) f_count,sum(num) m_count,'数据库账号' name from sen_dbuser_tree group by type,sen_key
+aa = union app,api,acc,src,dbms,dbuser
+aa = @udf aa by udf0.df_zero_index
+@udf RS.exec_mysql_sql with (mysql1,truncate table sen_type)
+a = @udf aa by CRUD.save_table with (mysql1,sen_type)
+
+
+clear @FID

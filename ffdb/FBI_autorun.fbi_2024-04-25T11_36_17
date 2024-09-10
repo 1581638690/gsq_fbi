@@ -1,0 +1,176 @@
+#LastModifyDate:　2024-04-25T11:36:16    Author:   pjb
+#LastModifyDate:　2024-03-28T18:34:16    Author:   pjb
+#LastModifyDate:　2024-03-19T11:28:39    Author:   pjb
+#LastModifyDate:　2024-01-11T17:12:01    Author:   rzc
+#LastModifyDate:　2023-12-12T11:26:48.721462    Author:   superFBI
+#LastModifyDate:　2023-12-01T14:52:31.275171    Author:   superFBI
+#LastModifyDate:　2023-10-20T10:08:38.499207    Author:   superFBI
+#LastModifyDate:　2023-09-20T16:02:32.727574    Author:   superFBI
+#LastModifyDate:　2023-09-16T10:03:07.230739    Author:   superFBI
+#LastModifyDate:　2023-09-13T16:23:59.118734    Author:   superFBI
+#LastModifyDate:　2023-09-11T10:52:58.794037    Author:   superFBI
+#FBI脚本文件
+#文件名: FBI_autorun.fbi
+#作者: admin
+use @FID
+#随引擎启动而执行的脚本，执行时不影响其他引擎启动
+assert 1 > 2 as log with 系统启动
+#fbi启动运行一次的脚本
+pk = show defines
+data_key = filter pk by (key=="data_key")
+bb = eval data_key by index.size
+act_key = @sdf sys_unif_run with ($bb,"run data_gov_init.fea")
+#探针数据存kfk
+#Delete 注释 by liuhouqi on 2022-06-23 10:03:49
+#a = @udf FBI.x_finder3_stop2 with csr_1
+#a = @udf FBI.x_finder3_start2 with csr_1
+#a = @udf FBI.x_finder3_stop2 with api_ai_nlp
+#a = @udf FBI.x_finder3_start2 with api_ai_nlp
+
+#a = @udf FBI.x_finder3_stop2 with api_2syslog
+#a = @udf FBI.x_finder3_start2 with api_2syslog
+#启动分发
+a = @udf FBI.x_finder3_stop2 with main_process
+a = @udf FBI.x_finder3_start2 with main_process
+a = @udf FBI.x_finder3_stop2 with csr_1
+a = @udf FBI.x_finder3_start2 with csr_1
+a = @udf FBI.x_finder3_stop2 with csr_main_process
+a = @udf FBI.x_finder3_start2 with csr_main_process
+#原始http
+a = @udf FBI.x_finder3_stop2 with yuans_http
+a = @udf FBI.x_finder3_start2 with yuans_http
+#其他协议
+a = @udf FBI.x_finder3_stop2 with api_proto
+a = @udf FBI.x_finder3_start2 with api_proto
+#dbms协议
+a = @udf FBI.x_finder3_stop2 with dbms
+a = @udf FBI.x_finder3_start2 with dbms
+a = @udf FBI.x_finder3_stop2 with sen_dbms
+a = @udf FBI.x_finder3_start2 with sen_dbms
+a = @udf FBI.x_finder3_stop2 with dbms_obj
+a = @udf FBI.x_finder3_start2 with dbms_obj
+#http合并等功能
+a = @udf FBI.x_finder3_stop2 with api_mege
+a = @udf FBI.x_finder3_start2 with api_mege
+
+a = @udf FBI.x_finder3_stop2 with req_alm
+a = @udf FBI.x_finder3_start2 with req_alm
+a = @udf FBI.x_finder3_stop2 with dns
+a = @udf FBI.x_finder3_start2 with dns
+a = @udf FBI.x_finder3_stop2 with api_visit
+a = @udf FBI.x_finder3_start2 with api_visit
+
+#a = @udf FBI.x_finder3_stop2 with api_business
+#a = @udf FBI.x_finder3_start2 with api_business
+#风险事件
+#a = @udf FBI.x_finder3_stop2 with api_alerts_json
+#a = @udf FBI.x_finder3_start2 with api_alerts_json
+a = @udf FBI.x_finder3_stop2 with api_owasp_2_3
+a = @udf FBI.x_finder3_start2 with api_owasp_2_3
+a = @udf FBI.x_finder3_stop2 with api_owasp_sen_data
+a = @udf FBI.x_finder3_start2 with api_owasp_sen_data
+# 应用数据存入 mariabd数据库
+a = @udf FBI.x_finder3_stop2 with api_aaai_json
+a = @udf FBI.x_finder3_start2 with api_aaai_json
+#a = @udf FBI.x_finder3_stop2 with api_apps_json
+#a = @udf FBI.x_finder3_start2 with api_apps_json
+
+
+
+a = @udf FBI.x_finder3_stop2 with api_owasp2
+a = @udf FBI.x_finder3_start2 with api_owasp2
+
+a = @udf FBI.x_finder3_stop2 with api_owasp4
+a = @udf FBI.x_finder3_start2 with api_owasp4
+
+a = @udf FBI.x_finder3_stop2 with api_risk_event
+a = @udf FBI.x_finder3_start2 with api_risk_event
+
+#a = @udf FBI.x_finder3_stop2 with api_risk_json
+#a = @udf FBI.x_finder3_start2 with api_risk_json
+
+a = @udf FBI.x_finder3_stop2 with api_monitor
+a = @udf FBI.x_finder3_start2 with api_monitor
+
+#a = @udf FBI.x_finder3_stop2 with api_sensite_json2
+#a = @udf FBI.x_finder3_start2 with api_sensite_json2
+
+a = @udf FBI.x_finder3_stop2 with api_delay_json
+a = @udf FBI.x_finder3_start2 with api_delay_json
+
+a = @udf FBI.x_finder3_stop2 with api_visit_hx
+a = @udf FBI.x_finder3_start2 with api_visit_hx
+#a = @udf FBI.x_finder3_stop2 with api_monitor_min
+#a = @udf FBI.x_finder3_start2 with api_monitor_min
+
+#a = @udf FBI.x_finder3_stop2 with csrtokafka
+#a = @udf FBI.x_finder3_start2 with csrtokafka
+
+a = @udf FBI.x_finder3_stop2 with data_filter
+a = @udf FBI.x_finder3_start2 with data_filter
+
+#a = @udf FBI.x_finder3_stop2 with dsaw_file_rule
+#a = @udf FBI.x_finder3_start2 with dsaw_file_rule
+
+
+
+# 异地访问告警 请求状态异常告警
+a = @udf FBI.x_finder3_stop2 with req_alarm
+a = @udf FBI.x_finder3_start2 with req_alarm
+
+
+
+#终端链路
+a = @udf FBI.x_finder3_stop2 with ip_datalink_ckh
+a = @udf FBI.x_finder3_start2 with ip_datalink_ckh
+
+# 对象活跃值
+a = @udf FBI.x_finder3_stop2 with object_active
+a = @udf FBI.x_finder3_start2 with object_active
+#HTTP处理流程
+a = @udf FBI.x_finder3_stop2 with api_main_json2
+a = @udf FBI.x_finder3_start2 with api_main_json2
+#a = @udf FBI.x_finder3_stop2 with main_process
+#a = @udf FBI.x_finder3_start2 with main_process
+
+
+#run api_ruodian.fbi
+#弱点分析19-1-1，19-1-2
+a = @udf FBI.x_finder3_stop2 with api_owasp_1_1
+a = @udf FBI.x_finder3_start2 with api_owasp_1_1
+a = @udf FBI.x_finder3_stop2 with api_owasp1_2
+a = @udf FBI.x_finder3_start2 with api_owasp1_2
+#敏感数据
+a=@udf FBI.x_finder3_stop2 with http_datafilter
+a = @udf FBI.x_finder3_start2 with http_datafilter
+#a=@udf FBI.x_finder3_stop2 with http_datafilter1
+#a = @udf FBI.x_finder3_start2 with http_datafilter1
+a=@udf FBI.x_finder3_stop2 with api_model
+a = @udf FBI.x_finder3_start2 with api_model
+a=@udf FBI.x_finder3_stop2 with api_model_file
+a = @udf FBI.x_finder3_start2 with api_model_file
+a=@udf FBI.x_finder3_stop2 with api_business
+a = @udf FBI.x_finder3_start2 with api_business
+a=@udf FBI.x_finder3_stop2 with api_owasp4_model
+a = @udf FBI.x_finder3_start2 with api_owasp4_model
+
+#a=@udf FBI.x_finder3_stop2 with api_owasp4_2
+#a = @udf FBI.x_finder3_start2 with api_owasp4_2
+
+a = @udf FBI.x_finder3_stop2 with modsecurity
+a = @udf FBI.x_finder3_start2 with modsecurity
+
+#监控文件
+#s = @udf FBI.local_cmd with sudo nohup /opt/fbi-base/bin/python3.11 /opt/openfbi/pylibs/mon_dir.py &
+# 清空字典
+run data_gov_clear_dd.fbi
+# 弱点type_key
+run api_ruodian.fbi
+##首页数据 初始化
+run api_mon_visit.fbi 
+##可视化-敏感数据、敏感动态表格、弱点分析  初始化
+run sensitive_table.fbi 
+##其他可视化  初始化
+run dsaw_overview.fbi 
+
+clear @FID

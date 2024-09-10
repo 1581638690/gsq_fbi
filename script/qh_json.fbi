@@ -1,0 +1,51 @@
+#LastModifyDate:　2024-03-15T10:04:45    Author:   pjb
+#LastModifyDate:　2023-12-12T11:22:32.803765    Author:   superFBI
+#LastModifyDate:　2023-06-25T11:49:19.566771    Author:   pjb
+#LastModifyDate:　2023-04-13T10:14:35.367968    Author:   qh
+#LastModifyDate:　2022-04-19T18:26:34.700542
+#s = load ssdb by ssdb0 with dd:reqs_label
+use @FID
+
+#Delete 注释 by qiaohan on 2022-04-19 18:22:31
+#zz = load ssdb by ssdb0 with sensitive as json
+#zz = @udf zz by FBI.json2df
+#alter zz.data as str
+#zz = add value by 0
+#zz.value = str data by (findall("(?:'rekey': ')(.*)(?:')"))
+#zz.data = str data by (findall("(?:'name': ')(.*?)(?:')"))
+#alter zz.value as str
+#alter zz.data as str
+#zz.data = str data by (replace("\[\'",""))
+#zz.data = str data by (replace("\'\]",""))
+#zz.value = str value by (replace("\[\'",""))
+#zz.value = str value by (replace("\'\]",""))
+#zzz = loc zz by data,value
+#zzz = loc zzz by data to index
+#store zzz to ssdb with dd:reqs_label
+zz = load ssdb by ssdb0 with sensitive as json
+zz = @udf zz by FBI.json2df
+alter zz.data as str
+zz.data = str data by (findall("rekey': '(.*?)',"))
+alter zz.data as str
+zz.data = str data by (replace("['",""))
+zz.data = str data by (replace("']",""))
+zzz = loc zz by data
+store zzz to ssdb with dd:reqs_label
+zzz = add id by zzz.index
+
+zz = load ssdb by ssdb0 with sensitive as json
+zz = @udf zz by FBI.json2df
+rename zz as ("data":"class")
+alter zz.class as str
+zz.class = str class by (findall("class': '(.*?)',"))
+alter zz.class as str
+zz.class = str class by (replace("['",""))
+zz.class = str class by (replace("']",""))
+zzz1 = loc zz by class
+
+zzz1 = add id by zzz1.index
+zzz2 = join zzz1,zzz by id,id
+zzz2 = loc zzz2 by class,data
+store zzz2 to ssdb with dd:reqs_label1
+
+clear @FID

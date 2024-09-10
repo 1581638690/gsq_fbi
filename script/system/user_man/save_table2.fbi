@@ -1,0 +1,29 @@
+#@file:	 	script/user_manager1/save_table.fbi
+#@name: 		文件的中文名称
+#@desc: 		保存/修改用户
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2018-11-28T14:52:59.987180
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+#FBI脚本文件
+
+#保存语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+a = load ssdb by ssdb0 with @data_key
+
+#保存
+b = @udf a by CRUD.save_table with (@link,@table)
+b = @udf b by udf0.df_fillna with ('')
+b = @udf b by udf0.df_drop_col with (gmt_modified)
+b = @udf b by udfA.imp_users
+store b to ssdb by ssdb0 with @table:query:@FPS as 600
+#清除工作区
+clear @FID

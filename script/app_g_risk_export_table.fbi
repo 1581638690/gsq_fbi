@@ -1,0 +1,25 @@
+#LastModifyDate:　2024-01-20T14:56:41    Author:   zwl
+#LastModifyDate:　2023-07-07T17:27:21.977806    Author:   zwl
+#LastModifyDate:　2023-03-15T18:48:25.499814    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/app_g_risk_@app.pq
+datas = @udf datas by udf0.df_fillna_cols with app:'',url:'',risk_level:'',api_type:'',risk_label:'',api_status:''
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+""" 
+rename datas as ("app":"应用","url":"风险接口","risk_level":"风险等级","first_time":"首次发现时间","api_type":"接口类型","risk_label":"风险内容","api_status":"监控状态")
+store datas to csv by 应用高风险接口_@app_$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 应用高风险接口_@app_$day.csv
+push name as file_name
+
+clear @FID

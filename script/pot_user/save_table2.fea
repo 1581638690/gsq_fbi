@@ -1,0 +1,25 @@
+#FBI脚本文件
+#文件名: pot_user/save_table2.fea
+#作者: admin
+use @FID
+#获取表单数据
+
+a = load ssdb by ssdb0 with @data_key
+
+b = @udf a by CRUD.save_table with (@link,@table)
+b = @udf b by udf0.df_fillna with ('')
+b = loc b by drop (gmt_create,gmt_modified,jg_name)
+b = add tool by ("")
+b = @udf b by udfA.imp_users
+
+assert 'fix_tname(ptree, "b") in global_table' as break to 保存成功！ with 保存失败！
+
+q = @udf udf0.new_df with (name,value,type)
+q = @udf q by udf0.df_append with (limit,100,sys)
+q = @udf q by udf0.df_append with (gmt_modified,desc,order)
+
+df,count = @udf q by CRUD.query_table with (@link,@table)
+push df as table
+push count as count
+
+clear @FID

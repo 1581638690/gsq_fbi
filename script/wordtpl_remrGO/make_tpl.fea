@@ -1,0 +1,175 @@
+#LastModifyDate:　2022-10-27T13:41:16.964756    Author:   pjb
+# Auther: Dyllan
+# Date: 2021-08-11
+# Modify: 重写此脚本
+
+use @FID
+
+base_df = load ssdb by ssdb0 with baseremrGO
+stime = eval base_df by get_value(0,"value")
+etime = eval base_df by get_value(1,"value")
+filenotes = eval base_df by get_value(5,"value").strip()
+
+stimez = @sdf sys_lambda with ($stime, x:x.replace(" ","T")+".000000")
+etimez = @sdf sys_lambda with ($etime, x:x.replace(" ","T")+".000000")
+
+
+src_df = filter base_df by name=="src"
+dst_df = filter base_df by name=="dst"
+event_df = filter base_df by name=="event_type"
+
+src_df.new = lambda value by (x:"and src_ip in ("+x.strip()+")" if x.strip()!="" else "")
+dst_df.new = lambda value by (x:"and dest_ip in ("+x.strip()+")" if x.strip()!="" else "")
+event_df.new = lambda value by (x:"and event_type in ("+x.strip()+")" if x.strip()!="" else "and event_type in (dns,http,alert,ftp,pop3,smtp,telnet)")
+
+src_new = eval src_df by get_value(2,"new")
+dst_new = eval dst_df by get_value(3,"new")
+event_type_new = eval event_df by get_value(4,"new")
+
+
+date = @sdf sys_now
+date = @sdf format_now with ($date,"%Y-%m-%d %H:%M:%S")
+
+user_name = @udf udfA.get_user
+user_names = eval user_name by iloc[0,0]
+
+name = @sdf sys_lambda with ($date,x:"综合报告_"+x[0:10]+'_'+x[11:23])
+name_all = @sdf sys_lambda with ($name,x:x+".docx")
+#生成docx
+
+    #存mysql
+    table = @udf udf0.new_df with (user,filename,starttime,endtime,filenotes,formtime,status)
+    table = @udf table by udf0.df_append with ($user_names,$name_all,$stime,$etime,$filenotes,$date,生成中)
+    save = @udf table by CRUD.save_table with (mysql4,pot_words)
+
+    #--------网络流量整体情况----------
+		#日志总量
+		df1 = load es by es7 with select count(*) from event* where timestamp>$stimez and timestamp<$etimez $src_new $dst_new $event_type_new
+		df1 = add stime by ('$stime')
+		df1 = add etime by ('$etime')
+
+		#日志类型分布
+		df2_base = @udf udf0.new_df with (event_type,count)
+		df2 = load es by es7 with select * from event* where timestamp>$stimez and timestamp<$etimez $src_new $dst_new $event_type_new group by event_type.keyword
+		df2 = union df2_base,df2 
+
+
+		#流量时间区间分布
+		f_stime = @sdf sys_lambda with ( $stime,x :(x[0:10]) )
+		f_etime = @sdf sys_lambda with ( $etime,x :(x[0:10]) )
+		date_df = @udf udf0.new_df_daterange with ($f_stime,$f_etime,1)
+		date_df = loc date_df by start_day
+		date_df.start_day = lambda start_day by (x:x[5:10])
+
+		df_day_base = @udf udf0.new_df with (timestamp,timestamp_string,count)
+		df3 = load es by es7 with select count(*) from event* where timestamp>$stimez and timestamp<$etimez $src_new $dst_new $event_type_new group by timestamp.date_histogram[{interval:1d}]
+		df3 = union df_day_base,df3  
+		df3 = filter df3 by timestamp_string notnull
+		df3.timestamp_string = lambda timestamp_string by (x:x[5:10])
+		df3 = join date_df,df3 by start_day,timestamp_string with left
+		df3 = @udf df3 by udf0.df_fillna with (0)
+		df3 = loc df3 by start_day,count
+		df3 = loc df3 by start_day to index
+    
+	df = load ssdb by ssdb0 with dd:event_type_more
+	df = loc df by index to event_type
+	df = loc df by event_type
+	
+    #----访问情况--------
+		#发起访问	图片
+		df4_1_base = @udf udf0.new_df with (src_ip,count)
+		df4_1 = load es by es7 with select * from event* where timestamp>$stimez and timestamp<$etimez $src_new $dst_new $event_type_new group by src_ip.keyword
+		df4_1 = union df4_1_base,df4_1
+		df4_1 = limit df4_1 by 10
+		rename df4_1 as ("count":"sum")
+		
+		df4_2_base = @udf udf0.new_df with (src_ip,event_type,count)
+		df4_2 = load es by es7 with select * from event* where timestamp>$stimez and timestamp<$etimez $src_new $dst_new $event_type_new group by src_ip.keyword,event_type.keyword
+		df4_2 = union df4_2_base,df4_2  
+		df4_2 = join df4_1,df4_2 by src_ip,src_ip with left
+		df4_2 = loc df4_2 by drop sum
+		df4 = @udf df4_2 by udfG.df_group_mxn with src_ip,event_type
+		df4 = @udf df4 by udf0.df_fillna with (0)
+		df4 = loc df4 by index to src_ip
+		df4 = join df4_1,df4 by src_ip,src_ip with left
+		df4 = loc df4 by src_ip to index
+		rename df4 as ("count_http":"HTTP","count_alert":"ALERT","count_ftp":"FTP","count_pop3":"POP3","count_smtp":"SMTP","count_telnet":"TELNET","count_dns":"DNS")
+
+		#发起访问	表格
+		df5 = join df,df4_2 by event_type,event_type with left
+		df5 = @udf df5 by udf0.df_fillna with ()
+		df5 = @udf df5 by udfG.df_group_mxn with src_ip,event_type
+		df5 = @udf df5 by udf0.df_fillna with (0)
+		df5 = filter df5 by index!=""
+		df5 = loc df5 by index to src_ip
+		df5 = join df4_1,df5 by src_ip,src_ip with left
+		alter df5.count_ftp.count_pop3.count_smtp.count_alert.count_telnet.count_dns.count_http.sum as int
+		alter df5.count_ftp.count_pop3.count_smtp.count_alert.count_telnet.count_dns.count_http.sum as str
+		
+    #接受访问	图片
+		df6_1_base = @udf udf0.new_df with (dest_ip,count)
+		df6_1 = load es by es7 with select * from event* where timestamp>$stimez and timestamp<$etimez $src_new $dst_new $event_type_new group by dest_ip.keyword
+		df6_1 = union df6_1_base,df6_1
+		df6_1 = limit df6_1 by 10
+		rename df6_1 as ("count":"sum")
+		
+		df6_2_base = @udf udf0.new_df with (dest_ip,event_type,count)
+		df6_2 = load es by es7 with select * from event* where timestamp>$stimez and timestamp<$etimez $src_new $dst_new $event_type_new group by dest_ip.keyword,event_type.keyword
+		df6_2 = union df6_2_base,df6_2  
+		df6_2 = join df6_1,df6_2 by dest_ip,dest_ip with left
+		df6_2 = loc df6_2 by drop sum
+		df6 = @udf df6_2 by udfG.df_group_mxn with dest_ip,event_type
+		df6 = @udf df6 by udf0.df_fillna with (0)
+		df6 = loc df6 by index to dest_ip
+		df6 = join df6_1,df6 by dest_ip,dest_ip with left
+		df6 = loc df6 by dest_ip to index
+		rename df6 as ("count_http":"HTTP","count_alert":"ALERT","count_ftp":"FTP","count_pop3":"POP3","count_smtp":"SMTP","count_telnet":"TELNET","count_dns":"DNS")
+
+		#接收访问	表格
+		df7 = join df,df6_2 by event_type,event_type with left
+		df7 = @udf df7 by udf0.df_fillna with ()
+		df7 = @udf df7 by udfG.df_group_mxn with dest_ip,event_type
+		df7 = @udf df7 by udf0.df_fillna with (0)
+		df7 = filter df7 by index!=""
+		df7 = loc df7 by index to dest_ip
+		df7 = join df6_1,df7 by dest_ip,dest_ip with left		
+		alter df7.count_ftp.count_pop3.count_smtp.count_alert.count_telnet.count_dns.count_http.sum as int
+		alter df7.count_ftp.count_pop3.count_smtp.count_alert.count_telnet.count_dns.count_http.sum as str
+
+     
+    ###存30秒
+    store df1 to ssdb by ssdb0 with pot_baobiao_time as 3000
+    store df2 to ssdb by ssdb0 with pot_baobiao_event_type as 3000
+    store df3 to ssdb by ssdb0 with pot_baobiao_all_timer as 3000
+    store df4 to ssdb by ssdb0 with pot_baobiao_src_bar as 3000
+    store df5 to ssdb by ssdb0 with pot_baobiao_src_ip as 3000
+    store df6 to ssdb by ssdb0 with pot_baobiao_dest_bar as 3000
+    store df7 to ssdb by ssdb0 with pot_baobiao_dest_ip as 3000
+
+    ########################生成文件#############################
+    #加载图片数据的key
+    data = load ssdb by ssdb0 with pics_dataremrGO
+    #生成图片
+    x = @udf data by doc.generate_pic with remrGO
+    #生成模板
+    report_status = @udf data by doc.modifiy_doc with (@id,@base,@var_data,@tbs_data,$name)
+    pstatus = eval report_status by (get_value(0,"status"))
+	
+    #生成html
+    to_html = @udf udfG.word2pdf with report/$name.docx
+
+
+# 修改生成状态
+mysql_df = @udf RS.load_mysql_sql with (mysql4 ,select * from pot_words where filename='$name_all')
+mysql_df = loc mysql_df by id to index
+mysql_df = loc mysql_df by drop (gmt_create,gmt_modified)
+mysql_df.status = lambda status by (x:$pstatus)
+mysql_df.status = lambda status by (x:'成功' if x==1 else '失败')
+mysql_df.formtime = lambda formtime by (x:str(x)[0:10]+' '+str(x)[11:23])
+mysql_df.starttime = lambda starttime by (x:str(x)[0:10]+' '+str(x)[11:23])
+mysql_df.endtime = lambda endtime by (x:str(x)[0:10]+' '+str(x)[11:23])
+x = @udf mysql_df by CRUD.save_table with (mysql4,pot_words)
+
+assert mysql_df by df.index.size >0 as altert altert to 报告生成成功，请关闭弹窗。 with 报告生成失败。
+
+clear @FID

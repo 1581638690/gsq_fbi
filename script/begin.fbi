@@ -1,0 +1,129 @@
+#LastModifyDate:　2022-09-28T18:30:25.167662    Author:   admin
+#LastModifyDate:　2022-09-13T16:00:52.380794    Author:   admin
+#LastModifyDate:　2022-09-09T03:50:02.537467    Author:   admin
+#LastModifyDate:　2022-09-05T09:17:04.832717    Author:   admin
+#LastModifyDate:　2022-06-17T09:29:03.008494    Author:   liuhouqi
+
+
+#查看流计算服务
+a = @udf FBI.x_finder3_list
+
+a = @udf FBI.x_finder3_start with csr_1
+a = @udf FBI.x_finder3_stop2 with csr_1
+
+a = @udf FBI.x_finder3_start with api_test
+a = @udf FBI.x_finder3_stop2 with api_test
+
+a = @udf FBI.x_finder3_start with api_monitor_ckh
+a = @udf FBI.x_finder3_stop2 with api_monitor_ckh
+
+a = @udf FBI.x_finder3_start with clear_distinct
+a = @udf FBI.x_finder3_stop2 with clear_distinct
+#启动
+a = @udf FBI.x_finder3_start with csr_2
+a = @udf FBI.x_finder3_stop2 with csr_2
+
+a = @udf FBI.x_finder3_start with api_main_json
+a = @udf FBI.x_finder3_stop2 with api_main_json
+
+a = @udf FBI.x_finder3_start with api_apps_json
+a = @udf FBI.x_finder3_stop2 with api_apps_json
+
+a = @udf FBI.x_finder3_start with api_urls_json
+a = @udf FBI.x_finder3_stop2 with api_urls_json
+
+a = @udf FBI.x_finder3_start with api_ips_json
+a = @udf FBI.x_finder3_stop2 with api_ips_json
+
+a = @udf FBI.x_finder3_start with api_users_json
+a = @udf FBI.x_finder3_stop2 with api_users_json
+
+a = @udf FBI.x_finder3_start with api_visit_json
+a = @udf FBI.x_finder3_stop2 with api_visit_json
+
+a = @udf FBI.x_finder3_start with api_alerts_json
+a = @udf FBI.x_finder3_stop2 with api_alerts_json
+
+a = @udf FBI.x_finder3_start with api_delay_json
+a = @udf FBI.x_finder3_stop2 with api_delay_json
+
+a = @udf FBI.x_finder3_stop2 with api_owasp1
+a = @udf FBI.x_finder3_start with api_owasp1
+
+a = @udf FBI.x_finder3_stop2 with api_sensite_json
+a = @udf FBI.x_finder3_start with api_sensite_json
+
+a = @udf FBI.x_finder3_stop2 with api_risk_event
+a = @udf FBI.x_finder3_start with api_risk_event
+
+a = @udf FBI.x_finder3_stop2 with api_risk_json
+a = @udf FBI.x_finder3_start with api_risk_json
+
+a = @udf FBI.x_finder3_stop2 with dsaw_file_rule
+a = @udf FBI.x_finder3_start with dsaw_file_rule
+
+a = @udf FBI.x_finder3_stop2 with api_proto
+a = @udf FBI.x_finder3_start with api_proto
+
+a = @udf FBI.x_finder3_stop2 with req_alarm
+a = @udf FBI.x_finder3_start with req_alarm
+
+a = @udf FBI.x_finder3_stop2 with date_alarm
+a = @udf FBI.x_finder3_start with date_alarm
+
+#查询错误日志
+a = load ssdb by ssdb0 query qrange,X_log_2022-05-24,0,1000
+#a = load ssdb by ssdb0 query qrange,X_log:test2,0,1000 test2为任务名，X_log:为前缀
+#main_json 错误日志
+a = load ssdb by ssdb0 query qrange,X_log:api_main_json,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_main_json,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_monitor_ckh,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_monitor_ckh,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_urls_json,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_urls_json,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_ips_json,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_ips_json,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_users_json,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_users_json,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_visit_json,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_visit_json,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_monitor_json,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_monitor_json,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_owasp1,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_owasp1,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_sensite_json,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_sensite_json,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_risk_event,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_risk_event,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_risk_json,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_risk_json,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:dsaw_file_rule,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:dsaw_file_rule,-,-
+
+a = load ssdb by ssdb0 query qrange,X_log:api_proto,0,1000
+a = load ssdb by ssdb0 query qclear,X_log:api_proto,-,-
+#清除日志
+a = load ssdb by ssdb0 query qclear,X_log_2022-05-24,-,-
+#查看定时器调度信息
+a = load ssdb by ssdb0 query qrange, ST_log_2022-05-24,0,1000
+#清空 定时器调度信息
+a = load ssdb by ssdb0 query qclear, ST_log_2022-05-24,0,1000
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::脚本名称,  如，printf::test 
+
+#取出name中的所有对象为DF表
+ df = load ssdb by ssdb0 with name=>*
+ #以索引为key进行存储
+ store df to ssdb by ssdb0 with name as H
+

@@ -1,0 +1,11 @@
+#LastModifyDate:　2023-03-22T15:20:54.582619    Author:   qh
+#LastModifyDate:　2023-03-15T17:47:26.925333    Author:   qh
+#LastModifyDate:　2023-03-15T17:31:22.809581    Author:   qh
+#syslog配置参数查询
+use @FID
+
+a = load ssdb by ssdb0 with qh_send as json
+
+push a as table
+
+clear @FID

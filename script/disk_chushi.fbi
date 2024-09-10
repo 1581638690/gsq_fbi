@@ -1,0 +1,16 @@
+#FBI脚本文件
+#文件名: disk_chushi.fbi
+#作者: admin
+use @FID
+a = load ssdb by ssdb0 with disk
+#a = load ssdb by ssdb0 with @data_key
+b,b1=@udf getHostInfo.sshComment with '127.0.0.1|22|df'
+b.total = str total by ( replace('%','' ) )
+alter b.total as str
+total = eval b by get_value(0,"total")
+
+a = add disk_new by ('$total')
+
+
+store a to ssdb by ssdb0 with disk_chushi:@FPS as 600
+clear @FID

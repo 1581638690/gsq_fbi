@@ -1,0 +1,90 @@
+#LastModifyDate:　2024-03-05T10:46:37    Author:   pjb
+#LastModifyDate:　2024-03-05T10:41:54    Author:   pjb
+#LastModifyDate:　2024-03-04T17:59:25    Author:   pjb
+#LastModifyDate:　2024-03-04T17:45:37    Author:   pjb
+#LastModifyDate:　2024-02-02T14:28:41    Author:   pjb
+#LastModifyDate:　2024-02-01T18:49:34    Author:   pjb
+#LastModifyDate:　2024-02-01T18:38:47    Author:   pjb
+#LastModifyDate:　2024-02-01T18:29:38    Author:   pjb
+#LastModifyDate:　2024-01-25T15:22:27    Author:   pjb
+#LastModifyDate:　2023-11-24T11:44:29.530429    Author:   pjb
+#LastModifyDate:　2023-11-15T14:15:47.766223    Author:   pjb
+#xlink脚本
+#4主体信息
+
+
+
+#初始化
+init => {
+	stream["meta_name"] = "数据库对象管理"
+	stream["meta_desc"] = "从redis中消费数据，存入mariadb数据库dbms_obj表"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["source"]= {"unix_udp":"/tmp/obj_dbms"}
+	#stream["source"]={"link":stream["redis_link"]+":6380","topic":"dbms_obj","redis":"list","topics":["dbms_user","dbms_sql","fileinfo"]}
+	stream["scw"]["scw_obj"] = {"count":5,"fun":"flow1"}
+	stream["scw"]["scw_user"] = {"count":1,"fun":"flow2"}
+	stream["scw"]["scw_sql"] = {"count":10,"fun":"flow3"}
+	stream["scw"]["scw_fileinfo"] = {"count":10,"fun":"flow4"}
+
+}
+
+
+#事件处理函数
+events => {
+	if o.get("version") or o.get("version")=="":
+		printf("scw_obj",o)
+		o["active"] = "3"
+		o["sensitive_label"] = "0"
+		push_scw("scw_obj",o)
+	if o.get("user") and not o.get("dbms_sql"):
+		printf("scw_user",o)
+		o["active"] = "3"
+		o["sensitive_label"] = "0"
+		push_scw("scw_user",o)
+	if o.get("dbms_sql"):
+		printf("scw_sql",o)
+		push_scw("scw_sql",o)
+	if o.get("filename"):
+		printf("scw_fileinfo",o)
+		push_scw("scw_fileinfo",o)
+
+
+}
+
+flow1 => stw{
+	#store df to ssdb by ssdb0 with dbms_obj22
+	dbms_obj = @udf df by udf0.df_fillna
+	dbms_obj = @udf dbms_obj by udf0.df_zero_index
+	#alter dbms_obj by first_time:str,last_time:str
+	@udf dbms_obj by CRUD.save_table with (mysql1,dbms_obj)
+	drop dbms_obj
+}
+flow2 => stw{
+	dbms_user = @udf df by udf0.df_fillna
+	dbms_user = @udf dbms_user by udf0.df_zero_index
+	@udf dbms_user by CRUD.save_table with (mysql1,dbms_user)
+	drop dbms_user
+}
+flow3 => stw{
+	dbms_sql = @udf df by udf0.df_fillna
+	dbms_sql = @udf dbms_sql by udf0.df_zero_index
+	@udf dbms_sql by CRUD.save_table with (mysql1,dbms_sql)
+	drop dbms_sql
+}
+flow4 => stw{
+	fileinfo = @udf df by udf0.df_fillna
+	fileinfo = @udf fileinfo by udf0.df_zero_index
+	@udf fileinfo by CRUD.save_table with (mysql1,fileinfo)
+	drop fileinfo
+}
+#自定义批处理函数，使用FBI语句块, 可以在系统定时函数中调用
+#使用push_arrays_to_df函数生成df,在语句块中使用
+#如: push_arrays_to_df(table,"flow")
+
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+}

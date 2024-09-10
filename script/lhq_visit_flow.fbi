@@ -1,0 +1,253 @@
+#LastModifyDate:　2024-01-19T16:33:08    Author:   zwl
+#LastModifyDate:　2024-01-17T16:28:31    Author:   zwl
+#LastModifyDate:　2023-12-01T16:34:15.202386    Author:   zwl
+#LastModifyDate:　2023-11-07T15:19:25.469817    Author:   zwl
+#LastModifyDate:　2023-09-13T09:33:26.274567    Author:   zwl
+#LastModifyDate:　2023-08-23T17:00:09.583208    Author:   zwl
+#LastModifyDate:　2023-08-03T09:38:33.418317    Author:   zwl
+#LastModifyDate:　2023-08-01T16:44:44.731868    Author:   zwl
+#LastModifyDate:　2023-07-26T11:27:34.445730    Author:   zwl
+#LastModifyDate:　2023-07-25T15:13:47.925189    Author:   zwl
+#LastModifyDate:　2023-07-17T17:43:30.716829    Author:   zwl
+#FBI脚本文件
+#文件名: lhq_visit_flow.fbi
+#作者: test
+use @FID
+
+ccc = load ckh by ckh with select app from api_httpdata limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+##对象概览————————合并信息块#################################################################################################
+##应用总数
+app = load db by mysql1 with select count(*) as value from data_app_new where merge_state != 1
+alter app by value:int
+app = add name by ('应用总数')
+app = add icon by ('F298')
+app = add details by ('')
+#外部应用
+app_0 = load db by mysql1 with select count(*) as value from data_app_new where app_type = 0 and merge_state != 1
+alter app_0 by value:int
+app_0 = add name by ('外部应用总数')
+app_0 = add icon by ('F076')
+app_0 = add details by ('')
+#内部应用
+app_1 = load db by mysql1 with select count(*) as value from data_app_new where app_type = 1 and merge_state != 1
+alter app_1 by value:int
+app_1 = add name by ('内部应用总数')
+app_1 = add icon by ('F077')
+app_1 = add details by ('')
+#接口总数
+api = load db by mysql1 with select count(*) as value from data_api_new where merge_state != 1
+alter api by value:int
+api = add name by ('接口总数')
+api = add icon by ('F138')
+api = add details by ('')
+#终端总数
+ip = load db by mysql1 with select count(*) as value from data_ip_new
+alter ip by value:int
+ip = add name by ('终端总数')
+ip = add icon by ('F146')
+ip = add details by ('')
+#账号总数
+account = load db by mysql1 with select count(*) as value from data_account_new
+alter account by value:int
+account = add name by ('账号总数')
+account = add icon by ('F019')
+account = add details by ('')
+##合并
+visit_days = union app,app_0,app_1,api,ip,account
+visit_days = loc visit_days by name,value,icon,details
+visit_days = add pageid by ('modeling:app_new','modeling:app_new_0','modeling:app_new_1','modeling:api_new','modeling:ip_new','modeling:account_new')
+store visit_days to ssdb by ssdb0 with visit_days:aa
+##合并信息块#################################################################################################
+
+#Delete 注释 by liuhouqi on 2021-12-09 16:55:15
+#sum_api_count= eval visit by (iloc[:,1].sum()) 
+#new_http = @udf udf0.new_df with (总流量) 
+#new_http = @udf new_http by udf0.df_append with ($sum_api_count)
+#new_http = @udf new_http by udf0.df_set with (总流量=$sum_api_count//1048576)
+##24小时   
+#10-29：24小时分布无数据时，置为0; 
+hour1 = @sdf sys_now with -1d
+hour1 = @sdf format_now with ($hour1,"%Y-%m-%d 00:00:00")
+hour2 = @sdf sys_now 
+hour2 = @sdf format_now with ($hour2,"%Y-%m-%d 00:00:00")
+hour = @udf udf0.new_df_timerange with ($hour1,$hour2,1H)
+hour.hour = lambda start_time by (x:x[11:13])
+hour = loc hour by index to hour1
+alter hour.hour1 as str 
+hour.hour1 = lambda hour1 by (x:x+'时')
+hour = loc hour by hour1,hour
+#hour = loc hour by hour
+#汇总流量趋势图(每天24小时,每小时流量趋势图,)每日访问流量(24小时,每小时流量趋势图)
+visit_trend1 = load ckh by ckh with select substring(toString(time),1,13) as timestamps,sum(visit_flow) as flow from api_visit_hour group by timestamps
+alter visit_trend1 by timestamps:str,flow:int
+visit_trend = loc visit_trend1 by timestamps,flow
+visit_trend = add hour with visit_trend["timestamps"].str[11:13]
+visit_hour = group visit_trend by hour agg flow:mean
+##增加判断最小值，决定最后取值M/G
+visit_trend = add aa by 1
+visit_min = group visit_trend by aa agg flow:mean
+if visit_min.index.size == 0 with visit_min = @udf visit_min by udf0.df_append with 0
+aa_num = eval visit_min by iloc[0,0]
+if $aa_num <= 1024 with visit_hour.流量 = lambda flow_mean by (x:x)
+if 1024 < $aa_num <= 1048576  with visit_hour.流量 = lambda flow_mean by (x:round(x/1024,1))
+if 1048576 < $aa_num <= 1073741824 with visit_hour.流量 = lambda flow_mean by (x:round(x/1048576,1))
+if 1073741824 < $aa_num with visit_hour.流量 = lambda flow_mean by (x:round(x/1073741824,1))
+visit_hour = loc visit_hour by index to hour
+visit_hour = join hour,visit_hour by hour,hour with left
+visit_hour = loc visit_hour by hour1 to index
+visit_hour = @udf visit_hour by udf0.df_fillna_cols with flow_mean:0,流量:0
+visit_hour1 = loc visit_hour by flow_mean
+visit_hour = loc visit_hour by 流量
+store visit_hour to ssdb by ssdb0 with visit_flow_hour:trend
+##单位信息块
+aa = @udf udf0.new_df with title
+if $aa_num <= 1024 with aa = @udf aa by udf0.df_append with 流量(B)
+if 1024 < $aa_num <= 1048576  with aa = @udf aa by udf0.df_append with 流量(k)
+if 1048576 < $aa_num <= 1073741824 with aa = @udf aa by udf0.df_append with 流量(M)
+if 1073741824 < $aa_num with aa = @udf aa by udf0.df_append with 流量(G)
+store aa to ssdb by ssdb0 with title:trend
+## 大屏展示
+visit_hour1.流量(M) = lambda flow_mean by (x:round(x/1048576,1))
+visit_hour1 = loc visit_hour1 by 流量(M)
+store visit_hour1 to ssdb by ssdb0 with day:data
+
+
+
+
+###近24小时访问流量分布-----------------------------------------------------------
+day = @sdf sys_now with -1d
+day2 = @sdf sys_now 
+day1 = @sdf format_now with ($day,"%Y-%m-%d %H:00:00")
+day2 = @sdf format_now with ($day2,"%Y-%m-%d %H:00:00")
+j_hour = @udf udf0.new_df_timerange with ($day1,$day2,1H)
+j_hour.hour = lambda end_time by (x:x[0:13])
+j_hour = loc j_hour by hour
+j_visit = load ckh by ckh with select substring(toString(time),1,13) as hour,sum(visit_flow) as flow,sum(visit_num) as flow1 from api_visit_hour where time > '$day1' group by hour 
+alter j_visit by hour:str,flow:int,flow1:int
+###加载pkl当前时间的数据
+###获取api_visit_min.fbi 存储的pkl:xlink/api_visit_hx_hour
+a = @udf ZFile.list_dir with xlink/hx
+##清空文件
+#s = @udf FBI.local_cmd with sudo rm -rf /data/workspace/xlink/api_visit_hx_hour
+##新建hour
+hour_2 = @udf udf0.new_df
+foreach a run """
+	##取出已处理的数据
+	hour_1 = load pq by @name
+	hour_2 = union hour_2,hour_1
+""" with (name=$1)
+drop hour_1
+if hour_2.index.size > 0 with """
+	alter hour_2.time as str
+	hour_2.hour = lambda time by (x:x[0:13])
+	hour_2.hour = str hour by ( replace('T',' ' ) )
+	hour_2 = group hour_2 by hour agg visit_num:sum,visit_flow:sum
+	hour_2 = loc hour_2 by index to hour
+	rename hour_2 as ('visit_flow_sum':'flow','visit_num_sum':'flow1')
+"""
+##和记录数据合并
+j_visit = union j_visit,hour_2
+j_visit = group j_visit by hour agg flow:sum,flow1:sum
+j_visit = loc j_visit by index to hour
+rename j_visit as ('flow1_sum':'flow1','flow_sum':'flow')
+j_visit1 = loc j_visit by hour,flow
+j_visit1 = join j_hour,j_visit1 by hour,hour with left
+j_visit1 = add hour1 with j_visit1["hour"].str[11:13]
+alter j_visit1.hour1 as str 
+j_visit1.hour1 = lambda hour1 by (x:x+'时')
+j_visit1 = loc j_visit1 by hour1 to index
+j_visit1 = @udf j_visit1 by udf0.df_fillna_cols with flow:0
+j_visit1.流量 = lambda flow by (x:round(x/1048576,1))
+j_visit1 = loc j_visit1 by 流量
+store j_visit1 to ssdb by ssdb0 with j_visit:trend
+
+###近24小时访问次数趋势图
+j_visit2 = loc j_visit by hour,flow1
+j_visit2 = join j_hour,j_visit2 by hour,hour with left
+j_visit2 = add hour1 with j_visit2["hour"].str[11:13]
+alter j_visit2.hour1 as str 
+j_visit2.hour1 = lambda hour1 by (x:x+'时')
+j_visit2 = loc j_visit2 by hour1 to index
+j_visit2 = @udf j_visit2 by udf0.df_fillna_cols with flow1:0
+j_visit2.访问次数 = lambda flow1 by (x:round(x/10000,2))
+j_visit2 = loc j_visit2 by 访问次数
+store j_visit2 to ssdb by ssdb0 with j_visit:trend1
+
+##最近一个月 
+month1 = @sdf sys_now with -1m 
+month1 = @sdf format_now with ($month1,"%Y-%m-%dT00:00:00")
+month2 = @sdf sys_now 
+month2 = @sdf format_now with ($month2,"%Y-%m-%d")
+month = @udf udf0.new_df_timerange with ($month1,$month2,1D)
+month = loc month by end_time 
+rename month as ("end_time":"timestamps")
+month.timestamps = lambda timestamps by (x:x[0:10])
+#日期流量趋势图  最近一个月 
+visit_mm = load ckh by ckh with select substring(toString(time),1,10) as timestamps,sum(visit_flow) as flow,sum(visit_num) as flow1 from api_visit_hour where time >= '$month1' group by timestamps order by timestamps asc
+alter visit_mm by timestamps:str,flow:int,flow1:int
+visit_m = loc visit_mm by timestamps,flow
+visit_m.timestamps = str timestamps by (slice(0,10))
+##增加判断最小值，决定最后取值M/G
+visit_m = add aa by 1
+visit_min = group visit_m by aa agg flow:mean
+if visit_min.index.size == 0 with visit_min = @udf visit_min by udf0.df_append with 0
+aa_num = eval visit_min by iloc[0,0]
+if $aa_num < 1073741824 with visit_m.流量 = lambda flow by (x:round(x/1048576,1))
+if $aa_num >= 1073741824 with visit_m.流量 = lambda flow by (x:round(x/1073741824,1))
+visit_m = join month,visit_m by timestamps,timestamps with left
+visit_m.timestamps = str timestamps by (slice(5,10))
+visit_m = @udf visit_m by udf0.df_fillna_cols with flow:0,流量:0
+visit_m = loc visit_m by timestamps to index
+visit_m1 = loc visit_m by flow
+visit_m = loc visit_m by 流量
+store visit_m to ssdb by ssdb0 with visit_flow_day:trend
+##单位信息块
+aa = @udf udf0.new_df with title
+if $aa_num < 1073741824 with aa = @udf aa by udf0.df_append with 流量(M)
+if $aa_num >= 1073741824 with aa = @udf aa by udf0.df_append with 流量(G)
+store aa to ssdb by ssdb0 with title1:trend
+## 大屏展示
+visit_m1.流量(M) = lambda flow by (x:round(x/1048576,1))
+visit_m1 = loc visit_m1 by 流量(M)
+store visit_m1 to ssdb by ssdb0 with month:data
+
+
+###日访问趋势--------------------------------首页
+visit_m = loc visit_mm by timestamps,flow1
+visit_m.访问次数 = lambda flow1 by (x:round(x/10000,2))
+visit_m = join month,visit_m by timestamps,timestamps with left
+visit_m.timestamps = str timestamps by (slice(5,10))
+visit_m = @udf visit_m by udf0.df_fillna_cols with flow1:0,访问次数:0
+visit_m = loc visit_m by timestamps to index
+visit_m = loc visit_m by 访问次数
+store visit_m to ssdb by ssdb0 with visit_flow1_day:tr
+
+
+#周流量趋势   ## 大屏展示
+week = @sdf sys_now with -6d
+week = @sdf format_now with ($week,"%Y-%m-%dT00:00:00")
+visit_w = load ckh by ckh with select substring(toString(time),1,10) as timestamps,toDayOfWeek(toDateTime(time)) as week,sum(visit_flow) as flow from api_visit_hour where time >= '$week' group by timestamps,week order by timestamps
+alter visit_w by timestamps:str,week:str,flow:int
+visit_w = loc visit_w by week,flow
+#visit_w = order visit_w by week with asc
+visit_w = @udf visit_w by udf0.df_replace with (1,周一)
+visit_w = @udf visit_w by udf0.df_replace with (2,周二)
+visit_w = @udf visit_w by udf0.df_replace with (3,周三)
+visit_w = @udf visit_w by udf0.df_replace with (4,周四)
+visit_w = @udf visit_w by udf0.df_replace with (5,周五)
+visit_w = @udf visit_w by udf0.df_replace with (6,周六)
+visit_w = @udf visit_w by udf0.df_replace with (7,周日)
+visit_w.flow = lambda flow by (x:round(x/1048576,1))
+#visit_w = add flow by visit_w.flow//1048576
+visit_w = loc visit_w by week to index
+rename visit_w by ("flow":"流量(M)")
+store visit_w to ssdb by ssdb0 with week:data
+
+
+
+clear @FID
+
+
+

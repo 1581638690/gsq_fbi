@@ -1,0 +1,83 @@
+#LastModifyDate:　2024-01-19T14:16:26    Author:   zwl
+#LastModifyDate:　2024-01-18T14:25:28    Author:   zwl
+#LastModifyDate:　2024-01-17T15:50:02    Author:   zwl
+#LastModifyDate:　2024-01-15T09:52:43    Author:   zwl
+#LastModifyDate:　2023-09-04T19:02:30.136750    Author:   zwl
+#FBI脚本文件
+#文件名: hour_visit.fbi
+#作者: zwl
+
+k = @sdf sys_timestamp
+##新建hour
+hour = @udf udf0.new_df
+foreach b run """
+	##取出已处理的数据
+	hour_1 = load pq by @name
+	hour = union hour,hour_1
+	##删除已经处理过的数据
+	bb = @udf ZFile.rm_file with @name
+""" with (name=$1)
+
+##减少数据量：进一步进行group by
+hour = group hour by app,url,srcip,dstip,account agg visit_num:sum,visit_flow:sum,time:max
+hour = @udf hour by udf0.df_reset_index
+rename hour as ('visit_num_sum':'visit_num','visit_flow_sum':'visit_flow','time_max':'time')
+hour = order hour by visit_num with desc
+
+###已开启画像数据存储到 api_hx 表------------------------------------------------------------
+app = load db by mysql1 with select distinct app from data_app_new where portrait_status = 1 and app_type = 1 
+api = load db by mysql1 with select distinct url from data_api_new where portrait_status = 1
+ip = load db by mysql1 with select distinct srcip from data_ip_new where portrait_status = 1
+account = load db by mysql1 with select distinct account from data_account_new where portrait_status = 1
+hx1 = join app,hour by app,app with left
+hx2 = join api,hour by url,url with left
+hx3 = join ip,hour by srcip,srcip with left
+hx4 = join account,hour by account,account with left
+hx = union hx1,hx2,hx3,hx4
+hx = distinct hx by app,url,srcip,dstip,account,visit_num,visit_flow,time
+alter hx.time as str
+hx = @udf hx by udf0.df_fillna_cols with app:'',url:'',srcip:'',dstip:'',account:'',visit_num:0,visit_flow:0,time:''
+hx = filter hx by time != '' and app != '' and url != '' and srcip != '' and dstip != ''
+alter hx by visit_num:int,visit_flow:int,time:datetime64
+if hx.index.size != 0 with store hx to ckh by ckh with api_hx
+###已开启画像数据存储到 api_hx 表------------------------------------------------------------
+
+num = eval hour by index.size
+##判断数据的数量，防止数据量太大无法存入
+if 50000 <= $num <= 100000 with num1 = @sdf sys_eval with (($num-50000)*-1)
+if 50000 <= $num <= 100000 with hour1 = limit hour by 50000
+if 100000 < $num <= 200000 with num1 = @sdf sys_eval with (($num-100000)*-1)
+if 100000 < $num <= 200000 with hour1 = limit hour by 100000
+if 200000 < $num <= 300000 with num1 = @sdf sys_eval with (($num-150000)*-1)
+if 200000 < $num <= 300000 with hour1 = limit hour by 150000
+if 300000 < $num <= 400000 with num1 = @sdf sys_eval with (($num-200000)*-1)
+if 300000 < $num <= 400000 with hour1 = limit hour by 200000
+if 400000 < $num <= 500000 with num1 = @sdf sys_eval with (($num-250000)*-1)
+if 400000 < $num <= 500000 with hour1 = limit hour by 250000
+if 500000 < $num <= 600000 with num1 = @sdf sys_eval with (($num-300000)*-1)
+if 500000 < $num <= 600000 with hour1 = limit hour by 300000
+if 600000 < $num <= 700000 with num1 = @sdf sys_eval with (($num-350000)*-1)
+if 600000 < $num <= 700000 with hour1 = limit hour by 350000
+if $num > 700000 with num1 = @sdf sys_eval with (($num-400000)*-1)
+if $num > 700000 with hour1 = limit hour by 400000
+###超过的数据聚合存入
+if $num > 50000 with """
+	hour2 = limit hour by $num1
+	hour2 = add hh by 1
+	hour2 = group hour2 by hh agg  visit_num:sum,visit_flow:sum,time:max
+	alter hour2 by visit_num_sum:int,visit_flow_sum:int,time_max:datetime64
+	visit_num = eval hour2 by iloc[0,0]
+	visit_flow = eval hour2 by iloc[0,1]
+	time = eval hour2 by iloc[0,2]
+	hour = @udf hour1 by udf0.df_append with (sum1,sum1,sum1,sum1,sum1,$visit_num,$visit_flow,$time)
+"""
+
+alter hour by visit_num:int,visit_flow:int,time:datetime64
+##存入ckh
+ss = if hour.index.size != 0 with store hour to ckh by ckh with api_visit_hour
+##防止内存不足，无法存入
+if $ss != True with store hour to pq by xlink/hx/@file/hx_hour_$k.pq
+###存储pkl
+if hour.index.size != 0 with store hour to pq by xlink/api_visit_hx_day/hx_day_$k.pq
+
+

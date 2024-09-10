@@ -1,0 +1,8 @@
+#FBI脚本文件
+#文件名: pot_local_del.fbi
+#作者: ls
+use @FID
+
+data_df = @udf ssh_iptables.delete_iptables_input with @num
+data_df1 = @udf ssh_iptables.get_iptables_input 
+clear @FID

@@ -1,0 +1,32 @@
+#FBI脚本文件
+#文件名: zfiles.fbi
+#作者: admin
+
+#列出workspace下的所有文件
+a = @udf ZFile.list_dir 
+#列出workspace下data目录下的数据文件
+a1 = @udf ZFile.list_dir with data
+
+#当前目录下的文件
+aa = @udf ZFile.list_file 
+#当前目录下的文件，带上大小
+a2 = @udf ZFile.list_file2 with dataset_2
+
+#根据a解压所有rar文件
+b = @udf a by ZFile.un_rar
+
+#根据a解压所有zip文件
+b = @udf a by ZFile.un_zip
+
+#根据a解压所有gz文件
+b = @udf a by ZFile.un_gz
+
+#根据a解压所有tar文件
+b = @udf a by ZFile.un_tar
+
+#创建
+@udf ZFile.mk_dir with dd
+
+#删除
+@udf ZFile.rm_file with xxxx
+

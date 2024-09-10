@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>图形窗口</title>
+
+ <script type="text/javascript" src="/static/js/jquery.min.js"></script> 
+ <script type="text/javascript" src="/static/libs/base64.js"></script> 
+ <script type="text/javascript">
+      $(document).ready(function() {
+         
+         var ST="";
+         var TI="";
+         
+         var text = "a = load csv by 222.csv\n"+
+                     "push a as table\n";
+         var base64 = new Base64();
+		 var txt = base64.encode(text);
+         
+        //put
+		  $.ajax({
+                 type: "post",
+                 dataType : 'json',
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/run_blockp",
+                 data: {"block":txt},       
+                 success: function(response) { 
+					 console.info(response);
+					 ST = response["result"][0].ST;
+					 TI = response["result"][0].TI;
+					 console.info(ST);
+					 console.info(TI);
+					getStatus();
+     
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+     //get
+		function getStatus(){
+			
+			$.ajax({
+						 type: "get",
+						 async: true,
+						 dataType : 'jsonp',
+						 timeout : 1000*600, //超时时间设置，单位毫秒
+						 url: "/db/abci?prmtv=check task by "+TI+" with ("+ST+")",             
+						 success: function(response) { 
+							 console.info(response);
+							 $("#info").text(response.result.progress);
+							 if (response.result.isAlive==true){
+								setTimeout(getStatus(),5000);
+							}else{
+								$("#info").text("100%");
+							}
+						 },
+						 error: function(XMLHttpRequest, textStatus, errorThrown) {
+								alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+						 }
+					});
+			
+		
+		};
+        
+      });
+    </script>
+</head>
+<body>
+<div id="info"></div>
+</body>
+</html>

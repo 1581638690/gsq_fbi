@@ -1,0 +1,104 @@
+#LastModifyDate:　2024-08-07T16:18:16    Author:   rzc
+#LastModifyDate:　2024-08-07T16:15:29    Author:   rzc
+#LastModifyDate:　2024-08-07T15:29:26    Author:   rzc
+#LastModifyDate:　2024-08-07T15:25:53    Author:   rzc
+#LastModifyDate:　2024-08-05T19:08:31    Author:   pjb
+#LastModifyDate:　2024-08-05T19:07:16    Author:   pjb
+#LastModifyDate:　2024-08-05T18:56:52    Author:   pjb
+#LastModifyDate:　2024-07-02T17:42:56    Author:   dwy
+#LastModifyDate:　2024-05-31T18:12:56    Author:   dwy
+#LastModifyDate:　2024-05-27T15:39:43    Author:   dwy
+#LastModifyDate:　2024-05-22T15:24:55    Author:   pjb
+#xlink脚本
+#file: event_counts.xlk
+#name: znsm事件统计
+#描述： znsm事件实时统计
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with event_counts
+
+#停止
+#a = @udf FBI.x_finder3_stop with event_counts
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:event_counts,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::event_counts
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "znsm事件统计"
+	stream["meta_desc"] = "znsm事件实时统计"
+	stream["source"] = {"shm_name":"events","count":13}
+	
+	#每分钟计数
+	stream["stw"]["stw_event"]={"times":60,"fun":"total_events"}
+	stream["stw"]["stw_csr_ip_event"]={"times":60,"fun":"csr_ip_events"}
+	stream["stw"]["stw_znsm_ip_event"]={"times":60,"fun":"znsm_ip_events"}
+	#stream["stw"]["stw_csr_config_event"]={"times":60,"fun":"csr_config_events"}
+}
+
+
+#事件处理函数
+events => {
+	#时间窗口，需要一个到秒时间戳
+	k = o["k"]
+	del o["k"]
+	if o.get("http"):
+		push_stw("stw_event",k,o)
+	elif o.get("znsm_type"):
+		push_stw("stw_znsm_ip_event",k,o)
+		printf("aa",o)
+	elif o.get("csr_type") == "csr":
+		push_stw("stw_csr_ip_event",k,o)
+	#Delete 注释 by pjb on 2024-05-21 18:05:32
+#elif o.get("csr_type") == "csr_config":
+#		printf("b",o)
+#		push_stw("stw_csr_config_event",k,o)
+
+	return [k]
+}
+
+
+#窗口函数，使用FBI的原语
+total_events => stw{
+	#汇总，求和
+	df_sum = @udf df by udf0.df_sum
+	#绘制流图
+	store df_sum to redis by redis0 push events:10s
+	drop df
+	
+}
+csr_ip_events => stw{
+	df_sum = @udf df by udf0.df_sum
+	store df_sum to redis by redis0 push csr_ip_events:10s
+	drop df
+	
+}
+
+znsm_ip_events => stw{
+	df_sum = @udf df by udf0.df_sum
+	store df_sum to redis by redis0 push znsm_ip_events:10s
+	drop df
+}
+#Delete 注释 by pjb on 2024-05-21 18:05:15
+#csr_config_events => stw{
+#	df_sum = @udf df by udf0.df_sum
+#	store df_sum to redis by redis0 push csr_config_events:10s
+#}
+
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+}

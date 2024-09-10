@@ -1,0 +1,26 @@
+#LastModifyDate:　2024-01-20T14:53:16    Author:   zwl
+#LastModifyDate:　2023-07-07T17:23:58.630888    Author:   zwl
+#LastModifyDate:　2023-03-21T14:14:13.160782    Author:   zwl
+#LastModifyDate:　2023-03-15T18:45:28.544678    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/app_19risk_@app.pq
+datas = @udf datas by udf0.df_fillna_cols with app:'',api:'',dest_ip:'',dest_port:'',state:'',type1:'',last_time:''
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+""" 
+rename datas as ("app":"应用","api":"接口","dest_ip":"部署IP","dest_port":"部署端口","method":"请求类型","state":"弱点状态","type1":"弱点类型","last_time":"最新监测时间")
+store datas to csv by 应用弱点接口_@app_$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 应用弱点接口_@app_$day.csv
+push name as file_name
+
+clear @FID

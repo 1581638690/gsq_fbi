@@ -1,0 +1,22 @@
+#LastModifyDate:　2022-10-28T11:37:40.180893    Author:   gsp
+
+use @FID
+
+sx = load db by mysql1 with select flag,dep,dep_zrr,safearea,job,zdtype,country,province,city  from data_ip_new where srcip='@ip'
+
+ynw=load ssdb by ssdb0 with data_ip_ynw
+sx1 = filter ynw by ip =='@ip'
+sx1 = @udf sx1 by udf0.df_zero_index
+sx = join sx,sx1 by index with right
+rename sx as ('flag':'标签备注','dep':'部门','dep_zrr':'责任人','job':'岗位','zdtype':'终端类型','country':'所属国家','province':'所属省份','city':'所属城市','safearea':'安全域','net1':'一类网用途','net2':'二类网用途','net3':'三类网用途')
+sx = loc sx by drop ip
+sx = @udf sx by udf0.df_fillna
+push sx as table
+
+
+
+
+clear @FID
+
+
+

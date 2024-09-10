@@ -1,0 +1,13 @@
+#FBI生成docx文档，生成插入图片脚本文件
+#@pics_data 生成图片需要的数据对应的ssdb key,key的内容有3列key,index_c,type
+#@id 生成图片所在的目录位置，目录为workspace/temp_word/@id
+#例子run word_temp/make_pics.fbi with (pics_data=res,id=fff)
+
+#构建唯一工作区
+use @FID
+#加载图片数据的key
+data=load ssdb by ssdb0 with @pics_data
+#生成图片
+@udf data by doc.generate_pic with @id
+#清理工作区
+clear  @FID

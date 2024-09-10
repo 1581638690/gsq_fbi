@@ -1,0 +1,155 @@
+#LastModifyDate:　2024-01-18T09:53:47    Author:   superFBI
+#LastModifyDate:　2023-04-04T15:21:34.064675    Author:   zwl
+#LastModifyDate:　2023-04-03T14:34:50.447504    Author:   zwl
+#LastModifyDate:　2022-11-18T17:26:06.620381    Author:   hs
+#LastModifyDate:　2022-11-18T17:25:02.293288    Author:   hs
+#LastModifyDate:　2022-11-18T16:01:56.442116    Author:   hs
+#LastModifyDate:　2022-11-17T19:45:43.635553    Author:   hs
+#FBI生成docx文档脚本文件
+
+#@link 链接
+#@table 表名
+#@data_key 数据
+#@zh 中文表名
+
+#@vars 模板文档里面变量的前缀，比如{{info.name}}变量,vars就是info
+#@var_keys代表变量的值对应的df表的key，比如name
+#@id 模板填充好生成的文件目录位置，目录为workspace/temp_word/@id
+#@table_vars,docx模板文件的table里面变量名
+#@table_keys,存储表格数据的key
+#@report_name,生成报告的文件名称
+
+
+#use @FID
+
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+# 测试
+#store a to ssdb with eqweqwe
+
+now = @sdf sys_now
+now = @sdf format_now with ($now,"%Y-%m-%dT%H:%M:%S")
+
+#先判断报告名称是否为空
+if "@report_name".strip() in ["","undefined"] with """
+	set param by define as report_name with @zh-$now
+""" else """
+	set param by define as report_name with @report_name-$now
+"""
+
+a = add name by  ('@report_name')
+
+#生成报告记录
+#保存
+t = @udf a by CRUD.save_table with (@link,@table)
+assert True as notice to @report_name 报告开始生成! with 报告生成发现错误!
+
+######################################################基本变量信息(根据实际情况修改)###############################################
+
+
+
+# 测试
+#a = load ssdb by ssdb0 with eqweqwe
+
+start_time = eval a by loc[0,'start_time']
+end_time = eval a by loc[0,'end_time']
+
+
+#先判断是否为空时间
+if "$start_time".strip() in ["","undefined"] with """
+	start_time = @sdf sys_now with -1m
+	start_time = @sdf format_now with ($start_time,"%Y-%m-%d")
+"""
+if "$end_time".strip() in ["","undefined"] with """
+	end_time = @sdf sys_now with +1d
+	end_time = @sdf format_now with ($end_time,"%Y-%m-%d")
+"""
+
+now_time = @sdf sys_now
+now_time = @sdf format_now with ($now_time,"%Y-%m-%d")
+# 存储时间
+owasp_time = @udf udf0.new_df with (start_time,end_time,now_time)
+owasp_time = @udf owasp_time by udf0.df_append with ($start_time,$end_time,$now_time)
+store owasp_time to ssdb by ssdb0 with owasp_time
+# 分割协议名
+owasp = eval a by loc[0,'owasp']
+owasp = @udf owasp by FBI.json2df
+#a.alarm = str alarm by (split(","))
+#alarm = @udf a by udf0.df_l2df with alarm
+
+# 准备工作
+df3 = @udf udf0.new_df with (API19-1,API19-2,API19-3,API19-4,API19-7,API19-8)
+df3 = @udf df3 by udf0.df_append with (失效的对象认证,失效的用户认证,过渡的数据暴露,资源缺乏或速率限制,安全配置不当,注入)
+
+api_risk = load ssdb by ssdb0 with dd:api19_risk_type
+api_risk = loc api_risk by index to type
+api_type = load ssdb by ssdb0 with dd:api_type_risk
+api_type = loc api_type by index to type
+
+owasp_report = @udf udf0.new_df with (弱点类型,弱点记录数)
+owasp_report1 = @udf udf0.new_df with (type,弱点记录数)
+
+# 查询数据
+foreach owasp run """
+	##弱点大类分布
+	owasp_count = @udf RS.load_mysql_sql with (mysql1,select count(*) as `弱点记录数` from api19_risk where type like "@prot%" and left(gmt_create,10) <= "$now_time" and left(gmt_create,10) > "$start_time" )
+	owasp_count = eval owasp_count by (iloc[0,0])
+	owasp_name = eval df3 by loc[0,'@prot']
+	owasp_report = @udf owasp_report by udf0.df_append with ($owasp_name,$owasp_count)
+	##弱点小类分布
+	owasp_group = @udf RS.load_mysql_sql with (mysql1,select type,count(*) as 弱点记录数 from api19_risk where type like "@prot%" and left(gmt_create,10) <= "$now_time" and left(gmt_create,10) > "$start_time" group by type )
+	owasp_report1 = union owasp_report1,owasp_group
+""" with (prot=$1)
+
+
+##弱点大类分布表格
+store owasp_report to ssdb by ssdb0 with owasp_list_tab
+
+##弱点小类分布图表
+owasp_report1 = join owasp_report1,api_risk by type,type with left
+owasp_report1 = loc owasp_report1 by value to index
+owasp_report1 = loc owasp_report1 by 弱点记录数
+alter owasp_report1 by 弱点记录数:int
+store owasp_report1 to ssdb by ssdb0 with owasp_list_group
+
+###弱点统计图表
+owasp_report2 = loc owasp_report by 弱点类型 to index
+alter owasp_report2 by 弱点记录数:int
+store owasp_report2 to ssdb by ssdb0 with owasp_list
+
+###弱点大类文字统计
+owasp_report3 = join owasp_report,api_type by 弱点类型,value with left
+owasp_report3 = loc owasp_report3 by type,弱点记录数
+owasp_report3 = loc owasp_report3 by type to index
+owasp_report3 = @udf owasp_report3 by udf0.df_T
+owasp_report = add aaa by 1
+alter owasp_report by 弱点记录数:int
+tt = group owasp_report by aaa agg 弱点记录数:sum
+tt = eval tt by iloc[0,0]
+owasp_report3 = add count by ('$tt')
+rename owasp_report3 as ('API19-1':'api_1','API19-2':'api_2','API19-3':'api_3','API19-4':'api_4','API19-7':'api_7','API19-8':'api_8')
+store owasp_report3 to ssdb by ssdb0 with owasp_count
+
+##############################################################################下面脚本不需要修改##################################################################
+#加载图片数据的key
+data = load ssdb by ssdb0 with @pics_data
+#生成图片
+@udf data by doc.generate_pic with @id
+#生成模板,result表返回的是是否成功生成模板，result表有两列，一列是status，一列是errMessage，status为1代表成功生成模板,为0代表生成模板失败
+result = @udf data by doc.modifiy_doc with (@id,@base,@var_data,@tbs_data,@report_name)
+
+#生成在线文档
+html = @udf doc.word2html with @report_name
+#页面提示
+assert not_have_error() as alert to 报告生成完成! with 报告生成发现错误!
+
+#保存
+t = add status with ('报告生成完毕')
+t = @udf t by CRUD.save_table with (@link,@table)
+assert t by df.index[0] > 0  as notice to @report_name 报告生成完毕! with @report_name 报告生成发现错误!
+
+push t as table
+
+#清理工作区
+#clear @FID

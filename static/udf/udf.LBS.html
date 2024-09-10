@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.LBS</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.LBS</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/LBS.py">/opt/openfbi/fbi-bin/udf/LBS.py</a></td></tr></table>
+    <p><span class="code">LBS.py<br>
+地理位置服务，目前主要有百度里提供服务<br>
+@author&nbsp;gjw<br>
+@date&nbsp;20171004<br>
+#=========================</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="csv.html">csv</a><br>
+<a href="datetime.html">datetime</a><br>
+<a href="geoip2.html">geoip2</a><br>
+<a href="hashlib.html">hashlib</a><br>
+</td><td class="multicolumn"><a href="json.html">json</a><br>
+<a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+<a href="pandas.html">pandas</a><br>
+</td><td class="multicolumn"><a href="re.html">re</a><br>
+<a href="requests.html">requests</a><br>
+<a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td class="multicolumn"><a href="urllib.html">urllib</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-acos"><strong>acos</strong></a>(x, /)</dt><dd><span class="code">Return&nbsp;the&nbsp;arc&nbsp;cosine&nbsp;(measured&nbsp;in&nbsp;radians)&nbsp;of&nbsp;x.<br>
+&nbsp;<br>
+The&nbsp;result&nbsp;is&nbsp;between&nbsp;0&nbsp;and&nbsp;pi.</span></dd></dl>
+ <dl><dt><a name="-asin"><strong>asin</strong></a>(x, /)</dt><dd><span class="code">Return&nbsp;the&nbsp;arc&nbsp;sine&nbsp;(measured&nbsp;in&nbsp;radians)&nbsp;of&nbsp;x.<br>
+&nbsp;<br>
+The&nbsp;result&nbsp;is&nbsp;between&nbsp;-pi/2&nbsp;and&nbsp;pi/2.</span></dd></dl>
+ <dl><dt><a name="-atan"><strong>atan</strong></a>(x, /)</dt><dd><span class="code">Return&nbsp;the&nbsp;arc&nbsp;tangent&nbsp;(measured&nbsp;in&nbsp;radians)&nbsp;of&nbsp;x.<br>
+&nbsp;<br>
+The&nbsp;result&nbsp;is&nbsp;between&nbsp;-pi/2&nbsp;and&nbsp;pi/2.</span></dd></dl>
+ <dl><dt><a name="-baiduLocation"><strong>baiduLocation</strong></a>(df, p)</dt><dd><span class="code">@author:zqh<br>
+@date:&nbsp;2017/11/17<br>
+@函数：baiduLocation<br>
+@参数：df:df表，columnName:待转换的列名<br>
+@描述：利用ip通过百度位置接口获取城市位置信息<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;getInfoByCol.baiduLocation&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-c_search"><strong>c_search</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-c_search_pois"><strong>c_search_pois</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-calcDistance"><strong>calcDistance</strong></a>(Lat_A, Lng_A, Lat_B, Lng_B)</dt></dl>
+ <dl><dt><a name="-cos"><strong>cos</strong></a>(x, /)</dt><dd><span class="code">Return&nbsp;the&nbsp;cosine&nbsp;of&nbsp;x&nbsp;(measured&nbsp;in&nbsp;radians).</span></dd></dl>
+ <dl><dt><a name="-cpinyin"><strong>cpinyin</strong></a>(df, p)</dt><dd><span class="code">@author:zqh<br>
+@date:&nbsp;2018/02/05<br>
+@函数：cpinyin<br>
+@参数：df:df表，columnName&nbsp;:&nbsp;待转换的列名columnName<br>
+@描述：将中文转换为拼音，首字母大写<br>
+@返回：df<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;getInfoByCol.cpinyin&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-distance"><strong>distance</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-fixDistance"><strong>fixDistance</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-geocoder"><strong>geocoder</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-geocoder_baidu"><strong>geocoder_baidu</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-getDomain"><strong>getDomain</strong></a>(df)</dt><dd><span class="code">@author:zqh<br>
+@date:&nbsp;2017/11/17<br>
+@函数：getDomain<br>
+@参数：df:df表<br>
+@描述：获取url的域名<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;getInfoByCol.getDomain</span></dd></dl>
+ <dl><dt><a name="-getException"><strong>getException</strong></a>(df)</dt><dd><span class="code">@author:zqh<br>
+@date:&nbsp;2017/11/17<br>
+@函数：getException<br>
+@参数：df:df表<br>
+@描述：获取url的域名<br>
+@返回：domain列即域名列<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;getInfoByCol.getException</span></dd></dl>
+ <dl><dt><a name="-get_n_date"><strong>get_n_date</strong></a>(datestr, n=-1)</dt></dl>
+ <dl><dt><a name="-get_timestamp"><strong>get_timestamp</strong></a>(timestr)</dt></dl>
+ <dl><dt><a name="-getui_trip"><strong>getui_trip</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-hash_getui"><strong>hash_getui</strong></a>(d, s)</dt></dl>
+ <dl><dt><a name="-haversine"><strong>haversine</strong></a>(lon1, lat1, lon2, lat2)</dt><dd><span class="code">Calculate&nbsp;the&nbsp;great&nbsp;circle&nbsp;distance&nbsp;between&nbsp;two&nbsp;points&nbsp;&nbsp;<br>
+on&nbsp;the&nbsp;earth&nbsp;(specified&nbsp;in&nbsp;decimal&nbsp;degrees)</span></dd></dl>
+ <dl><dt><a name="-idsTrans"><strong>idsTrans</strong></a>(df)</dt><dd><span class="code">@author:zqh<br>
+@date:&nbsp;2017/11/17<br>
+@函数：idsTrans<br>
+@参数：df:df表，columnName<br>
+@描述：ids类型名称与级别的转换<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;getInfoByCol.idsTrans</span></dd></dl>
+ <dl><dt><a name="-radians"><strong>radians</strong></a>(x, /)</dt><dd><span class="code">Convert&nbsp;angle&nbsp;x&nbsp;from&nbsp;degrees&nbsp;to&nbsp;radians.</span></dd></dl>
+ <dl><dt><a name="-regionByip"><strong>regionByip</strong></a>(df, p)</dt><dd><span class="code">@author:zqh<br>
+@date:&nbsp;2017/11/17<br>
+@函数：regionByip<br>
+@参数：df:df表，columnName:待转换的列名<br>
+@描述：通过ip地址获取地域信息<br>
+@返回：在原df表的基础上增加三列country:国家名称，province:省份，city：城市&nbsp;其余不变<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;getInfoByCol.regionByip&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-regionDatx"><strong>regionDatx</strong></a>(df, p)</dt></dl>
+ <dl><dt><a name="-regionGeoip"><strong>regionGeoip</strong></a>(df, p)</dt><dd><span class="code">@author:zqh<br>
+@date:&nbsp;2017/11/17<br>
+@函数：regionGeoip<br>
+@参数：df:df表，columnName:待转换的列名<br>
+@描述：通过mmdb位置库通过ip返回位置信息<br>
+@返回：country:国家,province:省份,city:城市,latitude:纬度,longitude:经度;df表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;getInfoByCol.regionGeoip&nbsp;with&nbsp;q<br>
+&nbsp;<br>
+@update_author:Dyllan<br>
+@update_date:&nbsp;2021/11/03<br>
+@update_detail:&nbsp;1.若IP为内网地址，将删除该行改为增加‘局域网’字段。&nbsp;2.解决台湾国家名称问题。<br>
+&nbsp;<br>
+@update_author:Dyllan<br>
+@update_date:&nbsp;2021/11/13<br>
+@update_detail:&nbsp;1.解决香港、澳门国家名称问题。2.统一&nbsp;省份、直辖市、自治区&nbsp;格式。</span></dd></dl>
+ <dl><dt><a name="-sin"><strong>sin</strong></a>(x, /)</dt><dd><span class="code">Return&nbsp;the&nbsp;sine&nbsp;of&nbsp;x&nbsp;(measured&nbsp;in&nbsp;radians).</span></dd></dl>
+ <dl><dt><a name="-sqrt"><strong>sqrt</strong></a>(x, /)</dt><dd><span class="code">Return&nbsp;the&nbsp;square&nbsp;root&nbsp;of&nbsp;x.</span></dd></dl>
+ <dl><dt><a name="-tan"><strong>tan</strong></a>(x, /)</dt><dd><span class="code">Return&nbsp;the&nbsp;tangent&nbsp;of&nbsp;x&nbsp;(measured&nbsp;in&nbsp;radians).</span></dd></dl>
+ <dl><dt><a name="-test"><strong>test</strong></a>()</dt></dl>
+ <dl><dt><a name="-word_html"><strong>word_html</strong></a>(df, p='')</dt></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>AK</strong> = '81ARxBIApfqK3ddKMGxYDfQc'<br>
+<strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>nan</strong> = nan</td></tr></table>
+</body></html>

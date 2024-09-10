@@ -1,0 +1,8 @@
+#FBI脚本文件
+#文件名: system/ev/disable.fbi
+#作者: superFBI
+
+
+#参数@id
+
+df = @udf FBI.ev_disable with @id

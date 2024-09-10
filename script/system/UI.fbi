@@ -1,0 +1,3 @@
+#FBI脚本文件
+
+a = @udf FBI.local_cmd with /opt/openfbi/fbi-bin/update_ui.sh @id

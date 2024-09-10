@@ -1,0 +1,12 @@
+#FBI脚本文件
+#文件名: run_once.fbi
+#作者: abc
+
+#调用的例子:
+# run run_once.fbi with file=xxxxxx.fbi,p1=p1,p2=p2
+
+timestamp = @sdf sys_timestamp13
+
+settimer once_$timestamp  by "* * * * * *" run @file with p1=@p1,p2=@p2,p3=@p3
+
+assert not_have_error() as notice to 生成后台任务[once_$timestamp][@file]

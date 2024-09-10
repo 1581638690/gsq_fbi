@@ -1,0 +1,276 @@
+#LastModifyDate:　2024-01-16T18:37:01    Author:   zwl
+#LastModifyDate:　2023-08-01T16:54:50.064123    Author:   zwl
+#LastModifyDate:　2023-07-25T16:17:10.830407    Author:   zwl
+#LastModifyDate:　2023-06-14T15:33:24.978904    Author:   zwl
+#LastModifyDate:　2023-06-06T14:13:31.465207    Author:   zwl
+#LastModifyDate:　2023-05-20T16:10:48.707146    Author:   zwl
+#LastModifyDate:　2023-05-06T17:30:47.756350    Author:   zwl
+#LastModifyDate:　2023-03-21T11:47:26.678485    Author:   zwl
+#LastModifyDate:　2023-02-21T10:50:55.933990    Author:   zwl
+#LastModifyDate:　2023-01-04T15:25:32.386124    Author:   zwl
+
+use @FID
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_httpdata limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+#一、本月 
+month1 = @sdf sys_now with -1m 
+month = @sdf format_now with ($month1,"%Y-%m-%d 00:00:00")
+#弱点接口
+api = load db by mysql1 with select type,count(*) as r_num from api19_risk where last_time > '$month' group by type
+alter api by type:str,r_num:int
+api_n = loc api by r_num
+api_n = add ss by 1
+api_n = group api_n by ss agg r_num:sum
+aa_num = eval api_n by index.size
+if $aa_num == 0 with api_n = @udf api_n by udf0.df_append with 0
+rename api_n as ('r_num_sum':'弱点接口数量')
+api_n = loc api_n by index to aa
+api_n = loc api_n by drop aa
+api_n = @udf api_n by udf0.df_append with 近一个月
+api_n = add 参数 by ('参数可遍历')
+store api_n to ssdb by ssdb0 with api_n:num
+##弱点接口最多的弱点类型
+api19_type = load ssdb by ssdb0 with dd:api19_risk_type
+api19_type = loc api19_type by index to type
+api = join api,api19_type by type,type with outer
+api = @udf api by udf0.df_fillna_cols with r_num:0
+api = order api by r_num with desc
+api = loc api by value,r_num
+##排名第一弱点类型
+name1 = eval api by iloc[0,0]
+api_1 = filter api by value == '$name1'
+api_1 = loc api_1 by value to index
+rename api_1 as ('r_num':'$name1')
+api_1 = @udf api_1 by udf0.df_append with 近一个月弱点接口数排名第一的弱点类型的接口数量
+api_1 = add 参数 by ('$name1')
+store api_1 to ssdb by ssdb0 with api_1:num
+##排名第二弱点类型
+name2 = eval api by iloc[2,0]
+api_2 = filter api by value == '$name2'
+api_2 = loc api_2 by value to index
+rename api_2 as ('r_num':'$name2')
+api_2 = @udf api_2 by udf0.df_append with 近一个月弱点接口数排名第二的弱点类型的接口数量
+api_2 = add 参数 by ('$name2')
+store api_2 to ssdb by ssdb0 with api_2:num
+
+###风险告警
+# 访问阈值告警
+event_n = load ckh by ckh with select count(risk_label) as r_num from api_risk where first_time > '$month'
+alter event_n by r_num:int
+event_n = add aa by ('访问阈值告警')
+#访问耗时告警
+delay_n = load ckh by ckh with select count(*) as r_num from api_delay where time > '$month'
+alter delay_n by r_num:int
+delay_n = add aa by ('访问耗时告警')
+#异地访问告警
+req_n = load ckh by ckh with select count(*) as r_num from r_req_alm where timestamp > '$month'
+alter req_n by r_num:int
+req_n = add aa by ('异地访问告警')
+#请求异常告警
+stat_n = load ckh by ckh with select count(*) as r_num from stat_req_alm where timestamp > '$month'
+alter stat_n by r_num:int
+stat_n = add aa by ('请求异常告警')
+# 敏感数据告警
+sens_n = load ckh by ckh with select count(*) as r_num from sensitive_data_alarm where time > '$month'
+alter sens_n by r_num:int
+sens_n = add aa by ('敏感数据告警')
+# 境外访问告警
+abroad_n = load ckh by ckh with select count(*) as r_num from api_abroad where timestamp > '$month'
+alter abroad_n by r_num:int
+abroad_n = add aa by ('境外访问告警')
+# 文件敏感信息告警
+filter_n = load ckh by ckh with select count(*) as r_num from datafilter_alarm where timestamp > '$month'
+alter filter_n by r_num:int
+filter_n = add aa by ('文件敏感信息告警')
+
+#告警事件
+alm_num1 = union (event_n,delay_n,req_n,stat_n,abroad_n,sens_n,filter_n)
+alm_num = group alm_num1 by index agg r_num:sum
+rename alm_num by ("r_num_sum":"告警事件数量")
+alm_num = @udf alm_num by udf0.df_append with 近一个月
+store alm_num to ssdb by ssdb0 with alm_num:num
+##风险事件最多的告警
+ggg = order alm_num1 by r_num with desc
+ggg = loc ggg by aa,r_num
+name1 = eval ggg by iloc[0,0]
+gg = filter ggg by aa == '$name1'
+gg = loc gg by aa to index
+rename gg as ('r_num':'$name1')
+gg = @udf gg by udf0.df_append with 近一个月告警事件排名第一的告警类型的事件数量
+store gg to ssdb by ssdb0 with gg:num
+##
+name2 = eval ggg by iloc[1,0]
+gg1 = filter ggg by aa == '$name2'
+gg1 = loc gg1 by aa to index
+rename gg1 as ('r_num':'$name2')
+gg1 = @udf gg1 by udf0.df_append with 近一个月告警事件排名第二的告警类型的事件数量
+store gg1 to ssdb by ssdb0 with gg1:num
+
+
+#三、月风险趋势--api风险 风险事件、高风险、中风险、低风险、总风险
+date = @sdf sys_now with (-2 month)
+date = @sdf format_now with ($date,"%Y-%m-%d 00:00:00")
+#安全事件数量
+api_mod = load ckh by ckh with select SUBSTRING(toString(timestamp),1,7) as mtime,count(*) as r_num from api_modsecurity where timestamp >= '$date' group by mtime 
+alter api_mod by mtime:str,r_num:int
+#api_mod = add 告警类型 by ('安全事件告警')
+rename api_mod by ("r_num":"安全事件告警")
+##数据泄露场景分析
+api_model = load ckh by ckh with select SUBSTRING(toString(timestamp),1,7) as mtime,count(*) as r_num from api_model where timestamp >= '$date' group by mtime 
+alter api_model by mtime:str,r_num:int
+#api_model = add 告警类型 by ('数据泄露场景分析')
+rename api_model by ("r_num":"数据泄露场景分析")
+# 阈值告警
+emh = load ckh by ckh with select SUBSTRING(toString(first_time),1,7) as mtime,count(risk_label) as r_num from api_risk where first_time >= '$date' group by mtime
+alter emh by mtime:str,r_num:int
+#rename emh by ("r_num":"风险事件")
+# 访问耗时告警
+delay = load ckh by ckh with select SUBSTRING(toString(time),1,7) as mtime,count(*) as r_num from api_delay where time >= '$date' group by mtime
+alter delay by mtime:str,r_num:int
+#rename delay by ("r_num":"访问耗时事件")
+# 异地访问告警
+r_req = load ckh by ckh with select SUBSTRING(toString(timestamp),1,7) as mtime,count(*) as r_num from r_req_alm where timestamp >= '$date' group by mtime 
+alter r_req by mtime:str,r_num:int
+#rename r_req by ("r_num":"异地访问事件")
+# 请求异常告警
+stat = load ckh by ckh with select SUBSTRING(toString(timestamp),1,7) as mtime,count(*) as r_num from stat_req_alm where timestamp >= '$date' group by mtime
+alter stat by mtime:str,r_num:int
+#rename stat by ("r_num":"请求异常事件")
+# 敏感数据告警
+sensitive = load ckh by ckh with select SUBSTRING(toString(time),1,7) as mtime,count(*) as r_num from sensitive_data_alarm where time >= '$date' group by mtime 
+alter sensitive by mtime:str,r_num:int
+#rename sensitive by ("r_num":"敏感数据事件")
+# 境外访问告警
+abroad = load ckh by ckh with select SUBSTRING(toString(timestamp),1,7) as mtime,count(*) as r_num from api_abroad where timestamp >= '$date' group by mtime 
+alter abroad by mtime:str,r_num:int
+#rename abroad by ("r_num":"境外访问事件")
+# 文件敏感信息告警
+datafilter = load ckh by ckh with select SUBSTRING(toString(timestamp),1,7) as mtime,count(*) as r_num from datafilter_alarm where timestamp >= '$date' group by mtime
+alter datafilter by mtime:str,r_num:int
+#rename datafilter by ("r_num":"文件敏感事件")
+
+# -----不加高中低风险----开始
+alm_mh = union (emh,delay,r_req,stat,sensitive,abroad,datafilter)
+alm_mh = group alm_mh by mtime agg r_num:sum
+alm_mh = loc alm_mh by index to mtime
+rename alm_mh by ("r_num_sum":"告警事件")
+
+alm_mh = join alm_mh,api_mod by mtime,mtime with left
+alm_mh = join alm_mh,api_model by mtime,mtime with left
+alm_mh = order alm_mh by mtime
+alm_mh = loc alm_mh by mtime to index
+alm_mh = @udf alm_mh by udf0.df_fillna_cols with 告警事件:0,安全事件告警:0,数据泄露场景分析:0
+store alm_mh to ssdb by ssdb0 with mtotal:trend
+#--------不加高中低风险 ------结束
+
+
+#饼状图 周-------------------------------------------------------------------------------------------------------------------------------
+week1 = @sdf sys_now with -0 week
+#上周周一
+week2 = @sdf sys_now with -1 week
+#上上上周周一
+week1 = @sdf format_now with ($week1,"%Y-%m-%dT00:00:00")
+week2 = @sdf format_now with ($week2,"%Y-%m-%dT00:00:00")
+
+#本周
+api19_w1 = load db by mysql1 with select b.type2,count(api) as num from api19_risk a left join api19_type b on a.type = b.type where last_time >= '$week1' group by b.type2
+alter api19_w1 by type2:str,num:int
+api19_w1 = loc api19_w1 by type2 to index
+rename api19_w1 as ('num':'数量')
+store api19_w1 to ssdb by ssdb0 with this:pie
+
+#上周
+api19_w2 = load db by mysql1 with select b.type2,count(api) as num from api19_risk a left join api19_type b on a.type = b.type where last_time >= '$week2' and last_time < '$week1' group by b.type2
+alter api19_w2 by type2:str,num:int
+api19_w2 = loc api19_w2 by type2 to index
+rename api19_w2 as ('num':'数量')
+store api19_w2 to ssdb by ssdb0 with last:pie
+
+
+
+# 月比例分布图-------------------------
+#本月
+month2 = @sdf sys_now with -1 month
+month2 = @sdf format_now with ($month2,"%Y-%m-%dT00:00:00")
+month3 = @sdf sys_now with -2 month
+month3 = @sdf format_now with ($month3,"%Y-%m-%dT00:00:00")
+
+#本月
+api19_m1 = load db by mysql1 with select b.type2,count(api) as num from api19_risk a left join api19_type b on a.type = b.type where last_time >= '$month2' group by b.type2
+alter api19_m1 by type2:str,num:int
+api19_m1 = loc api19_m1 by type2 to index
+rename api19_m1 as ('num':'数量')
+store api19_m1 to ssdb by ssdb0 with thism:mpie
+
+##上月
+api19_m2 = load db by mysql1 with select b.type2,count(api) as num from api19_risk a left join api19_type b on a.type = b.type where last_time >= '$month3' and last_time < '$month2' group by b.type2
+alter api19_m2 by type2:str,num:int
+api19_m2 = loc api19_m2 by type2 to index
+rename api19_m2 as ('num':'数量')
+store api19_m2 to ssdb by ssdb0 with lastm:mpie 
+
+
+##导航条 （月、周）
+#dd = @udf udf0.new_df with 机构类型,pageid,cs,target
+#dd = @udf dd by udf0.df_append with (月,dashboard7:lhq_view_risk,@time=month,link)
+#dd = @udf dd by udf0.df_append with (周,dashboard7:lhq_view_risk,@time=week,link)
+#store dd to ssdb by ssdb0 with key_yz_data
+
+###月、周弱点类型、状态、接口数量分布=------------------------------------------------------------------
+api19_risk_w = load db by mysql1 with select state,count(*) as state_count from api19_risk where last_time >= '$week1' group by state
+alter api19_risk_w by state:str,state_count:int
+api19_risk_w = loc api19_risk_w by state to index
+rename api19_risk_w as ('state_count':'弱点状态数量')
+store api19_risk_w to ssdb by ssdb0 with week:list
+api19_risk_m = load db by mysql1 with select state,count(*) as state_count from api19_risk where last_time >= '$month2' group by state
+alter api19_risk_m by state:str,state_count:int
+api19_risk_m = loc api19_risk_m by state to index
+rename api19_risk_m as ('state_count':'弱点状态数量')
+store api19_risk_m to ssdb by ssdb0 with month:list
+
+
+#近一月 安全事件与模型事件分布----------------------------------------------------------------------------
+month1 = @sdf sys_now with -1m 
+month1 = @sdf format_now with ($month1,"%Y-%m-%dT00:00:00")
+month2 = @sdf sys_now 
+month2 = @sdf format_now with ($month2,"%Y-%m-%d")
+month = @udf udf0.new_df_timerange with ($month1,$month2,1D)
+month = loc month by end_time 
+rename month as ("end_time":"times")
+month.times = lambda times by (x:x[:10])
+
+##安全事件告警
+api_mod = load ckh by ckh with select SUBSTRING(toString(timestamp),1,10) as times,count(*) as r_num from api_modsecurity where timestamp >= '$month1' group by times 
+alter api_mod by times:str,r_num:int
+rename api_mod by ("r_num":"安全事件告警")
+##数据泄露场景分析
+api_model = load ckh by ckh with select SUBSTRING(toString(timestamp),1,10) as times,count(*) as r_num from api_model where timestamp >= '$month1' group by times 
+alter api_model by times:str,r_num:int
+rename api_model by ("r_num":"数据泄露场景分析")
+tl_trend = join month,api_mod by times,times with left
+tl_trend = join tl_trend,api_model by times,times with left
+tl_trend = @udf tl_trend by udf0.df_fillna_cols with 安全事件告警:0,数据泄露场景分析:0
+tl_trend.times = lambda times by (x:x[5:10])
+tl_trend = loc tl_trend by times to index
+tl_trend = loc tl_trend by 安全事件告警,数据泄露场景分析
+store tl_trend to ssdb by ssdb0 with total:trend
+
+
+##近一个月发现弱点接口分布-----------------------------------------------------------------------------------------
+api_risk = load db by mysql1 with select left(last_time,10) as times,b.type2,count(api) as num from api19_risk a left join api19_type b on a.type = b.type where last_time >= '$month1' group by b.type2,times
+alter api_risk by times:str,type2:str,num:int
+api_risk = group api_risk by times,type2 agg num:sum
+api_risk = @udf api_risk by udf0.df_unstack with num_sum
+api_risk = loc api_risk by index to times
+api_risk = join month,api_risk by times,times with left
+api_risk = @udf api_risk by udf0.df_fillna with (0)
+#alter api_risk by num:int
+api_risk.times = lambda times by (x:x[5:10])
+api_risk = loc api_risk by times to index
+store api_risk to ssdb by ssdb0 with total:api_risk
+
+
+clear @FID

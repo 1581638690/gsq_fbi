@@ -1,0 +1,50 @@
+#LastModifyDate:　2023-01-13T10:17:07.474335    Author:   pjb
+#LastModifyDate:　2023-01-13T09:52:42.892428    Author:   qh
+#LastModifyDate:　2023-01-12T17:04:34.323546    Author:   superFBI
+#LastModifyDate:　2023-01-12T16:58:42.152338    Author:   qh
+#LastModifyDate:　2023-01-12T16:25:55.741030    Author:   qh
+#LastModifyDate:　2023-01-12T16:08:05.321785    Author:   qh
+#SDK认证
+use @FID
+
+zz = load ssdb by ssdb0 with qh_send as json
+SDK = jaas zz by zz["SDK"] as sdf
+if $SDK == "1" with """
+	SDK_protocol = jaas zz by zz["SDK_protocol"] as sdf
+	SDK_IP = jaas zz by zz["SDK_IP"] as sdf
+	SDK_port = jaas zz by zz["SDK_port"] as sdf
+	SDK_ip_or_id = jaas zz by zz["SDK_ip_or_id"] as sdf
+	SOC_ip = jaas zz by zz["SOC_ip"] as sdf
+	SOC_port = jaas zz by zz["SOC_port"] as sdf
+
+	SDK_protocol = @sdf sys_str with ($SDK_protocol,[1:-1])
+	SDK_IP= @sdf sys_str with ($SDK_IP,[1:-1])
+	SDK_ip_or_id= @sdf sys_str with ($SDK_ip_or_id,[1:-1])
+	SOC_ip = @sdf sys_str with ($SOC_ip,[1:-1])
+
+	df1 = @udf udf0.new_df
+	df1 = add a by 1
+	df1 = @udf df1 by udf0.df_append with (utf-8)
+	df2 = @udf df1 by net2.cert with $SDK_ip_or_id,$SDK_IP,$SDK_port,$SDK_protocol,$SOC_ip,$SOC_port
+	df3 = @udf df2 by FBI.df2json
+""" else """
+	df2 = @udf udf0.new_df
+	df2 = add a by 0
+	df2 = @udf df2 by udf0.df_append with (0)
+"""
+
+
+s = eval df2 by iloc[0,0]
+if $s == "1" with """
+	store df3 to ssdb with cert:TorF 
+""" else """
+	df4 = @udf udf0.new_df
+	df4 = add a by 0
+	df4 = @udf df4 by udf0.df_append with (0)
+	store df4 to ssdb with cert:TorF
+"""
+
+clear @FID
+
+
+

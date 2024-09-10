@@ -1,0 +1,41 @@
+#LastModifyDate:　2024-01-20T15:26:33    Author:   zwl
+#LastModifyDate:　2023-03-30T17:20:02.470131    Author:   zwl
+#LastModifyDate:　2023-03-30T16:42:32.667971    Author:   zwl
+#LastModifyDate:　2023-03-23T10:04:20.488269    Author:   zwl
+#LastModifyDate:　2023-03-15T15:22:43.983901    Author:   zwl
+#LastModifyDate:　2023-03-07T10:46:38.658382    Author:   zwl
+use @FID
+
+ss = load ssdb by ssdb0 with @datakey
+
+a = load pq by dt_table/ip_visit_dstip1_@srcip.pq
+a = loc a by index to __index
+
+
+##判断是否进行   搜索--------------------------------------------
+ppp = load ssdb by ssdb0 with @filterKey
+ppp = filter ppp by ip != ''
+ppp_num = eval ppp by index.size
+ppp_num = @sdf sys_eval with $ppp_num != 0
+#全文检索
+q = @sdf sys_if_run with ($ppp_num, "ip = eval ppp by iloc[0,0]")
+q = @sdf sys_if_run with ($ppp_num, "a = filter a with $ip")
+
+##判断是否进行   筛选--------------------------------------------
+sss_num = eval ss by index.size 
+sss_num = @sdf sys_eval with $sss_num != 0
+q = @sdf sys_if_run with ($sss_num, "ss1 = eval ss by iloc[0,0]")
+q = @sdf sys_if_run with ($sss_num, "a = filter a by $ss1")
+
+
+b = loc a by _id,srcip,dstip,dstip_num
+count = eval b by index.size
+c = @udf udf0.new_df with count
+c = @udf c by udf0.df_append with $count
+b = limit b by 1000
+rename b as ("srcip":"终端IP","dstip":"目的IP","dstip_num":"访问数量"")
+
+push b as table
+push c as count
+
+clear @FID

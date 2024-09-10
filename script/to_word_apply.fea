@@ -1,0 +1,112 @@
+#LastModifyDate:　2022-10-27T13:39:24.710041    Author:   pjb
+# Auther: Dyllan
+# Date: 2021-08-17
+# Modify: 重写此脚本
+
+use @FID
+
+base_df = load ssdb by ssdb0 with key:qes:event
+con = eval base_df by get_value(0,"con")
+type = eval base_df by get_value(0,"type")
+base_df.stimez = lambda con by (x:x[11:35])
+base_df.etimez = lambda con by (x:x[51:76])
+stimez = eval base_df by get_value(0,"stimez")
+etimez = eval base_df by get_value(0,"etimez")
+
+stime = @sdf sys_lambda with ($stimez, x:x.replace("T"," ").replace(".000Z",""))
+etime = @sdf sys_lambda with ($etimez, x:x.replace("T"," ").replace(".999Z",""))
+
+date = @sdf sys_now
+date = @sdf format_now with ($date,"%Y-%m-%d %H:%M:%S")
+
+user_name = @udf udfA.get_user
+user_names = eval user_name by iloc[0,0]
+
+name = @sdf sys_lambda with ($date,x:"$type_"+x[0:10]+'_'+x[11:23])
+name_all = @sdf sys_lambda with ($name,x:x+".docx")
+#生成docx
+
+    #存mysql
+    table = @udf udf0.new_df with (user,filename,starttime,endtime,filenotes,formtime,status)
+    table = @udf table by udf0.df_append with ($user_names,$name_all,$stime,$etime,$type,$date,生成中)
+    save = @udf table by CRUD.save_table with (mysql4,pot_words)
+
+    #--------网络流量整体情况----------
+    #日志总量
+    df1 = load es by es7 with select count(*) from event* where $con
+    df1 = add stime by ('$stime')
+    df1 = add etime by ('$etime')
+
+	#日志事件分布
+    df2_base = @udf udf0.new_df with (event_type,count)
+    df2 = load es by es7 with select * from event* where $con group by event_type.keyword
+    df2 = union df2_base,df2 
+ 
+    #----访问情况--------
+    #发起访问
+    df7_base = @udf udf0.new_df with (src_ip,count)
+    df7 = load es by es7 with select * from event* where $con group by src_ip.keyword
+    df7 = union df7_base,df7  
+    df7 = limit df7 by 10
+    df3 = loc df7 by src_ip to index
+    df3 = order df3 by count with asc
+    
+    #接受访问
+    df8_base = @udf udf0.new_df with (dest_ip,count)
+    df8 = load es by es7 with select * from event* where $con group by dest_ip.keyword
+    df8 = union df8_base,df8  
+    df8 = limit df8 by 10
+    df4 = loc df8 by dest_ip to index
+    df4 = order df4 by count with asc
+    
+    #相互访问
+    df9_base = @udf udf0.new_df with (src_ip,dest_ip,count)
+    df9 = load es by es7 with select * from event* where $con group by src_ip.keyword,dest_ip.keyword
+	df9 = union df9_base,df9  
+    df9 = @udf df9 by udf0.df_row_lambda with (x: x['src_ip'] if x['dest_ip']>x['src_ip'] else x['dest_ip'] )
+    rename df9 as ("lambda1":"src")
+    df9 = @udf df9 by udf0.df_row_lambda with (x: x['src_ip'] if x['src']==x['dest_ip'] else x['dest_ip'] )
+    rename df9 as ("lambda1":"dst")
+    df9 = group df9 by src,dst agg count:sum
+    df9 = order df9 by count_sum with desc
+    df9 = @udf df9 by udf0.df_reset_index
+    df9 = limit df9 by 10
+      
+    ###存30秒
+    store df1 to ssdb by ssdb0 with pot_baobiao_time_event as 3000
+    store df2 to ssdb by ssdb0 with pot_baobiao_event_type_event as 3000
+    store df3 to ssdb by ssdb0 with pot_baobiao_proto_event3 as 3000
+    store df4 to ssdb by ssdb0 with pot_baobiao_all_timer_event4 as 3000
+    #store df5 to ssdb by ssdb0 with pot_baobiao_alert_event as 3000
+    #store df6 to ssdb by ssdb0 with pot_baobiao_alert_timer_event as 3000
+    store df7 to ssdb by ssdb0 with pot_baobiao_src_ip_event as 3000
+    store df8 to ssdb by ssdb0 with pot_baobiao_dest_ip_event as 3000
+    store df9 to ssdb by ssdb0 with pot_baobiao_src_dst_ip_event as 3000
+
+    ########################生成文件#############################
+    #加载图片数据的key
+    data = load ssdb by ssdb0 with pics_dataevent_word
+    #生成图片
+    x = @udf data by doc.generate_pic with event_word
+    #生成模板
+
+    report_status = @udf data by doc.modifiy_doc with (event_word,baseevent_word,title_dataevent_word,table_dataevent_word,$name)
+    pstatus = eval report_status by (get_value(0,"status"))
+	
+    #生成html
+    to_html = @udf udfG.word2pdf with report/$name.docx
+
+
+# 修改生成状态
+mysql_df = @udf RS.load_mysql_sql with (mysql4 ,select * from pot_words where filename='$name_all')
+mysql_df = loc mysql_df by id to index
+mysql_df = loc mysql_df by drop (gmt_create,gmt_modified)
+mysql_df.status = lambda status by (x:$pstatus)
+mysql_df.status = lambda status by (x:'成功' if x==1 else '失败')
+mysql_df.formtime = lambda formtime by (x:str(x)[0:10]+' '+str(x)[11:23])
+mysql_df.starttime = lambda starttime by (x:str(x)[0:10]+' '+str(x)[11:23])
+mysql_df.endtime = lambda endtime by (x:str(x)[0:10]+' '+str(x)[11:23])
+x = @udf mysql_df by CRUD.save_table with (mysql4,pot_words)
+
+
+clear @FID

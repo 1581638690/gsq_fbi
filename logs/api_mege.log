@@ -1,0 +1,424 @@
+{"user":"x_finder3","timestamp":"2024-08-29T14:37:08.869662","nav_name":"api_mege","action":"发送消息失败","params":"Unix_udp \/tmp\/operation_events_oper","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:37:08.880081","nav_name":"api_mege","action":"发送消息失败","params":"Unix_udp \/tmp\/operation_events_oper","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:37:08.890280","nav_name":"api_mege","action":"发送消息失败","params":"Unix_udp \/tmp\/operation_events_oper","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:37:08.900525","nav_name":"api_mege","action":"发送消息失败","params":"Unix_udp \/tmp\/operation_events_oper","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.740750","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-644591","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.745226","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-644592","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.749290","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-644594","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.750566","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.750785","nav_name":"api_mege","action":"守护开始","params":"PID:643669,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.750775","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.751302","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.753931","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.754165","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.754479","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.834360","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.834705","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.835834","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.835974","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.836133","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.851123","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.851488","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.852515","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.852655","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:02.852785","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.930337","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-655963","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.934374","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-655979","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.938793","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-655980","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.940392","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.940635","nav_name":"api_mege","action":"守护开始","params":"PID:654805,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.949888","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.950421","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.971976","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.972352","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:51.972706","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.038438","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.038792","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.039933","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.040070","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.040202","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.073285","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.073677","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.074848","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.075016","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:52.075170","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.776077","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-667203","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.780191","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-667204","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.784604","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-667205","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.786179","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.786426","nav_name":"api_mege","action":"守护开始","params":"PID:666258,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.786368","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.786880","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.793519","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.793830","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.794146","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.877972","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.878281","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.878385","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.878647","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.897808","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.897991","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.898001","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.898116","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.898242","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:36.898382","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.750040","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-674376","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.753698","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-674377","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.757483","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-674378","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.759036","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.759254","nav_name":"api_mege","action":"守护开始","params":"PID:673340,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.759190","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.759680","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.762578","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.762896","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.763275","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.843253","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.843578","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.844565","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.844712","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.844845","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.845484","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.845726","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.846683","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.846809","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:36.846927","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.030580","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-695609","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.034525","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-695612","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.038778","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-695613","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.040030","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.040280","nav_name":"api_mege","action":"守护开始","params":"PID:694428,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.040379","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.040830","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.047766","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.048023","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.048262","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.138440","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.138766","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.139977","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.140173","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.140317","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.148239","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.148575","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.168756","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.169080","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:18.169251","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.482692","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-701389","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.487374","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-701413","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.492146","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-701414","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.493783","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.494075","nav_name":"api_mege","action":"守护开始","params":"PID:700319,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.509725","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.510241","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.517235","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.517497","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.517799","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.582606","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.582916","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.587758","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.587969","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.588129","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.599455","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.599849","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.637777","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.638070","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:57.638232","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.820692","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-722347","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.825160","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-722348","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.829738","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-722349","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.831578","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.831892","nav_name":"api_mege","action":"守护开始","params":"PID:721307,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.832037","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.832566","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.837779","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.838055","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.838396","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.925110","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.925425","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.927715","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.927947","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.928073","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.997555","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:42.997969","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:43.022145","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:43.022441","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:43.022585","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.201022","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-729117","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.205345","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-729118","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.209430","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-729119","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.210902","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.211131","nav_name":"api_mege","action":"守护开始","params":"PID:727958,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.218917","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.219495","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.237949","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.238221","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.238571","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.312461","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.312809","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.313820","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.313965","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.314107","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.357278","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.357714","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.358832","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.358966","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:33.359102","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.224705","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-769343","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.229067","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-769344","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.233449","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-769349","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.235064","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.235315","nav_name":"api_mege","action":"守护开始","params":"PID:768169,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.235602","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.236131","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.239280","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.239502","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.239849","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.323622","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.323929","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.332202","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.332583","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.333682","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.333821","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.333959","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.339132","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.339352","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:33.339477","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.066600","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-784345","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.070746","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-784346","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.075393","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-784349","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.077036","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.077256","nav_name":"api_mege","action":"守护开始","params":"PID:783340,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.077292","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.077875","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.110144","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.110916","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.112279","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.171769","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.172196","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.173538","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.173817","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.174089","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.174168","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.174416","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.175925","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.176213","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:10.176783","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.500789","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-828204","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.505503","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-828205","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.510207","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-828206","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.511728","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.511964","nav_name":"api_mege","action":"守护开始","params":"PID:827229,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.511998","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.512487","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.515806","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.516063","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.516293","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.602367","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.602368","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.602692","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.602692","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.603697","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.603831","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.603855","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.603950","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.604045","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:37.604181","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.340697","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-898084","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.345261","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-898085","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.349650","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-898086","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.351142","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.351380","nav_name":"api_mege","action":"守护开始","params":"PID:896942,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.351484","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.352046","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.355152","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.355441","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.355827","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.448828","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.449245","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.457812","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.458191","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.459467","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.459661","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.459837","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.477721","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.478035","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:53.478194","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.520597","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-960849","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.525396","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-960855","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.530030","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-960856","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.531598","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.531875","nav_name":"api_mege","action":"守护开始","params":"PID:959820,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.532319","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.532830","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.537057","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.537347","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.537697","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.628773","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.629096","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.630144","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.630281","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.630402","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.637483","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.637895","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.638979","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.639164","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:57.639305","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.655588","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-984528","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.660680","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-984530","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.665520","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-984597","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.667114","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.667348","nav_name":"api_mege","action":"守护开始","params":"PID:983402,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.667713","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.668251","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.671562","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.671821","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.672158","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.766244","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.766572","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.768979","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.769206","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.769337","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.770166","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.770503","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.772024","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.772318","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:02.772489","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.799974","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-998333","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.803650","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-998334","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.807791","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-998335","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.809362","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.809652","nav_name":"api_mege","action":"守护开始","params":"PID:997292,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.809719","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.810241","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.813196","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.813483","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.813791","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.892614","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.892961","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.895888","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.896153","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.897675","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.897819","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.897939","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.898780","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.898952","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:14.899082","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.320363","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-1409750","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.324210","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-1409751","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.328450","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-1409758","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.330007","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.330258","nav_name":"api_mege","action":"守护开始","params":"PID:1408503,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.333735","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.334410","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.337642","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.337935","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.338189","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.418858","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.419217","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.428042","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.428399","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.428565","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.432083","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.432392","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.433855","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.434003","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:24.434151","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.209517","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-1430287","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.214312","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-1430288","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.219052","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-1430289","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.220824","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.221196","nav_name":"api_mege","action":"守护开始","params":"PID:1429299,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.221482","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.222089","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.225475","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.225750","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.226080","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.320205","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.320531","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.324990","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.325350","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.349126","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.349376","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.349540","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.381608","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.381848","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:06.381975","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.194282","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-1479777","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.198419","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-1479778","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.202996","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-1479779","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.204748","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.205012","nav_name":"api_mege","action":"守护开始","params":"PID:1478832,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.205156","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.205743","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.208647","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.208917","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.209273","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.297868","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.298185","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.299064","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.299375","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.299450","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.299633","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.299766","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.302139","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.302291","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:25.302425","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.666423","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-1545618","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.671070","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-1545619","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.675819","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-1545620","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.677477","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.677847","nav_name":"api_mege","action":"守护开始","params":"PID:1544614,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.678285","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.678849","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.682173","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.682434","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.682741","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.772543","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.772864","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.773918","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.774065","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.774188","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.776980","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.777320","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.778507","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.778711","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:28.778853","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.847333","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-1611532","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.851605","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-1611534","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.855892","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-1611541","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.857325","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.857589","nav_name":"api_mege","action":"守护开始","params":"PID:1610463,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.857564","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.858164","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.863652","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.863946","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.864203","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.944527","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.944837","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.944941","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.945375","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.945863","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.946002","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.946150","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.946606","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.946753","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:01.946893","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.790346","nav_name":"api_mege","action":"启动xlink子任务[0]","params":"ID-0,PID-1763749","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.794071","nav_name":"api_mege","action":"启动xlink子任务[1]","params":"ID-1,PID-1763750","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.798274","nav_name":"api_mege","action":"启动xlink主任务[-1]","params":"PID-1763751","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.799951","nav_name":"api_mege","action":"启动参数","params":"unix_udp: \/tmp\/http-proto,socket: \/tmp\/http-proto.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.800176","nav_name":"api_mege","action":"守护开始","params":"PID:1762941,主任务+2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.800212","nav_name":"api_mege","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.800799","nav_name":"api_mege","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.803642","nav_name":"api_mege","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.803925","nav_name":"api_mege","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.804261","nav_name":"api_mege","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.887386","nav_name":"api_mege__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.887731","nav_name":"api_mege__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.888915","nav_name":"api_mege__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.889133","nav_name":"api_mege__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.889289","nav_name":"api_mege__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.893843","nav_name":"api_mege__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.894151","nav_name":"api_mege__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.895571","nav_name":"api_mege__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.895797","nav_name":"api_mege__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:06.895938","nav_name":"api_mege__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}

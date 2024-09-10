@@ -1,0 +1,160 @@
+#LastModifyDate:　2024-04-07T11:48:35    Author:   pjb
+#LastModifyDate:　2024-04-07T11:32:45    Author:   pjb
+#LastModifyDate:　2024-04-07T11:03:56    Author:   superFBI
+#LastModifyDate:　2024-04-07T11:02:17    Author:   superFBI
+#LastModifyDate:　2024-04-02T18:16:01    Author:   lch
+#LastModifyDate:　2024-04-01T11:25:09    Author:   superFBI
+#LastModifyDate:　2024-03-30T16:34:06    Author:   lch
+#LastModifyDate:　2024-03-30T14:24:04    Author:   lch
+#LastModifyDate:　2024-03-29T17:27:08    Author:   lch
+#LastModifyDate:　2024-03-27T17:28:47    Author:   lch
+#LastModifyDate:　2024-03-27T16:35:21    Author:   lch
+#xlink脚本
+#file: main_process.xlk
+#name: 分发主流程
+#描述： 分发数据到Redis
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with main_process
+
+#停止
+#a = @udf FBI.x_finder3_stop with main_process
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:main_process,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::main_process
+
+#断点调试
+#debug_on(1)
+
+
+# 初始化
+# Delete 注释 by superFBI on 2024-03-26 18:58:14
+init => {
+	stream["meta_name"] = "[CSR]主分发流程"
+	stream["meta_desc"] = "处理/tmp/csr_main数据，分发到unix_udp"
+	#stream["source"]= {"link":stream["link"],"topic":stream["topic"],"group":stream["group"],"start-0":stream["reset"]}
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	#stream["source"] = {"files":"/data/znsm/eve-*.{}.json"}
+	stream["max_xlink"]=9
+	#stream["source"]= {"unix_udp":"/tmp/znsm_main"}
+	stream["source"]= {"unix_udp":"/tmp/csr_main"}
+	stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	stream["st"]["st_1s"]={"times":1,"fun":"print1"}
+	stream["json_wdgl"] = load_ssdb_kv("json_wdgl")
+	stream["protocol"]=load_ssdb_kv("protocol_data")["protocol"]["event"]
+	stream["dns_count"]=0
+	stream["http_count"]=0
+	#redis的链接
+	stream["redis"]={"host":stream["redis_link"],"port":"6379","batch":1000}
+	#stream["redis"]={"host":"192.168.124.221","port":"6379","batch":1000}
+}
+
+
+
+
+#事件处理函数
+#Delete 注释 by superFBI on 2024-03-26 18:57:34
+events => {
+	if o["event_type"]=="http" and stream["protocol"]["http_key"]=="true":
+		#url = base64_decode(o.get("http").get("url",""))
+		stream["http_count"]+=1
+		url = o.get("http").get("url")
+		if url:
+			#to_redis_n("yuan_http",o,8)
+			#to_unix_udp_n(o,"/tmp/yuan_http",8)
+			to_unix_udp(o,"/tmp/yuan_http")
+			printf(o["event_type"],o)
+			#to_redis_n("yuan_http",o)
+	elif o["event_type"]=="fileinfo" and stream["protocol"]["fileinfo_key"]=="true":
+		if o.get("fileinfo"):
+			files = o.get('fileinfo').get("filename", "")
+			try:
+				decoded = files.encode('latin1').decode('gb2312')
+			except:
+				decoded = files
+			o["fileinfo"]["filename"] = urllib.parse.unquote(decoded)
+			if o.get("fileinfo").get("file_path")!="files/":
+				#to_redis("fileinfo_proto",o)
+				to_unix_udp_n(o,"/tmp/fileinfo_proto",5)
+				#to_redis("model_file",o)
+				to_unix_udp(o,"/tmp/model_file")
+				#to_redis("fileinfo1_proto",o)
+				#to_redis("proto",o)
+				to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"]=="ftp" and stream["protocol"]["ftp_key"]=="true":
+		#to_redis("proto",o)
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"]=="pop3" and stream["protocol"]["pop3_key"]=="true":
+		#to_redis("proto",o)
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"]=="tftp" and stream["protocol"]["tftp_key"]=="true":
+		#to_redis("proto",o)
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"]=="dns" and stream["protocol"]["dns_key"]=="true":
+		stream["dns_count"]+=1
+		if stream["dns_count"] %5 !=0: return -1
+		#to_redis("dns_proto",o)
+		to_unix_udp(o,"/tmp/dns_proto")
+	elif o["event_type"]=="smtp" and stream["protocol"]["smtp_key"]=="true":
+		#to_redis("proto",o)
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"]=="imap" and stream["protocol"]["imap_key"]=="true":
+		#to_redis("proto",o)
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"]=="smb" and stream["protocol"]["smb_key"]=="true":
+		#to_redis("proto",o)
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"] == "dbms":
+		to_unix_udp_n(o,"/tmp/yuan_dbms",8)
+	elif o["event_type"]=="flow":
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"] == "ssh":
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"] == "telnet":
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"] == "tls":
+		to_unix_udp(o,"/tmp/proto")
+	elif o["event_type"] == "rdp":
+		to_unix_udp(o,"/tmp/proto")
+	else:
+		to_unix_udp(o,"/tmp/proto")
+}
+
+
+
+
+#系统定时函数
+print10 => {
+	#c = load_ssdb_kv("alarm")
+	stream["protocol"]=load_ssdb_kv("protocol_data")["protocol"]["event"]
+	#stream["request_status"] = c["setting"]["request_status_alarm"]["request_status"]
+	stream["dns_count"]=0
+	
+
+}
+print1 => {
+	#c = load_ssdb_kv("alarm")
+	stream["protocol"]=load_ssdb_kv("protocol_data")["protocol"]["event"]
+	#stream["request_status"] = c["setting"]["request_status_alarm"]["request_status"]
+	stream["http_count"]=0
+}
+
+
+
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	import uuid
+	import urllib
+	from urllib import parse
+}

@@ -1,0 +1,70 @@
+#LastModifyDate:　2024-01-18T17:09:22    Author:   zwl
+#LastModifyDate:　2023-07-25T15:10:22.913428    Author:   zwl
+#LastModifyDate:　2023-03-31T10:49:13.718736    Author:   zwl
+#LastModifyDate:　2023-03-17T17:30:27.193203    Author:   zwl
+#LastModifyDate:　2022-12-19T17:41:09.451533    Author:   zwl
+#LastModifyDate:　2022-12-16T16:59:17.456379    Author:   zwl
+#LastModifyDate:　2022-12-16T16:52:19.609463    Author:   zwl
+#LastModifyDate:　2022-12-06T10:20:08.887507    Author:   zwl
+use @FID
+
+add_ip = load ckh by ckh with select srcip,dstip,count(*) as num from api_abroad group by srcip,dstip
+alter add_ip by srcip:str,dstip:str,num:int
+if add_ip.index.size == 0 with """
+	aa = @udf udf0.new_df with world,longitude,dimension,value,china1,longitude1,dimension1
+	store aa to ssdb by ssdb0 with add_ip:view
+"""
+assert find_df_have_data('add_ip',ptree) as exit with 境外访问告警未开启！
+
+##取源地址经纬度
+src_ip = loc add_ip by srcip
+src_ip = distinct src_ip by srcip
+src_country = @udf src_ip by LBS.regionDatx with srcip
+src_country = filter src_country by latitude != '' and longitude != ''
+src_country = loc src_country by srcip,country,latitude,longitude
+rename src_country as ('country':'world','latitude':'dimension','longitude':'longitude')
+#取目的地址经纬度
+dst_ip = loc add_ip by dstip
+dst_ip = distinct dst_ip by dstip
+dst_country = @udf dst_ip by LBS.regionDatx with dstip
+dst_country = loc dst_country by dstip,country,province,city,latitude,longitude
+dst_country = loc dst_country by index to id
+dst1_country = @udf udf0.new_df with id,dstip,country,province,city,latitude,longitude
+##过滤去除 world、province两个字段相同
+foreach dst_country run """
+aa = filter dst_country by id == @id
+aa = loc aa by id,dstip,country,province,city,latitude,longitude
+prov = eval aa by iloc[0,2]
+aa.province = lambda province by (x:x if x != '$prov' else '')
+dst1_country = union dst1_country,aa
+""" with (id = $1)
+#局域网
+bb = @udf udf0.new_df with cc
+bb = @udf bb by udf0.df_append with 中国浙江杭州
+bb = @udf bb by LBS.geocoder with (cc,cc)
+dst1_country_1 = filter dst1_country by country == '局域网'
+dst1_country_1 = @udf dst1_country_1 by udf0.df_replace with (局域网,中国浙江杭州)
+dst1_country_1 = join dst1_country_1,bb by country,城市 with left
+dst1_country_1 = loc dst1_country_1 by country,dstip,longitude,latitude
+rename dst1_country_1 as ('country':'china1','longitude':'longitude1','latitude':'dimension1')
+dst1_country_2 = filter dst1_country by country != '局域网'
+dst1_country_2 = add china1 by dst1_country_2['country']+dst1_country_2['province']+dst1_country_2['city']
+dst1_country_2 = loc dst1_country_2 by dstip,china1,latitude,longitude
+rename dst1_country_2 as ('longitude':'longitude1','latitude':'dimension1')
+dst1_country = union dst1_country_1,dst1_country_2
+###链接
+add_ip_sd = join add_ip,src_country by srcip,srcip with left
+add_ip_sd = join add_ip_sd,dst1_country by dstip,dstip with left
+add_ip_sd = loc add_ip_sd by world,longitude,dimension,num,china1,longitude1,dimension1
+alter add_ip_sd by longitude:str,dimension:str,longitude1:str,dimension1:str
+add_ip_sd = group add_ip_sd by world,longitude,dimension,china1,longitude1,dimension1 agg num:sum
+add_ip_sd = @udf add_ip_sd by udf0.df_reset_index
+add_ip_sd = filter add_ip_sd by longitude != '' and longitude1 != ''
+add_ip_sd = order add_ip_sd by num_sum with desc limit 200
+alter add_ip_sd by num_sum:str
+add_ip_sd = add value by (add_ip_sd['world']+"访问"+add_ip_sd['china1']+add_ip_sd["num_sum"]+"次")
+add_ip_sd = loc add_ip_sd by world,longitude,dimension,value,china1,longitude1,dimension1
+store add_ip_sd to ssdb by ssdb0 with add_ip:view
+
+
+clear @FID

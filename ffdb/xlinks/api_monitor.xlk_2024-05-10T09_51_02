@@ -1,0 +1,90 @@
+#LastModifyDate:　2024-05-10T09:51:02    Author:   rzc
+#LastModifyDate:　2024-05-08T14:27:41    Author:   rzc
+#LastModifyDate:　2024-04-28T16:27:22    Author:   pjb
+#LastModifyDate:　2024-04-25T12:14:33    Author:   pjb
+#LastModifyDate:　2024-04-25T11:35:33    Author:   pjb
+#LastModifyDate:　2024-04-25T11:03:22    Author:   pjb
+#LastModifyDate:　2024-04-25T10:59:58    Author:   pjb
+#LastModifyDate:　2024-04-25T10:44:02    Author:   pjb
+#LastModifyDate:　2024-04-07T12:14:18    Author:   pjb
+#LastModifyDate:　2024-04-07T11:30:12    Author:   pjb
+#LastModifyDate:　2024-04-07T11:06:06    Author:   superFBI
+#xlink脚本
+# 处理urls的信息
+
+
+#初始化
+init => {
+	stream["meta_name"] = "审计数据存储数据库进程"
+	stream["meta_desc"] = "从redis中消费数据，存入ckh数据库表api_monitor、api_business"
+
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["ckh_link"] = a["kfk"]["data"]["addr_c"]
+	stream["CKH"] = CKH_Client(host=stream["ckh_link"],port=19000,user="default",password="client")
+	#stream["source"]= {"link":stream["redis_link"]+":6381","topic":"http_monitor","redis":"list"}
+	stream["source"]={"unix_udp":"/tmp/http-monitor"}
+	#stream["source"]= {"link":"127.0.0.1:6381","topic":"http_monitor","redis":"list"}
+	#stream["max_xlink"]=2
+	stream["st"]["st_10s"]={"times":5,"fun":"print10"}
+	stream["st"]["st_60s"]={"times":60,"fun":"send60"}
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	stream["max_mem"] = 4
+	if "api_monitor" in a:
+		stream["sends"] = 1
+	else:
+		stream["sends"] = 0
+	pool["http_business"] = []
+	pool["monitors"] = []
+	
+	stream["perf_funs"]=[transate_ckh]
+	stream["store_mon"]=0
+}
+
+
+#事件处理函数
+events => {
+	o["ip_dep"] = ""
+	o["account_dep"] = ""
+	o["api_type"]=str(o["api_type"])
+	#del o["user"]
+	if "monitors_keys" not in stream:
+		stream["monitors_keys"] = list(o.keys())
+	o["time"] = iso_to_datetime(o["time"])
+	o["request_body_json"] = ujson.dumps(o["request_body_json"])
+	o["request_headers"] = ujson.dumps(o["request_headers"])
+	o["response_headers"] = ujson.dumps(o["response_headers"])
+	o["info"] =  ujson.dumps(o["info"])
+	o["key"] =  ujson.dumps(o["key"])
+	stream["store_mon"] += 1
+	to_pool("monitors",list(o.values()))
+	if stream["sends"]:
+		s = deepcopy(o)
+		s["event_type"] = "api_monitor"
+		#to_kfk(s)
+		s["time"] = str(s["time"])
+		to_json_file("/data/syslog_file/eve",s)
+}
+
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["store_mon"]))
+	if "monitors_keys" in stream:
+		store_ckh2(pool["monitors"],"api_monitor",stream["monitors_keys"])
+}
+send60 => {
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	if "api_monitor" in a:
+		stream["sends"] = 1
+	else:
+		stream["sends"] = 0
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	from copy import deepcopy
+
+}

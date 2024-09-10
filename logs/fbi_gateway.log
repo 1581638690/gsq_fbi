@@ -1,0 +1,973 @@
+2024-05-06 15:03:13,957 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 89 (char 88)
+2024-05-06 15:03:13,958 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "fbi-gateway.py", line 2356, in abcip
+  File "fbi-gateway.py", line 402, in putlog_ssdb
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 89 (char 88)
+
+2024-05-06 15:04:04,588 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 89 (char 88)
+2024-05-06 15:04:04,589 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "fbi-gateway.py", line 2356, in abcip
+  File "fbi-gateway.py", line 402, in putlog_ssdb
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 89 (char 88)
+
+2024-05-06 15:06:19,069 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 89 (char 88)
+2024-05-06 15:06:19,069 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "fbi-gateway.py", line 2356, in abcip
+  File "fbi-gateway.py", line 402, in putlog_ssdb
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 89 (char 88)
+
+2024-05-13 11:27:35,370 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-05-13 11:27:35,371 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "fbi-gateway.py", line 2358, in abcip
+  File "fbi-gateway.py", line 402, in putlog_ssdb
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-05-13 11:28:20,519 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-05-13 11:28:20,520 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "fbi-gateway.py", line 2358, in abcip
+  File "fbi-gateway.py", line 402, in putlog_ssdb
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-05-17 09:29:51,929 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-05-17 09:29:51,930 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "fbi-gateway.py", line 2358, in abcip
+  File "fbi-gateway.py", line 402, in putlog_ssdb
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-06-25 10:24:26,243 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-06-25 10:24:26,244 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-06-27 14:20:11,032 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-06-27 14:20:11,033 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-06-27 14:20:14,633 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-06-27 14:20:14,634 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-06-27 14:20:15,304 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-06-27 14:20:15,304 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-07-26 09:46:44,951 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 70 (char 69)
+2024-07-26 09:46:44,951 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 70 (char 69)
+
+2024-07-26 09:47:03,635 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-07-26 09:47:03,636 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-07-26 09:47:09,868 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-07-26 09:47:09,869 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-07-26 09:47:11,441 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-07-26 09:47:11,442 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-07-31 11:03:55,565 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 11:03:55,565 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-07-31 11:03:57,356 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 11:03:57,356 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-07-31 11:03:58,205 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 11:03:58,205 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-07-31 11:03:58,871 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 11:03:58,871 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-07-31 11:03:59,212 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 11:03:59,212 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-07-31 16:37:55,643 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 16:37:55,644 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-07-31 16:37:58,233 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 16:37:58,233 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-07-31 16:42:40,226 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 16:42:40,227 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-07-31 16:42:42,665 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-07-31 16:42:42,666 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-07 14:14:03,002 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 86 (char 85)
+2024-08-07 14:14:03,005 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 86 (char 85)
+
+2024-08-07 14:14:40,093 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 83 (char 82)
+2024-08-07 14:14:40,094 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 83 (char 82)
+
+2024-08-07 14:15:04,487 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 88 (char 87)
+2024-08-07 14:15:04,487 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 88 (char 87)
+
+2024-08-07 14:15:31,371 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 90 (char 89)
+2024-08-07 14:15:31,372 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 90 (char 89)
+
+2024-08-07 17:07:37,698 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-08-07 17:07:37,699 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-08-07 17:07:44,424 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-08-07 17:07:44,425 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-08-12 14:37:46,238 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-12 14:37:46,238 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-12 14:37:46,239 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-12 14:37:46,239 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-14 14:39:52,199 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-14 14:39:52,199 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-14 14:39:52,205 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-14 14:39:52,206 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-14 17:16:34,334 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-08-14 17:16:34,335 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-08-14 17:27:56,733 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-08-14 17:27:56,734 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-08-14 17:28:02,146 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-08-14 17:28:02,147 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-08-14 17:28:02,706 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 68 (char 67)
+2024-08-14 17:28:02,707 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 68 (char 67)
+
+2024-08-15 14:13:36,674 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:36,674 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:36,684 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:36,685 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:39,097 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:39,097 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:39,097 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:39,097 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:39,628 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:39,628 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:39,628 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:39,628 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:42,015 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:42,015 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:42,015 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:42,015 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:42,744 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:42,744 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:42,744 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:42,745 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:44,557 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:44,557 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-15 14:13:44,557 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-15 14:13:44,557 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-22 14:02:38,499 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-22 14:02:38,500 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-22 14:02:38,508 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-22 14:02:38,509 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-26 11:49:04,126 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-26 11:49:04,126 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-26 13:58:06,551 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-26 13:58:06,552 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-26 13:58:06,556 - fbi-gateway - ERROR - execp error: you can't access data!
+2024-08-26 13:58:06,556 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2333, in abcip
+    user,isadmin = get_user_by_session(session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 487, in get_user_by_session
+    raise Exception("you can't access data!")
+Exception: you can't access data!
+
+2024-08-29 15:40:26,735 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_datalink/init.fbi'
+2024-08-29 15:40:26,739 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_user/init.fbi'
+2024-08-29 15:40:26,778 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/######加载sensitive_tab.fbi'
+2024-08-29 15:40:26,785 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fbi'
+2024-08-29 15:40:26,785 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fbi'
+2024-08-29 15:40:26,786 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_obj/init.fbi'
+2024-08-29 15:40:26,803 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/###获取api_visit_min.fbi'
+2024-08-29 15:40:26,808 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fbi_jiaoben/init.fbi'
+2024-08-29 15:40:26,826 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/overview.fbi'
+2024-08-29 15:40:26,907 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/################################################lhq_visit_flow.fbi'
+2024-08-29 15:40:26,911 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit_statistics_2/init.fbi'
+2024-08-29 15:40:26,957 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/Ac4duFR/init.fbi'
+2024-08-29 15:40:26,971 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_app/init.fbi'
+2024-08-29 15:40:26,974 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_server/init.fbi'
+2024-08-29 15:40:27,035 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_user/init.fbi'
+2024-08-29 15:40:27,036 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_fxgh/init.fbi'
+2024-08-29 15:40:27,037 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/delete_users.fea'
+2024-08-29 15:40:27,044 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ALFzSft/init.fbi'
+2024-08-29 15:40:27,047 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/（sensitive_tab.fbi'
+2024-08-29 15:40:27,095 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_datalink/init.fbi'
+2024-08-29 15:40:27,100 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fea'
+2024-08-29 15:40:27,100 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fea'
+2024-08-29 15:40:27,107 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/word_temp/make_tpl.fbi'
+2024-08-29 15:40:27,107 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_concat.fbi'
+2024-08-29 15:40:27,117 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo/init.fbi'
+2024-08-29 15:40:27,129 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_api/init.fbi'
+2024-08-29 15:40:27,141 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ldgz/zc_gx_pic_other.fbi'
+2024-08-29 15:40:27,153 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_accout/init.fbi'
+2024-08-29 15:40:27,224 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_if_api.fbi'
+2024-08-29 15:40:27,230 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fbi'
+2024-08-29 15:40:27,230 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fbi'
+2024-08-29 15:40:27,237 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/AMA3I3l/init.fbi'
+2024-08-29 15:40:27,241 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/am_7_smpaVom/init.fbi'
+2024-08-29 15:40:27,261 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo_dels.fbi'
+2024-08-29 15:40:27,292 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_label_library/init.fbi'
+2024-08-29 15:40:27,295 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/modeling/init.fbi'
+2024-08-29 15:40:27,311 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_obj/init.fbi'
+2024-08-29 15:40:27,311 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/imp_users.fea'
+2024-08-29 15:40:27,311 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/api_sen_tree/init.fbi'
+2024-08-29 15:40:27,327 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit-statistics/init.fbi'
+2024-08-29 15:40:27,336 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fea'
+2024-08-29 15:40:27,336 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fea'
+2024-08-29 15:40:27,337 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_ip/init.fbi'
+2024-08-29 15:40:27,343 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_sql/init.fbi'
+2024-08-29 15:40:27,387 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/account_new/batch_del.fea'
+2024-08-29 15:40:27,393 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/appdst_tab/确定.fbi'
+2024-08-29 15:40:27,393 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_sx/init.fbi'
+2024-08-29 15:40:27,401 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_type/init.fbi'
+2024-08-29 15:41:21,844 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_datalink/init.fbi'
+2024-08-29 15:41:21,848 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_user/init.fbi'
+2024-08-29 15:41:21,883 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/######加载sensitive_tab.fbi'
+2024-08-29 15:41:21,890 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fbi'
+2024-08-29 15:41:21,890 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fbi'
+2024-08-29 15:41:21,890 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_obj/init.fbi'
+2024-08-29 15:41:21,918 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/###获取api_visit_min.fbi'
+2024-08-29 15:41:21,924 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fbi_jiaoben/init.fbi'
+2024-08-29 15:41:21,934 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/overview.fbi'
+2024-08-29 15:41:22,031 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/################################################lhq_visit_flow.fbi'
+2024-08-29 15:41:22,036 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit_statistics_2/init.fbi'
+2024-08-29 15:41:22,061 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/Ac4duFR/init.fbi'
+2024-08-29 15:41:22,075 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_app/init.fbi'
+2024-08-29 15:41:22,092 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_server/init.fbi'
+2024-08-29 15:41:22,099 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_user/init.fbi'
+2024-08-29 15:41:22,100 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_fxgh/init.fbi'
+2024-08-29 15:41:22,101 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/delete_users.fea'
+2024-08-29 15:41:22,108 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ALFzSft/init.fbi'
+2024-08-29 15:41:22,111 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/（sensitive_tab.fbi'
+2024-08-29 15:41:22,132 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_datalink/init.fbi'
+2024-08-29 15:41:22,137 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fea'
+2024-08-29 15:41:22,137 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fea'
+2024-08-29 15:41:22,159 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/word_temp/make_tpl.fbi'
+2024-08-29 15:41:22,160 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_concat.fbi'
+2024-08-29 15:41:22,169 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo/init.fbi'
+2024-08-29 15:41:22,171 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_api/init.fbi'
+2024-08-29 15:41:22,183 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ldgz/zc_gx_pic_other.fbi'
+2024-08-29 15:41:22,221 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_accout/init.fbi'
+2024-08-29 15:41:22,251 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_if_api.fbi'
+2024-08-29 15:41:22,257 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fbi'
+2024-08-29 15:41:22,258 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fbi'
+2024-08-29 15:41:22,264 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/AMA3I3l/init.fbi'
+2024-08-29 15:41:22,269 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/am_7_smpaVom/init.fbi'
+2024-08-29 15:41:22,282 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo_dels.fbi'
+2024-08-29 15:41:22,322 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_label_library/init.fbi'
+2024-08-29 15:41:22,325 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/modeling/init.fbi'
+2024-08-29 15:41:22,340 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_obj/init.fbi'
+2024-08-29 15:41:22,341 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/imp_users.fea'
+2024-08-29 15:41:22,341 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/api_sen_tree/init.fbi'
+2024-08-29 15:41:22,373 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit-statistics/init.fbi'
+2024-08-29 15:41:22,381 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fea'
+2024-08-29 15:41:22,381 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fea'
+2024-08-29 15:41:22,383 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_ip/init.fbi'
+2024-08-29 15:41:22,389 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_sql/init.fbi'
+2024-08-29 15:41:22,407 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/account_new/batch_del.fea'
+2024-08-29 15:41:22,413 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/appdst_tab/确定.fbi'
+2024-08-29 15:41:22,413 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_sx/init.fbi'
+2024-08-29 15:41:22,421 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_type/init.fbi'
+2024-08-29 15:56:15,798 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_datalink/init.fbi'
+2024-08-29 15:56:15,802 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_user/init.fbi'
+2024-08-29 15:56:15,826 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/######加载sensitive_tab.fbi'
+2024-08-29 15:56:15,833 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fbi'
+2024-08-29 15:56:15,834 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fbi'
+2024-08-29 15:56:15,834 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_obj/init.fbi'
+2024-08-29 15:56:15,843 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/###获取api_visit_min.fbi'
+2024-08-29 15:56:15,848 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fbi_jiaoben/init.fbi'
+2024-08-29 15:56:15,858 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/overview.fbi'
+2024-08-29 15:56:15,964 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/################################################lhq_visit_flow.fbi'
+2024-08-29 15:56:15,969 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit_statistics_2/init.fbi'
+2024-08-29 15:56:16,006 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/Ac4duFR/init.fbi'
+2024-08-29 15:56:16,021 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_app/init.fbi'
+2024-08-29 15:56:16,024 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_server/init.fbi'
+2024-08-29 15:56:16,031 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_user/init.fbi'
+2024-08-29 15:56:16,031 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_fxgh/init.fbi'
+2024-08-29 15:56:16,032 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/delete_users.fea'
+2024-08-29 15:56:16,062 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ALFzSft/init.fbi'
+2024-08-29 15:56:16,066 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/（sensitive_tab.fbi'
+2024-08-29 15:56:16,073 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_datalink/init.fbi'
+2024-08-29 15:56:16,078 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fea'
+2024-08-29 15:56:16,078 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fea'
+2024-08-29 15:56:16,087 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/word_temp/make_tpl.fbi'
+2024-08-29 15:56:16,088 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_concat.fbi'
+2024-08-29 15:56:16,098 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo/init.fbi'
+2024-08-29 15:56:16,100 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_api/init.fbi'
+2024-08-29 15:56:16,147 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ldgz/zc_gx_pic_other.fbi'
+2024-08-29 15:56:16,160 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_accout/init.fbi'
+2024-08-29 15:56:16,199 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_if_api.fbi'
+2024-08-29 15:56:16,216 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fbi'
+2024-08-29 15:56:16,216 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fbi'
+2024-08-29 15:56:16,223 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/AMA3I3l/init.fbi'
+2024-08-29 15:56:16,228 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/am_7_smpaVom/init.fbi'
+2024-08-29 15:56:16,236 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo_dels.fbi'
+2024-08-29 15:56:16,297 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_label_library/init.fbi'
+2024-08-29 15:56:16,300 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/modeling/init.fbi'
+2024-08-29 15:56:16,316 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_obj/init.fbi'
+2024-08-29 15:56:16,316 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/imp_users.fea'
+2024-08-29 15:56:16,316 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/api_sen_tree/init.fbi'
+2024-08-29 15:56:16,349 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit-statistics/init.fbi'
+2024-08-29 15:56:16,358 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fea'
+2024-08-29 15:56:16,358 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fea'
+2024-08-29 15:56:16,359 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_ip/init.fbi'
+2024-08-29 15:56:16,365 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_sql/init.fbi'
+2024-08-29 15:56:16,385 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/account_new/batch_del.fea'
+2024-08-29 15:56:16,391 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/appdst_tab/确定.fbi'
+2024-08-29 15:56:16,391 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_sx/init.fbi'
+2024-08-29 15:56:16,399 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_type/init.fbi'
+2024-08-29 15:56:24,576 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_datalink/init.fbi'
+2024-08-29 15:56:24,580 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_user/init.fbi'
+2024-08-29 15:56:24,603 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/######加载sensitive_tab.fbi'
+2024-08-29 15:56:24,610 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fbi'
+2024-08-29 15:56:24,610 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fbi'
+2024-08-29 15:56:24,610 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_obj/init.fbi'
+2024-08-29 15:56:24,650 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/###获取api_visit_min.fbi'
+2024-08-29 15:56:24,656 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fbi_jiaoben/init.fbi'
+2024-08-29 15:56:24,665 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/overview.fbi'
+2024-08-29 15:56:24,756 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/################################################lhq_visit_flow.fbi'
+2024-08-29 15:56:24,761 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit_statistics_2/init.fbi'
+2024-08-29 15:56:24,773 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/Ac4duFR/init.fbi'
+2024-08-29 15:56:24,787 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_app/init.fbi'
+2024-08-29 15:56:24,827 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_server/init.fbi'
+2024-08-29 15:56:24,835 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_user/init.fbi'
+2024-08-29 15:56:24,835 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_fxgh/init.fbi'
+2024-08-29 15:56:24,836 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/delete_users.fea'
+2024-08-29 15:56:24,844 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ALFzSft/init.fbi'
+2024-08-29 15:56:24,847 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/（sensitive_tab.fbi'
+2024-08-29 15:56:24,854 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_datalink/init.fbi'
+2024-08-29 15:56:24,859 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fea'
+2024-08-29 15:56:24,859 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fea'
+2024-08-29 15:56:24,923 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/word_temp/make_tpl.fbi'
+2024-08-29 15:56:24,923 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_concat.fbi'
+2024-08-29 15:56:24,934 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo/init.fbi'
+2024-08-29 15:56:24,936 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_api/init.fbi'
+2024-08-29 15:56:24,948 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ldgz/zc_gx_pic_other.fbi'
+2024-08-29 15:56:25,010 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_accout/init.fbi'
+2024-08-29 15:56:25,041 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_if_api.fbi'
+2024-08-29 15:56:25,048 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fbi'
+2024-08-29 15:56:25,048 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fbi'
+2024-08-29 15:56:25,067 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/AMA3I3l/init.fbi'
+2024-08-29 15:56:25,072 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/am_7_smpaVom/init.fbi'
+2024-08-29 15:56:25,079 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo_dels.fbi'
+2024-08-29 15:56:25,122 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_label_library/init.fbi'
+2024-08-29 15:56:25,125 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/modeling/init.fbi'
+2024-08-29 15:56:25,142 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_obj/init.fbi'
+2024-08-29 15:56:25,142 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/imp_users.fea'
+2024-08-29 15:56:25,142 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/api_sen_tree/init.fbi'
+2024-08-29 15:56:25,148 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit-statistics/init.fbi'
+2024-08-29 15:56:25,156 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fea'
+2024-08-29 15:56:25,157 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fea'
+2024-08-29 15:56:25,179 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_ip/init.fbi'
+2024-08-29 15:56:25,185 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_sql/init.fbi'
+2024-08-29 15:56:25,218 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/account_new/batch_del.fea'
+2024-08-29 15:56:25,223 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/appdst_tab/确定.fbi'
+2024-08-29 15:56:25,224 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_sx/init.fbi'
+2024-08-29 15:56:25,232 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_type/init.fbi'
+2024-08-29 15:56:30,080 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_datalink/init.fbi'
+2024-08-29 15:56:30,085 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_user/init.fbi'
+2024-08-29 15:56:30,165 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/######加载sensitive_tab.fbi'
+2024-08-29 15:56:30,172 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fbi'
+2024-08-29 15:56:30,172 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fbi'
+2024-08-29 15:56:30,172 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_obj/init.fbi'
+2024-08-29 15:56:30,181 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/###获取api_visit_min.fbi'
+2024-08-29 15:56:30,187 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fbi_jiaoben/init.fbi'
+2024-08-29 15:56:30,214 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/overview.fbi'
+2024-08-29 15:56:30,377 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/################################################lhq_visit_flow.fbi'
+2024-08-29 15:56:30,382 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit_statistics_2/init.fbi'
+2024-08-29 15:56:30,393 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/Ac4duFR/init.fbi'
+2024-08-29 15:56:30,408 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_app/init.fbi'
+2024-08-29 15:56:30,411 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_server/init.fbi'
+2024-08-29 15:56:30,420 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/data_file_user/init.fbi'
+2024-08-29 15:56:30,420 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_fxgh/init.fbi'
+2024-08-29 15:56:30,421 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/delete_users.fea'
+2024-08-29 15:56:30,429 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ALFzSft/init.fbi'
+2024-08-29 15:56:30,432 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/（sensitive_tab.fbi'
+2024-08-29 15:56:30,439 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_datalink/init.fbi'
+2024-08-29 15:56:30,445 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fea'
+2024-08-29 15:56:30,445 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fea'
+2024-08-29 15:56:30,453 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/word_temp/make_tpl.fbi'
+2024-08-29 15:56:30,454 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ip_concat.fbi'
+2024-08-29 15:56:30,464 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo/init.fbi'
+2024-08-29 15:56:30,467 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/wyj_data_api/init.fbi'
+2024-08-29 15:56:30,479 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/ldgz/zc_gx_pic_other.fbi'
+2024-08-29 15:56:30,491 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_accout/init.fbi'
+2024-08-29 15:56:30,559 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/qh_if_api.fbi'
+2024-08-29 15:56:30,566 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fbi'
+2024-08-29 15:56:30,566 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fbi'
+2024-08-29 15:56:30,573 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/AMA3I3l/init.fbi'
+2024-08-29 15:56:30,578 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/am_7_smpaVom/init.fbi'
+2024-08-29 15:56:30,586 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/fileinfo_dels.fbi'
+2024-08-29 15:56:30,622 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_label_library/init.fbi'
+2024-08-29 15:56:30,625 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/modeling/init.fbi'
+2024-08-29 15:56:30,641 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_obj/init.fbi'
+2024-08-29 15:56:30,641 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/system/user_man/imp_users.fea'
+2024-08-29 15:56:30,641 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/api_sen_tree/init.fbi'
+2024-08-29 15:56:30,661 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/zts_audit-statistics/init.fbi'
+2024-08-29 15:56:30,669 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fea'
+2024-08-29 15:56:30,669 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fea'
+2024-08-29 15:56:30,671 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/a_wyj_ip/init.fbi'
+2024-08-29 15:56:30,677 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/dbms_sql/init.fbi'
+2024-08-29 15:56:30,712 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/account_new/batch_del.fea'
+2024-08-29 15:56:30,718 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/appdst_tab/确定.fbi'
+2024-08-29 15:56:30,718 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/app_sx/init.fbi'
+2024-08-29 15:56:30,725 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/sen_type/init.fbi'
+2024-08-29 15:56:34,753 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_del.fea'
+2024-08-29 15:56:34,753 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_del.fea'
+2024-08-29 15:56:34,755 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/appmMKRv6gBtJ/init.fbi'
+2024-08-29 15:56:34,821 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/（sensitive_tab.fbi'
+2024-08-29 15:56:34,864 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/overview.fbi'
+2024-08-29 15:56:34,873 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/###获取api_visit_min.fbi'
+2024-08-29 15:56:34,957 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/################################################lhq_visit_flow.fbi'
+2024-08-29 15:56:34,958 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_exp.fea'
+2024-08-29 15:56:34,959 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_exp.fea'
+2024-08-29 15:56:35,006 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/crud-batch_imp.fea'
+2024-08-29 15:56:35,006 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/script/crud/batch_imp.fea'
+2024-08-29 15:56:35,016 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/pot_words/init.fbi'
+2024-08-29 15:56:35,024 - fbi-eng - ERROR - [Errno 2] No such file or directory: 'script/pot_report_html.fea'
+2024-08-29 16:35:40,851 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 88 (char 87)
+2024-08-29 16:35:40,852 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 88 (char 87)
+
+2024-08-29 16:38:50,788 - fbi-gateway - ERROR - execp error: Expecting ',' delimiter: line 1 column 83 (char 82)
+2024-08-29 16:38:50,788 - fbi-gateway - ERROR - Traceback (most recent call last):
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 2363, in abcip
+    putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
+  File "/opt/openfbi/fbi-bin/fbi-gateway.py", line 402, in putlog_ssdb
+    d = json.loads(value)
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/fbi-base/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 83 (char 82)
+

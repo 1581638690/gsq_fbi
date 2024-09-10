@@ -1,0 +1,150 @@
+#LastModifyDate:　2023-06-20T10:58:26.987565    Author:   rzc
+#LastModifyDate:　2023-06-20T10:39:10.620562    Author:   rzc
+#LastModifyDate:　2023-06-20T10:13:00.720043    Author:   rzc
+#LastModifyDate:　2023-06-20T10:05:07.481329    Author:   rzc
+#LastModifyDate:　2023-06-19T18:59:53.498363    Author:   rzc
+#LastModifyDate:　2023-06-19T18:59:18.953036    Author:   rzc
+#LastModifyDate:　2023-06-19T18:46:59.389046    Author:   rzc
+#LastModifyDate:　2023-04-14T19:22:22.690415    Author:   rzc
+#LastModifyDate:　2023-04-14T19:20:16.996824    Author:   rzc
+#LastModifyDate:　2023-04-14T19:15:48.293844    Author:   rzc
+#LastModifyDate:　2023-04-14T18:57:04.898303    Author:   rzc
+#LastModifyDate:　2023-03-24T13:47:42.099333    Author:   rzc
+#LastModifyDate:　2023-03-13T10:12:54.562424    Author:   rzc
+#LastModifyDate:　2023-03-13T10:07:33.066335    Author:   rzc
+#LastModifyDate:　2023-03-09T18:38:37.647997    Author:   rzc
+#LastModifyDate:　2023-03-08T15:53:52.492569    Author:   rzc
+#LastModifyDate:　2023-03-08T15:51:07.160714    Author:   rzc
+#LastModifyDate:　2023-03-08T11:34:39.849986    Author:   rzc
+#LastModifyDate:　2023-03-03T10:43:21.244257    Author:   rzc
+#FBI脚本文件
+#文件名: api_splitting.fbi
+#作者: rzc
+use @FID
+url_df = load ssdb by ssdb0 with @data_key
+assert url_df by df.index.size !=0 as break with 请选择需要拆分的接口
+#判断merge_state是否为合并状态 如果是合并状态则进行拆分
+url_df=add id by url_df.index
+aa=filter url_df by index!=0
+un_b=filter url_df by index==0
+y_mege=filter url_df by index==0
+foreach aa run """
+	a=filter aa by id=='@id'
+	state=loc a by merge_state
+	url=loc a by url
+	url.url=lambda url by (x:x if "{p1}" in x or "{p2}" in x or "{dst}" in x else "")
+	url=eval url by iloc[0,0]
+	merge_state=eval state by iloc[0,0]
+	assert a by $merge_state==2 or ($merge_state==0 and '$url'!="")  as break with 请选择手工合并过的接口或存在合并类型的接口
+	urls=loc a by url_sum
+	url_sum=eval urls by iloc[0,0]
+	#取出一个字符判断是否存在url_sum
+	bb=loc urls by url_sum
+	bb.url_sum=lambda url_sum by x:x[0:4]
+	b=eval bb by iloc[0,0]
+	if '$b'!="" with un_b=union (un_b,a)
+	if '$b'=="" with y_mege=union (y_mege,a)
+	#转化为str
+""" with (id=$0)
+foreach un_b run """
+	uu=filter un_b by id=='@id'
+	uu=loc uu drop id
+	urls=loc uu by url_sum
+	urls.url_sum=lambda url_sum by x:x.split(";|")
+	alter urls.url_sum as str
+	urls.url_sum=lambda url_sum by x:x.replace("[","(")
+	urls.url_sum=lambda url_sum by x:x.replace("]",")")
+	url_sum=eval urls by iloc[0,0]
+	mysql_db=load db by mysql1 with select id,url from data_api_new
+	delete_db=join uu,mysql_db by url,url with left 
+	id=loc delete_db by id
+	id=eval id by iloc[0,0]
+	@udf CRUD.delete_object_mtable with (@link,@table,$id)
+	df =load db by mysql1 with select * from data_api_new where url in $url_sum
+	#让他们的merge_state变为0
+	df=@udf df by udf0.df_set with (merge_state=0)
+	df=@udf df by udf0.df_set with (url_merges="")
+	join_db=join df,mysql_db by [id,url],[id,url] with left
+	join_db=@udf join_db by udf0.df_fillna with 0
+	join_db=@udf join_db by udf0.df_set_index with id
+	@udf join_db by CRUD.save_table with (mysql1,data_api_new)
+	#然后继续查找状态码是为2的接口
+	api =  @udf RS.load_mysql_sql with (mysql1,select url,url_sum from data_api_new where merge_state = 2)
+	b=@udf SSDB.hclear with api_merge
+	store api to ssdb by ssdb0 with api_merge as H
+""" with (id=$0)
+foreach y_mege run  """
+		#对自动合并进行拆分
+		#对ｍｅｒｇｅ＿ｓｔａｔｅ等于0的时候进行拆分
+	yy=filter y_mege by id=='@id'
+	yy=loc yy drop id
+	url=loc yy by url
+	url=eval url by iloc[0,0]
+	ckh_df=load ckh by ckh with select  * from merge_urls where url='$url' 
+	ckh_df=distinct ckh_df by y_url with first
+	#将y_url 转化为url，删除url
+	ckh_df=loc ckh_df drop url
+	rename ckh_df as ("y_url":"url")
+
+	ckh_df.url=lambda url by x:x.split("?")[0]
+
+	#取出url列
+	urls=loc ckh_df by url
+	urls=@udf urls by udf0.df_T
+	urls=@udf urls by udf0.df_cs2l
+	rename urls as ("s0":"t_url")
+	alter urls.t_url as str
+	urls.t_url=lambda t_url by x:x.replace("[","(")
+	urls.t_url=lambda t_url by x:x.replace("]",")")
+	t_url=eval urls by iloc[0,0]
+	df =load db by mysql1 with select url,id from data_api_new where url in $t_url
+
+	#将进行拆分的数据进行隐藏
+	mysql_db1=load db by mysql1 with select id,url from data_api_new
+	db1=join yy,mysql_db1 by url,url with left 
+	db1=@udf db1 by udf0.df_set with merge_state=1
+	db1=@udf db1 by udf0.df_set with z_cf=1
+	db1=@udf db1 by udf0.df_set with api_status=0
+	db1=@udf db1 by udf0.df_fillna with 0
+	db1=@udf db1 by udf0.df_set_index with id
+
+	db1=loc db1 drop btn_show
+	#db1=distinct db1 by url
+	@udf db1 by CRUD.save_table with (mysql1,data_api_new)
+
+	#取出隐藏的接口 包含被合并的接口，也包含自动合并拆分的接口，被拆分的接口在main_json里面还是会存在那么 拆分的接口就不会进行 if url_c in 1里面 则表示该url_c 就等于原始接口
+	#Delete 注释 by rzc on 2023-03-08 18:03:41
+	api =  @udf RS.load_mysql_sql with (mysql1,select url from data_api_new where merge_state = 1 and z_cf = 1)
+	a=@udf SSDB.hclear with api_merge1
+	api = @udf api by udf0.df_set_index with url
+	api = add url by (api.index)
+	store api to ssdb by ssdb0 with api_merge1 as H
+
+
+	ckh_df=add merge_state by 0
+	ckh_df=join ckh_df,df by url,url with left
+	#判断拆分之前的接口是否开启审计
+	api_status=loc yy by api_status
+	api_status=eval api_status by iloc[0,0]
+	ckh_df=@udf ckh_df by udf0.df_set with api_status=$api_status
+	ckh_df=@udf ckh_df by udf0.df_fillna with 0
+	ckh_df=filter ckh_df by id==0
+	ckh_df=@udf ckh_df by udf0.df_set_index with id
+	ckh_df=loc ckh_df drop timestamp
+	@udf ckh_df by CRUD.save_table with (mysql1,data_api_new)
+
+	#Delete 注释 by rzc on 2023-06-20 10:39:05
+#c = @udf SSDB.hclear with FF:url2
+#	api = load db by mysql1 with select url from data_api_new where merge_state!=2
+#	api.url = lambda url by x:x[0:255]
+#	api = add value with True
+#	api = @udf api by udf0.df_set_index with url
+#	store api to ssdb by ssdb0 with FF:url2 as H
+""" with (id=$0)
+
+#做去重处理
+
+
+
+
+clear @FID

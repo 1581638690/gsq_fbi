@@ -1,0 +1,80 @@
+#LastModifyDate:　2024-03-08T15:26:19    Author:   zwl
+#LastModifyDate:　2024-01-16T13:54:19    Author:   zwl
+#LastModifyDate:　2023-10-12T16:14:42.316245    Author:   zwl
+#LastModifyDate:　2023-09-12T15:22:50.222256    Author:   zwl
+#LastModifyDate:　2023-09-11T10:04:49.707089    Author:   zwl
+#LastModifyDate:　2023-09-06T18:22:16.921644    Author:   zwl
+#LastModifyDate:　2023-08-24T18:45:17.325571    Author:   zwl
+#LastModifyDate:　2023-08-23T16:57:31.121504    Author:   zwl
+#LastModifyDate:　2023-08-01T16:54:06.939037    Author:   zwl
+#LastModifyDate:　2023-07-25T15:25:04.935581    Author:   zwl
+#LastModifyDate:　2023-05-24T09:44:35.963061    Author:   zwl
+use @FID
+
+ccc = load ckh by ckh with select app from sen_http_count limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+##获取账号的id
+account1 = load db by mysql1 with select id,account from data_account_new 
+alter account1 by id:int,account:str
+#######################################计算敏感应用--接口数量
+account = load ckh by ckh with select account,count(*) app_count from (select account,app from sen_http_count where account != '' and account != '未知'and app != '' group by account,app) group by account
+alter account by account:str,app_count:int
+#######################################计算敏感应用--终端数量
+url = load ckh by ckh with select account,count(*) url_count from (select account,url from sen_http_count where account != '' and account != '未知' and url != '' group by account,url) group by account
+alter url by account:str,url_count:int
+#######################################计算敏感应用--账号数量
+srcip = load ckh by ckh with select account,count(*) srcip_count from (select account,src_ip from sen_http_count where account != '' and account != '未知' and src_ip != '' group by account,src_ip) group by account
+alter srcip by account:str,srcip_count:int
+
+##############取以及处理好的数据 （sensitive_tab.fbi）
+sens = load pq by sensitive/sens_data.pq
+#alter sens.num as int
+alter sens by app:str,url:str,src_ip:str,account:str,key:str,num:int
+sens = loc sens by account,key,num
+sens = filter sens by account != ''
+sens = group sens by account,key agg num:sum
+sens = @udf sens by udf0.df_reset_index
+rename sens as ('num_sum':'num')
+#######################################敏感数据数量
+sensitive = load ckh by ckh with select account,count(*) as sensitive_count from sen_http_count where account != '' and account != '未知' group by account 
+alter sensitive by account:str,sensitive_count:int
+#sensitive = group sens by account agg num:sum
+#sensitive = @udf sensitive by udf0.df_reset_index
+#rename sensitive as ('num_sum':'sensitive_count')
+#######################################敏感数据分类数量
+sensitive2 = loc sens by account,key,num
+sensitive2 = order sensitive2 by num with desc
+rename sensitive2 as ('key':'sensitive_count','num':'s_num')
+#alter sensitive2.s_num as str
+alter sensitive2 by account:str,sensitive_count:str,s_num:str
+sensitive2 = add s_num by  df['sensitive_count'] +"("+ df['s_num'] + ")"
+sensitive2.s_num = lambda s_num by x: x+'，'
+sensitive2 = group sensitive2 by account agg s_num:sum
+sensitive2 = @udf sensitive2 by udf0.df_reset_index 
+sensitive2.s_num_sum = lambda s_num_sum by x:x[:-1]
+account = join account,url by account,account with left
+#account = @udf account by udf0.df_fillna with 0 
+account = join account,srcip by account,account with left
+#account = @udf account by udf0.df_fillna with 0 
+account = join account,sensitive by account,account with left
+#account = @udf account by udf0.df_fillna with 0 
+account = join account,sensitive2 by account,account with left
+account = @udf account by udf0.df_fillna_cols with url_count:0,srcip_count:0,app_count:0,sensitive_count:0,s_num_sum:''
+account = order account by sensitive_count with desc
+account = filter account by s_num_sum != ''
+account = distinct account by account,url_count,srcip_count,app_count,sensitive_count,s_num_sum
+account = loc account by account,url_count,srcip_count,app_count,sensitive_count,s_num_sum
+#保存为pkl文件
+#store account to pkl by sensitive/sensitive_account.pkl
+store account to pq by sensitive/sensitive_account.pq
+account = order account by sensitive_count with desc limit 10000
+#重命名
+rename account as ("account":"账号","url_count":"接口数量","srcip_count":"终端数量","app_count":"应用数量","sensitive_count":"敏感数据数量","s_num_sum":"敏感数据分类数量")
+#清空Q
+b = load ssdb by ssdb0 query qclear,sensitive_account,-,-
+#保存Q
+store account to ssdb by ssdb0 with sensitive_account as Q
+
+
+clear @FID

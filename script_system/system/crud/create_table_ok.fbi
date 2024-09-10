@@ -1,0 +1,17 @@
+#FBI脚本文件
+
+#建表语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+#@zh  表名中文注释
+use @FID
+
+@udf  CRUD.drop_table with (@link,@table)
+
+df_table1  = load ssdb by ssdb0 with @data_key
+
+t = @udf df_table1 by CRUD.create_table with (@link,@table,@zh)
+assert find_df('t',ptree) as alert to 表创建成功！ with 建表失败！
+
+clear @FID

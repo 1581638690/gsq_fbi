@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.llm0</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.llm0</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/llm0.py">/opt/openfbi/fbi-bin/udf/llm0.py</a></td></tr></table>
+    <p><span class="code">OpenFBI的udf的样例文件，里面包括了如何编写udf,如何使用request和http/https资源进行交互<br>
+以及如何调试输出等内容</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="lxml.etree.html">lxml.etree</a><br>
+<a href="json.html">json</a><br>
+<a href="math.html">math</a><br>
+</td><td class="multicolumn"><a href="numpy.html">numpy</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="random.html">random</a><br>
+</td><td class="multicolumn"><a href="re.html">re</a><br>
+<a href="requests.html">requests</a><br>
+<a href="sys.html">sys</a><br>
+</td><td class="multicolumn"><a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-Si_login"><strong>Si_login</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200617<br>
+@函数：Si_login&nbsp;Si系统登录<br>
+@参数：<br>
+ip,port,user,pass<br>
+@描述：<br>
+<a href="https://IP:PROT/portal/api/account.do?user=admin&amp;pass=admin">https://IP:PROT/portal/api/account.do?user=admin&amp;pass=admin</a><br>
+返回结果：<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code:&nbsp;0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msg:&nbsp;"SUCCESS",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;results:&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;access_token:&nbsp;"xxxx",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date:&nbsp;2016/1/11&nbsp;10:21<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+@返回：<br>
+df表--包括access_token的值</span></dd></dl>
+ <dl><dt><a name="-label_text"><strong>label_text</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;2024-0806<br>
+@函数：label和text数据的输出<br>
+@参数：<br>
+文件名<br>
+@描述：<br>
+测试输出参数<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-label_text_df"><strong>label_text_df</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;2024-0806<br>
+@函数：label和text数据的输出<br>
+@参数：<br>
+文件名<br>
+@描述：<br>
+测试输出参数<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-llama_chat"><strong>llama_chat</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20240806<br>
+@函数：llama&nbsp;chat<br>
+@参数：<br>
+ip,port,ak<br>
+@描述：<br>
+<a href="http://ip:port/">http://ip:port/</a><br>
+返回结果：<br>
+@返回：<br>
+df表--包括instance_id,instance_name等的值</span></dd></dl>
+ <dl><dt><a name="-llama_chat_test"><strong>llama_chat_test</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20240806<br>
+@函数：llama&nbsp;chat<br>
+@参数：<br>
+ip,port,ak<br>
+@描述：<br>
+<a href="http://ip:port/">http://ip:port/</a><br>
+返回结果：<br>
+@返回：<br>
+df表--包括instance_id,instance_name等的值</span></dd></dl>
+ <dl><dt><a name="-llama_class"><strong>llama_class</strong></a>(temp_df, class_df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20240806<br>
+@函数：llama&nbsp;chat<br>
+@参数：<br>
+ip,port,ak<br>
+@描述：<br>
+<a href="http://ip:port/">http://ip:port/</a><br>
+返回结果：<br>
+@返回：<br>
+df表--包括instance_id,instance_name等的值</span></dd></dl>
+ <dl><dt><a name="-llama_class_one"><strong>llama_class_one</strong></a>(temp_df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20240806<br>
+@函数：llama&nbsp;chat<br>
+@参数：<br>
+ip,port,ak<br>
+@描述：<br>
+<a href="http://ip:port/">http://ip:port/</a><br>
+返回结果：<br>
+@返回：<br>
+df表--包括instance_id,instance_name等的值</span></dd></dl>
+ <dl><dt><a name="-llama_context_identify"><strong>llama_context_identify</strong></a>(context_df, df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20240806<br>
+@函数：llama&nbsp;数据识别,一次完成一张表,根据上下文信息<br>
+@参数：<br>
+ip,port,ak<br>
+@描述：<br>
+<a href="http://ip:port/">http://ip:port/</a><br>
+返回结果：<br>
+@返回：<br>
+df表--包括instance_id,instance_name等的值</span></dd></dl>
+ <dl><dt><a name="-llama_identify"><strong>llama_identify</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20240806<br>
+@函数：llama&nbsp;数据识别,一次完成一张表<br>
+@参数：<br>
+ip,port,ak<br>
+@描述：<br>
+<a href="http://ip:port/">http://ip:port/</a><br>
+返回结果：<br>
+@返回：<br>
+df表--包括instance_id,instance_name等的值</span></dd></dl>
+ <dl><dt><a name="-test_output"><strong>test_output</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200617<br>
+@函数：测试输出参数<br>
+@参数：<br>
+任意<br>
+@描述：<br>
+测试输出参数<br>
+a&nbsp;=&nbsp;@udf&nbsp;sample.test_output&nbsp;with&nbsp;iloveyou<br>
+show&nbsp;logs&nbsp;#查看日志<br>
+@返回：<br>
+df表</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>nan</strong> = nan</td></tr></table>
+</body></html>

@@ -1,0 +1,629 @@
+#LastModifyDate:　2024-01-18T15:26:43    Author:   zwl
+#LastModifyDate:　2023-09-13T11:18:43.801173    Author:   zwl
+#LastModifyDate:　2023-08-01T16:46:23.687730    Author:   zwl
+#LastModifyDate:　2023-07-25T15:32:28.824413    Author:   zwl
+#LastModifyDate:　2023-05-06T17:53:10.223867    Author:   zwl
+#LastModifyDate:　2023-03-20T11:08:59.992910    Author:   zwl
+#LastModifyDate:　2023-02-10T17:07:35.022776    Author:   zwl
+#LastModifyDate:　2023-01-04T14:54:40.861114    Author:   zwl
+#LastModifyDate:　2022-12-19T17:16:45.712502    Author:   zwl
+#LastModifyDate:　2022-12-17T15:44:23.801970    Author:   zwl
+#LastModifyDate:　2022-12-15T18:02:20.133376    Author:   zwl
+use @FID
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_httpdata limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+now = @sdf sys_now
+day = @sdf format_now with ($now,"%Y-%m-%dT00:00:00")
+yday1 = @sdf sys_now with -1d
+yday = @sdf format_now with ($yday1,"%Y-%m-%dT00:00:00")
+
+#今日新增告警事件
+#ne_ev = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as r_num from data_risk where left(first_time,10) = '$day')
+#阈值告警
+ne_ev = load ckh by ckh with select count(risk_label) as r_num from api_risk where first_time >= '$day'
+alter ne_ev by r_num:int
+# 访问耗时告警
+delay = load ckh by ckh with select count(*) as r_num from api_delay where time >= '$day'
+alter delay by r_num:int
+# 异地访问告警
+r_req = load ckh by ckh with select count(*) as r_num from r_req_alm where timestamp >= '$day'
+alter r_req by r_num:int
+# 请求异常告警
+stat = load ckh by ckh with select count(*) as r_num from stat_req_alm where timestamp >= '$day'
+alter stat by r_num:int
+# 敏感数据告警
+sensitive = load ckh by ckh with select count(*) as r_num from sensitive_data_alarm where time >= '$day'
+alter sensitive by r_num:int
+# 境外访问告警
+abroad = load ckh by ckh with select count(*) as r_num from api_abroad where timestamp >= '$day'
+alter abroad by r_num:int
+# 文件敏感信息告警
+datafilter = load ckh by ckh with select count(*) as r_num from datafilter_alarm where timestamp >= '$day'
+alter datafilter by r_num:int
+
+temp = union (ne_ev,delay,r_req,stat,sensitive,abroad,datafilter)
+ne_ev = group temp by index agg r_num:sum
+rename ne_ev by ("r_num_sum":"r_num")
+
+####风险监控   ---今日告警数量
+ne_ev1 = loc ne_ev by r_num
+aa_num = eval ne_ev1 by iloc[0,0]
+if $aa_num > 100000 with ne_ev1.r_num = lambda r_num by (x:round(x/10000,2))
+if $aa_num > 100000 with rename ne_ev1 by ("r_num":"今日告警事件数量(万)")
+if $aa_num <= 100000 with rename ne_ev1 by ("r_num":"今日告警事件数量")
+store ne_ev1 to ssdb by ssdb0 with ne:count
+
+# ----昨日---
+# 阈值告警
+yne_ev = load ckh by ckh with select count(risk_label) as r_num from api_risk where first_time >= '$yday'
+alter yne_ev by r_num:int
+# 访问耗时告警
+ydelay = load ckh by ckh with select count(*) as r_num from api_delay where time >= '$yday'
+alter ydelay by r_num:int
+# 异地访问告警
+yr_req = load ckh by ckh with select count(*) as r_num from r_req_alm where timestamp >= '$yday'
+alter yr_req by r_num:int
+# 请求异常告警
+ystat = load ckh by ckh with select count(*) as r_num from stat_req_alm where timestamp >= '$yday'
+alter ystat by r_num:int
+# 敏感数据告警
+ysensitive = load ckh by ckh with select count(*) as r_num from sensitive_data_alarm where time >= '$yday'
+alter ysensitive by r_num:int
+# 境外访问告警
+yabroad = load ckh by ckh with select count(*) as r_num from api_abroad where timestamp >= '$yday'
+alter yabroad by r_num:int
+# 文件敏感信息告警
+ydatafilter = load ckh by ckh with select count(*) as r_num from datafilter_alarm where timestamp >= '$yday'
+alter ydatafilter by r_num:int
+
+temp = union (yne_ev,ydelay,yr_req,ystat,ysensitive,yabroad,ydatafilter)
+yne_ev = group temp by index agg r_num:sum
+rename yne_ev by ("r_num_sum":"r_num")
+
+#同比量 同日比
+en= eval ne_ev by iloc[0,0]
+yen = eval yne_ev by iloc[0,0]
+ice = @sdf sys_eval with ($en-$yen)
+
+if $ice > 0 and $yen != 0  with """
+	icre = @sdf sys_eval with (round($ice/$yen*100,2))
+	er = @udf udf0.new_df with (value)
+	er = @udf er by udf0.df_append with (  +  )
+	er = @udf er by udf0.df_append with ($icre%)
+	er = @udf er by udf0.df_append with ($yen)
+	store er to ssdb by ssdb0 with er_rate
+"""
+
+if $ice > 0 and $yen == 0 with """
+	er = @udf udf0.new_df with (value)
+	er = @udf er by udf0.df_append with (  +  )
+	er = @udf er by udf0.df_append with (100.0%)
+	er = @udf er by udf0.df_append with ($yen)
+	store er to ssdb by ssdb0 with er_rate
+"""
+if $ice == 0 with """
+	er = @udf udf0.new_df with (value)
+	er = @udf er by udf0.df_append with (  +  )
+	er = @udf er by udf0.df_append with (0.0%)
+	er = @udf er by udf0.df_append with ($yen)
+	store er to ssdb by ssdb0 with er_rate
+"""
+if $ice < 0 with """
+	ice = @sdf sys_eval with ($yen-$en)
+	icre = @sdf sys_eval with (round($ice/$yen*100,2))
+	er = @udf udf0.new_df with (value)
+	er = @udf er by udf0.df_append with (-)
+	er = @udf er by udf0.df_append with ($icre%)
+	er = @udf er by udf0.df_append with ($yen)
+	store er to ssdb by ssdb0 with er_rate
+"""
+
+#drop ne_ev
+#drop yne_ev
+
+###耗时告警
+#同比量 同日比
+de = eval delay by iloc[0,0]
+yde = eval ydelay by iloc[0,0]
+ice = @sdf sys_eval with ($de-$yde)
+
+if $ice > 0 and $yde != 0 with """
+	icre = @sdf sys_eval with (round($ice/$yde*100,2))
+	aa = @udf udf0.new_df with (value)
+	aa = @udf aa by udf0.df_append with (  +  )
+	aa = @udf aa by udf0.df_append with ($icre%)
+	aa = @udf aa by udf0.df_append with ($yde)
+	store aa to ssdb by ssdb0 with aa_rate
+"""
+
+if $ice > 0 and $yde == 0 with """
+	aa = @udf udf0.new_df with (value)
+	aa = @udf aa by udf0.df_append with (  +  )
+	aa = @udf aa by udf0.df_append with (100.0%)
+	aa = @udf aa by udf0.df_append with ($yde)
+	store aa to ssdb by ssdb0 with aa_rate
+"""
+if $ice == 0 with """
+	aa = @udf udf0.new_df with (value)
+	aa = @udf aa by udf0.df_append with (  +  )
+	aa = @udf aa by udf0.df_append with (0.0%)
+	aa = @udf aa by udf0.df_append with ($yde)
+	store aa to ssdb by ssdb0 with aa_rate
+"""
+if $ice < 0 with """
+	ice = @sdf sys_eval with ($yde-$de)
+	icre = @sdf sys_eval with (round($ice/$yde*100,2))
+	aa = @udf udf0.new_df with (value)
+	aa = @udf aa by udf0.df_append with (-)
+	aa = @udf aa by udf0.df_append with ($icre%)
+	aa = @udf aa by udf0.df_append with ($yde)
+	store aa to ssdb by ssdb0 with aa_rate
+"""
+#rename delay by ("r_num":"今日耗时告警数量")
+#store delay to ssdb by ssdb0 with delay:count
+
+###境外访问告警
+#同比量 同日比
+ab = eval abroad by iloc[0,0]
+yab = eval yabroad by iloc[0,0]
+ice = @sdf sys_eval with ($ab-$yab)
+
+if $ice > 0 and $yab != 0 with """
+	icre = @sdf sys_eval with (round($ice/$yab*100,2))
+	bb = @udf udf0.new_df with (value)
+	bb = @udf bb by udf0.df_append with (  +  )
+	bb = @udf bb by udf0.df_append with ($icre%)
+	bb = @udf bb by udf0.df_append with ($yab)
+	store bb to ssdb by ssdb0 with bb_rate
+"""
+
+if $ice > 0 and $yab == 0 with """
+	bb = @udf udf0.new_df with (value)
+	bb = @udf bb by udf0.df_append with (  +  )
+	bb = @udf bb by udf0.df_append with (100.0%)
+	bb = @udf bb by udf0.df_append with ($yab)
+	store bb to ssdb by ssdb0 with bb_rate
+"""
+if $ice == 0 with """
+	bb = @udf udf0.new_df with (value)
+	bb = @udf bb by udf0.df_append with (  +  )
+	bb = @udf bb by udf0.df_append with (0.0%)
+	bb = @udf bb by udf0.df_append with ($yab)
+	store bb to ssdb by ssdb0 with bb_rate
+"""
+if $ice < 0 with """
+	ice = @sdf sys_eval with ($yab-$ab)
+	icre = @sdf sys_eval with (round($ice/$yab*100,2))
+	bb = @udf udf0.new_df with (value)
+	bb = @udf bb by udf0.df_append with (-)
+	bb = @udf bb by udf0.df_append with ($icre%)
+	bb = @udf bb by udf0.df_append with ($yab)
+	store bb to ssdb by ssdb0 with bb_rate
+"""
+#rename abroad by ("r_num":"今日境外访问告警数量")
+#store abroad to ssdb by ssdb0 with abroad:count
+
+###敏感信息告警
+#同比量 同日比
+sens = eval sensitive by iloc[0,0]
+ysens = eval ysensitive by iloc[0,0]
+ice = @sdf sys_eval with ($sens-$ysens)
+
+if $ice > 0 and $ysens != 0 with """
+	icre = @sdf sys_eval with (round($ice/$ysens*100,2))
+	cc = @udf udf0.new_df with (value)
+	cc = @udf cc by udf0.df_append with (  +  )
+	cc = @udf cc by udf0.df_append with ($icre%)
+	cc = @udf cc by udf0.df_append with ($ysens)
+	store cc to ssdb by ssdb0 with cc_rate
+"""
+
+if $ice > 0 and $ysens == 0 with """
+	cc = @udf udf0.new_df with (value)
+	cc = @udf cc by udf0.df_append with (  +  )
+	cc = @udf cc by udf0.df_append with (100.0%)
+	cc = @udf cc by udf0.df_append with ($ysens)
+	store cc to ssdb by ssdb0 with cc_rate
+"""
+
+if $ice == 0 with """
+	cc = @udf udf0.new_df with (value)
+	cc = @udf cc by udf0.df_append with (  +  )
+	cc = @udf cc by udf0.df_append with (0.0%)
+	cc = @udf cc by udf0.df_append with ($ysens)
+	store cc to ssdb by ssdb0 with cc_rate
+"""
+if $ice < 0 with """
+	cc = @sdf sys_eval with ($ysens-$sens)
+	cc = @sdf sys_eval with (round($ice/$ysens*100,2))
+	cc = @udf udf0.new_df with (value)
+	cc = @udf cc by udf0.df_append with (-)
+	cc = @udf cc by udf0.df_append with ($icre%)
+	cc = @udf cc by udf0.df_append with ($ysens)
+	store cc to ssdb by ssdb0 with cc_rate
+"""
+#rename sensitive by ("r_num":"今日敏感数据告警数量")
+#store sensitive to ssdb by ssdb0 with sensitive:count
+
+###敏感信息告警
+#同比量 同日比
+sens_d = eval datafilter by iloc[0,0]
+ysens_d = eval ydatafilter by iloc[0,0]
+ice = @sdf sys_eval with ($sens_d-$ysens_d)
+
+if $ice > 0 and $ysens_d != 0 with """
+	icre = @sdf sys_eval with (round($ice/$ysens_d*100,2))
+	dd = @udf udf0.new_df with (value)
+	dd = @udf dd by udf0.df_append with (  +  )
+	dd = @udf dd by udf0.df_append with ($icre%)
+	dd = @udf dd by udf0.df_append with ($ysens_d)
+	store dd to ssdb by ssdb0 with dd_rate
+"""
+
+if $ice > 0 and $ysens_d == 0 with """
+	dd = @udf udf0.new_df with (value)
+	dd = @udf dd by udf0.df_append with (  +  )
+	dd = @udf dd by udf0.df_append with (100.0%)
+	dd = @udf dd by udf0.df_append with ($ysens_d)
+	store dd to ssdb by ssdb0 with dd_rate
+"""
+
+if $ice == 0 with """
+	dd = @udf udf0.new_df with (value)
+	dd = @udf dd by udf0.df_append with (  +  )
+	dd = @udf dd by udf0.df_append with (0.0%)
+	dd = @udf dd by udf0.df_append with ($ysens_d)
+	store dd to ssdb by ssdb0 with dd_rate
+"""
+if $ice < 0 with """
+	dd = @sdf sys_eval with ($ysens_d-$sens_d)
+	dd = @sdf sys_eval with (round($ice/$ysens_d*100,2))
+	dd = @udf udf0.new_df with (value)
+	dd = @udf dd by udf0.df_append with (-)
+	dd = @udf dd by udf0.df_append with ($icre%)
+	dd = @udf dd by udf0.df_append with ($ysens_d)
+	store dd to ssdb by ssdb0 with dd_rate
+"""
+#rename datafilter by ("r_num":"今日文件敏感信息告警数量")
+#store datafilter to ssdb by ssdb0 with datafilter:count
+
+###合并信息块########################################################################################################开始
+#今日告警事件数量
+rename ne_ev by ("r_num":"value")
+aa_num = eval ne_ev by iloc[0,0]
+if $aa_num > 100000 with ne_ev.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with ne_ev = add name by ('告警事件数量(万)')
+if $aa_num <= 100000 with ne_ev = add name by ('告警事件数量')
+ne_ev = add icon by ('F186')
+#今日敏感数据告警数量
+rename sensitive by ("r_num":"value")
+aa_num = eval sensitive by iloc[0,0]
+if $aa_num > 100000 with sensitive.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with sensitive = add name by ('敏感数据告警数量(万)')
+if $aa_num <= 100000 with sensitive = add name by ('敏感数据告警数量')
+sensitive = add icon by ('F143')
+#今日敏感数据告警数量
+rename datafilter by ("r_num":"value")
+aa_num = eval datafilter by iloc[0,0]
+if $aa_num > 100000 with datafilter.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with datafilter = add name by ('文件敏感信息告警数(万)')
+if $aa_num <= 100000 with datafilter = add name by ('文件敏感信息告警数量')
+datafilter = add icon by ('F182')
+#今日境外访问告警数量
+rename abroad by ("r_num":"value")
+aa_num = eval abroad by iloc[0,0]
+if $aa_num > 100000 with abroad.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with abroad = add name by ('境外访问告警数量(万)')
+if $aa_num <= 100000 with abroad = add name by ('境外访问告警数量')
+abroad = add icon by ('F148')
+#今日耗时告警数量
+rename delay by ("r_num":"value")
+aa_num = eval delay by iloc[0,0]
+if $aa_num > 100000 with delay.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with delay = add name by ('耗时告警数量(万)')
+if $aa_num <= 100000 with delay = add name by ('耗时告警数量')
+delay = add icon by ('F140')
+##合并
+ttt = union ne_ev,sensitive,datafilter,abroad,delay
+ttt = loc ttt by name,value,icon
+ttt = add pageid by ('','qes:sensitive_data_alarm','qes:datafilter_alarm','qes:api_abroad','qes:ACu2dJW')
+store ttt to ssdb by ssdb0 with today:count
+###合并信息块########################################################################################################结束
+
+#风险事件
+# 阈值告警
+#n_en = @udf RS.load_mysql_sql with (mysql1,select left(first_time,13) as htime ,count(risk_label) as r_num from data_risk where left(first_time,10) >= '$day' and risk_level >=1 group by htime)
+n_en = load ckh by ckh with select substring(toString(first_time),1,13) as htime ,count(risk_label) as r_num from api_risk where first_time >= '$day' group by htime
+alter n_en by htime:str,r_num:int
+n_en = add hour with n_en["htime"].str[11:13]
+n_en = loc n_en by (hour,r_num)
+n_eg = group n_en by hour agg r_num:sum
+
+
+# 访问耗时告警
+delay = load ckh by ckh with select substring(toString(time),1,13) as htime ,count(*) as r_num from api_delay where time >= '$day' group by htime
+alter delay by htime:str,r_num:int
+delay = add hour with delay["htime"].str[11:13]
+delay = loc delay by (hour,r_num)
+delay = group delay by hour agg r_num:sum
+
+
+# 异地访问告警
+r_req = load ckh by ckh with select substring(toString(timestamp),1,13) as htime,count(*) as r_num from r_req_alm where timestamp >= '$day' group by htime
+alter r_req by htime:str,r_num:int
+r_req = add hour with r_req["htime"].str[11:13]
+r_req = loc r_req by (hour,r_num)
+r_req = group r_req by hour agg r_num:sum
+
+
+# 请求异常告警
+stat = load ckh by ckh with select substring(toString(timestamp),1,13) as htime ,count(*) as r_num from stat_req_alm where timestamp >= '$day' group by htime
+alter stat by htime:str,r_num:int
+stat = add hour with stat["htime"].str[11:13]
+stat = loc stat by (hour,r_num)
+stat = group stat by hour agg r_num:sum
+
+
+# 敏感数据告警
+sensitive = load ckh by ckh with select substring(toString(time),1,13) as htime ,count(*) as r_num from sensitive_data_alarm where time >= '$day' group by htime
+alter sensitive by htime:str,r_num:int
+sensitive = add hour with sensitive["htime"].str[11:13]
+sensitive = loc sensitive by (hour,r_num)
+sensitive = group sensitive by hour agg r_num:sum
+
+
+# 境外访问告警
+abroad = load ckh by ckh with select substring(toString(timestamp),1,13) as htime ,count(*) as r_num from api_abroad where timestamp >= '$day' group by htime
+alter abroad by htime:str,r_num:int
+abroad = add hour with abroad["htime"].str[11:13]
+abroad = loc abroad by (hour,r_num)
+abroad = group abroad by hour agg r_num:sum
+
+
+# 文件敏感信息告警
+datafilter = load ckh by ckh with select substring(toString(timestamp),1,13) as htime ,count(*) as r_num from datafilter_alarm where timestamp >= '$day' group by htime
+alter datafilter by htime:str,r_num:int
+datafilter = add hour with datafilter["htime"].str[11:13]
+datafilter = loc datafilter by (hour,r_num)
+datafilter = group datafilter by hour agg r_num:sum
+
+
+
+
+
+#Delete 注释 by hs on 2022-11-03 19:33:13
+##高风险  10-31 :高：2（未改：3）
+#na_lv3 = @udf RS.load_mysql_sql with (mysql1,select left(first_time,13) as htime ,count(risk_label) as r_num from data_api_new where risk_level = 2 and left(first_time,10) >= '$day' group by htime)
+#ne_lv3 = load ckh by ckh with select substring(toString(first_time),1,13) as htime ,count(risk_label) as r_num from api_risk where risk_level = '2' and substring(toString(first_time),1,10) >= '$day' group by htime
+#n_lvm = union (ne_lv3,na_lv3)
+#n_lvm = add hour with n_lvm["htime"].str[11:13]
+#n_lvm = loc n_lvm by (hour,r_num)
+#n_lvmg = group n_lvm by hour agg r_num:sum
+#rename n_lvmg by ("r_num_sum":"高风险")
+##中风险  10-31 :高：1（未改：2）
+#na_lv2 = @udf RS.load_mysql_sql with (mysql1,select left(first_time,13) as htime ,count(risk_label) as r_num from data_api_new where risk_level = 1 and left(first_time,10) >= '$day' group by htime)
+#ne_lv2 = load ckh by ckh with select substring(toString(first_time),1,13) as htime ,count(risk_label) as r_num from api_risk where risk_level = '1' and substring(toString(first_time),1,10) >= '$day' group by htime
+#n_lv2 = union (ne_lv2,na_lv2)
+#n_lv2 = add hour with n_lv2["htime"].str[11:13]
+#n_lv2 = loc n_lv2 by (hour,r_num)
+#n_lv2m = group n_lv2 by hour agg r_num:sum
+#rename n_lv2m by ("r_num_sum":"中风险")
+##低风险  10-31 :高：0（未改：1）
+#na_lv1 = @udf RS.load_mysql_sql with (mysql1,select left(first_time,13) as htime ,count(risk_label) as r_num from data_api_new where risk_level = 0 and left(first_time,10) >= '$day' group by htime)
+#ne_lv1 = load ckh by ckh with select substring(toString(first_time),1,13) as htime ,count(risk_label) as r_num from api_risk where risk_level = '0' and substring(toString(first_time),1,10) >= '$day' group by htime
+#n_lv1 = union (ne_lv1,na_lv1)
+#n_lv1 = add hour with n_lv1["htime"].str[11:13]
+#n_lv1 = loc n_lv1 by (hour,r_num)
+#n_lv1m = group n_lv1 by hour agg r_num:sum
+#rename n_lv1m by ("r_num_sum":"低风险")
+
+------ 合并计算-----开始 
+#Delete 注释 by hs on 2022-11-03 19:38:31
+#n_eg = loc n_eg by index to hour
+#delay = loc delay by index to hour
+#r_req = loc r_req by index to hour
+#stat = loc stat by index to hour
+#sensitive = loc sensitive by index to hour
+#abroad = loc abroad by index to hour
+#datafilter = loc datafilter by index to hour
+#
+#alm_mh = union (n_eg,delay,r_req,stat,sensitive,abroad,datafilter)
+#alm_mh = group alm_mh by hour agg r_num_sum:sum
+##alm_mh = loc alm_mh by index to mtime
+#rename alm_mh by ("r_num_sum_sum":"告警事件")
+#
+#
+###今日24小时表
+#hour1 = @sdf format_now with ($now,"%Y-%m-%d 23:00:00")
+#hour2 = @sdf format_now with ($yday1,"%Y-%m-%d 23:00:00")
+#hour = @udf udf0.new_df_timerange with ($hour2,$hour1,1H)
+#hour = loc hour by end_time 
+#hour.end_time = lambda end_time by (x:x[11:13]) 
+#rename hour as ('end_time':'hour')
+###链接风险信息以及今日24小时表
+#n_lvm = join n_lvmg,n_lv2m by index,index with outer
+#n_lvm = join n_lvm,n_lv1m by index,index with outer
+#n_rm = join n_ag,alm_mh by index,index with outer
+#n_rml = join n_rm,n_lvm by index,index with outer
+#
+#n_rml = loc n_rml by index to hour 
+#n_rml = join hour,n_rml by hour,hour with left 
+#n_rml = @udf n_rml by udf0.df_fillna with 0
+#n_rml = loc n_rml by index to aa
+#alter n_rml.aa as str
+#n_rml.aa = lambda aa by (x:x+'时')
+#n_rml = loc n_rml by aa to index
+#n_rml = loc n_rml by drop hour
+#store n_rml to ssdb by ssdb0 with nrh:trend
+
+------ 合并计算-----结束
+
+
+------ 分开计算-----开始 
+# 阈值告警
+# 访问耗时告警
+# 异地访问告警
+# 请求异常告警
+# 敏感数据告警
+# 境外访问告警
+# 文件敏感信息告警
+rename n_eg by ("r_num_sum":"阈值告警")
+rename delay by ("r_num_sum":"访问耗时告警")
+rename r_req by ("r_num_sum":"异地访问告警")
+rename stat by ("r_num_sum":"请求异常告警")
+rename sensitive by ("r_num_sum":"敏感数据告警")
+rename abroad by ("r_num_sum":"境外访问告警")
+rename datafilter by ("r_num_sum":"文件敏感信息告警")
+
+#api_trend = join n_ag,n_eg by index,index with outer
+#api_trend = join api_trend,delay by index,index with outer
+api_trend = join n_eg,delay by index,index with outer
+api_trend = join api_trend,r_req by index,index with outer
+api_trend = join api_trend,stat by index,index with outer
+api_trend = join api_trend,sensitive by index,index with outer
+api_trend = join api_trend,abroad by index,index with outer
+alm_mh = join api_trend,datafilter by index,index with outer
+
+
+##今日24小时表
+hour1 = @sdf format_now with ($now,"%Y-%m-%d 23:00:00")
+hour2 = @sdf format_now with ($yday1,"%Y-%m-%d 23:00:00")
+hour = @udf udf0.new_df_timerange with ($hour2,$hour1,1H)
+hour = loc hour by end_time 
+hour.end_time = lambda end_time by (x:x[11:13]) 
+rename hour as ('end_time':'hour')
+##链接风险信息以及今日24小时表
+
+n_rml = loc alm_mh by index to hour 
+n_rml = join hour,n_rml by hour,hour with left 
+n_rml = @udf n_rml by udf0.df_fillna_cols with 阈值告警:0,访问耗时告警:0,异地访问告警:0,请求异常告警:0,敏感数据告警:0,境外访问告警:0,文件敏感信息告警:0
+n_rml = loc n_rml by index to aa
+alter n_rml.aa as str
+n_rml.aa = lambda aa by (x:x+'时')
+n_rml = loc n_rml by aa to index
+n_rml = loc n_rml by drop hour
+store n_rml to ssdb by ssdb0 with nrh:trend
+------ 分开计算-----开结束
+
+
+
+#Delete 注释 by zwl on 2022-11-14 16:41:59
+##新增风险信息
+#na_list = @udf RS.load_mysql_sql with (mysql1,select url,risk_label_value,risk_level from data_api_new where left(first_time,10) >= '$day' and risk_label != '' limit 200)
+#na_list.risk_level = str risk_level by ( replace('0','低风险'))
+#na_list.risk_level = str risk_level by ( replace('1','中风险'))
+#na_list.risk_level = str risk_level by ( replace('2','高风险'))
+#rename na_list by ("url":"风险接口","risk_label_value":"风险内容","risk_level":"风险等级")
+#na_list = @udf na_list by VL.set_col_width with (450,250,100)
+#store na_list to ssdb by ssdb0 with na:list
+##ne_list = @udf RS.load_mysql_sql with (mysql1,select dstip,risk_label,risk_sign,risk_level from data_risk where left(first_time,10) >= '$day')
+##nu_list = union (na_list,ne_list)
+##未完
+
+##风险类型分布
+#ai_t1 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-1' from data_api_new where risk_label REGEXP 'API19-1' and left(first_time,10) >= '$day')
+#ai_t2 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-2' from data_api_new where risk_label REGEXP 'API19-2' and left(first_time,10) >= '$day')
+#ai_t3 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-3' from data_api_new where risk_label REGEXP 'API19-3' and left(first_time,10) >= '$day')
+#ai_t4 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-4' from data_api_new where risk_label REGEXP 'API19-4' and left(first_time,10) >= '$day')
+#ai_t5 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-5' from data_api_new where risk_label REGEXP 'API19-5' and left(first_time,10) >= '$day')
+#ai_t6 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-6' from data_api_new where risk_label REGEXP 'API19-6' and left(first_time,10) >= '$day')
+#ai_t7 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-7' from data_api_new where risk_label REGEXP 'API19-7' and left(first_time,10) >= '$day')
+#ai_t8 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-8' from data_api_new where risk_label REGEXP 'API19-8' and left(first_time,10) >= '$day')
+#ai_t9 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-9' from data_api_new where risk_label REGEXP 'API19-9' and left(first_time,10) >= '$day')
+#ai_t10 = @udf RS.load_mysql_sql with (mysql1,select count(risk_label) as 'API19-10' from data_api_new where risk_label REGEXP 'API19-10' and left(first_time,10) >= '$day')
+#ai_tj = join ai_t1,ai_t2
+#ai_tj = join ai_tj,ai_t3
+#ai_tj = join ai_tj,ai_t4
+#ai_tj = join ai_tj,ai_t5
+#ai_tj = join ai_tj,ai_t6
+#ai_tj = join ai_tj,ai_t7
+#ai_tj = join ai_tj,ai_t8
+#ai_tj = join ai_tj,ai_t9
+#ai_tj = join ai_tj,ai_t10
+#ai_type = @udf ai_tj by udf0.df_T
+#sens = load db by mysql1 with select risk_label,risk_name from data_api_risk
+#sens = loc sens by risk_label to index
+#ai_type = join ai_type,sens by index,index 
+#ai_type = loc ai_type by risk_name to index
+#rename ai_type by (0:"风险数量")
+#ai_type = filter ai_type by 风险数量 > 0
+#store ai_type to ssdb by ssdb0 with nt:pie
+
+
+#Delete 注释 by superFBI on 2022-07-22 17:19:43
+#na_type = @udf RS.load_mysql_sql with (mysql1,select risk_label,count(risk_label) as r_num from data_api_new where left(first_time,10) >= '$day' and risk_level >= 1 group by risk_label order by r_num)
+#na_type = loc na_type by risk_label to index
+#rename na_type by ("r_num":"风险数量") 
+#store na_type to ssdb by ssdb0 with nt:pie
+
+#ne_type = @udf RS.load_mysql_sql with (mysql1,select risk_label,count(risk_label) as r_num from data_risk where left(first_time,10) >= '#day' and risk_level >= 1 group by risk_label)
+#ne_type =load ckh by ckh with select risk_label,count(risk_label) as r_num from api_risk where substring(toString(first_time),1,10) >= '#day' and risk_level >= '1' group by risk_label
+
+#Delete 注释 by zwl on 2022-11-14 16:02:22
+##api风险和风险事件的高中低风险分布。
+##p_lv = @udf RS.load_mysql_sql with (mysql1,select risk_level,count(risk_label) as r_num from data_api_new where left(first_time,10) >= '$day' and risk_level >= 1 group by risk_level)
+#p_lv = @udf RS.load_mysql_sql with (mysql1,select risk_level,count(risk_label) as r_num from data_api_new where left(first_time,10) >= '$day' group by risk_level)
+#p_lv = add type by ("api风险")
+#p_lv = add value by p_lv["r_num"]
+##pe_lv = @udf RS.load_mysql_sql with (mysql1,select risk_level,count(risk_label) as r_num from data_risk where left(first_time,10) >= '$day' and risk_level >= 1 group by risk_level)
+#pe_lv = load ckh by ckh with select risk_level,count(risk_label) as r_num from api_risk where substring(toString(first_time),1,10) >= '$day' group by risk_level
+#pe_lv = add type by ("风险事件")
+#pe_lv = add value by pe_lv["risk_level"]
+#pu_lv = union (p_lv,pe_lv)
+#pu_lv = @udf pu_lv by udf0.df_reset_index
+#pu_lv = loc pu_lv by (type,risk_level,r_num,value)
+#pu_lv.risk_level = str risk_level by ( replace('0','低风险'))
+#pu_lv.risk_level = str risk_level by ( replace('1','中风险'))
+#pu_lv.risk_level = str risk_level by ( replace('2','高风险'))
+#store pu_lv to ssdb by ssdb0 with np_lv:pie
+
+
+##境外访问
+#Delete 注释 by zwl on 2023-02-10 11:07:29
+#api_abroad = load ckh by ckh with select address,count(*) as num from api_abroad where substring(toString(timestamp),1,10)  = '$day' group by address order by num desc limit 10
+#api_abroad.详情 = lambda address by (x:x)
+#api_abroad = loc api_abroad by address to index
+#rename api_abroad as ('num':'分布数量')
+#store api_abroad to ssdb by ssdb0 with adroad:pie
+
+
+##请求异常告警
+re = load ckh by ckh with select app,count(*) as num from stat_req_alm where timestamp >= '$day' group by app order by num desc limit 5
+alter re by app:str,num:int
+re.详情 = lambda app by (x:x)
+re = loc re by app to index
+rename re as ('num':'分布数量')
+store re to ssdb by ssdb0 with re:pie
+
+##敏感数据告警
+sensitive = load ckh by ckh with select key,count(*) as num from sensitive_data_alarm where time >= '$day' group by key order by num desc limit 5
+alter sensitive by key:str,num:int
+sensitive = order sensitive by num with asc
+sensitive.详情 = lambda key by (x:x)
+sensitive.key = str key by (slice(0,4))
+sensitive = loc sensitive by key to index
+rename sensitive as ('num':'分布数量')
+store sensitive to ssdb by ssdb0 with sens_gj:pie
+
+##访问耗时告警
+api_delay = load ckh by ckh with select type,warn_level,count(*) as num from api_delay where time  >= '$day' group by type,warn_level order by num desc limit 5
+alter api_delay by type:str,warn_level:str,num:int
+delay_time = load ssdb by ssdb0 with dd:delay_time
+delay_time = loc delay_time by index to warn_level 
+api_delay = join api_delay,delay_time by warn_level,warn_level
+alter api_delay.type.value as str
+api_delay = add type1 by api_delay['type']+':'+ api_delay['value']
+api_delay = loc api_delay by type1,num
+rename api_delay as ('type1':'请求类型:告警级别','num':'分布数量')
+store api_delay to ssdb by ssdb0 with delay:pie
+
+ 
+ 
+ 
+
+
+clear @FID
+

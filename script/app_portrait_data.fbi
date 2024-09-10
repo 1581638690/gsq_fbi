@@ -1,0 +1,101 @@
+#LastModifyDate:　2023-12-01T14:55:12.700252    Author:   zwl
+#LastModifyDate:　2023-08-29T14:37:41.160595    Author:   zwl
+#LastModifyDate:　2023-07-04T17:49:56.318258    Author:   zwl
+#LastModifyDate:　2023-06-20T15:46:14.933309    Author:   zwl
+#LastModifyDate:　2023-06-16T10:45:59.150682    Author:   zwl
+#LastModifyDate:　2023-05-23T17:24:44.769418    Author:   zwl
+#LastModifyDate:　2023-02-20T15:38:55.517118    Author:   zwl
+#LastModifyDate:　2023-02-17T10:23:06.734461    Author:   zwl
+#LastModifyDate:　2023-02-13T17:37:14.225640    Author:   zwl
+#LastModifyDate:　2022-12-30T16:57:44.844169    Author:   zwl
+#LastModifyDate:　2022-12-27T10:01:13.158962    Author:   rzc
+#LastModifyDate:　2022-12-27T09:54:23.186039    Author:   pjb
+#LastModifyDate:　2022-12-14T14:24:03.668088    Author:   zwl
+#LastModifyDate:　2022-12-01T17:44:20.546255    Author:   zwl
+#LastModifyDate:　2022-11-02T14:41:05.121695    Author:   pjb
+
+use @FID
+
+applist1 = load db by mysql1 with select app,name,sx,visits_num,visits_flow,sj_num,monitor_flow,active,app_status,first_time,portrait_time from data_app_new where app = '@app' and merge_state != 1
+applist1 = @udf applist1 by udf0.df_fillna 
+applist1.visits_flow = lambda visits_flow by (x:0 if x == '' else x)
+app = eval applist1 by iloc[0,0]
+#rzc
+app_sx = load ssdb by ssdb0 with dd:app_sx
+app_sx = loc app_sx by index to sx
+
+s = loc applist1 by (visits_num,visits_flow,sj_num,monitor_flow,active,app_status,first_time,portrait_time)
+s.first_time = str first_time by [0:19]
+s.first_time = str first_time by (replace('T',' '))
+s.portrait_time = str portrait_time by [0:19]
+s.portrait_time = str portrait_time by (replace('T',' '))
+s = loc s by (visits_num,visits_flow,sj_num,monitor_flow,active,app_status,first_time,portrait_time)
+##访问次数
+alter s.visits_num as int
+v_num = eval s by iloc[0,0]
+if 100000 < $v_num <= 1000000000 with s.visits_num = lambda visits_num by (x:round(x/10000,2))
+if $v_num > 1000000000 with s.visits_num = lambda visits_num by (x:round(x/100000000,2))
+alter s.visits_num as str
+if 100000 < $v_num <= 1000000000 with s.visits_num = lambda visits_num by (x:x+'万')
+if $v_num > 1000000000 with  s.visits_num = lambda visits_num by (x:x+'亿')
+##增加判断  精确流量信息
+v_flow = eval s by iloc[0,1]
+if 1024 <= $v_flow < 1048576 with s.visits_flow = lambda visits_flow by (x:round(x/1024,2))
+if 1048576 <= $v_flow < 1073741824 with s.visits_flow = lambda visits_flow by (x:round(x/1024/1024,2)))
+if 1073741824 <= $v_flow  with s.visits_flow = lambda visits_flow by (x:round(x/1024/1024/1024,2))
+alter s.visits_flow as str
+if 0 <= $v_flow < 1024 with s.visits_flow = lambda visits_flow by (x:x+'(B)')
+if 1024 <= $v_flow < 1048576 with s.visits_flow = lambda visits_flow by (x:x+'(KB)')
+if 1048576 <= $v_flow < 1073741824 with s.visits_flow = lambda visits_flow by (x:x+'(M)')
+if 1073741824 <= $v_flow  with s.visits_flow = lambda visits_flow by (x:x+'(G)')
+##审计次数
+alter s.sj_num as int
+v_num = eval s by iloc[0,2]
+if 100000 < $v_num <= 1000000000 with s.sj_num = lambda sj_num by (x:round(x/10000,2))
+if $v_num > 1000000000 with s.sj_num = lambda sj_num by (x:round(x/100000000,2))
+alter s.sj_num as str
+if 100000 < $v_num <= 1000000000 with s.sj_num = lambda sj_num by (x:x+'万')
+if $v_num > 1000000000 with  s.sj_num = lambda sj_num by (x:x+'亿')
+##判断审计流量
+v_flow1 = eval s by iloc[0,3]
+if 1024 <= $v_flow1 < 1048576 with s.monitor_flow = lambda monitor_flow by (x:round(x/1024,2))
+if 1048576 <= $v_flow1 < 1073741824 with s.monitor_flow = lambda monitor_flow by (x:round(x/1024/1024,2)))
+if 1073741824 <= $v_flow1  with s.monitor_flow = lambda monitor_flow by (x:round(x/1024/1024/1024,2))
+alter s.monitor_flow as str
+if 0 <= $v_flow1 < 1024 with s.monitor_flow = lambda monitor_flow by (x:x+'(B)')
+if 1024 <= $v_flow1 < 1048576 with s.monitor_flow = lambda monitor_flow by (x:x+'(KB)')
+if 1048576 <= $v_flow1 < 1073741824 with s.monitor_flow = lambda monitor_flow by (x:x+'(M)')
+if 1073741824 <= $v_flow1  with s.monitor_flow = lambda monitor_flow by (x:x+'(G)')
+alter s.active as int
+alter s.app_status as int
+alter s.active as str
+alter s.app_status as str
+##活跃状态
+active = load ssdb by ssdb0 with dd:api_active
+s = @udf s,active by SP.tag2dict with active
+###审计状态
+type = load ssdb by ssdb0 with dd:API-status
+s = @udf s,type by SP.tag2dict with app_status
+rename s by ("visits_num":"访问量","visits_flow":"访问流量","sj_num":"审计访问量","monitor_flow":"审计流量","active":"活跃状态","app_status":"审计状态","first_time":"首次发现时间","portrait_time":"画像开启时间")
+s = @udf s by udf0.df_T
+s = loc s by index to name
+s = add icon by ('F396','F352','F307','F146','F019','F298','F306','F150')
+rename s as (0:'value')
+s = add pageid by ('','','','','','','','')
+s = add 参数 by ('','','','','','','','')
+s = loc s by name,value,icon,pageid,参数
+store s to ssdb with z:@app:profile
+#push s as z:@app:profile
+
+name1 = loc applist1 by app,name,sx
+rename name1 by ("app":"应用IP/域名")
+rename name1 by ("name":"应用别名")
+alter name1.sx as str
+alter app_sx.sx as str
+name1 = join name1,app_sx by sx,sx with left
+name1 = loc name1 drop sx
+rename name1 by ("sysname":"关联应用")
+store name1 to ssdb with z:@app:name
+#push name1 as z:@app:name
+
+clear @FID

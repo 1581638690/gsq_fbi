@@ -1,0 +1,68 @@
+#LastModifyDate:　2023-05-15T11:19:04.293346    Author:   superFBI
+#LastModifyDate:　2023-05-15T11:18:24.661799    Author:   superFBI
+#LastModifyDate:　2023-03-13T11:20:49.698562    Author:   rzc
+#LastModifyDate:　2023-03-13T11:11:35.895656    Author:   rzc
+#LastModifyDate:　2023-03-13T11:06:59.802730    Author:   rzc
+#LastModifyDate:　2023-03-13T11:05:12.390920    Author:   rzc
+#LastModifyDate:　2023-03-13T11:01:14.071957    Author:   rzc
+#LastModifyDate:　2023-03-09T13:50:09.649651    Author:   rzc
+#LastModifyDate:　2023-03-08T11:28:04.438441    Author:   rzc
+#LastModifyDate:　2023-03-02T11:33:50.508395    Author:   rzc
+#LastModifyDate:　2023-02-28T17:29:23.929291    Author:   rzc
+#FBI脚本文件
+#文件名: Avl8eqf/确定.fbi
+#作者: rzc
+use @FID
+a = load ssdb by ssdb0 with @data_key 
+
+
+urls=loc a by urls_sum
+url=eval urls by iloc[0,0]
+#判断是否存在相同的接口名称
+eurl=load db by mysql1 with select url from data_api_new where url='$url'
+assert eurl by df.index.size <=0 as break with  已存在相同的接口名
+
+if eurl.index.size <=0 with """
+
+	b=eval a by (iloc[0,0])
+
+	bb = load ssdb by ssdb0 with $b
+
+	aa=loc a by urls_sum
+	rename aa as ("urls_sum":"urls_merge")
+
+	#对bb添加两列 urls_merge
+	url_merge=eval aa by iloc[0,0]
+	bb=add url_merges by ('$url_merge')
+	bb=add merge_state by 1
+	bb=add url_sum by ("")
+	#添加状态码 1为被合并 0为未合并 2为合并后的  所以 1不展示 
+	bb1=@udf bb by handi_merge.merge
+	#判断是否存在相同的接口名称
+	
+#df.url_sum=lambda url_sum by (x:x.split(";|") if x!="" else x)
+	alter bb1.url_sum as  str
+	#查询mysql表 查询当前合并接口是否存在
+	mysql_db=load db by mysql1 with select id,url from data_api_new
+	join_db=join bb1,mysql_db by url,url with left
+	join_db=@udf join_db by udf0.df_fillna with 0
+	#p_db=filter join_db by id==0
+	join_db=@udf join_db by udf0.df_set_index with id
+	@udf join_db by CRUD.save_table with (mysql1,data_api_new)
+	 
+	#push p_db as table
+	#取出合并接口的数据
+	api =  @udf RS.load_mysql_sql with (mysql1,select url,url_sum from data_api_new where merge_state = 2)
+	a=@udf SSDB.hclear with api_merge
+	api = @udf api by udf0.df_set_index with url
+	api = add url by (api.index)
+	store api to ssdb by ssdb0 with api_merge as H
+"""
+
+#转化json测试
+#df2=@udf join_db by udf0.df_json with json
+#更新数据库
+
+
+
+clear @FID

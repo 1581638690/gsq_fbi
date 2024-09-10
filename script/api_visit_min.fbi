@@ -1,0 +1,63 @@
+#LastModifyDate:　2024-01-19T14:55:49    Author:   zwl
+#LastModifyDate:　2024-01-18T14:17:37    Author:   zwl
+#LastModifyDate:　2024-01-17T15:52:21    Author:   zwl
+#LastModifyDate:　2023-09-06T10:21:12.899566    Author:   zwl
+#LastModifyDate:　2023-09-05T10:07:44.144053    Author:   zwl
+#LastModifyDate:　2023-09-04T19:02:38.768085    Author:   zwl
+#LastModifyDate:　2023-07-17T16:50:48.308351    Author:   zwl
+#LastModifyDate:　2023-05-31T15:52:40.908008    Author:   zwl
+#LastModifyDate:　2023-05-29T14:03:01.354782    Author:   zwl
+#LastModifyDate:　2023-05-27T16:14:15.429629    Author:   zwl
+#FBI脚本文件
+#文件名: api_visit_min.fbi
+#作者: zwl
+use @FID
+
+k = @sdf sys_timestamp
+##清空文件
+#s = @udf FBI.local_cmd with sudo rm -rf /data/workspace/xlink/api_visit_hx_min
+
+###获取存储的每分钟的数据名称
+a = @udf ZFile.list_dir with xlink/api_visit_hx_min
+
+##取出过去保存的历史数据
+hour = @udf udf0.new_df
+foreach a run """
+	##取出数据
+	min_1 = load pq by @name
+	hour = union hour,min_1
+	##删除已经处理过的数据
+	b = @udf ZFile.rm_file with @name
+""" with (name=$1)
+
+drop min_1
+rename hour as ('id_count':'visit_num','ll_sum':'visit_flow','time_max':'time')
+hour = loc hour by app,url,srcip,dstip,account,visit_num,visit_flow,time
+##减少数据量：进一步进行group by
+alter hour.time as str
+hour.time1 = lambda time by (x:x[11:13])
+alter hour.time as datetime64
+hour = group hour by app,url,srcip,dstip,account,time1 agg visit_num:sum,visit_flow:sum,time:max
+hour = @udf hour by udf0.df_reset_index
+rename hour as ('visit_num_sum':'visit_num','visit_flow_sum':'visit_flow','time_max':'time')
+hour = order hour by visit_num with desc 
+tt = group hour by time1 agg time1:count
+tt = @udf tt by udf0.df_reset_index
+
+###数据按时间（小时）分类
+if tt.index.size > 0 with tt1 = eval tt by iloc[0,0]
+if tt.index.size > 0 with hour1 = filter hour by time1 == '$tt1'
+if tt.index.size > 0 with hour1 = loc hour1 drop time1
+if tt.index.size > 0 with store hour1 to pq by xlink/hx/hour_$tt1/hx_hour_$k.pq
+if 2 <= tt.index.size <= 3 with tt2 = eval tt by iloc[1,0]
+if 2 <= tt.index.size <= 3  with hour2 = filter hour by time1 == '$tt2'
+if 2 <= tt.index.size <= 3 with hour2 = loc hour2 drop time1
+if 2 <= tt.index.size <= 3  with store hour2 to pq by xlink/hx/hour_$tt2/hx_hour_$k.pq
+if tt.index.size == 3 with tt3 = eval tt by iloc[2,0]
+if tt.index.size == 3 with hour3 = filter hour by time1 == '$tt3'
+if tt.index.size == 3 with hour3 = loc hour3 drop time1
+if tt.index.size == 3 with store hour3 to pq by xlink/hx/hour_$tt3/hx_hour_$k.pq
+
+
+
+clear @FID

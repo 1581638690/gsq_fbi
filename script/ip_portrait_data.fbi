@@ -1,0 +1,62 @@
+#LastModifyDate:　2023-12-01T14:47:09.969805    Author:   zwl
+#LastModifyDate:　2023-10-09T16:59:34.308509    Author:   zwl
+#LastModifyDate:　2023-08-29T14:45:00.254773    Author:   zwl
+#LastModifyDate:　2023-08-23T17:02:43.245299    Author:   zwl
+#LastModifyDate:　2023-06-20T18:24:14.688895    Author:   zwl
+#LastModifyDate:　2023-06-16T17:34:47.284109    Author:   zwl
+#LastModifyDate:　2023-03-22T10:29:54.691556    Author:   zwl
+#LastModifyDate:　2022-12-15T18:36:19.990572    Author:   zwl
+#LastModifyDate:　2022-12-14T14:24:10.326670    Author:   zwl
+#LastModifyDate:　2022-12-01T17:38:27.758532    Author:   zwl
+#LastModifyDate:　2022-11-02T15:12:31.069384    Author:   pjb
+
+use @FID
+
+s = load db by mysql1 with select visit_num,visit_flow,api_num,app_num,account_num,region,firsttime,portrait_time from data_ip_new where srcip = "@srcip"
+s = @udf s by udf0.df_fillna with 0
+s = @udf s by udf0.df_fillna with ''
+s.firsttime = str firsttime by [0:19]
+s.firsttime = str firsttime by (replace('T',' '))
+s.portrait_time = str portrait_time by [0:19]
+s.portrait_time = str portrait_time by (replace('T',' '))
+ #10.29：过滤'' 账号 ;增加判断  精确流量信息 zwl
+s = loc s by visit_num,visit_flow,api_num,app_num,account_num,region,firsttime,portrait_time
+v_flow = eval s by iloc[0,1]
+aa = @sdf sys_eval with 0 <= $v_flow < 1024
+bb = @sdf sys_eval with 1024 <= $v_flow < 1048576
+cc = @sdf sys_eval with 1048576 <= $v_flow < 1073741824
+dd = @sdf sys_eval with 1073741824 <= $v_flow 
+aa = @sdf sys_if_run with ($aa,"s = add 1 by ('(B)')")
+bb = @sdf sys_if_run with ($bb,"s.visit_flow = lambda visit_flow by (x:round(x/1024,2))")
+bb = @sdf sys_if_run with ($bb,"s = add 1 by ('(KB)')")
+cc = @sdf sys_if_run with ($cc,"s.visit_flow = lambda visit_flow by (x:round(x/1024/1024,2))")
+cc = @sdf sys_if_run with ($cc,"s = add 1 by ('(M)')")
+dd = @sdf sys_if_run with ($dd,"s.visit_flow = lambda visit_flow by (x:round(x/1024/1024/1024,2))")
+dd = @sdf sys_if_run with ($dd,"s = add 1 by ('(G)')")
+#alter s.visit_flow as int
+alter s.account_num as int
+alter s.visit_flow as str
+s = add visit_flow by s["visit_flow"]+s["1"]
+s = loc s drop 1
+alter s.visit_num as str
+alter s.api_num as str
+alter s.app_num as str
+alter s.account_num as str
+rename s by ("visit_num":"访问量","visit_flow":"访问流量","api_num":"接口数量","app_num":"访问应用数量","network":"网段","account_num":"账号数量","firsttime":"首次发现时间","region":"地域","portrait_time":"画像开启时间")
+s = @udf s by udf0.df_T
+s = loc s by index to name
+rename s as (0:'value')
+#s = add icon by ('F396','F352','F307','F146','F019','F298','F306','F150','F403','F346')
+s = add icon by ('F396','F352','F307','F146','F298','F306','F150','F403')
+#s = add pageid by ('','','modeling:api_new','modeling:app_new','','modeling:account_new','','','','')
+s = loc s by name,value,icon
+#s = @udf s by udf0.df_fillna 
+store s to ssdb with ip:@srcip:profile
+
+##终端名称
+t = load db by mysql1 with select srcip from data_ip_new where srcip = '@srcip'
+name = loc t by srcip
+rename name as ("srcip":"终端IP")
+store name to ssdb with ip:@srcip:name
+
+clear @FID

@@ -1,0 +1,24 @@
+# 文件名: crud-batch_imp.fbi
+
+#@file:	 	script/crud/batch_imp.fbi
+#@name: 	文件的中文名称
+#@desc: 	批量导入脚本
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2019-4-10T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+#@file_name导入文件名
+use @FID
+#加载csv文件
+datas = load csv by @file_name
+#index列设置为0,为新增
+datas = @udf datas by udf0.df_zero_index 
+#保存数据到业务库中
+datas = @udf datas by CRUD.save_object_mtable with (@link,@table)
+#保存到s3
+#datas = @udf datas by CRUD.save_object_stable with (@link,@table)
+
+assert not_have_error() as alert to 导入成功 with 导入失败
+push datas as table
+clear @FID

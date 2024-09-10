@@ -1,0 +1,7 @@
+#FBI脚本文件
+#文件名: system/ev/enable.fbi
+#作者: superFBI
+
+#参数@id
+
+df = @udf FBI.ev_enable with @id

@@ -1,0 +1,13 @@
+#LastModifyDate:　2022-04-18T18:22:28.584024
+#FBI脚本文件
+#文件名: qh_login.fbi
+#作者: qiaohan
+
+use @FID
+a = load ssdb by ssdb0 with loginl as json
+lnum = jaas a by a['lnum'] as sdf
+ltime = jaas a by a['ltime'] as sdf
+define retry_count as $lnum
+define failed_session as $ltime
+
+clear @FID

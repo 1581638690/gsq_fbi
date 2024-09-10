@@ -1,0 +1,47 @@
+#LastModifyDate:　2023-11-29T16:13:52.282520    Author:   sgy
+#LastModifyDate:　2023-11-29T16:10:18.533118    Author:   sgy
+# 文件名: crud-batch_exp.fbi
+
+#@file:	 	script/crud/batch_exp.fbi
+#@name: 	文件的中文名称
+#@desc: 	批量导出脚本
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2019-4-10T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+
+use @FID
+#页面使用|分割,替换为,
+v = @sdf sys_str with (@ids,replace("|",","))
+
+ids1 = @sdf sys_eval with (@ids=="")
+#如果ids为空,导出全部数据,不为空,导出选中条数
+
+a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table)")
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table where id in ($v))")
+#datas = load db by mysql1 with select * from dbms_user
+datas = loc datas drop gmt_create,gmt_modified,creator,owner,id,a,b,req_label,res_llabel
+datas.first = lambda first_time by (x:x[0:19])
+datas.last = lambda last_time by (x:x[0:19])
+datas = loc datas drop first_time,last_time
+active = load ssdb by ssdb0 with dd:api_active
+active  = add id by active.index
+rename active as ("value":"活跃状态")
+datas = alter datas.active as str
+datas = join datas,active by active,id with left
+
+sens = load ssdb by ssdb0 with dd:sensitive_label
+sens = add id by sens.index
+rename sens as ("value":"敏感等级")
+datas = alter datas.sensitive_label as str
+datas = join datas,sens by sensitive_label,id with left
+datas = loc datas drop sensitive_label,active,id_x,id_y
+datas = @udf datas by udf0.df_fillna with (无)
+rename datas as ("user":"访问账号","dbms_obj":"数据库","db_type":"数据库类型","first":"首次被访问时间","last":"最后一次被访问时间","res_llabel_count":"返回标签及其数量","req_label_count":"请求标签及其数量","comment":"备注","count":"被访问量(次)")
+
+store datas to csv by @file_name
+clear @FID

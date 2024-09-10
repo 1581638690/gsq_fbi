@@ -1,0 +1,12 @@
+#LastModifyDate:　2024-01-10T16:28:28    Author:   zwl
+#LastModifyDate:　2023-08-29T18:18:50.822609    Author:   zwl
+#LastModifyDate:　2023-07-12T10:02:34.978365    Author:   zwl
+#FBI脚本文件
+#文件名: xlink_hour.fbi
+#作者: zwl
+
+###api_visit表处理  ：api_visit_hour
+run api_visit_hour.fbi
+
+##api_monitor表处理  ：api_monitor_hour
+#run api_monitor_hour.fbi

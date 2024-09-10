@@ -1,0 +1,72 @@
+#LastModifyDate:　2023-12-01T14:50:16.585929    Author:   zwl
+#LastModifyDate:　2023-06-20T18:22:04.592599    Author:   zwl
+#LastModifyDate:　2023-06-20T18:20:46.044518    Author:   zwl
+#LastModifyDate:　2023-06-16T17:31:02.425183    Author:   zwl
+#LastModifyDate:　2023-01-12T10:21:10.705974    Author:   zwl
+#LastModifyDate:　2022-12-28T10:19:37.303023    Author:   zwl
+#LastModifyDate:　2022-12-28T09:38:15.692175    Author:   pjb
+#LastModifyDate:　2022-12-26T09:54:11.886991    Author:   zwl
+#LastModifyDate:　2022-12-14T14:22:10.728055    Author:   zwl
+#LastModifyDate:　2022-12-06T10:34:47.994458    Author:   zwl
+#LastModifyDate:　2022-12-03T14:16:27.442872    Author:   pjb
+#LastModifyDate:　2022-12-01T17:40:44.377149    Author:   zwl
+#LastModifyDate:　2022-11-02T14:45:49.803032    Author:   pjb
+#LastModifyDate:　2022-11-02T14:24:09.720303    Author:   pjb
+#LastModifyDate:　2022-11-02T14:13:15.579089    Author:   pjb
+use @FID
+
+apilist1 = load db by mysql1 with select id,url,visits_num,visits_flow,app,data_type,risk_level,method,first_time,portrait_time from data_api_new where id = '@id'
+apilist1 = @udf apilist1 by udf0.df_fillna
+
+s = loc apilist1 by (visits_num,visits_flow,app,data_type,risk_level,method,first_time,portrait_time)
+s.first_time = str first_time by [0:19]
+s.first_time = str first_time by (replace('T',' '))
+s.portrait_time = str portrait_time by [0:19]
+s.portrait_time = str portrait_time by (replace('T',' '))
+##风险等级
+s.risk_level = str risk_level by (replace('0','低风险'))
+s.risk_level = str risk_level by (replace('1','中风险'))
+s.risk_level = str risk_level by (replace('2','高风险'))
+s = loc s by (visits_num,visits_flow,app,data_type,risk_level,method,first_time,portrait_time)
+##增加判断  精确流量信息
+v_flow = eval s by iloc[0,1]
+aa = @sdf sys_eval with 0 <= $v_flow < 1024
+bb = @sdf sys_eval with 1024 <= $v_flow < 1048576
+cc = @sdf sys_eval with 1048576 <= $v_flow < 1073741824
+dd = @sdf sys_eval with 1073741824 <= $v_flow 
+aa = @sdf sys_if_run with ($aa,"s = add 1 by ('(B)')")
+bb = @sdf sys_if_run with ($bb,"s.visits_flow = lambda visits_flow by (x:round(x/1024,2))")
+bb = @sdf sys_if_run with ($bb,"s = add 1 by ('(KB)')")
+cc = @sdf sys_if_run with ($cc,"s.visits_flow = lambda visits_flow by (x:round(x/1024/1024,2))")
+cc = @sdf sys_if_run with ($cc,"s = add 1 by ('(M)')")
+dd = @sdf sys_if_run with ($dd,"s.visits_flow = lambda visits_flow by (x:round(x/1024/1024/1024,2))")
+dd = @sdf sys_if_run with ($dd,"s = add 1 by ('(G)')")
+#alter s.visits_flow as int
+alter s.visits_flow as str
+s = add visits_flow by s["visits_flow"]+s["1"]
+#alter s.visits_flow as int
+s = loc s drop 1
+alter s.visits_num as str
+alter s.visits_num as int
+run qh_api_if.fbi
+rename s by ("visits_num":"访问量","visits_flow":"访问流量","app":"所属应用","data_type":"资源类型","risk_level":"风险等级","portrait_time":"画像开启时间","first_time":"首次发现时间","method":"请求类型")
+s = @udf s by udf0.df_T
+s = loc s by index to name
+#s = @udf s by udf0.df_reset_index
+#s = add name by ("访问数量","访问流量","所属应用","资源类型","风险等级","风险内容","首次发现时间","请求类型")
+s = add icon by ('F396','F352','F307','F146','F019','F298','F306','F150')
+rename s as (0:'value')
+s = add pageid by ('','','modeling:app_new_1','','','','','')
+app = eval s by iloc[2,1]
+s = add 参数 by ('','','@app=$app','','','','','')
+#s.参数 = lambda 参数 by (x:x if x == '' else '@'+x)
+s = loc s by name,value,icon,pageid,参数
+store s to ssdb with z:@id:profile
+
+#t = filter apilist1 by id == "@id"
+#t = filter apilist1 by url == "http://www.ujiaoshou.com/xtjc/{dst}"
+name = loc apilist1 by url
+rename name as ("api":"接口名")
+store name to ssdb with z:@id:name
+
+clear @FID

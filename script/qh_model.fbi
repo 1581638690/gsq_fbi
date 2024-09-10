@@ -1,0 +1,110 @@
+#LastModifyDate:　2024-01-18T17:21:56    Author:   zwl
+#LastModifyDate:　2023-12-13T14:34:46.569401    Author:   superFBI
+#LastModifyDate:　2023-05-16T17:26:39.520117    Author:   pjb
+#LastModifyDate:　2023-05-16T16:24:02.952688    Author:   pjb
+#LastModifyDate:　2023-04-10T17:26:04.048747    Author:   qh
+#LastModifyDate:　2023-04-07T16:02:35.495359    Author:   qh
+#LastModifyDate:　2023-04-07T12:00:16.813050    Author:   qh
+#LastModifyDate:　2023-04-03T11:34:42.254441    Author:   qh
+#LastModifyDate:　2023-03-28T16:53:35.930294    Author:   qh
+#LastModifyDate:　2023-03-18T10:29:52.017310    Author:   qh
+#LastModifyDate:　2023-03-08T14:15:42.030105    Author:   qh
+#风险模型
+
+use @FID
+
+#Delete 注释 by qh on 2023-04-10 17:26:01
+#model_config = load ssdb by ssdb0 with model_config as json
+#wl = jaas model_config by model_config["setting"]["model10"]["whitelist"]
+#wl = @udf wl by FBI.json2df
+#wl = @udf wl by udf0.df_reset_index
+#rename wl as ("index":"sid")
+
+
+#敏感接口
+senapi = load ckh by ckh with select distinct url_c as url from sen_http_count
+alter senapi by url:str
+store senapi to ssdb with risk_url_xlk
+#审计接口
+murl =  @udf RS.load_mysql_sql with (mysql1,select url from data_api_new where api_status = 1)
+alter murl by url:str
+store murl to ssdb with monitor_url_xlk
+
+srcip = @udf RS.load_mysql_sql with (mysql1,select srcip from data_ip_new where type != '其他' and type != '应用')
+alter srcip by srcip:str
+store srcip to ssdb with srcip_model_xlk
+
+month1 = @sdf sys_now with -1m
+month = @sdf format_now with ($month1,"%Y-%m-%dT00:00:00")
+# sensitive_data
+sens = load ckh by ckh with select url,response_count as res_type,count(*) as num from sen_http_count where timestamp > '$month' group by url,res_type
+sens = @udf sens by udf0.df_fillna_cols with url:'',res_type:'',num:0
+alter sens by url:str,res_type:str,num:int
+sens = filter sens by res_type != '' and res_type != 'null' and res_type != '{}' and res_type != 'None'
+sens.res_type = str res_type by replace(' ','')
+sens = filter sens by res_type unlike name
+sens = @udf sens by udf0.df_d2df with res_type
+alter sens by num:int,value:int
+#Delete 注释 by zwl on 2024-01-18 17:18:08
+#sens.res_type = lambda res_type by (x:x[1:-1])
+#sens.res_type = lambda res_type by (x:x.split(","))
+#sens_1 = @udf sens by udf0.df_l2df with res_type
+#rename sens_1 as ('res_type':'res')
+#sens = join sens,sens_1 by index,index with outer
+#sens.res = lambda res by (x:x.split(":"))
+#sens = @udf sens by udf0.df_l2cs with res
+#rename sens as ('n100':'key','n101':'res_key_num')
+#sens = loc sens by url,num,key,res_key_num
+#sens.key = lambda key by (x:x[1:-1])
+#alter sens.num.res_key_num as int
+#sens = add num by df["num"] * df["res_key_num"]
+sens = add num by df["num"] * df["value"]
+sens1 = loc sens by url,key,num
+##计算响应体
+sens = load ckh by ckh with select url,request_count as req_type,count(*) as num from sen_http_count where timestamp > '$month' and url != '' group by url,req_type
+sens = @udf sens by udf0.df_fillna_cols with url:'',req_type:'',num:0
+alter sens by url:str,req_type:str,num:int
+sens = filter sens by req_type != '' and req_type != 'null' and req_type != '{}' and req_type != 'None'
+sens.req_type = str req_type by replace(' ','')
+sens = filter sens by req_type unlike name
+sens = @udf sens by udf0.df_d2df with req_type
+alter sens by num:int,value:int
+#Delete 注释 by zwl on 2024-01-18 17:19:42
+#sens.req_type = lambda req_type by (x:x[1:-1])
+#sens.req_type = lambda req_type by (x:x.split(","))
+#sens_1 = @udf sens by udf0.df_l2df with req_type
+#rename sens_1 as ('req_type':'req')
+#sens = join sens,sens_1 by index,index with outer
+#sens.req = lambda req by (x:x.split(":"))
+#sens = @udf sens by udf0.df_l2cs with req
+#rename sens as ('n100':'key','n101':'req_key_num')
+#sens = loc sens by url,num,key,req_key_num
+#sens.key = lambda key by (x:x[1:-1])
+#alter sens.num.req_key_num as int
+#sens = add num by df["num"] * df["req_key_num"]
+sens = add num by df["num"] * df["value"]
+sens2 = loc sens by url,key,num
+###合并请求体响应体
+sens = union sens1,sens2
+##合并历史（断点之前）数据
+sens = union sens,sss
+sens = group sens by url agg num:sum
+sens = @udf sens by udf0.df_reset_index
+rename sens as ('num_sum':'count1')
+#
+#sens_count = load ckh by ckh with select url_c as url,count(id) as count1 from sensitive_data where time > '$month' group by url
+senh_count = load ckh by ckh with select url_c as url,count(uuid) as count2 from sen_http_count where timestamp > '$month' group by url
+alter senh_count by url:str,count2:int
+sens = join sens,senh_count by url,url
+sens = add mean by (sens["count1"]/sens["count2"])
+sens = loc sens by url,mean
+store sens to ssdb with sens_mean
+#自动填充重要信息模型
+#a = load ckh by ckh with select distinct urld from api_monitor where key != '' limit 100
+a = load ckh by ckh with select distinct urld from api_monitor where yw_count >= 10
+alter a by urld:str
+a = add data with (a["urld"])
+s = loc a by urld to index
+store s to ssdb with dd:bs_model
+
+clear @FID

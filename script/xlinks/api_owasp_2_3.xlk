@@ -1,0 +1,171 @@
+#LastModifyDate:　2024-01-06T21:16:26    Author:   superFBI
+#LastModifyDate:　2024-01-06T16:18:16    Author:   superFBI
+#LastModifyDate:　2024-01-05T11:05:51.582503    Author:   superFBI
+#LastModifyDate:　2023-12-28T09:24:06.387495    Author:   superFBI
+#LastModifyDate:　2023-12-27T15:19:15.079920    Author:   superFBI
+#LastModifyDate:　2023-12-27T10:16:44.565362    Author:   superFBI
+#LastModifyDate:　2023-12-26T09:51:45.696534    Author:   superFBI
+#LastModifyDate:　2023-12-21T10:38:32.714088    Author:   superFBI
+#LastModifyDate:　2023-12-18T10:32:52.726992    Author:   superFBI
+#LastModifyDate:　2023-12-18T10:31:30.051451    Author:   superFBI
+#LastModifyDate:　2023-11-27T14:54:22.930136    Author:   pjb
+#xlink脚本
+#file: api_owasp_2_3.xlk
+#name: 数据接口无认证
+#描述： 从owasp19中取出带敏感数据的数据进行处理
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with api_owasp_2_3
+
+#停止
+#a = @udf FBI.x_finder3_stop with api_owasp_2_3
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:api_owasp_2_3,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::api_owasp_2_3
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "数据接口无认证"
+	stream["meta_desc"] = "从owasp19中取出带敏感数据的数据进行处理"
+	a = load_ssdb_kv("setting")
+	#stream["source"]= {"link":"127.0.0.1:16379","topic":"api_visit","redis":"pubsub"}
+	#stream["source"]= {"link":stream["link"],"topic":stream["topic"],"group":"API19SEN","start-0":stream["reset"]}
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	stream["redis"]={"host":stream["redis_link"],"port":"6382"}
+	stream["stw"]["stw_flow"]={"times":10,"fun":"flow"}
+	owasp = load_ssdb_kv("qh_owasp")
+	stream["pwls"] = []
+	
+	if owasp['setting']['API19-2']['API19-2-2']:
+		for i in owasp['setting']['API19-2']['API19-2-2'].split('/'):
+			stream['pwls'].append(i)
+	
+	stream["token_rule"] = ""
+	if owasp['setting']['API19-2']['API19-2-3-1']:
+		for i in owasp['setting']['API19-2']['API19-2-3-1'].split('/'):
+			stream["token_rule"] += i + "|"
+	stream["token_rule"] = '(' + stream["token_rule"].strip("|") + ')'
+	
+	stream["ak_rule"] = ""
+	if owasp['setting']['API19-2']['API19-2-3-2']:
+		for i in owasp['setting']['API19-2']['API19-2-3-2'].split('/'):
+			stream["ak_rule"] += i + "|"
+	stream["ak_rule"] = '(' + stream["ak_rule"].strip("|") + ')'
+	stream["basic_rule"] = "(?<=https://)([\w\W]*:[\w\W]*)(?=@)"
+	stream["soap_rule"] = "<(soap|soapenv):Envelope[\w\W]*<(soap|soapenv):Body"
+}
+
+
+#事件处理函数
+events => {
+	# http 消息的主处理流程
+	#http = ujson.loads(o["httpjson"])
+	# 公共参数准备工作
+	data_type=o.get("data_type")
+	if data_type == "XML" or data_type == "数据文件" or data_type == "JSON" or data_type == "动态脚本":
+		http=o.get("http")
+		status = str(http.get("status","")).strip()
+		url=o.get("url_c")
+		cookie=o.get("http").get("cookie","")
+		authorization=o.get("http").get("authorization","")
+		#par
+		dstip = str(o.get("dest_ip"))
+		dest_port = int(o.get("dest_port"))
+		method = o.get("http").get("http_method","")
+		content_length = o.get("http").get('length',0)
+		first_time = str(iso_to_datetime(o["timestamp"]))
+		last_time = str(iso_to_datetime(o["timestamp"]))
+		request_body=o.get("http_request_body","")
+		response_body=o.get("http_response_body","")
+		request_headers=o.get("http").get("request_headers")
+		auth_type=o.get("auth_type")
+		#时间窗口，需要一个到秒时间戳
+		if o["api_type"] == 5 and request_body and response_body:
+			if auth_type ==0:
+				k = iso_to_timestamp(o["timestamp"])
+				wz = {
+					"url": url,
+					"cookie": cookie,
+					"authorization": authorization,
+					"请求头": request_headers,
+					"请求体": request_body,
+					"响应体": response_body
+				}
+				#printf('http',http)
+				temp = {
+					'api': o.get('url_c', ''),
+					'app': o['app'],
+					'dest_ip': dstip,
+					'dest_port': dest_port,
+					'method': method,
+					'length': content_length,
+					'first_time': first_time,
+					'last_time': last_time,
+					'state': '待确认',
+					'type': 'API19-2-3',
+					'more': json.dumps({"数据接口无认证": wz}, ensure_ascii=False)
+				}
+				push_stw("stw_flow",k,temp)
+			#printf("temp",temp)
+			#to_redis("owasp_data",o)
+}
+
+
+flow => stw{
+	# 测试
+	#store API19 to pkl by api19_147852.pkl
+	#API19 = load pkl by api19_147852.pkl
+	API19 = distinct df by (api,type)
+	size = eval API19 by (index.size)
+	if $size > 0 with """
+		API19 = @udf API19 by udf0.df_set with (state='待确认')
+		a = load db by mysql1 with select api,type,id,state states,length lengths from api19_risk where type like 'API19-2%%'
+		API19 = join API19,a by [api,type],[api,type] with left
+		API19 = @udf API19 by udf0.df_fillna with 0
+		API19 = @udf API19 by udf0.df_set_index with id
+		API191 = filter API19 by index == 0 and states !='忽略'
+		API191 = loc API191 drop states,lengths
+		@udf API191 by CRUD.save_table with (mysql1,api19_risk)
+		API192 = filter API19 by index != 0 and states !='忽略'
+		#API192_1 = filter API19 by type == 'API19-2-3'
+		#API192_1 = loc API192_1 by more,last_time,length,app,dest_ip,dest_port,method
+		#@udf API192_1 by CRUD.save_table with (mysql1,api19_risk)
+		alter API192.length as int
+		alter API192.lengths as int
+		API192 = @udf API192 by udf0.df_row_lambda with x: x["length"] if x["length"] > x["lengths"] else x["lengths"]
+		API193 = loc API192 drop first_time,state,states,length,lengths
+		API193= rename API193 as ('lambda1':'length')
+		# 保存
+		@udf API193 by CRUD.save_table with (mysql1,api19_risk,more,5)
+		API194 = loc API192 by last_time
+		@udf API194 by CRUD.save_table with (mysql1,api19_risk)
+	"""
+	drop API19
+	drop API191
+	drop API192
+	drop API193
+	drop API194
+	drop API192_1
+	drop a
+
+}
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	import regex
+}

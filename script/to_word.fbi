@@ -1,0 +1,17 @@
+# Auther: Dyllan
+# Date: 2021-08-18
+# Modify: 重写此脚本
+
+use @FID
+
+log1= @udf udf0.df_append with (['正在生成报告'],1,true,false)
+store log1 to ssdb by ssdb0 with schedule_to_word as 600
+t = @udf CMP.sleep with 2
+
+run to_word_apply.fea
+
+log2= @udf udf0.df_append with (['完成'],2,true,true)
+store log2 to ssdb by ssdb0 with schedule_to_word as 600
+t = @udf CMP.sleep with 1
+
+clear @FID

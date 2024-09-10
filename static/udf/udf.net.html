@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.net</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.net</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/net.py">/opt/openfbi/fbi-bin/udf/net.py</a></td></tr></table>
+    <p><span class="code">net.py<br>
+基于网络接口的开发<br>
+#=========================</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="json.html">json</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td class="multicolumn"><a href="pandas.html">pandas</a><br>
+<a href="re.html">re</a><br>
+</td><td class="multicolumn"><a href="requests.html">requests</a><br>
+<a href="socket.html">socket</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-check_url"><strong>check_url</strong></a>(df)</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：check_url<br>
+@参数：<br>
+df表<br>
+@描述：<br>
+得到各个ip地址对应的访问状态码<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-getCpuMem"><strong>getCpuMem</strong></a>(df)</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：getCpuMem<br>
+@参数：<br>
+df表(ip,port,)<br>
+@描述：<br>
+天镜登录接口<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-getTaskList"><strong>getTaskList</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：getTaskList<br>
+@参数：<br>
+df表,id<br>
+@描述：<br>
+天镜登录接口<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-getTaskResult"><strong>getTaskResult</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：getTaskResult<br>
+@参数：<br>
+df表,id<br>
+@描述：<br>
+天镜登录接口<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-getVulnerabilityList"><strong>getVulnerabilityList</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：getVulnerabilityList<br>
+@参数：<br>
+df表,id<br>
+@描述：<br>
+天镜登录接口<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-get_url"><strong>get_url</strong></a>(df0, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：get_url<br>
+@参数：<br>
+df表<br>
+@描述：<br>
+得到各个链接对应的返回数据<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-login"><strong>login</strong></a>(df)</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：login<br>
+@参数：<br>
+df表<br>
+@描述：<br>
+天镜登录接口<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-m2o"><strong>m2o</strong></a>(df)</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：m2o<br>
+@参数：<br>
+df表<br>
+@描述：<br>
+得到各个链接对应的返回数据<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-nginx"><strong>nginx</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：nginx<br>
+@参数：<br>
+df表<br>
+@描述：<br>
+得到各个链接对应的返回数据<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-php"><strong>php</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20161209<br>
+@函数：php<br>
+@参数：<br>
+df表<br>
+@描述：<br>
+得到各个链接对应的返回数据<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-send_tcp_syslog"><strong>send_tcp_syslog</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;cj<br>
+@date:&nbsp;20201110<br>
+@函数：send_tcp_syslog<br>
+@参数：df表,&nbsp;p-&gt;(ip,port,charset)<br>
+@描述：使用tcp发送syslog<br>
+@返回：</span></dd></dl>
+ <dl><dt><a name="-send_udp_syslog"><strong>send_udp_syslog</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;cj<br>
+@date:&nbsp;20201110<br>
+@函数：send_udp_syslog<br>
+@参数：df表,&nbsp;p-&gt;(ip,port,charset)<br>
+@描述：使用udp发送syslog<br>
+@返回：</span></dd></dl>
+</td></tr></table>
+</body></html>

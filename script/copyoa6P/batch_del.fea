@@ -1,0 +1,21 @@
+# 文件名: crud-batch_del.fea
+
+#@file:	 	script/crud/batch_del.fea
+#@name: 	文件的中文名称
+#@desc: 	批量删除
+#@author: 	admin
+#@version: 	v1.0
+#@date: 	2020-12-09T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+
+use @FID
+#页面使用|分割,替换为,
+v = @sdf sys_str with (@ids,replace("|",","))
+
+datas =@udf CRUD.exec_s3_sql with (@link,delete from @table where id in ($v))
+
+assert not_have_error as alert with 批量删除有错误发生！
+
+clear @FID

@@ -1,0 +1,190 @@
+#LastModifyDate:　2024-01-18T17:53:02    Author:   superFBI
+#LastModifyDate:　2024-01-18T17:37:23    Author:   superFBI
+#LastModifyDate:　2024-01-10T16:15:04    Author:   zwl
+#LastModifyDate:　2023-08-23T17:08:36.536680    Author:   zwl
+#LastModifyDate:　2023-07-17T11:22:06.311171    Author:   zwl
+#LastModifyDate:　2023-06-16T15:48:47.379641    Author:   zwl
+#LastModifyDate:　2023-05-26T14:02:59.556030    Author:   zwl
+#LastModifyDate:　2023-05-25T13:46:31.585306    Author:   zwl
+#LastModifyDate:　2023-05-12T15:01:09.826202    Author:   zwl
+#LastModifyDate:　2023-05-11T19:03:01.865809    Author:   zwl
+#LastModifyDate:　2023-03-17T16:59:18.761361    Author:   zwl
+
+use @FID
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with app_portrait_compute
+##判断key是否为空，若为空，取api_visit_hour的最小值
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_visit_hour
+#aa = load ckh by ckh with select min(time) as time from api_visit_hour
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(time) as time from api_visit_hour
+time2 = eval aa by iloc[0,0]
+store aa to ssdb by ssdb0 with app_portrait_compute
+
+#从访问表中 统计应用的基本信息
+#1、应用被访问次数
+app_visits_num = load ckh by ckh with select app ,sum(visit_num) as visits_num1 from api_visit_hour where time >= '$time1' and time < '$time2' and app is not null group by app
+#7、敏感信息数量(响应,请求)
+app_resl = @udf RS.load_mysql_sql with (mysql1,select app,count(res_llabel) as res_label from data_api_new where res_llabel != "" and app != "" group by app )
+app_api = join app_resl,app_visits_num by app,app with outer
+drop app_visits_num
+drop app_resl
+app_reql = @udf RS.load_mysql_sql with (mysql1,select app,count(req_label) as req_label from data_api_new where req_label != "" and app != "" group by app )
+app_api = join app_api,app_reql by app,app with outer
+drop app_reql
+#审计访问次数
+app_monitor = load ckh by ckh with select app,count() as sj_num from api_monitor group by app
+app_api = join app_api,app_monitor by app,app with outer
+drop app_monitor
+#审计接口数量
+app_imp = @udf RS.load_mysql_sql with (mysql1,select app,count(url) as imp_api_num from data_api_new where api_status = '1' group by app)
+app_api = join app_api,app_imp by app,app with outer
+drop app_imp
+#审计流量 查询审计记录表 接口 流量
+url_fl = load ckh by ckh with select url,sum(content_length) as visits_flow from api_monitor group by url
+url_app = load ckh by ckh with select distinct url,app from api_monitor
+url_sj = join url_fl,url_app by url,url
+url_sj = distinct url_sj by url
+drop url_fl
+url_sj = loc url_sj drop url
+url_sj = group url_sj by app agg visits_flow:sum
+rename url_sj as ("visits_flow_sum":"monitor_flow")
+app_api = join app_api,url_sj by app,app with outer
+drop url_sj
+#2、访问应用的接口数量
+app_api_num = @udf RS.load_mysql_sql with (mysql1,select app,count(url) as api_num from data_api_new where merge_state != 1 group by app)
+###计算合并应用接口数量
+app = load db by mysql1 with select app,app_sum from data_app_new where merge_state != 0
+#app = @udf app by udf0.df_fillna 
+app = @udf app by udf0.df_fillna_cols with app_sum:'0'
+app1 = filter app by app_sum != ''
+aaa = loc app1 by app
+if aaa.index.size == 0 with aaa = @udf aaa by udf0.df_append with ()
+app11 = @udf udf0.new_df with app,api_num
+foreach aaa run """
+	app_1 = filter app1 by app == '@app'
+	app_1.app_sum = lambda app_sum by (x:x.split(","))
+	app_1 = @udf app_1 by udf0.df_l2cs with app_sum
+	app_1 = @udf app_1 by udf0.df_reset_index
+	app_1 = loc app_1 drop index,app,app_sum
+	app_1 = @udf app_1 by udf0.df_T
+	rename app_1 as (0:'app')
+	app_1 = join app_1,app_api_num by app,app with left
+	app_1 = add aa by 1
+	app_1 = group app_1 by aa agg api_num:sum
+	aa_num = eval app_1 by iloc[0,0]
+	app11 = @udf app11 by udf0.df_append with (@app,$aa_num)
+""" with (app=$1)
+app_api_num = union app_api_num,app11
+
+app_api = join app_api,app_api_num by app,app with outer
+drop app_api_num
+#3、访问应用的账号数量
+app_account_num = load ckh by ckh with select a.app, count(a.app) as account_num from (select app,account,sum(visit_num) as num from api_visit_hour where account != '' group by app,account ) a group by a.app
+app_api = join app_api,app_account_num by app,app with outer
+drop app_account_num
+#4、访问应用的IP数量
+app_srcip_num = load ckh by ckh with select a.app, count(a.app) as srcip_num from (select srcip,app from api_visit_hour group by app,srcip ) a group by a.app
+app_api = join app_api,app_srcip_num by app,app with outer
+drop app_srcip_num
+#5、应用总访问流量
+app_visits_flow = load ckh by ckh with select app, sum(visit_flow) as visits_flow1 from api_visit_hour where time >= '$time1' and time < '$time2' group by app
+app_api = join app_api,app_visits_flow by app,app with outer
+drop app_visits_flow
+#6、应用部署数量
+app_dstip_num = load ckh by ckh with select a.app, count(a.app) as dstip_num from (select dstip,app from api_visit_hour group by app,dstip ) a group by a.app
+app_api = join app_api,app_dstip_num by app,app with outer
+drop app_dstip_num
+app_api = @udf app_api by  udf0.df_fillna_cols with visits_num1:0,req_label:0,imp_api_num:0,account_num:0,srcip_num:0,visits_flow1:0,dstip_num:0,res_label:0
+#app_api = @udf app_api by udf0.df_fillna with (0)
+#6、最后活跃时间
+app_lasttime = load ckh by ckh with select app, MAX(`time`) as last_time from api_visit_hour group by app
+alter app_lasttime by last_time:str
+app_api = join app_api,app_lasttime by app,app
+drop app_lasttime
+#连接
+#applist1 = @udf RS.load_mysql_sql with (mysql1,select id,app,dstip_num as dstip_num2,visits_num as visits_num2,visits_flow as visits_flow2,srcip_num as srcip_num2,account_num as account_num2 from data_app_new)
+applist1 = @udf RS.load_mysql_sql with (mysql1,select id,app,visits_num as visits_num2,visits_flow as visits_flow2 from data_app_new)
+applist1 = @udf applist1 by udf0.df_fillna_cols with visits_num2:0,visits_flow2:0
+
+applist1 = join applist1,app_api by app,app
+###累加历史数据
+applist1 = add visits_num by df["visits_num1"]+df["visits_num2"]
+applist1 = add visits_flow by df["visits_flow1"]+df["visits_flow2"]
+applist1 = loc applist1 by id,app,dstip_num,visits_num,visits_flow,srcip_num,account_num,res_label,req_label,sj_num,imp_api_num,monitor_flow,api_num,last_time
+#drop app_api
+applist1 = @udf applist1 by udf0.df_fillna_cols with api_num:0
+applist1 = @udf applist1 by udf0.df_set_index with id
+applist1 = @udf applist1 by CRUD.save_table with (mysql1,data_app_new)
+applist1 = loc applist1 by (app,visits_num,visits_flow,api_num,srcip_num,account_num,imp_api_num)
+
+# 域外应用dstip
+#app = load ckh by ckh with select distinct app,dest_ip dstip from api_http
+#app.dstip = lambda dstip by x:x+','
+#app = group app by app agg dstip:sum
+#app = @udf app by udf0.df_reset_index
+#rename app by ("dstip_sum":"dstip")
+#app.dstip = lambda dstip by x:x[:-1]
+#app.dstip = lambda dstip by x:set(x.split(","))
+#alter app.dstip as str
+#app.dstip = lambda dstip by x:x.replace("{",'')
+#app.dstip = lambda dstip by x:x.replace("}",'')
+#app.dstip = lambda dstip by x:x.replace("'",'')
+#app.dstip = lambda dstip by x:x.replace(" ",'')
+#app2 = load db by mysql1 with select app,id from data_app_new where app_type = 0
+#dstip = join app2,app by app,app with left
+#drop app2
+#drop app
+#dstip = @udf dstip by udf0.df_set_index with id
+#dstip = @udf dstip by CRUD.save_table with (mysql1,data_app_new)
+#drop dstip
+
+# 域内应用dstip
+app = load ckh by ckh with select distinct app,dstip from api_visit_hour 
+#where time >= '$time1' and time < '$time2'
+app.dstip = lambda dstip by x:x+','
+app = group app by app agg dstip:sum
+app = @udf app by udf0.df_reset_index
+rename app by ("dstip_sum":"dstip")
+app.dstip = lambda dstip by x:x[:-1]
+app.dstip = lambda dstip by x:set(x.split(","))
+alter app by dstip:str
+app.dstip = lambda dstip by x:x.replace("{",'')
+app.dstip = lambda dstip by x:x.replace("}",'')
+app.dstip = lambda dstip by x:x.replace("'",'')
+app.dstip = lambda dstip by x:x.replace(" ",'')
+app2 = load db by mysql1 with select app,id from data_app_new where app_type = 1
+dstip = join app2,app by app,app with left
+drop app2
+drop app
+dstip = @udf dstip by udf0.df_fillna_cols with dstip:0
+dstip = @udf dstip by udf0.df_set_index with id
+dstip = @udf dstip by CRUD.save_table with (mysql1,data_app_new)
+drop dstip
+#Delete 注释 by pjb on 2023-03-07 17:00:43
+##计算合并接口
+#app2 = load db by mysql1 with select app_merges,visits_num,visits_flow,sj_num,monitor_flow,api_num,imp_api_num,srcip_num,account_num,dstip_num,sensitive_label,app_type,app_status,active from data_app_new where app_type = 1 and merge_state =1
+#alter app2.active as str
+#alter app2.app_type as str
+#app2 = group app2 by app_merges agg visits_num:sum,visits_flow:sum,sj_num:sum,monitor_flow:sum,api_num:sum,imp_api_num:sum,srcip_num:sum,account_num:sum,dstip_num:sum,sensitive_label:sum,app_type:sum,app_status:sum,active:sum
+#app2 = @udf app2 by udf0.df_reset_index
+#rename app2 by ("visits_num_sum":"visits_num","visits_flow_sum":"visits_flow","sj_num_sum":"sj_num","monitor_flow_sum":"monitor_flow","api_num_sum":"api_num","imp_api_num_sum":"imp_api_num","srcip_num_sum":"srcip_num","account_num_sum":"account_num","dstip_num_sum":"dstip_num","sensitive_label_sum":"sensitive_label","app_type_sum":"app_type","app_status_sum":"app_status","active_sum":"active")
+#app2.sensitive_label = lambda sensitive_label by x:1 if "1" in x  else 0
+#app2.app_type = lambda app_type by x:1 if "1" in x  else 0
+#app2.app_status = lambda app_status by x:1 if "1" in x  else 0
+#app2.active = lambda active by x:'3' if "3" in x  else '0'
+#app2.active = lambda active by x:'1' if "1" in x  else '0'
+#alter app2.active as int
+#alter app2.app_status as str
+#alter app2.sensitive_label as str
+#app_merges = load db by mysql1 with select id,app_merges from data_app_new where merge_state = 2 and app_type =1
+#app2 = join app2,app_merges by app_merges,app_merges with left
+#app2 = @udf app2 by udf0.df_fillna with 0
+#app2 = @udf app2 by udf0.df_set_index with id
+#@udf app2 by CRUD.save_table with (mysql1,data_app_new)
+#
+
+clear @FID

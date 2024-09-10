@@ -1,0 +1,206 @@
+#LastModifyDate:　2024-01-09T15:16:38    Author:   superFBI
+#LastModifyDate:　2024-01-09T11:19:51    Author:   qh
+#LastModifyDate:　2024-01-09T10:41:42    Author:   qh
+#LastModifyDate:　2024-01-08T09:31:51    Author:   superFBI
+#LastModifyDate:　2024-01-06T16:09:50    Author:   superFBI
+#LastModifyDate:　2024-01-05T10:09:57.986035    Author:   superFBI
+#LastModifyDate:　2023-12-28T09:23:02.507824    Author:   superFBI
+#LastModifyDate:　2023-12-27T15:18:39.131456    Author:   superFBI
+#LastModifyDate:　2023-12-27T10:15:41.745213    Author:   superFBI
+#LastModifyDate:　2023-12-26T09:51:25.709554    Author:   superFBI
+#LastModifyDate:　2023-11-27T14:55:33.666555    Author:   pjb
+
+init => {
+	
+	# 消费kfk 
+	stream["meta_name"] = "OWASP4处理进程"
+	stream["meta_desc"] = "从api_visit主题中消费数据，分析单个接口访问频率过高,单个IP访问频率过高存入数据库api_risk表"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["link"] = a["kfk"]["origin"]["link"]
+	stream["topic"] = a["kfk"]["origin"]["topic"]
+	stream["reset"] = a["kfk"]["origin"]["reset"]
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	#stream["source"]= {"unix_udp":"/tmp/owp_4"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	stream["stw"]["stw_flow"]={"times":60,"fun":"flow, flow1"}
+	stream["max_mem"] = 6
+	a = load_ssdb_kv("qh_send")["sends"].split(',')
+	set_param("ss",stream["link"])
+	if "api_model" in a:
+		set_param("m","1")
+	else:
+		set_param("m","0")
+}
+
+events => {
+	data_type=o.get("data_type")
+	if data_type == "XML" or data_type == "数据文件" or data_type == "JSON" or data_type == "动态脚本":
+		k = iso_to_timestamp(o["timestamp"])
+		temp = {
+			'srcip': o.get('src_ip'),
+			'dest_ip': o.get('dest_ip'),
+			'dest_port': int(o.get('dest_port')),
+			'first_time': iso_to_datetime(o.get('timestamp')),
+			'last_time': iso_to_datetime(o.get('timestamp')),
+			'app': o.get('app'),
+			'api': o.get('url'),    'method': o.get("http").get('http_method'),
+			'length': o.get("http").get('length', 0),
+			'age': o.get("http").get('age'),
+			'state': "待确认"
+			}
+		push_stw("stw_flow",k,temp)
+}
+#窗口函数，使用FBI的原语
+flow => stw{
+	a = load ssdb by ssdb0 with qh_owasp as json
+	b = jaas a by a["setting"]["API19-4"]["API19-4-1"] as sdf
+	#df = loc df by (srcip,dstip,dstport,timestamp,app,api,method,content_length,age)
+	df2 = group df by api agg api:count
+	df2 = @udf df2 by udf0.df_reset_index
+	df2 = filter df2 by api_count > $b
+	df3 = join df,df2 by api,api
+	df3 = distinct df3 by api
+	alter df3.api_count as str
+	df3 = add more with ('{"单个接口访问频率过高":"' + df3["api_count"] + '", "时间范围":"60s"}')
+	df3 = add type with ("API19-4-1")
+	df3 = loc df3 drop (api_count,age,srcip)
+	af = @udf af by udf0.df_fillna
+	af = @udf df3 by udf0.df_zero_index
+	alter af.first_time as str
+	alter af.last_time as str
+	API19 = distinct af by (api,type)
+	#将state全设为待确认
+	API19=@udf API19 by udf0.df_set with (state='待确认')
+	#查询现有mysql中的数据。现有Mysql中存在null值
+	a = load db by mysql1 with select api,type,id,state states,length lengths from api19_risk where type like 'API19-4%%'
+	API19 = join API19,a by [api,type],[api,type] with left
+	API19 = @udf API19 by udf0.df_fillna with 0
+	API19 = @udf API19 by udf0.df_set_index with id
+	API191 = filter API19 by index == 0 and states !='忽略'
+	API191 = loc API191 drop states,lengths
+	@udf API191 by CRUD.save_table with (mysql1,api19_risk,more)
+	API192 = filter API19 by index != 0 and states !='忽略'
+	alter API192.length as int
+	alter API192.lengths as int
+	API192 = @udf API192 by udf0.df_row_lambda with x: x["length"] if x["length"] > x["lengths"] else x["lengths"]
+	API192 = loc API192 drop first_time,state,states,length,lengths
+	API192= rename API192 as ('lambda1':'length')
+	# 保存
+	@udf API192 by CRUD.save_table with (mysql1,api19_risk,more,5)
+	drop df
+	drop df2
+	drop df3
+	drop af
+	drop API19
+	drop API191
+	drop API192
+	drop a
+}
+
+flow1 => stw{
+	a = load ssdb by ssdb0 with qh_owasp as json
+	b = jaas a by a["setting"]["API19-4"]["API19-4-2"] as sdf
+	df2 = group df by srcip agg srcip:count
+	df2 = @udf df2 by udf0.df_reset_index
+	df2 = filter df2 by srcip_count > $b
+	df3 = join df,df2 by srcip,srcip
+	df3 = distinct df3 by srcip
+	alter df3.srcip_count as str
+	df3 = add more with ('{"单个IP访问频率过高":"' + df3["srcip_count"] + '", "时间范围":"60s","访问IP":"' + df3["srcip"] +'"}')
+	df3 = add type with ("API19-4-2")
+	df3 = loc df3 drop (srcip_count,srcip,age)
+	af = @udf af by udf0.df_fillna
+	af = @udf df3 by udf0.df_zero_index
+	alter af.first_time as str
+	alter af.last_time as str
+	API19 = distinct af by (api,type)
+	#将state全设为待确认
+	API19=@udf API19 by udf0.df_set with (state='待确认')
+	#查询现有mysql中的数据。现有Mysql中存在null值
+	a = load db by mysql1 with select api,type,id,state states,length lengths from api19_risk where type like 'API19-4%%'
+	API19 = join API19,a by [api,type],[api,type] with left
+	API19 = @udf API19 by udf0.df_fillna with 0
+	API19 = @udf API19 by udf0.df_set_index with id
+	API191 = filter API19 by index == 0 and states !='忽略'
+	API191 = loc API191 drop states,lengths
+	@udf API191 by CRUD.save_table with (mysql1,api19_risk)
+	API192 = filter API19 by index != 0 and states !='忽略'
+	alter API192.length as int
+	alter API192.lengths as int
+	API192 = @udf API192 by udf0.df_row_lambda with x: x["length"] if x["length"] > x["lengths"] else x["lengths"]
+	API193 = loc API192 drop first_time,state,states,length,lengths
+	API193= rename API193 as ('lambda1':'length')
+	# 保存
+	@udf API193 by CRUD.save_table with (mysql1,api19_risk,more,5)
+	API194 = loc API192 by last_time
+	@udf API194 by CRUD.save_table with (mysql1,api19_risk)
+	drop df
+	drop df2
+	drop df3
+	drop af
+	drop API19
+	drop API191
+	drop API192
+	drop API193
+	drop API194
+	drop a
+}
+
+#窗口函数，使用FBI的原语
+flow2 => stw{
+	#set param by xlink as k with flow_stat
+	#t2 = @sdf format_timestamp with (@k,"%Y-%m-%dT%H:%M:%S")
+	#assert True as xlink to 调度成功[$t2] with 调度失败
+	a = load ssdb by ssdb0 with qh_owasp as json
+	b = jaas a by a["setting"]["API19-4"]["API19-4-3"] as sdf
+	alter df.age as int
+	df2 = group df by srcip,api agg  age:median
+	df2 = @udf df2 by udf0.df_reset_index
+	df2 = join df,df2 by [srcip,api],[srcip,api]
+	df2 = add age_mad by abs(df2["age"]-df2["age_median"])/df2["age_median"]
+	df2 = loc df2 by srcip,api,age_mad
+	df2 = filter df2 by age_mad > $b
+	df = distinct df by (srcip,api)
+	df3 = join df2,df by [srcip,api],[srcip,api]
+	alter df3.age_mad as int
+	alter df3.age_mad as str
+	alter df3.first_time as str
+	df3 = add more with ('{"响应时间波动过大":"超过限制", "波动平均极差为":"' + df3["age_mad"] + 'ms","访问时间":"' + df3["first_time"] + '"}')
+	df3 = add type with ("API19-4-3")
+	df3 = loc df3 drop (age_mad,age,srcip)
+	af = @udf af by udf0.df_fillna
+	af = @udf df3 by udf0.df_zero_index
+	alter af.first_time as str
+	alter af.last_time as str
+	API19 = distinct af by (api,type)
+	API19=@udf API19 by udf0.df_set with (state='待确认')
+	a = load db by mysql1 with select api,type,id,state states,length lengths from api19_risk where type like 'API19-4%%'
+	API19 = join API19,a by [api,type],[api,type] with left
+	API19 = @udf API19 by udf0.df_fillna with 0
+	API19 = @udf API19 by udf0.df_set_index with id
+	API191 = filter API19 by index == 0 and states !='忽略'
+	API191 = loc API191 drop states,lengths
+	@udf API191 by CRUD.save_table with (mysql1,api19_risk)
+	API192 = filter API19 by index != 0 and states !='忽略'
+	alter API192.length as int
+	alter API192.lengths as int
+	API192 = @udf API192 by udf0.df_row_lambda with x: x["length"] if x["length"] > x["lengths"] else x["lengths"]
+	API193 = loc API192 drop first_time,state,states,length,lengths
+	API193= rename API193 as ('lambda1':'length')
+	# 保存
+	@udf API193 by CRUD.save_table with (mysql1,api19_risk,more,5)
+	API194 = loc API192 by last_time
+	@udf API194 by CRUD.save_table with (mysql1,api19_risk)
+	drop df
+	drop df2
+	drop df3
+	drop af
+	drop API19
+	drop API191
+	drop API192
+	drop API193
+	drop API194
+	drop a
+}
+

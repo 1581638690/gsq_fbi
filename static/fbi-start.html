@@ -1,0 +1,2477 @@
+<html>
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>FBI-交互分析引擎(NEW)</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/libs/jq-ui/jquery-ui.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/ui.jqgrid.css" />
+	<link rel="stylesheet" type="text/css" href="/static/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" href="/static/css/split-pane.css" />
+	<link rel="stylesheet" type="text/css" href="/static/css/pretty-split-pane.css" />
+	<link rel="stylesheet" type="text/css" href="/static/libs/zTree/css/zTreeStyle.css"/>
+	
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script> 
+    <script type="text/javascript" src="/static/libs/zTree/js/jquery.ztree.all.min.js"></script>
+    <script type="text/javascript" src="/static/libs/zTree/js/jquery.ztree.exhide.min.js"></script>
+    <script type="text/javascript" src="/static/js/fuzzysearch.js" ></script>
+     
+    <script type="text/javascript" src="/static/js/jquery.jUploader-1.0.js" ></script>
+    
+    <script type="text/javascript" src="/static/libs/jq-ui/jquery-ui.min.js"></script> 
+    <script type="text/javascript" src="/static/js/split-pane.js"></script>
+    <script type="text/javascript" src="/static/js/cursor.js"></script> 
+    <script type="text/javascript" src="/static/js/jquery.easing.1.3.js"></script>  
+	<script type="text/javascript" src="/static/libs/i18n/grid.locale-cn.js" ></script>          
+    <script type="text/javascript" src="/static/js/jquery.jqGrid.min.js" ></script>
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+
+	 <!--demo代码高亮-->
+    <script type="text/javascript" src="/static/highlight/highlight.js"></script>
+    <script type="text/javascript" src="/static/highlight/languages/pig.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/highlight/styles/magula.css" />
+    <script type="text/javascript">
+		//禁用页面前进后退
+		history.pushState(null, null, document.URL);
+		window.addEventListener('popstate', function () {
+			history.pushState(null, null, document.URL);
+		});
+       hljs.initHighlightingOnLoad();
+    </script>
+    
+    <!--在线编辑-->
+    <link rel="stylesheet" href="/static/libs/codemirror/codemirror.css">
+	<link rel="stylesheet" href="/static/libs/codemirror/elegant.css">
+	<link rel="stylesheet" href="/static/libs/codemirror/dialog.css">
+	<link rel="stylesheet" href="/static/libs/codemirror/simplescrollbars.css">
+	<script src="/static/libs/codemirror/codemirror.js"></script>
+	<script src="/static/libs/codemirror/pig.js"></script>
+	<script src="/static/libs/codemirror/active-line.js"></script>
+	<script src="/static/libs/codemirror/matchbrackets.js"></script>
+	<script src="/static/libs/codemirror/simplescrollbars.js"></script>
+	<script src="/static/libs/codemirror/annotatescrollbar.js"></script>
+	<script src="/static/libs/codemirror/searchcursor.js"></script>
+	<script src="/static/libs/codemirror/match-highlighter.js"></script>
+	<script src="/static/libs/codemirror/matchesonscrollbar.js"></script>
+	<script src="/static/libs/codemirror/search.js"></script>
+	<script src="/static/libs/codemirror/dialog.js"></script>
+	<script src="/static/libs/codemirror/jump-to-line.js"></script>
+	<script src="/static/libs/base64.js"></script>
+<style>
+    table {border:1px solid #999;}
+	table td{word-break: keep-all;white-space:nowrap;}
+    .CodeMirror {border: 1px inset #dee; font-size:16px; line-height : 150%; font-family: Menlo,Monaco,Consolas,"Courier New",monospace;} 
+	.CodeMirror-focused .cm-matchhighlight {
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
+        background-position: bottom;
+        background-repeat: repeat-x;
+      }
+      .cm-matchhighlight {background-color: lightgreen}
+      .CodeMirror-selection-highlight-scrollbar {background-color: green}
+	  .cm-tab {
+         background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=);
+         background-position: right;
+         background-repeat: no-repeat;
+      }
+      #tabs2 li .ui-icon-close { float: left; margin : 5px; cursor: pointer; }
+      #code_all {
+			margin : 0px;
+	  }	  
+	  #tabs {
+			margin : 0px;
+	  }
+	  #code_space {
+			margin : 2px 0px 2px 0px;
+			height: 78%;
+			border:1px  solid;
+			border-bottom: 0px;
+			border-radius:5px 5px 0 0;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+			overflow-y: auto;
+			padding: 2px;
+			/*定义滚动条宽高及背景，宽高分别对应横竖滚动条的尺寸*/
+			-webkit-scrollbar{   
+			width: 16px;   
+			height: 16px;   
+			background-color: #f5f5f5;
+			}
+		/*定义滚动条的轨道，内阴影及圆角*/
+			-webkit-scrollbar-track{   
+			-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);   
+			border-radius: 10px;   
+			background-color: #f5f5f5;
+			}
+		/*定义滑块，内阴影及圆角*/
+			-webkit-scrollbar-thumb{   
+			/*width: 10px;*/   
+			height: 20px;   
+			border-radius: 10px;   
+			-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);   
+			background-color: #555;
+			}
+	 }
+
+		#search_list {
+			height: 75%;
+		}
+		#hhr {
+			color:green;
+			margin : 50px 0px 15px 5px;
+			border:1px solid;
+			border-radius:10px;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+		}
+		#csvs,#feas{
+			margin : 2px;
+			height: 85%;
+			border:1px solid;
+			border-radius:10px;
+			overflow-y: auto;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+		}
+  
+		#tools span {
+		 margin : 5px;
+		}
+		.rtcoce{
+			margin : 10px;
+		}
+		#yy {
+			margin-top : 1px ;
+			margin-bottom: 1px;
+		}
+		.t{
+			margin : 0px;
+		}
+		li{
+			margin : 5px;
+			list-style-type:none;
+			}
+		.tips
+		{
+			color:red;
+			font-size: 12px;
+		}
+		
+		
+		#left-component {
+			min-width: 10em;
+			right: 38em;
+			margin-right: 5px;
+		}
+
+		#my-divider {
+			right: 38em;
+			width: 5px;
+		}
+
+		#right-component {
+			width: 38em;
+		}
+		#top-component {
+			height: 25em;
+			min-height: 10em;
+			width: 100%;
+		}
+		#line-divider {
+			top: 25em;
+			height: 5px;
+		}
+		#bottom-component {
+			top: 25em;
+			min-height: 8em;
+		}
+
+		#top-component2 {
+			height: 34em;
+			min-height: 5em;
+			width: 100%;
+		}
+
+		#line-divider2 {
+			top: 60em;
+			height: 5px;
+		}
+		#bottom-component2 {
+			top: 34em;
+			min-height: 8em;
+		}
+		.query2 {
+			margin : 2px 0px 2px 0px;
+			height: 30px;
+			border:1px solid;
+			border-radius:2px;
+		}
+		.upfile {
+			margin : 2px 0px 0px 5px;
+			width: 100px;
+			height: 25px;
+			border:1px solid #30273a;
+			border-radius:2px;
+			background: #cccccc;
+			float: left;
+			text-align:center;
+		}
+		#tabs,#tabs2,#tabs3{
+			margin : 0px;
+			padding: 0px;
+			overflow-y: auto;
+		}
+		.tab-content{
+			margin : 2px;
+			padding: 0px;
+		}
+		.ui-widget-header {
+			/*url(/static/images/123.png)*/
+			border: 1px solid #30273a/*{borderColorHeader}*/;
+			background: #cccccc/*{bgColorHeader}*/ /*{bgImgUrlHeader}*/ 50%/*{bgHeaderXPos}*/ 50%/*{bgHeaderYPos}*/ repeat-x/*{bgHeaderRepeat}*/ !important;
+			color: #222222/*{fcHeader}*/;
+			/*font-weight: bold;*/
+		}
+		.ui-widget-content {
+			border: 1px solid #252636/*{borderColorContent}*/;
+			border-bottom: 0px;
+			border-radius:0 0 0 0;
+			background: #f5f5f5;
+			color: #222222/*{fcContent}*/;
+			font-size: 14px;
+		}
+</style>   
+<script type="text/javascript">
+
+String.prototype.trim = function() {
+  return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+}
+//禁用右键
+document.oncontextmenu = function(){
+    return false;
+}
+
+var pp=""; //当前返回的原语
+var presult=""; // 原语执行后的结果
+
+//指令计算，根据指令反馈信息，add by gjw on 20180623
+function flow_processor2(p){
+	//$( "#tabs2" ).tabs( "option", "active",0);
+	jQuery("#code_space").append("<div style='color:red;' data-tip='info'>----------------------------------------------------------------------------------------------------------------------------</div>");
+	if (p=="s"){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>所有表(show tables):</div>");
+		//大小Size
+		var show_tables = "show tables";
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	show_tables
+                 },
+                 success: fp_show_tables,
+                 dataType:"json"
+        });
+    }else if (p=="a"){
+		$("#clear_win").click();
+		$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+	}else if (p=="r"){
+		$("#run_file").click();
+	}else if (p=="$"){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>单值变量(show $):</div>");
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"show $"
+                 },
+                 success: fp_show_values,
+                 dataType:"json"
+        });	
+	}else if (p=="t"){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>任务运行情况(show tasks):</div>");
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"show tasks2"
+                 },
+                 success: fp_show_tasks,
+                 dataType:"json"
+        });
+	}else if (p=="h"){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>交互分析原语历史(show history):</div>");
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"show history"
+                 },
+                 success: fp_show_history,
+                 dataType:"json"
+        });
+	}else if (p=="l"){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>交互分析日志15条(show logs):</div>");
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"show logs"
+                 },
+                 success: fp_show_logs,
+                 dataType:"json"
+        });
+	}else if (p=="d"){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>所有定义(show defines):</div>");
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"show defines"
+                 },
+                 success: fp_show_defines,
+                 dataType:"json"
+        });
+	
+	}else if (p=="e"){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>当前错误(show errors):</div>");
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"show errors"
+                 },
+                 success: fp_show_errors,
+                 dataType:"json"
+        });
+	}else if (p=="c"){
+		if (presult !=""){
+			jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>当前任务: <br> <b>"+pp+"</b></div>");
+			var TI = presult[0]["TI"];
+			var ST = presult[0]["ST"];
+			$.ajax({ 
+					 type: "get",
+					 async: true,
+					 timeout : 1000*600, //超时时间设置，单位毫秒
+					 url: "/db/abci",
+					 data: {
+						 prmtv:	"check task by "+TI+" with "+ST
+					 },
+					 success: fp_check_task,
+					 dataType:"json"
+			});
+		}else{
+			jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>当前任务:<br> 没有!</div>");
+			$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+		}
+	}else if (p=="ls"){
+		console.info("ls");
+		command("show all");
+	}else if (p=="ts"){
+		console.info("ts");
+		command("show tasks");
+	}else if (p=="st"){
+		console.info("st");
+		command("show tables");
+	}else {
+		//flow_processor(p);
+	}
+}//end function flow_processor
+
+
+//执行命令
+function command(cmd){
+	jQuery("#cmd").val(cmd); 
+	jQuery("#sub").click();	
+	return false;
+}
+
+//伴随计算，直接反馈df表的简要信息，add by gjw on 20180622
+function flow_processor(p){
+
+	//更新对象观察器 add by gjw on 2022-0514	
+	reload();
+	//如果是run原语
+	var a = p.indexOf("run");
+	if (a==0){
+		var t1 = setTimeout("flow_processor2('t')", 5000)
+		return 0;
+	}
+	//如果是
+	var a = p.indexOf("cluster");
+	if (a==0){
+		var t1 = setTimeout("flow_processor2('c')", 5000)
+		return 0;
+	}
+	
+		//如果是
+	var a = p.indexOf("foreach");
+	if (a==0){
+		var t1 = setTimeout("flow_processor2('c')", 5000)
+		return 0;
+	}
+	
+	//如果是
+	var a = p.indexOf("sdf");
+	if (a>0){
+		var t1 = setTimeout("flow_processor2('$')", 200)
+		return 0;
+	}
+	
+	var a = p.indexOf("eval");
+	if (a>0){
+		var t1 = setTimeout("flow_processor2('$')", 200)
+		return 0;
+	}
+	
+	//是装载DF表的运算
+	var df="";
+	var s = p.indexOf("=");
+	if (s>0){
+		df = p.substr(0,s);
+		if (df.indexOf(",") >0)
+		{
+			//多个df表的情况，只要第一个
+			df = df.substr(0,df.indexOf(","));
+		}else if(df.indexOf(".") >0){
+			//str 和lambda表达式的结果
+			df = df.substr(0,df.indexOf("."));
+		}
+	}else{
+		return 0;
+	}
+	
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>对象:  <b>"+df+" &nbsp;&nbsp;</b>"
+							+"<button onclick=\"command('dump "+df+"')\">查看数据</button>"
+							+"<button onclick=\"command('dump "+df+" by types')\">查看列</button>"
+							+"<button onclick=\"command('plot "+df+"')\">绘图</button>"
+							+"</div>");
+		//大小Size
+		var dump_size = "dump "+df+" by size";
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	dump_size
+                 },
+                 success: fp_view_size,
+                 dataType:"json"
+        });
+        /*
+        //类型 types
+		var dump_types = "dump "+df+" by types";
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	dump_types
+                 },
+                 success: fp_view_types,
+                 dataType:"json"
+        });
+        */
+        //数据 5x5
+        var dump_data = "dump "+df+" with 5x15";
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	dump_data
+                 },
+                 success: fp_view_datas,
+                 dataType:"json"
+        });
+}//end function flow_processor
+
+//显示size
+function fp_view_size(data){
+	var result = JSON.parse(data.result);
+	if (result.data[0]["rows"]!=undefined){
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'>大小: "
+			+result.data[0]["rows"]+"行 x "+result.data[0]["cols"]+"列 = "
+			+result.data[0]["size"]+" 单元</div>");
+	}else{
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'>大小: "
+		+1+"行 x "+1+"列 = "+1+" 单元</div>");
+	}
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+//显示字段类型
+function fp_view_types(data){
+	var result = JSON.parse(data.result);
+	jQuery("#code_space").append("<div style='color:black;' data-tip='info'>列类型: </div>");
+	for(var i=0;i<result.data.length;i++){
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'>列名: "
+		   +result.data[i]["name"]+"  类型: "+result.data[i]["row_type"]+" </div>");
+	}
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//显示5x5的数据
+function fp_view_datas(data){
+	var result = JSON.parse(data.result);
+	//jQuery("#code_space").append("<div style='color:black;' data-tip='info'>数据(5x8): </div>");
+	var tables="<table border='1'>";
+		var tr="<tr>";
+		tr +="<th width='100px'>Index</th>";
+		for (var k in result.columns){
+			tr +="<th><xmp>"+result.columns[k]+"</xmp></th>";
+		}
+		tables +=tr+"</tr>";
+	for(var i=0;i<result.data.length;i++){
+		var tr="<tr>";
+			tr +="<td><xmp>"+result.index[i]+"</xmp></td>";
+		for (var k in result.data[i]){
+			if (k=="index"){continue;}
+			if (result.data[i][k] instanceof Object ||result.data[i][k] instanceof Array){
+				tr +="<td><xmp>"+JSON.stringify(result.data[i][k])+"</xmp></td>";
+			}else{
+				tr +="<td><xmp>"+result.data[i][k]+"</xmp></td>";
+			}
+		}
+		tables +=tr+"</tr>";
+	}
+	tables +="</table>";
+	jQuery("#code_space").append(tables);
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//显示所有表
+function fp_show_tables(data){
+	var result = JSON.parse(data.result);
+	var tables="<table border='1'>";
+		var tr="<tr>";
+		for (var k in result.data[0]){
+			tr +="<th>"+k+"</th>";
+		}
+		tables +=tr+"</tr>";
+	for(var i=0;i<result.data.length;i++){
+		var tr="<tr>";
+		for (var k in result.data[i]){
+			tr +="<td>"+result.data[i][k]+"</td>";
+		}
+		tables +=tr+"</tr>";
+	}
+	tables +="</table>";
+	jQuery("#code_space").append(tables);
+	
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//显示单值变量
+function fp_show_values(data){
+	var result = JSON.parse(data.result);
+	for(var i=0;i<result.data.length;i++){
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'>变量名: "
+		   +result.data[i]["name"]+" = ["+result.data[i]["value"]
+		   +"]  @"+result.data[i]["workspace"]+" </div>");
+	}
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//显示defines
+function fp_show_defines(data){
+	var result = JSON.parse(data.result);
+	for(var i=0;i<result.data.length;i++){
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'><b>"
+		   +result.data[i]["key"]+"</b> : <br>  &nbsp;&nbsp;&nbsp;&nbsp;"+result.data[i]["value"]
+		   +" </div>");
+	}
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//显示history
+function fp_show_history(data){
+	var result = JSON.parse(data.result);
+	for(var i=0;i<result.data.length;i++){
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'><b>"
+		   +i+"</b> :  &nbsp;&nbsp;&nbsp;&nbsp;<span class='h_code'>"+result.data[i]["history"]
+		   +"</span> </div>");
+	}
+	//设置原语
+     $(".h_code").click(function(e){  
+		jQuery("#cmd").val(e.target.textContent);
+     });
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//显示日志
+function fp_show_logs(data){
+	var result = JSON.parse(data.result);
+	for(var i=0;i<result.data.length;i++){
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'><b>"
+		   +i+"</b> :  &nbsp;&nbsp;<span class='h_code'>"+result.data[i]["logs"]
+		   +"</span> </div>");
+	}
+	//设置原语
+     $(".h_code").click(function(e){  
+			 
+		jQuery("#cmd").val(e.target.textContent);
+			
+     });
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+
+//显示tasks
+function fp_show_tasks(data){
+	var result = JSON.parse(data.result);
+	for(var i=0;i<result.data.length;i++){
+		var content = "<div style='color:black;' data-tip='info'><b>"
+		   +result.data[i]["name"]+"</b> ["+result.data[i]["task_id"]+"]:"
+		for(k in result.data[i]){
+			if (k=="message"){
+				var info = result.data[i][k].replace(/\r/g,"<br>");
+			}else{
+				var info = result.data[i][k];
+			}					
+			content += "<br> [ "+k+" ] = "+info;			
+		}
+		if(result.data[i]["isAlive"]==true){
+			setTimeout(flow_processor2,3000,"t");
+		}	
+		content +="</div><br>";
+		jQuery("#code_space").append(content);
+	}
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//显示check task
+function fp_check_task(data){
+	//jQuery("#code_space2").append("<div style='color:blue;' data-tip='info'>"+data.prmtv+"</div>");
+	for(key in data.result){
+		if (key=="error_info"){
+			jQuery("#code_space").append("<div style='color:black;' data-tip='info'><b>"
+			+key+"</b> :"
+			+" </div>");
+			if (data.result["error_info"] !=""){
+				var errors = data.result["error_info"].split("\r");
+				for (i in errors){
+					var j = parseInt(i)+1;
+					jQuery("#code_space").append("<div style='color:black;' data-tip='info'>&nbsp;&nbsp;"
+					+"<b>"+j+"</b>&nbsp;"+errors[i]
+					+" </div>");
+				}
+			}
+		}else{
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'><b>"
+		   +key+"</b> : <br>  &nbsp;&nbsp;"+data.result[key]
+		   +" </div>");
+		}
+	}//end for
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+//显示errors
+function fp_show_errors(data){
+	var result = JSON.parse(data.result);
+	for(var i=0;i<result.data.length;i++){
+		var content = "<div style='color:black;' data-tip='info'><b>"
+		   +result.data[i]["name"]+"</b> (err:"+(i+1)+")<br> ["+result.data[i]["message"]+"]"
+		content +="</div><br>";
+		jQuery("#code_space").append(content);
+	}
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+var zTreeObj2;
+// zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+var setting={ 
+    data: {
+        simpleData: {
+        enable: true
+        }
+    },
+    check:{
+        enable: true
+    },
+    callback:{
+        onExpand : zTreeOnClick
+                     //onRightClick: onRightClick,
+    }
+};
+
+var setting2={
+    data: {
+        simpleData: {
+        enable: true
+        }
+    },
+    check:{
+        enable: true
+    }
+};
+
+
+function zTreeOnClick(event, treeId, treeNode){
+    tableId=treeNode.id;
+    updateStatus=treeNode.updateStatus;
+    tableCnName=treeNode.treeNode;
+    tableEnName=treeNode.dir_name;
+    //alert(tableId+tableEnName);
+    // 显示数据文件
+    $.ajax({
+            type: "get",
+            async: true,
+            timeout : 1000*600, //超时时间设置，单位毫秒
+            url: "/db/list_data2?nodeid="+tableId+"&node="+tableEnName,
+            success: function(response) {
+                    var result = JSON.parse(response);
+                    var parentZNode = zTreeObj.getNodeByParam("id", tableId, null);//获取指定父节点
+                    zTreeObj.removeChildNodes(parentZNode);
+                    newNode = zTreeObj.addNodes(parentZNode, result.data, false);
+            }
+        });
+}
+
+
+
+$(document).ready(function() {
+	$('div.split-pane').splitPane();
+	$( "#tabs" ).tabs();
+	var eng = getCookie("eng");
+	var title = '交互分析窗['+eng+']';
+  
+    $('#ws').text(getCookie("work_space"));
+    ///文件列表
+    function init_files(){
+                // 显示数据文件
+                $.ajax({
+                        type: "get",
+                        async: true,
+                        timeout : 1000*600, //超时时间设置，单位毫秒
+                        url: "/db/list_data2",           
+                        success: function(response) {
+                                var result = JSON.parse(response);
+                                zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, result.data);   
+                                fuzzySearch('treeDemo','#data_key',null,true); //初始化模糊搜索方法
+        
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                        }
+                    });
+                // 显示FBI脚本
+                $.ajax({
+                        type: "get",
+                        async: true,
+                        timeout : 1000*600, //超时时间设置，单位毫秒
+                        url: "/db/list_fbi",           
+                        success: function(response) {
+                                var result = JSON.parse(response);
+                                zTreeObj2 = $.fn.zTree.init($("#treeDemo2"), setting2, result.data);     
+                                fuzzySearch('treeDemo2','#fea_key',null,true); //初始化模糊搜索方法
+        
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                        }
+                    });
+        }//end funciton init_files()
+          
+        //初始化文件列表
+		init_files();
+		var allowFiles = ['csv', 'txt', 'json','zip','gz','xls','xlsx','pkl','db','bz2','dat','mmdb','data','jpg','png','jpeg','ttc',"rules","list","xz","fat","pq","parquert"]
+       //上传csv
+		 $.jUploader({
+
+			button: 'upcsv', // 这里设置按钮id
+			action: '/db/putfile?filetype=data&subdir=/',// 这里设置上传处理接口，这个加了参数test_cancel=1来测试取消
+			cancelable: true, // 可取消上传
+			allowedExtensions: allowFiles, // 只允许上传
+			messages: {
+			upload: '上传数据',
+			cancel: '上传中..',
+			emptyFile: "{file} 为空，请选择一个文件.",
+			invalidExtension: "{file} 后缀名不合法. 只有 {extensions} 是允许的.",
+			onLeave: "文件正在上传，如果你现在离开，上传将会被取消。"
+			},
+			onUpload: function (fileName){
+				var nodes = zTreeObj.getCheckedNodes(true);
+				if (nodes.length >0 && nodes[0]["dir_name"]!=undefined ){
+					this.action = '/db/putfile?filetype=data&subdir='+nodes[0]["dir_name"];
+				}else{
+					this.action ='/db/putfile?filetype=data&subdir=/';
+				}
+			},
+			onComplete: function (fileName, response) {
+
+				// response是json对象，格式可以按自己的意愿来定义，例子为： { success: true, fileUrl:'' }
+				if (response.success==-1) {			
+					alert(response.error);
+				}else
+				{
+					init_files();
+				}
+			}
+		  }); 
+		  
+		  //上传脚本
+         $.jUploader({
+
+			button: 'upfea', // 这里设置按钮id
+			action: '/db/putfile?filetype=fea&subdir=', // 这里设置上传处理接口，这个加了参数test_cancel=1来测试取消
+			cancelable: true, // 可取消上传
+			allowedExtensions: ['fbi','xlk'], // 只允许上传
+			messages: {
+			upload: '上传脚本',
+			cancel: '上传中..',
+			emptyFile: "{file} 为空，请选择一个文件.",
+			invalidExtension: "{file} 后缀名不合法. 只有 {extensions} 是允许的.",
+			onLeave: "文件正在上传，如果你现在离开，上传将会被取消。"
+			},
+			onUpload: function (fileName){
+				var nodes = zTreeObj2.getCheckedNodes(true);
+				console.log(nodes);
+				if (nodes.length >0 && nodes[0]["dir_name"] != undefined){
+					this.action = '/db/putfile?filetype=fbi&subdir='+nodes[0]["dir_name"];
+				}else{
+					this.action = '/db/putfile?filetype=fbi&subdir=';
+				}
+			},
+			onComplete: function (fileName, response) {
+				// response是json对象，格式可以按自己的意愿来定义，例子为： { success: true, fileUrl:'' }
+				if (response.success==-1) {			
+					alert(response.error);
+				}else
+				{
+					init_files();
+				}
+			}
+		  });
+		  //上传udf
+         $.jUploader({
+
+			button: 'upudf', // 这里设置按钮id
+			action: '/db/putfile?filetype=udf', // 这里设置上传处理接口，这个加了参数test_cancel=1来测试取消
+			cancelable: true, // 可取消上传
+			allowedExtensions: ['py','pyc'], // 只允许上传
+			messages: {
+			upload: '上传udf',
+			cancel: '上传中..',
+			emptyFile: "{file} 为空，请选择一个文件.",
+			invalidExtension: "{file} 后缀名不合法. 只有 {extensions} 是允许的.",
+			onLeave: "文件正在上传，如果你现在离开，上传将会被取消。"
+			},
+			onComplete: function (fileName, response) {
+
+				// response是json对象，格式可以按自己的意愿来定义，例子为： { success: true, fileUrl:'' }
+				if (response.success==-1) {			
+					alert(response.error);
+				}else
+				{
+					init_files();
+				}
+				
+			}
+		  });
+		  //上传lib
+         $.jUploader({
+
+			button: 'uplib', // 这里设置按钮id
+			action: '/db/putfile?filetype=lib', // 这里设置上传处理接口，这个加了参数test_cancel=1来测试取消
+			cancelable: true, // 可取消上传
+			allowedExtensions: ['gz','bz2'], // 只允许上传
+			messages: {
+			upload: '上传lib',
+			cancel: '上传中..',
+			emptyFile: "{file} 为空，请选择一个文件.",
+			invalidExtension: "{file} 后缀名不合法. 只有 {extensions} 是允许的.",
+			onLeave: "文件正在上传，如果你现在离开，上传将会被取消。"
+			},
+			onComplete: function (fileName, response) {
+
+				// response是json对象，格式可以按自己的意愿来定义，例子为： { success: true, fileUrl:'' }
+				if (response.success==-1) {			
+					alert(response.error);
+				}else
+				{
+					init_files();
+				}
+				
+			}
+		  });
+		//删除文件
+		$("#remove_file").click(function(){
+			//选中的数据文件
+			var nodes = zTreeObj.getCheckedNodes(true);
+			var len = nodes.length
+			for (i in nodes){
+				$.get("/db/remove_data",{filename:nodes[i]["url"]},function(result){
+				});
+				if (i==len -1){
+					setTimeout(init_files(), 6000);
+				}
+			}
+			//init_files();
+			
+		}); 
+
+		//复制文件名到输入窗口
+		$("#copy_cli").click(function(){
+			//选中的数据文件
+			var nodes = zTreeObj.getCheckedNodes(true);
+			var len = nodes.length
+			if (len >0){
+				var old = jQuery("#cmd").val();
+				var file_name= nodes[0]["name"].split(" ")[0];
+				jQuery("#cmd").val(old+" "+file_name);
+			}
+		}); 
+		//删除文件
+		$("#remove_fea").click(function(){
+			//选中的FEA
+			var nodes = zTreeObj2.getCheckedNodes(true);
+			for (i in nodes){
+				$.get("/db/remove_fbi",{filename:nodes[i]["url"]},function(result){
+				});
+			}
+			init_files();
+			
+		}); 
+		//新建目录或FEA文件
+		$("#new_fea").click(function(){
+			var fea_name = $("#fea_name2").val().trim();
+			if (fea_name==""){
+				alert("文件名或目录不能为空！");
+				return 0;
+			}
+			if (fea_name.indexOf(".fea")>=0){
+				//新建脚本
+				$.post("/db/ch_cookie",{k:"cur_fbi",v:fea_name},function(result){
+					var a = $("<a href='/static/online.html' target='_blank'>Apple</a>").get(0);  
+					var e = document.createEvent('MouseEvents');  
+					e.initEvent('click', true, true);  
+					a.dispatchEvent(e);
+				});
+			}else{
+				//新建目录
+				$.get("/db/mkdir_data",{filename:fea_name},function(result){
+				});
+				init_files();
+			}
+		});
+		$("#refeash").click(function(){
+			init_files();			
+		});
+		$("#refeash2").click(function(){
+			init_files();			
+		});
+/////////////////////////////////////////////
+		var tabs2 = $( "#tabs2" ).tabs(); //动态tab
+		//关闭tab
+		tabs2.on( "click", "span.ui-icon-close", function() {
+			var panelId = $( this ).closest( "li" ).remove().attr( "aria-controls" );
+			$( "#" + panelId ).remove();
+			tabs2.tabs( "refresh" );
+		});
+		
+		var tabs3 = $( "#tabs3" ).tabs(); //动态tab
+		//关闭tab
+		tabs3.on( "click", "span.ui-icon-close", function() {
+			var panelId = $( this ).closest( "li" ).remove().attr( "aria-controls" );
+			$( "#" + panelId ).remove();
+			tabs3.tabs( "refresh" );
+		});
+ 
+///////////////////////////////////////////////////
+        //交互响应的逻辑,全局变量
+        var aa=0; //动态的dump窗口
+        var bb=0; //动态的FEA脚本窗口
+        var mydf=new Array(10);
+        for(var i =1;i<10;i++){
+			mydf[i] = false;
+		}
+	
+        $('body').data( "mydf" , mydf);
+/////////////////////////////////////////////相应函数
+		var last_prmtv="";
+        function dd(data){
+			$( "#tabs2" ).tabs( "option", "active",0); //回到主信息窗
+			$("#step2").removeAttr("disabled"); //可以单步调试了
+			$("#tip2").html("");
+			if (data.ret ==0 && data.error==""){
+				$('#ws').text(getCookie("work_space"));
+				
+				var axx = last_prmtv.replace(/</g,"&lt;");
+				pp = axx;
+				$("#code_space").append("<div><span id='new_code' class='fea'>"+axx+"</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				
+				jQuery("#cmd").val("");
+				
+				//正确原语，单击可以直接重新载入输入框
+				//解除
+				$(".fea").off("click");
+				jQuery(".fea").click(function(){
+					      
+					jQuery("#cmd").val($(this).text()); 
+					jQuery("#sub").focus();
+					return false;
+				});
+				//正确原语，双击可以直接运行
+				//解除
+				$(".fea").off("dblclick");
+				jQuery(".fea").dblclick(function(){
+					jQuery("#cmd").val($(this).text()); 
+					jQuery("#sub").click();
+					return false;
+				});
+				//先滚动到最底部
+				$("#code_space").scrollTop($("#code_space")[0].scrollHeight+30);
+				//deal the result
+				if (data.action ==1) {
+					var result = JSON.parse(data.result);
+					var i=1;
+					var sort_type="text";
+					var len = result.columns.length;
+					
+					var config={};
+					if (len <12){
+						config={ datatype: "local", height: "80%",rowNum:1000,scroll:false,autowidth:true}; 
+					}else{
+						config={ datatype: "local", height: "73%",rowNum:1000,scroll:false,width:len*100}; 
+					}
+					
+					config.colNames=[];
+					config.colModel=[]
+					
+					config.colNames[0] = "Index";
+					if (typeof(result.index[0])=="number")
+					{
+						sort_type="int";
+					}
+					config.colModel[0] = {name:"@@_idx_::weei3739cjdpdcod",index:"index",width:100,sorttype:sort_type};   
+					if ("columns" in result) {
+						for (key in result.columns){
+							config.colNames[i] = result.columns[key];
+							sort_type="text";
+							if (result.data.length >0 && typeof(result.data[0][key])=="number")
+							{
+								sort_type="int";
+							}
+							if (len==1){
+								config.colModel[i] = {name:result.columns[key],index:result.columns[key],sorttype:sort_type,width:600};
+							}
+							else if (len <12){
+								config.colModel[i] = {name:result.columns[key],index:result.columns[key],sorttype:sort_type};
+							}
+							else{
+								config.colModel[i] = {name:result.columns[key],index:result.columns[key],sorttype:sort_type,width:100};
+							}
+							i++;
+						}
+					}else{ //not a df
+						config.colNames[i] = result.name;
+						config.colModel[i] = {name:result.name,index:result.name,width:600};
+						i++;
+					}
+					//config.colNames[i] = "@";
+					//config.colModel[i] = {name:"",index:"",width:20};		
+					var li ="<li><a href='#tabs2-"+aa+"'>"+data.name+"</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>"
+					
+					tabs2.find( ".ui-tabs-nav" ).append( li );
+					tabs2.append( "<div id='tabs2-" + aa + "' style='padding:1px;'><table id='df_"+aa+"'></table></div>" );
+					
+					//modify by gjw on 20180831 处理xss攻击
+					var result2=[];
+					for(var i=0;i<result.data.length;i++){
+						var rawdata={};
+						rawdata["@@_idx_::weei3739cjdpdcod"] = "<xmp>"+result.index[i]+"</xmp>";
+						for (key in result.columns){
+							if (result.data[i][result.columns[key]] instanceof Object ||result.data[i][result.columns[key]] instanceof Array){
+								rawdata[result.columns[key]] = "<xmp>"+JSON.stringify(result.data[i][result.columns[key]])+"</xmp>";
+							}else{
+								rawdata[result.columns[key]] = "<xmp>"+result.data[i][result.columns[key]]+"</xmp>";
+							}
+						}
+						result2.push(rawdata);
+					}
+					config.data = result2;
+					jQuery("#df_"+aa).jqGrid(config); 
+					tabs2.tabs( "refresh" );
+					var b = tabs2.find( "li" ).length;
+					console.info(b);
+					tabs2.tabs( "option", "active", b-1 );
+					/* 暂时先去掉
+					$('div.split-pane').on("dividerdragend",function(e,p){
+						if ($(e.target).is('.fixed-right')){
+							for (var i=0;i<aa;i++){
+								jQuery("#df_"+i).jqGrid('setGridWidth',p.lastComponentSize,true);
+							}
+						}
+						//jQuery("#df_"+aa).jqGrid('setGridHeight',height);					
+					});
+					*/
+					//add by 
+					aa +=1;
+				}else if (data.action==2){ // plot
+					//add by gjw on 20200206 tabs图表
+					var li ="<li><a href='#tabs2-"+aa+"'>"+data.name+"</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>"
+					
+					tabs2.find( ".ui-tabs-nav" ).append( li );
+					var p = '<div id="Firefoxapp'+aa+' width="100%" height="100%">'
+					  +'<iframe id="pview'+aa+'" src="'+data.result+'" width="100%" height="100%" style="border: 0px;" frameborder="0"></iframe>'
+					  +'</div>';
+					tabs2.append( "<div id='tabs2-" + aa + "' style='padding:1px;'>"+p+"</div>" );
+					
+					tabs2.tabs( "refresh" );
+					var b = tabs2.find( "li" ).length;
+					tabs2.tabs( "option", "active", b-1 );
+					aa +=1;
+				}else{
+					presult = data.result;
+					//add by gjw on 20180622 启动伴随计算
+					flow_processor(last_prmtv);
+				}
+			}else{ //出错的语句
+				var axx = last_prmtv.replace(/</g,"&lt;");
+				jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>"+axx+"</div><div style='color:red;'>"+data.error+"</div>");
+				jQuery("#cmd").val(last_prmtv); 
+				
+				//错误原语，也可以直接重新载入输入框
+				jQuery("div[data-tip='info']").click(function(){
+					      
+					jQuery("#cmd").val($(this).text()); 
+					jQuery("#sub").focus()
+				
+				});
+			}//endif
+			//滚动到最底部
+			$("#code_space").scrollTop($("#code_space")[0].scrollHeight+30);
+			
+			
+		}//end function dd 
+         
+         //运行
+        jQuery("#sub").click(function(){
+			if (jQuery("#cmd").val()=="")return;
+			var p = jQuery("#cmd").val().trim();
+			last_prmtv = p;
+			if (p.split(" ").length<2){
+				flow_processor2(p);
+				jQuery("#cmd").val("");
+				return;
+			};
+			
+			curKey = p_history.length;//代表加1到最后
+			p_history[curKey]= jQuery("#cmd").val();
+			var o1 = jQuery("#cmd").val();
+			if (o1.indexOf("show")==0){
+				o1 = o1.replace("show","look");
+			}
+			$.ajax({
+                 type: "post",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	o1
+                 },
+                 success: dd,
+                 dataType:"json",
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+             });
+             jQuery("#cmd").val("正在执行，请稍微休息一下^v^");
+         });
+         
+         //原语历史和键盘事件
+		var p_history = new Array();
+		var curKey =0;         
+         //运行2
+         jQuery("#cmd").keyup(function(e){  
+			
+			var pos = jQuery("#cmd").getpos();
+			//console.log(e.keyCode+" "+curKey);
+			if (e.keyCode == 13){
+				//回车
+             jQuery("#sub").click();
+			}else if (e.keyCode == 38 && pos==0 && curKey >=0){
+				//UP
+				jQuery("#cmd").val(p_history[curKey]);
+				jQuery("#cmd").setpos(0);
+				curKey =curKey-1;
+			}else if (e.keyCode ==40 && pos==0 && curKey <= p_history.length-1 ){
+				//Down
+				jQuery("#cmd").val(p_history[curKey]);
+				jQuery("#cmd").setpos(0);
+				curKey =curKey+1;
+			}
+			
+         });
+                
+          //清空
+         jQuery("#clear").click(function(){  
+			 
+			jQuery("#cmd").val("");
+			
+         });
+         
+         //清空2
+         jQuery("#clear2").click(function(){  
+			 
+			editor.doc.setValue("");
+			
+         });
+         //查看DF表
+         jQuery("#view2").click(function(){  
+			var text = editor.doc.getSelection();
+			text = text.trim();
+			if (text.length !=0){
+				command(text+"=");
+			}
+         });
+         
+          //开始调试
+         jQuery("#begin2").click(function(){  
+			//设置光标在0行0列
+			editor.doc.setCursor(0,0);
+			while(1){
+				var line_ch= editor.doc.getCursor();
+				var line_num = line_ch.line;
+				var text = editor.doc.getLine(line_num);
+				text = text.trim();			
+				if (text.length !=0 && text.indexOf('"""')!=0 && text.indexOf("#")!=0 && text.indexOf("--")!=0){
+					break;
+				}
+				line_num +=1;
+				editor.doc.setCursor(line_num,0);
+			}
+         });
+         
+         
+         
+         //单步调试
+         jQuery("#step2").click(function(){
+			var line_ch= editor.doc.getCursor();
+			var line_num = line_ch.line;
+			var text = editor.doc.getLine(line_num);
+			text = text.trim();
+			//替换参数
+			ps.forEach(function (value, key, map) {
+				text = text.replace(new RegExp(key,"gm"),value);
+			})
+			if (text.length !=0 && text.indexOf('"""')!=0){
+				last_prmtv = text;
+				$.ajax({
+					 type: "get",
+					 async: true,
+					 timeout : 1000*600, //超时时间设置，单位毫秒
+					 url: "/db/abci",
+					 data: {
+						 prmtv:	text
+					 },
+					 success: dd,
+					 dataType:"json",
+					 error: function(XMLHttpRequest, textStatus, errorThrown) {
+							alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+					 }
+				 });
+				//$("#step2").attr({"disabled":"disabled"});
+				jQuery("#cmd").val("正在执行，请稍微休息一下^v^");
+			}
+             line_num +=1;
+             //设置光标在0行0列
+			 editor.doc.setCursor(line_num,0);
+         });
+
+		 //foreach调试
+		 var foreach_map={};		
+		 var ps= new Map();
+         jQuery("#foreach2").click(function(){			 
+			  var text = editor.doc.getSelection();			 
+			  if (text==""){ //next下一个foreach
+				foreach_map.i = foreach_map.i+1;
+				editor.doc.setCursor(foreach_map.base_line,0);
+				ps = param_build(foreach_map,ps);
+				var ps2 ="";
+				ps.forEach(function(value,key){				
+					ps2 += key+"=>"+value+", "
+				});
+				$("#code_space").append("<div><span id='new_code' class='fea'>第"+foreach_map.i+"次循环 with参数:"+ps2+"</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				//滚动到最底部
+				$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+				return 0;
+			}	
+			  //元表
+			  var a = text.indexOf('run');
+			  if (a <0){
+				$("#code_space").append("<div><span id='new_code' class='fea'>未找到foreach原语run关键字</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				return 0;
+			  }
+			  var df = text.slice(8,a);
+			  //with参数
+			  var w = text.lastIndexOf('with');
+			  if (w<0){
+				$("#code_space").append("<div><span id='new_code' class='fea'>未找到foreach原语with关键字</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				return 0;
+			  }
+			  var param = text.slice(w+5,text.length)
+			  foreach_map.param = param;
+			  $("#code_space").append("<div><span id='new_code' class='fea'>foreach表:"+df+" with关键字:"+param+"</span></div>");
+			  var new_code = document.getElementById('new_code');
+			  hljs.highlightBlock(new_code, hljs.tabReplace);
+			  //计算行号位置
+			  var line_ch= editor.doc.getCursor();
+			  var line_num = line_ch.line;
+			  line_num +=1;
+			  //设置光标在foreach-待调试行0列
+			  editor.doc.setCursor(line_num,0);
+			  foreach_map.base_line = line_num;
+			  foreach_map.i = 0;
+			  //元表数据 
+			   var dump_data = "dump "+df+" by slice";
+				$.ajax({ 
+                 type: "get",
+                 async: false,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	dump_data
+                 },
+                 success: function(data){
+					var result = JSON.parse(data.result);
+					foreach_map.data = result.data;
+					foreach_map.index = result.index;
+				 },
+                 dataType:"json"
+        		});
+			ps = param_build(foreach_map,ps);
+			var ps2 ="";
+			
+			ps.forEach(function(value,key){				
+				ps2 += key+"=>"+value+", "
+			});
+			console.info(ps2);
+			$("#code_space").append("<div><span id='new_code' class='fea'>第"+foreach_map.i+"次循环 with参数: "+ps2+"</span></div>");
+			  var new_code = document.getElementById('new_code');
+			  hljs.highlightBlock(new_code, hljs.tabReplace);
+
+			//滚动到最底部
+			$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+         });
+
+          //保存脚本
+         jQuery("#save2").click(function(){  
+			 var filename = jQuery("#fea_name").val();
+			 var txt=editor.doc.getValue();
+			 filename = filename.trim();
+			 if (filename=="" || txt=="")
+			 {
+				alert("脚本文件名和内容不能为空！");
+				return 0;
+			 }
+			 var base64 = new Base64();
+			 txt = base64.encode(txt);
+			  $.post("/db/put_fbi",{name:filename,data:txt},function(result){
+					$("#tip2").html(result);
+			  });
+			
+         });
+         
+         //查找脚本
+         jQuery("#find_name").click(function(){
+			 editor.execCommand("find");
+         });
+          //查找脚本
+         jQuery("#replace_name").click(function(){
+			 editor.execCommand("replace");
+         });      
+         
+          //查看脚本
+         jQuery("#code2").click(function(){  
+			 var filename = jQuery("#fea_name").val();
+			 filename = filename.trim();
+			 if (filename=="")
+			 {
+				alert("文件名不能为空！");
+				return 0;
+			 }
+			window.open("/static/online.html?name="+filename, "newwindow", "height=800, width=1200, top=200, left=300 toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no") ;
+         });
+         
+         //载入脚本
+         jQuery("#load_file").click(function(){  
+			var filename = jQuery("#fea_name").val();
+			filename = filename.trim();
+			if (filename=="")
+			{
+				alert("脚本文件名不能为空！");
+				return 0;
+			}
+			filename = filename.replace(/\//g,"--");
+			$.ajax({
+                 type: "get",
+                 async: false,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/fbi_script/"+filename,           
+                 success: function(response) {
+					editor.doc.setValue(response);
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+			
+         });//载入
+         
+          //从命令窗口载入脚本，生成新的代码编辑框
+         jQuery("#load_file2").click(function(){  
+			var filename = jQuery("#cmd").val();
+			filename = filename.trim();
+			if (filename.indexOf("run") ==0) filename = filename.slice(4,filename.length);
+			if (filename=="")
+			{
+				//选中的FEA
+				var nodes = zTreeObj2.getCheckedNodes(true);
+				for (i in nodes){
+					if (nodes[i].isParent == false){
+						load_fea_script(nodes[i]["url"].substr(8));
+					}
+				}
+				zTreeObj2.checkAllNodes(false);
+			}else{
+				load_fea_script(filename);
+			}
+			
+		});
+		
+		 //选中脚本编辑
+         jQuery("#load_file3").click(function(){
+			//选中的FEA
+			var nodes = zTreeObj2.getCheckedNodes(true);
+			for (i in nodes){
+				if (nodes[i].isParent == false){
+					load_fea_script(nodes[i]["url"].substr(8));
+				}
+			}
+			zTreeObj2.checkAllNodes(false);
+		});
+		
+		//选中脚本弹出查看
+         jQuery("#view_fbi3").click(function(){
+			//选中的FEA
+			var nodes = zTreeObj2.getCheckedNodes(true);
+			for (i in nodes){
+				if (nodes[i].isParent == false){
+					var filename = nodes[i]["url"].substr(8);					
+					window.open("/static/online.html?name="+filename);
+				}
+			}
+			zTreeObj2.checkAllNodes(false);
+		});
+		
+
+		function load_fea_script(filename){
+			//重新开始
+			bb +=1;
+			filename = filename.replace(/\//g,"--");
+			$.ajax({
+                 type: "get",
+                 async: false,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/fbi_script/"+filename,           
+                 success: function(response) {
+					
+					var li ="<li><a href='#tabs3-"+bb+"'>"+filename+"</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>"
+					
+					tabs3.find( ".ui-tabs-nav" ).append( li );
+					
+					//头部菜单
+					var tab_content = '<div>'
+										+'<button id="begin2_'+bb+'" data-name="'+bb+'">开始调试</button>'
+										+'<button id="step2_'+bb+'">单步调试</button>'
+										+'<button id="foreach_'+bb+'" data-name="'+bb+'">foreach调试</button>'
+										+'<button id="select2_'+bb+'">选中调试</button>'										
+										+'<button id="run_file_'+bb+'" data-name="'+bb+'">脚本运行</button>'
+										+'<input id="feaname2_'+bb+'" class="query2 form-control" style="width:200px;"  value="'+filename+'">'
+										+'<input id="run_p'+bb+'" class="query2 form-control" style="width:400px;"  placeholder="参数名=参数值,">'										
+										+'<button id="save2_'+bb+'" data-name="'+bb+'">保存脚本</button>'										
+										//+'<button id="code2_'+bb+'" data-name="'+bb+'">查看脚本</button>'
+										+'<button id="find2_'+bb+'" data-name="'+bb+'">查找</button>'
+										+'<button id="replace2_'+bb+'" data-name="'+bb+'">替换</button>'
+										+'<select id="history_'+bb+'" data-name="'+bb+'" style="width:100px;height:30px;"></select>'
+										+'</div>'
+										+'<form id="yy"><textarea id="block_code'+bb+'" data-name="'+bb+'"></textarea></form>'
+										+'</div>';
+					
+					
+					tabs3.append( "<div id='tabs3-" + bb + "' style='padding:1px;'>"+tab_content+"</div>" );
+					tabs3.tabs( "refresh" );
+					var b = tabs3.find( "li" ).length;
+					tabs3.tabs( "option", "active", b-1 );
+					
+					
+
+					//初始话的代码
+					var editor2 = CodeMirror.fromTextArea(document.getElementById("block_code"+bb), {
+						lineNumbers: true,
+						tabSize: 4,
+						indentUnit: 4,
+						indentWithTabs: true,
+						styleActiveLine: true,
+						matchBrackets: true,
+						mode: "text/x-pig",
+						scrollbarStyle: "simple",
+						highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true},
+						theme: "elegant",
+						extraKeys: {
+							"Ctrl-S": function(cm){
+								var txt=cm.doc.getValue();
+								var base64 = new Base64();
+								txt = base64.encode(txt);
+								var id = cm.getTextArea().dataset.name;
+								var filename = jQuery("#feaname2_"+id).val();
+								filename = filename.trim();
+								if (filename=="" || txt=="")
+								{
+									alert("文件名和内容不能为空！");
+									return 0;
+								}
+								$.post("/db/put_fbi",{name:filename,data:txt},function(result){
+										$("#tip2").html(result);
+								});
+							},// end Ctrl-S
+							"Ctrl-/": function(cm){
+
+								if (editor2.doc.getSelection()=="")return;
+								var sele_lines = editor2.doc.getSelection();
+								var comment_lines=sele_lines.split("\n");
+								var comment_line = "#Delete 注释 by "+ getCookie("userName")+" on " + (new Date().Format("yyyy-MM-dd hh:mm:ss"))+"\n";
+								for(var i in comment_lines){									
+									comment_line += "#" + comment_lines[i]+"\n";
+								}
+								console.info(comment_line);
+								editor2.doc.replaceSelection(comment_line);
+								
+							},// end Ctrl-/
+							"Ctrl-\\": function(cm){
+								
+								if (editor2.doc.getSelection()=="")return;
+								var sele_lines = editor2.doc.getSelection();
+								var comment_lines=sele_lines.split("\n");
+								var comment_line = "#解除注释 by "+ getCookie("userName")+" on " + (new Date().Format("yyyy-MM-dd hh:mm:ss"))+"\n";
+								for(var i in comment_lines){									
+									comment_line += comment_lines[i].substr(1)+"\n";
+								}
+								console.info(comment_line);
+								editor2.doc.replaceSelection(comment_line);
+								
+							}// end Ctrl-\\
+						}
+					});
+					editor2.setSize('auto','75%');
+					editor2.doc.setValue(response);
+
+					//安置事件
+					$("#save2_"+bb).click(function(){
+						 var txt=editor2.doc.getValue();
+						 var id = this.dataset.name;
+						 var file = jQuery("#feaname2_"+id).val();
+						 console.info(file);
+						 if (file=="" || txt=="")
+						 {
+							alert("文件名和内容不能为空！");
+							return 0;
+						 }
+						 var base64 = new Base64();
+						 txt = base64.encode(txt);
+						  $.post("/db/put_fbi",{name:file,data:txt},function(result){
+								$("#tip2").html(result);
+						  });
+					});
+					
+					$("#code2_"+bb).click(function(){
+						 var id = this.dataset.name;
+						 var file = jQuery("#feaname2_"+id).val();
+						 if (file=="")
+						 {
+							alert("文件名不能为空！");
+							return 0;
+						 }
+						 window.open("/static/fbi-view.html?name="+file, "newwindow", "height=800, width=1200, top=200, left=300 toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no") ;
+					});
+					
+					//查看DF表
+					jQuery("#view2_"+bb).click(function(){  
+						var text = editor2.doc.getSelection();
+						text = text.trim();
+						if (text.length !=0){
+							command(text+"=");
+						}
+					});
+					
+					//查找
+					jQuery("#find2_"+bb).click(function(){  
+						editor2.execCommand("find");
+					});
+					
+					//替换
+					jQuery("#replace2_"+bb).click(function(){  
+						editor2.execCommand("replace");
+					});
+					
+			//单步调试
+			$("#step2_"+bb).click(function(){
+							var filename = jQuery("#cmd").val();
+							filename = filename.trim();
+							if (filename=="正在执行，请稍微休息一下^v^")
+							{
+								alert("上条命令还未执行完成，请等待或清空命令框！");
+								return 0;
+							}
+						 	var line_ch= editor2.doc.getCursor();
+							var line_num = line_ch.line;
+							var text = editor2.doc.getLine(line_num);
+							text = text.trim();
+							//替换参数
+							ps.forEach(function (value, key, map) {
+								text = text.replace(new RegExp(key,"gm"),value);
+							})
+							last_prmtv = text;							
+							if (text.length !=0 && text.indexOf('"""')>0){
+								//add by gjw on 2023-1208 多行语句开始处理
+								var lines=[];								
+								do {
+									lines.push(text);
+									line_num +=1;
+									//设置光标在下移一行
+									editor2.doc.setCursor(line_num,0);
+									 var line_ch= editor2.doc.getCursor();
+									var line_num = line_ch.line;
+									var text = editor2.doc.getLine(line_num);
+									text = text.trim();
+									//替换参数
+									ps.forEach(function (value, key, map) {
+										text = text.replace(new RegExp(key,"gm"),value);
+									})								
+								} while(!(text.indexOf('"""')==0&&(text.length==3||text.indexOf(" with ") >0)))
+								
+								lines.push(text);
+								
+								var block_text = lines.join("\n");
+								//多行语句运行
+								var base64 = new Base64();
+								var txt = base64.encode(block_text);
+								  $.post("/db/run_block",
+								  {
+									block:txt,
+								  },
+								  function(data,status){
+									if (status=="success"){
+										//运行成功
+										//jQuery("#cmd").val("show tasks");
+										command("t");
+										var prmtv = lines;										
+										for (var i=0;i<prmtv.length;i++){
+											//将批量运行的代码放入代码区
+											$("#code_space").append("<div><span id='new_code' class='fea'>=> "+prmtv[i]+"</span></div>");
+											var new_code = document.getElementById('new_code');
+											hljs.highlightBlock(new_code, hljs.tabReplace);
+										}// end for
+										//滚动到最底部
+										$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+									}else{
+										alert("Data: " + data + "\nStatus: " + status);
+									}
+								  });								
+							}else{
+								//单行的语句按单行的处理
+								$.ajax({
+									 type: "get",
+									 async: true,
+									 timeout : 1000*600, //超时时间设置，单位毫秒
+									 url: "/db/abci",
+									 data: {
+										 prmtv:	text
+									 },
+									 success: dd,
+									 dataType:"json",
+									 error: function(XMLHttpRequest, textStatus, errorThrown) {
+											
+									 }
+								 });
+								//$("#step2").attr({"disabled":"disabled"});
+								jQuery("#cmd").val("正在执行，请稍微休息一下^v^");								
+							}
+							
+						　line_num +=1;
+						 //设置光标在下移一行
+						 editor2.doc.setCursor(line_num,0);
+					});
+					
+		 //选中调试
+         jQuery("#select2_"+bb).click(function(){
+			  if (editor2.doc.getSelection()=="")return;
+			  var text = editor2.doc.getSelection();
+			
+			  var base64 = new Base64();
+			  var txt = base64.encode(text);
+			  $.post("/db/run_block",
+			  {
+				block:txt,
+			  },
+			  function(data,status){
+				if (status=="success"){
+					//运行成功
+					//jQuery("#cmd").val("show tasks");
+					command("t");
+					var prmtv = text.split("\n");
+					
+					for (var i=0;i<prmtv.length;i++){
+						//将批量运行的代码放入代码区
+						$("#code_space").append("<div><span id='new_code' class='fea'>=> "+prmtv[i]+"</span></div>");
+						var new_code = document.getElementById('new_code');
+						hljs.highlightBlock(new_code, hljs.tabReplace);
+					}// end for
+					//滚动到最底部
+					$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+				}else{
+					alert("Data: " + data + "\nStatus: " + status);
+				}
+			  });
+         });
+
+		 //foreach调试
+		 var foreach_map={};
+         jQuery("#foreach_"+bb).click(function(){
+			  var id = this.dataset.name;
+			  var text = editor2.doc.getSelection();
+			 
+			  if (text==""){ //next下一个foreach
+				foreach_map.i = foreach_map.i+1;
+				editor2.doc.setCursor(foreach_map.base_line,0);
+				ps = param_build(foreach_map,ps);
+				var ps2 ="";
+				ps.forEach(function(value,key){				
+					ps2 += key+"=>"+value+", "
+				});
+				$("#code_space").append("<div><span id='new_code' class='fea'>第"+foreach_map.i+"次循环 with参数:"+ps2+"</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				//滚动到最底部
+				$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+				return 0;
+			}
+			  //初始化
+			  foreach_map.id = id;
+	
+			  //元表
+			  var a = text.indexOf('run');
+			  if (a <0){
+				$("#code_space").append("<div><span id='new_code' class='fea'>未找到foreach原语run关键字</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				return 0;
+			  }
+			  var df = text.slice(8,a);
+			  //with参数
+			  var w = text.lastIndexOf('with');
+			  if (w<0){
+				$("#code_space").append("<div><span id='new_code' class='fea'>未找到foreach原语with关键字</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				return 0;
+			  }
+			  var param = text.slice(w+5,text.length)
+			  foreach_map.param = param;
+			  $("#code_space").append("<div><span id='new_code' class='fea'>foreach表:"+df+" with关键字:"+param+"</span></div>");
+			  var new_code = document.getElementById('new_code');
+			  hljs.highlightBlock(new_code, hljs.tabReplace);
+			  //计算行号位置
+			  var line_ch= editor2.doc.getCursor();
+			  var line_num = line_ch.line;
+			  line_num +=1;
+			  //设置光标在foreach-待调试行0列
+			  editor2.doc.setCursor(line_num,0);
+			  foreach_map.base_line = line_num;
+			  foreach_map.i = 0;
+			  //元表数据 
+			   var dump_data = "dump "+df+" by slice";
+				$.ajax({ 
+                 type: "get",
+                 async: false,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	dump_data
+                 },
+                 success: function(data){
+					var result = JSON.parse(data.result);
+					foreach_map.data = result.data;
+					foreach_map.index = result.index;
+				 },
+                 dataType:"json"
+        		});
+			ps = param_build(foreach_map,ps);
+			var ps2 ="";
+			
+			ps.forEach(function(value,key){				
+				ps2 += key+"=>"+value+", "
+			});
+			console.info(ps2);
+			$("#code_space").append("<div><span id='new_code' class='fea'>第"+foreach_map.i+"次循环 with参数: "+ps2+"</span></div>");
+			  var new_code = document.getElementById('new_code');
+			  hljs.highlightBlock(new_code, hljs.tabReplace);
+
+			//滚动到最底部
+			$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+         });
+					
+		 //开始调试
+		 var ps= new Map();
+         jQuery("#begin2_"+bb).click(function(){	
+			jQuery("#code_space").text("");		
+			//解析构建好参数
+			var id = this.dataset.name;
+			var param = jQuery("#run_p"+id).val().trim();
+			var filename = jQuery("#feaname2_"+id).val().trim();
+			var arr1 = param.split(",");
+			ps.clear();
+			ps.set("@FST","2020-1221");
+			ps.set("@FID","debug:"+filename+":"+new Date().Format("yyyy-MM-ddThh:mm:ss"));
+			ps.set("@FTI","112234");
+			ps.set("@FPS","BAIDU");
+			for (var i=0;i<arr1.length;i++){
+				var kv = arr1[i].split("=");
+				if(kv.length <2)continue;
+				//add by gjw on 202200512 两个都为空则去除
+				if (kv[0].trim()=="" && kv[1].trim()=="")continue; 
+				if (kv[0].indexOf("@")==0){
+					ps.set(kv[0].trim(),kv[1].trim());
+				}else{
+					ps.set("@"+kv[0].trim(),kv[1].trim());
+				}
+			}
+			//排序
+			var arrayps = Array.from(ps);
+			arrayps.sort(function(a,b){return b[0].length -a[0].length});
+			ps = new Map(arrayps.map(i => [i[0], i[1]]));
+			console.info(ps);
+			var ps2 ="";
+			
+			ps.forEach(function(value,key){				
+				ps2 += key+"=>"+value+", "
+			});
+			console.info(ps2);
+			$("#code_space").append("<div><span id='new_code' class='fea'>开始调试 参数: "+ps2+"</span></div>");
+			  var new_code = document.getElementById('new_code');
+			  hljs.highlightBlock(new_code, hljs.tabReplace);
+
+			//设置光标在可用原语的那行
+			editor2.doc.setCursor(0,0);
+			while(1){
+				var line_ch= editor2.doc.getCursor();
+				var line_num = line_ch.line;
+				var text = editor2.doc.getLine(line_num);
+				text = text.trim();			
+				if (text.length !=0 && text.indexOf('"""')!=0 && text.indexOf("#")!=0 && text.indexOf("--")!=0){
+					break;
+				}
+				line_num +=1;
+				editor2.doc.setCursor(line_num,0);
+			}
+			
+         });
+         // 运行
+         jQuery("#run_file_"+bb).click(function(){ 
+			var id = this.dataset.name;
+			var filename = jQuery("#feaname2_"+id).val();
+			filename = filename.replace("--","/").replace("--","/").replace("--","/").replace("--","/");
+			var param = jQuery("#run_p"+id).val();
+			last_prmtv = "run "+filename + " with "+ param;
+			$.ajax({
+					 type: "get",
+					 async: true,
+					 timeout : 1000*600, //超时时间设置，单位毫秒
+					 url: "/db/abci",
+					 data: {
+						 prmtv:	last_prmtv
+					 },
+					 success: dd,
+					 dataType:"json",
+					 error: function(XMLHttpRequest, textStatus, errorThrown) {
+							alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+					 }
+				 });	
+         });//运行脚本
+
+		//list所有版本
+		$.get("/db/history_fbi",
+			{filename:filename},
+			function(data,status){
+				var o="";
+				for (var i=0;i<data.length;i++){
+					var a = data[i].lastIndexOf("_");
+					var version = data[i].slice(a+1,data[i].length);
+					o +="<option value='"+data[i]+"'>"+(i+1)+"&nbsp;&nbsp;"+version+"</option>";
+				}
+				$("#history_"+bb).append(o);
+
+			},"json");
+		
+		//选中某一个版本
+		$("#history_"+bb).change(function(){
+			var o = $(this).children('option:selected').val();
+			$.get("/db/version_fbi",
+			{filename:o},
+			function(data,status){				
+				editor2.doc.setValue(data);
+			});
+		});
+
+		//结束
+	},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+			}
+	});
+			
+}//装载FEA脚本进行可视化编辑
+
+         
+         //运行脚本
+         jQuery("#run_file").click(function(){  
+			var filename = jQuery("#fea_name").val();
+			filename = filename.trim().replace("--","/").replace("--","/").replace("--","/").replace("--","/").replace("--","/");
+			if (filename=="")
+			{
+				alert("脚本文件名不能为空！");
+				return 0;
+			}
+			last_prmtv="run "+filename;
+			$.ajax({
+					 type: "get",
+					 async: true,
+					 timeout : 1000*600, //超时时间设置，单位毫秒
+					 url: "/db/abci",
+					 data: {
+						 prmtv:	"run "+filename
+					 },
+					 success: dd,
+					 dataType:"json",
+					 error: function(XMLHttpRequest, textStatus, errorThrown) {
+							alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+					 }
+				 });	
+         });//运行脚本
+         
+         //全部运行
+         jQuery("#sub2").click(function(){
+			  if (editor.doc.getValue()=="")return;
+			  var txt = editor.doc.getValue();
+			  var base64 = new Base64();
+			 txt = base64.encode(txt);
+			  $.post("/db/run_block",
+			  {
+				block:txt,
+			  },
+			  function(data,status){
+				if (status=="success"){
+					//运行成功
+					//jQuery("#cmd").val("show tasks");
+					command("t");
+					var block_code = editor.doc.getValue();
+					var prmtv = block_code.split("\n");
+					
+					for (var i=0;i<prmtv.length;i++){
+						//将批量运行的代码放入代码区
+						$("#code_space").append("<div><span id='new_code' class='fea'>=> "+prmtv[i]+"</span></div>");
+						var new_code = document.getElementById('new_code');
+						hljs.highlightBlock(new_code, hljs.tabReplace);
+					}// end for
+					//滚动到最底部
+					$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+				}else{
+					alert("Data: " + data + "\nStatus: " + status);
+				}
+			  });
+         });
+         
+         
+         //选中运行
+         jQuery("#select2").click(function(){
+			  if (editor.doc.getSelection()=="")return;
+			  var text = editor.doc.getSelection();
+			
+			  var base64 = new Base64();
+			  var txt = base64.encode(text);
+			  $.post("/db/run_block",
+			  {
+				block:txt,
+			  },
+			  function(data,status){
+				if (status=="success"){
+					//运行成功					
+					command("t");
+					var prmtv = text.split("\n");
+					
+					for (var i=0;i<prmtv.length;i++){
+						//将批量运行的代码放入代码区
+						$("#code_space").append("<div><span id='new_code' class='fea'>=> "+prmtv[i]+"</span></div>");
+						var new_code = document.getElementById('new_code');
+						hljs.highlightBlock(new_code, hljs.tabReplace);
+					}// end for
+					//滚动到最底部
+					$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+				}else{
+					alert("Data: " + data + "\nStatus: " + status);
+				}
+			  });
+         });
+         
+
+		 //脚本搜索
+         jQuery("#btn_search").click(function(){  
+			var key_word =  jQuery("#search_fbi").val();
+			$.post("/db/search_fbi",
+			  {
+				key_word:key_word,
+			  },
+			  function(data,status){
+				if (status=="success"){	
+					$("#search_list").html("");
+					$("#search_list").append("<div>共搜索到 <b><font color='blue'>"+data.length+"</b></font>个文件</div>");
+
+					for (var i=0;i<data.length;i++){		
+						$("#search_list").append("<br><div><font color='blue'>脚本"+(i+1)+"</font>:&nbsp;&nbsp;<a target='_blank' style='background-color:red;color:white;' href='/static/online.html?name="+ data[i].url+"'><b>"+data[i].name+"</b></a></div>");
+
+						for (var j=0;j<data[i].hits.length;j++){							
+							$("#search_list").append("<div>&nbsp;&nbsp;<span style='background-color:green;color:white;'>"+data[i].hits[j].num+"行:</span>&nbsp;&nbsp;"+data[i].hits[j].line+"</div>");							
+						}
+					}// end for
+				}else{
+					alert("Data: " + data + "\nStatus: " + status);
+				}
+			  },"json");
+			
+         });
+
+		  //脚本按修改时间排序
+		  jQuery("#btn_modified").click(function(){  
+			
+			$.get("/db/modified_fbi",
+			  function(data,status){
+				if (status=="success"){	
+					$("#search_list").html("");
+					$("#search_list").append("<div>共搜索到 <b><font color='blue'>"+data.length+"</b></font>个文件</div>");
+
+					for (var i=0;i<data.length;i++){		
+						$("#search_list").append("<br><div><font color='blue'>脚本"+(i+1)+"</font>:&nbsp;&nbsp;<a target='_blank' style='background-color:red;color:white;' href='/static/online.html?name="+ data[i].url+"'><b>"+data[i].name+"</b></a></div>");
+
+						for (var j=0;j<data[i].hits.length;j++){							
+							$("#search_list").append("<div>&nbsp;&nbsp;<span style='background-color:green;color:white;'>"+data[i].hits[j].num+"行:</span>&nbsp;&nbsp;"+data[i].hits[j].line+"</div>");							
+						}
+					}// end for
+				}else{
+					alert("Data: " + data + "\nStatus: " + status);
+				}
+			  },"json");
+			
+         });
+         
+         //清空窗口
+         jQuery("#clear_win").click(function(){  
+			
+			for(var i=0;i<=aa;i++)
+			{
+				$("[aria-controls='tabs2-"+i+"']").remove();
+				$( "#tabs2-" + i ).remove();
+			}
+			tabs2.tabs( "refresh" );
+			aa=0;
+         });
+
+		 //关闭所有
+         jQuery("#close_tab1").click(function(){  
+			
+			//上窗口
+			for(var i=0;i<=aa;i++)
+			{
+				$("[aria-controls='tabs2-"+i+"']").remove();
+				$( "#tabs2-" + i ).remove();
+			}
+			tabs2.tabs( "refresh" );
+			aa=0;
+		});
+		jQuery("#close_tab2").click(function(){ 
+			//下窗口
+			for(var i=0;i<=bb;i++)
+			{
+				$("[aria-controls='tabs3-"+i+"']").remove();
+				$( "#tabs3-" + i ).remove();
+			}
+			tabs3.tabs( "refresh" );
+			bb=0;
+         });
+         
+
+
+         //清空代码
+         jQuery("#clear_all").click(function(){  
+			 
+			jQuery("#code_space").text("");
+			
+         });
+         
+         //复制代码
+         jQuery("#copy_code").click(function(){  
+			 
+			var win=window.open('static/rtcode.html','ss','top=100,left=100,height=1000,scrollbars=yes'); 
+			
+			var contents = $(".fea");
+			
+			for (i in contents){
+				var priv = contents.eq(i).text();
+				if (priv.indexOf("dump") ==0 || priv.indexOf("plot") ==0 || priv.indexOf("show")==0) {
+					continue;
+				}else{
+					win.document.write(contents.eq(i).text()+"<br>");
+				}
+				
+			}
+			win.document.execCommand('SaveAs');
+			//win.close();  
+			
+         });//复制代码
+         
+         //提交代码
+         jQuery("#push_code").click(function(){  
+			
+			var contents = $(".fea");
+			var value="";
+			for (i in contents){
+				var priv = contents.eq(i).text();
+				if (priv.indexOf("dump") ==0 || priv.indexOf("plot") ==0 || priv.indexOf("show")==0) {
+					continue;
+				}else{
+					value += contents.eq(i).text() +"\n";
+				}
+			}
+			editor.doc.setValue(value);
+			
+         });//复制代码
+     //在线编辑
+	var editor = CodeMirror.fromTextArea(document.getElementById("block_code"), {
+						lineNumbers: true,
+						tabSize: 4,
+						indentUnit: 4,
+						indentWithTabs: true,
+						styleActiveLine: true,
+						matchBrackets: true,
+						mode: "text/x-pig",
+						scrollbarStyle: "simple",
+						highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true},
+						theme: "elegant",
+						extraKeys: {
+						"Ctrl-S": function(cm){
+							var txt=editor.doc.getValue();
+							var base64 = new Base64();
+							txt = base64.encode(txt);
+							var filename = jQuery("#fea_name").val();
+							 filename = filename.trim();
+							 if (filename=="" || txt=="")
+							 {
+								alert("脚本文件名和内容不能为空！");
+								return 0;
+							 }
+							  $.post("/db/put_fbi",{name:filename,data:txt},function(result){
+									$("#tip2").html(result);
+							  });
+						}
+			}
+	});
+    editor.setSize('auto','75%');
+
+	var config={
+			datatype : "local",
+			height: "80%",
+			colNames : [ '名称', '工作区', '行数','列数',"类型"],
+			colModel : [ 
+						{name : 'name',index : 'name',width : 150, editable : true, editoptions : {readonly : false,size : 20}}, 
+						{name : 'work_space',index : 'work_space',width : 150, editable : true, editoptions : {readonly : false,size : 20}},  
+						{name : 'rows',index : 'rows',width : 100, editable : true,editoptions : {readonly : true,size : 10}},
+						{name : 'cols',index : 'cols',width : 50, editable : true,editoptions : {readonly : true,size : 10}},
+						{name : 'type',index : 'type',width : 100, editable : true,editoptions : {readonly : true,size : 10}} 
+					],
+			rowNum : 14,
+			pager : '#pagersr2',
+			sortname : 'work_space',
+			viewrecords : true,
+			sortorder : "desc",
+			caption : "对象观察器 [单击可查看详细数据]",
+			onSelectRow:function(rowid){   
+				var rowDatas = $("#all_object_view").jqGrid('getRowData', rowid);   
+				var df = rowDatas["name"];
+				command('dump '+df+" as "+rowDatas["work_space"]);
+ 			}
+	}
+
+	jQuery("#all_object_view").jqGrid(config);
+
+	reload();
+
+});//end reday
+
+
+
+var last_count = 0; //上次的对象个数
+//add by gjw on 2022-0513 增加对象观察器
+function pageInit(data){		
+    var result = JSON.parse(data.result);
+	// add by gjw on 2022-0727 对象观察器少刷新
+	if (result.data.length == last_count && last_count >20){
+		return 0;
+	}else{
+		last_count = result.data.length;
+	}
+    var result2=[];
+	for(var i=0;i<result.data.length;i++){
+		var rawdata={};
+		for (key in result.columns){
+			if (result.columns[key]=="type"){
+				if (result.data[i][result.columns[key]]=="FbiTable"){
+					rawdata[result.columns[key]] = "<font color='blue'>"+result.data[i][result.columns[key]]+"</font>";
+				}else{
+					rawdata[result.columns[key]] = "<font color='green'>"+result.data[i][result.columns[key]]+"</font>";
+				}
+			}else{
+				rawdata[result.columns[key]] = result.data[i][result.columns[key]];
+			}
+		}
+		result2.push(rawdata);
+	}
+	$("#all_object_view").jqGrid('clearGridData');  //清空表格
+	$("#all_object_view").jqGrid('setGridParam',{  // 重新加载数据
+		datatype:'local',
+		data : result2  //  newdata 是符合格式要求的需要重新加载的数据 
+	}).trigger("reloadGrid");	
+	//更新一下工作区ws
+	$('#ws').text(getCookie("work_space"));
+}
+
+
+//reload
+function reload(){
+	$.ajax({
+				type: "post",
+				async: true,
+				timeout : 1000*600, //超时时间设置，单位毫秒
+				url: "/db/abci",
+				data: {
+					prmtv:	"look all"
+				},
+				success: pageInit,
+				dataType:"json",
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+						
+				}
+	});
+}
+//10秒定时刷新
+setInterval(reload,10000);
+</script>
+
+</head>
+<body>
+	<div class="pretty-split-pane-frame"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+		<div class="split-pane fixed-right">
+			<div class="split-pane-component" id="left-component">
+				<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+					<div class="split-pane fixed-top">
+						<div class="split-pane-component" id="top-component">
+							<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+								
+								<div id="tabs2">
+									<ul class="ui-tabs-nav">
+										<li><a href="#view_all">输出</a></li>
+									</ul>
+									<div id="view_all" style="padding:4px;">
+										<div id="code_all">
+											<button id="clear_all">清空输出</button>
+											<button id="clear_win">清空窗口</button>
+											<button id="copy_code">复制代码</button>
+											<button id="push_code">提交代码</button>
+											<button id="close_tab2">关闭脚本编辑栏</button>
+											当前工作区:&nbsp;&nbsp;<span class="tips">[ &nbsp;</span><span id="ws" class="tips"></span><span class="tips"> &nbsp;]</span>
+											<span id="tip2"></span>
+										</div>
+										<div id="code_space" style="color:#2A2B3B;" >
+											<pre>
+											<code class="fea">#开启2022,也无风雨也无晴！</code>
+											</pre>
+										</div>
+									</div>
+								</div>
+									
+									</div>
+								</div>
+						<div class="split-pane-divider" id="line-divider"></div>
+						<div class="split-pane-component" id="bottom-component">
+							<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+						
+								
+										<div style="margin-left : 5px;margin-top : 2px; ">
+											<input id="cmd" style="width:78%;height:40px;color:blue;font-size:18px;" placeholder="请输入原语进行分析"></input>
+											<button id="sub">运行</button>	
+											<button id="load_file2">载入</button>										
+											<button id="clear">清空</button>
+											<button id="close_tab1">关闭</button>											
+										</div>
+									
+										<div id="tabs3">
+										<ul class="ui-tabs-nav">
+											<li><a href="#tabs3-">默认</a></li>
+										</ul>
+										<div id="tabs3-" style="padding:2px;">
+											<div>
+											<button id="begin2">开始调试</button>
+											<button id="step2">单步调试</button>
+											<button id="foreach2">foreach调试</button>
+											<button id="select2">选中调试</button>
+											<button id="sub2" >全部调试</button>
+											<input id="fea_name" class="query2 form-control" style="width:400px;"  placeholder="请输入脚本文件名称"/>								
+											<button id="load_file">载入</button>
+											<button id="run_file">运行</button>
+											<button id="save2">保存</button>
+											<button id="clear2">清空</button>
+											<button id="view2">查看DF</button>
+											<button id="code2">查看脚本</button>	
+											<button id="find_name">查找</button>
+											<button id="replace_name">替换</button>
+											
+											</div>
+											<div>
+											<form id="yy">
+											<textarea id="block_code" name="block_code"></textarea>
+											</form>
+											</div>
+										</div>
+										</div>
+									
+								</div><!-- end pane -->
+						</div>
+					</div>
+				</div></div>
+			<div class="split-pane-divider" id="my-divider"></div>
+			<div class="split-pane-component" id="right-component">
+				<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+					<div class="split-pane fixed-top">
+						<div class="split-pane-component" id="top-component2">
+							<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+								<div id="tabs">
+									<ul>
+										<li><a href="#tabs-1">数据文件</a></li>
+										<li><a href="#tabs-2">脚本管理</a></li>
+										<li><a href="#tabs-3">UDF函数</a></li>
+										<li><a href="#tabs-4">SSDB查看</a></li>
+										<li><a href="#tabs-5">链接管理</a></li>
+										<li><a href="#tabs-6">脚本搜索</a></li>
+									</ul>
+									<div id="tabs-1"　data="数据文件" style="padding:2px;">
+										<div>
+											<div style="float:left;">
+												<input  id="data_key" class="query2 form-control" style="width:250px;"  placeholder="搜索"/>
+												<button id="remove_file">删除</button>
+												<button id="refeash" >刷新</button>
+												<button id="copy_cli" >复制</button>
+											</div>
+											<div id="upcsv" class="upfile"><span></span></div><!-- 里的span必须保留，用来放文字的 -->
+											<div style="clear:both;"></div>
+										</div>
+										<div id="csvs"><ul id="treeDemo" class="ztree"></ul></div>
+									</div>
+									<div id="tabs-2"　data="脚本文件" style="padding:2px;">
+										<div style="float:left;">
+										<input  id="fea_key" class="query2 form-control" style="width:250px;"  placeholder="搜索"/>
+										<button id="load_file3">编辑</button>
+										<button id="view_fbi3">调试</button>
+										<button id="remove_fea">删除</button>
+										<button id="refeash2">刷新</button>
+										<!--
+										<input id="fea_name2" class="query2" style="width:250px;"  placeholder="上传脚本文件"/>
+										<button id="new_fea">新建</button>
+										-->
+										</div>
+										<div id="upfea" class="upfile"><span></span></div><!-- 里的span必须保留，用来放文字的 -->
+										<div style="clear:both;"></div>
+										<div id="feas">  <ul id="treeDemo2" class="ztree"></ul></div>
+									</div>
+									<div id="tabs-3"　data="udf函数" style="padding:2px;">
+										<div style="float:left;">
+										<input  class="query2" style="width:250px;"  placeholder="搜索"/>
+										</div>
+										<div id="upudf" class="upfile"><span></span></div><!-- 里的span必须保留，用来放文字的 -->
+										<div id="uplib" class="upfile"><span></span></div><!-- 里的span必须保留，用来放文字的 -->
+										<div style="clear:both;"></div>
+										<iframe  src="/static/udf/udf.html" width="100%" height="90%" style="border: 0px;" frameborder="0"></iframe>
+									</div>
+									<div id="tabs-4" style="padding:2px;">
+									<div>
+										<iframe  src="/static/view.html" width="100%" height="100%" style="border: 0px;" frameborder="0"></iframe>
+									</div>
+									</div>
+									<div id="tabs-5" style="padding:2px;">
+									<div>
+										<iframe  src="/static/linkmanager.html" width="100%" height="100%" style="border: 0px;" frameborder="0"></iframe>
+									</div>
+									</div>
+									<div id="tabs-6"　data="脚本搜索" style="padding:2px;">
+										<div>
+										<input id="search_fbi" class="query2" style="width:400px;"  placeholder="搜索"/>
+										<button id="btn_search">搜索</button>
+										<button id="btn_modified">最新修改脚本列表</button>
+										</div>										
+										<div id="search_list">
+																					
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="split-pane-divider" id="line-divider2"></div>
+						<div class="split-pane-component" id="bottom-component2">
+							<div class="pretty-split-pane-component-inner"><!-- This div is added for styling purposes only. It's not part of the split-pane plugin. -->
+								<div id="o_view">
+									<table id="all_object_view"></table>
+									<div id="pagersr2"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body> 
+</html>
+
+

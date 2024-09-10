@@ -1,0 +1,237 @@
+#LastModifyDate:　2024-04-02T15:11:16    Author:   superFBI
+#LastModifyDate:　2024-03-14T15:26:53    Author:   pjb
+#LastModifyDate:　2024-03-14T14:26:32    Author:   pjb
+#LastModifyDate:　2024-03-14T09:57:38    Author:   pjb
+#LastModifyDate:　2024-03-13T18:58:09    Author:   pjb
+use @FID
+
+file_http = load ckh by ckh with SELECT CONCAT(srcip, ':', cast(srcport as String)) AS file_server,max(timestamp) AS last_time FROM api_fileinfo where app_proto == 'http' group by file_server
+alter file_http.last_time as str
+file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'http'
+last_time_data = join file_server,file_http by file_server,file_server 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,max(timestamp) AS last_time FROM api_ftp group by file_server
+alter file_ftp.last_time as str
+file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'ftp'
+last_time_data = join file_server,file_ftp by file_server,file_server 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+#Delete 注释 by pjb on 2024-03-14 14:25:03
+#file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,max(timestamp) AS last_time FROM api_pop3 where dstport = '110' group by file_server
+#alter file_ftp.last_time as str
+#file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'pop3'
+#last_time_data = join file_server,file_ftp by file_server,file_server 
+#last_time_data = @udf last_time_data by udf0.df_set_index with id
+#last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+#
+#file_ftp = load ckh by ckh with SELECT CONCAT(srcip, ':', cast(srcport as String)) AS file_server,max(timestamp) AS last_time FROM api_pop3 where srcport = '110' group by file_server
+#alter file_ftp.last_time as str
+#file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'pop3'
+#last_time_data = join file_server,file_ftp by file_server,file_server 
+#last_time_data = @udf last_time_data by udf0.df_set_index with id
+#last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+
+file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,max(timestamp) AS last_time FROM api_tftp group by file_server
+alter file_ftp.last_time as str
+file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'tftp'
+last_time_data = join file_server,file_ftp by file_server,file_server 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+#Delete 注释 by pjb on 2024-03-14 14:25:15
+#file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,max(timestamp) AS last_time FROM api_smtp group by file_server
+#alter file_ftp.last_time as str
+#file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'smtp'
+#last_time_data = join file_server,file_ftp by file_server,file_server 
+#last_time_data = @udf last_time_data by udf0.df_set_index with id
+#last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+#
+#file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,max(timestamp) AS last_time FROM api_imap group by file_server
+#alter file_ftp.last_time as str
+#file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'imap'
+#last_time_data = join file_server,file_ftp by file_server,file_server 
+#last_time_data = @udf last_time_data by udf0.df_set_index with id
+#last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+
+file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,max(timestamp) AS last_time FROM api_smb where dialect !='unknown' group by file_server
+alter file_ftp.last_time as str
+file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'smb'
+last_time_data = join file_server,file_ftp by file_server,file_server 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+#######################
+file_http = load ckh by ckh with SELECT CONCAT(srcip, ':', cast(srcport as String)) AS file_server,count() AS visits_num FROM api_fileinfo where app_proto == 'http' group by file_server
+file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'http'
+last_time_data = join file_server,file_http by file_server,file_server 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,count() AS visits_num FROM api_ftp group by file_server
+file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'ftp'
+last_time_data = join file_server,file_ftp by file_server,file_server 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+#Delete 注释 by pjb on 2024-03-14 14:25:46
+#file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,count() AS visits_num FROM api_pop3 where dstport = '110' group by file_server
+#file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'pop3'
+#last_time_data = join file_server,file_ftp by file_server,file_server 
+#last_time_data = @udf last_time_data by udf0.df_set_index with id
+#last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+#
+#file_ftp = load ckh by ckh with SELECT CONCAT(srcip, ':', cast(srcport as String)) AS file_server,count() AS visits_num FROM api_pop3 where srcport = '110' group by file_server
+#alter file_ftp.last_time as str
+#file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'pop3'
+#last_time_data = join file_server,file_ftp by file_server,file_server 
+#last_time_data = @udf last_time_data by udf0.df_set_index with id
+#last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+#
+
+file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,count() AS visits_num FROM api_tftp group by file_server
+file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'tftp'
+last_time_data = join file_server,file_ftp by file_server,file_server 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+#Delete 注释 by pjb on 2024-03-14 14:25:58
+#file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,count() AS visits_num FROM api_smtp group by file_server
+#alter file_ftp.last_time as str
+#file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'smtp'
+#last_time_data = join file_server,file_ftp by file_server,file_server 
+#last_time_data = @udf last_time_data by udf0.df_set_index with id
+#last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+#
+#file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,count() AS visits_num FROM api_imap group by file_server
+#alter file_ftp.last_time as str
+#file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'imap'
+#last_time_data = join file_server,file_ftp by file_server,file_server 
+#last_time_data = @udf last_time_data by udf0.df_set_index with id
+#last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+
+file_ftp = load ckh by ckh with SELECT CONCAT(dstip, ':', cast(dstport as String)) AS file_server,count() AS visits_num FROM api_smb where dialect !='unknown' group by file_server
+file_server = load db by mysql1 with select id,file_server from data_file_server where protocol = 'smb'
+last_time_data = join file_server,file_ftp by file_server,file_server 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_server)
+
+#活跃状态
+a = load db by mysql1 with select id,left(first_time,10) first_time,left(last_time,10) last_time,curdate() now,active from data_file_server where last_time != ''
+alter a.first_time as datetime64
+alter a.last_time as datetime64
+alter a.now as datetime64
+a1 = @udf a by udf0.df_row_lambda with x:0 if x[2] == x[3] else 'f'
+a1 = rename a1 as ('lambda1':'active1')
+a1 = filter a1 by active1 == 0
+a1 = @udf a1 by udf0.df_row_lambda with x:'t' if x[4] == x[5] else 'f'
+a1 = filter a1 by lambda1 == 'f'
+a1 = loc a1 by id,active1
+a1 = rename a1 as ('active1':'active')
+a2 = @udf a by udf0.df_row_lambda with x:1 if x[2] != x[3] else 'f'
+a2 = rename a2 as ('lambda1':'active1')
+a2 = filter a2 by active1 == 1
+a2 = @udf a2 by udf0.df_row_lambda with x:'t' if x[4] == x[5] else 'f'
+a2 = filter a2 by lambda1 == 'f'
+a2 = loc a2 by id,active1
+a2 = rename a2 as ('active1':'active')
+a3 = @udf a by udf0.df_row_lambda with x:3 if x[1] == x[2] == x[3] else 'f'
+a3 = rename a3 as ('lambda1':'active1')
+a3 = filter a3 by active1 == 3
+a3 = loc a3 by id,active1
+a3 = rename a3 as ('active1':'active')
+a = union a1,a2,a3
+a = @udf a by udf0.df_set_index with id
+@udf a by CRUD.save_table with (mysql1,data_file_server)
+
+#活跃状态
+a = load db by mysql1 with select id,left(first_time,10) first_time,left(last_time,10) last_time,curdate() now,active from data_file_user where last_time != ''
+alter a.first_time as datetime64
+alter a.last_time as datetime64
+alter a.now as datetime64
+a1 = @udf a by udf0.df_row_lambda with x:0 if x[2] == x[3] else 'f'
+a1 = rename a1 as ('lambda1':'active1')
+a1 = filter a1 by active1 == 0
+a1 = @udf a1 by udf0.df_row_lambda with x:'t' if x[4] == x[5] else 'f'
+a1 = filter a1 by lambda1 == 'f'
+a1 = loc a1 by id,active1
+a1 = rename a1 as ('active1':'active')
+a2 = @udf a by udf0.df_row_lambda with x:1 if x[2] != x[3] else 'f'
+a2 = rename a2 as ('lambda1':'active1')
+a2 = filter a2 by active1 == 1
+a2 = @udf a2 by udf0.df_row_lambda with x:'t' if x[4] == x[5] else 'f'
+a2 = filter a2 by lambda1 == 'f'
+a2 = loc a2 by id,active1
+a2 = rename a2 as ('active1':'active')
+a3 = @udf a by udf0.df_row_lambda with x:3 if x[1] == x[2] == x[3] else 'f'
+a3 = rename a3 as ('lambda1':'active1')
+a3 = filter a3 by active1 == 3
+a3 = loc a3 by id,active1
+a3 = rename a3 as ('active1':'active')
+a = union a1,a2,a3
+a = @udf a by udf0.df_set_index with id
+@udf a by CRUD.save_table with (mysql1,data_file_user)
+
+file_ftp = load ckh by ckh with SELECT user AS file_user,max(timestamp) AS last_time FROM api_ftp where file_user !='' group by file_user
+alter file_ftp.last_time as str
+file_server = load db by mysql1 with select id,file_user from data_file_user where protocol = 'ftp'
+last_time_data = join file_server,file_ftp by file_user,file_user 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_user)
+file_ftp = load ckh by ckh with SELECT user AS file_user,count() AS visits_num FROM api_ftp where file_user !='' group by file_user
+file_server = load db by mysql1 with select id,file_user from data_file_user where protocol = 'ftp'
+last_time_data = join file_server,file_ftp by file_user,file_user 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_user)
+#####
+file_ftp = load ckh by ckh with SELECT ntlmssp_user AS file_user,max(timestamp) AS last_time FROM api_smb where file_user !='' group by file_user
+alter file_ftp.last_time as str
+file_server = load db by mysql1 with select id,file_user from data_file_user where protocol = 'smb'
+last_time_data = join file_server,file_ftp by file_user,file_user 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_user)
+file_ftp = load ckh by ckh with SELECT ntlmssp_user AS file_user,count() AS visits_num FROM api_smb where file_user !='' group by file_user
+file_server = load db by mysql1 with select id,file_user from data_file_user where protocol = 'smb'
+last_time_data = join file_server,file_ftp by file_user,file_user 
+last_time_data = @udf last_time_data by udf0.df_set_index with id
+last_time_data = @udf last_time_data by CRUD.save_table with (mysql1,data_file_user)
+
+a = load ckh by ckh with select CONCAT(dstip, ':', cast(dstport as String)) AS file_server,sum(size) visits_flow from api_fileinfo where size !=0 and app_proto ='http' group by file_server
+file_server = load db by mysql1 with select id,file_server from data_file_server
+file_server = join file_server,a by file_server,file_server
+file_server = loc file_server by id,visits_flow
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+a = load ckh by ckh with select CONCAT(srcip, ':', cast(srcport as String)) AS file_server,sum(size) visits_flow from api_fileinfo where size !=0 and app_proto ='http' group by file_server
+file_server = load db by mysql1 with select id,file_server from data_file_server
+file_server = join file_server,a by file_server,file_server
+file_server = loc file_server by id,visits_flow
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+
+a = load ckh by ckh with select CONCAT(dstip, ':', cast(dstport as String)) AS file_server,sum(size) visits_flow from api_smb where size !=0 group by file_server
+file_server = load db by mysql1 with select id,file_server from data_file_server
+file_server = join file_server,a by file_server,file_server
+file_server = loc file_server by id,visits_flow
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+a = load ckh by ckh with select CONCAT(srcip, ':', cast(srcport as String)) AS file_server,sum(size) visits_flow from api_smb where size !=0 group by file_server
+file_server = load db by mysql1 with select id,file_server from data_file_server
+file_server = join file_server,a by file_server,file_server
+file_server = loc file_server by id,visits_flow
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+
+a = load ckh by ckh with select ntlmssp_user file_user,sum(size) visits_flow from api_smb where size !=0 and ntlmssp_user !='' group by file_user
+file_server = load db by mysql1 with select id,file_user from data_file_user
+file_server = join file_server,a by file_user,file_user
+file_server = loc file_server by id,visits_flow
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_user)
+
+
+clear @FID

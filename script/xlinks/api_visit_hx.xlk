@@ -1,0 +1,78 @@
+#LastModifyDate:　2024-01-22T11:59:09    Author:   zwl
+#LastModifyDate:　2024-01-19T19:05:40    Author:   zwl
+#LastModifyDate:　2024-01-19T14:33:17    Author:   superFBI
+#LastModifyDate:　2024-01-18T14:16:56    Author:   zwl
+#LastModifyDate:　2024-01-11T18:24:06    Author:   zwl
+#LastModifyDate:　2024-01-11T17:14:06    Author:   rzc
+#LastModifyDate:　2024-01-09T16:20:33    Author:   zwl
+#xlink脚本
+#file: api_visit_hx.xlk
+#name: zzzz
+#描述： 
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with api_visit_hx
+
+#停止
+#a = @udf FBI.x_finder3_stop with api_visit_hx
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:api_visit_hx,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::api_visit_hx
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "画像分层"
+	stream["meta_desc"] = "从api_visit1消费数据，存入ckh：api_visit_hour(存储每小时的流量访问次数)、api_visit_day(存储每天的流量访问次数)"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	#stream["source"] = {"link":stream["redis_link"]+":6381","topic":"hx_data","redis":"list"}
+	stream["source"]= {"unix_udp":"/tmp/hx_data"}
+	#窗口
+	#stream["stw"]["stw_http"] = {"times":60,"fun":"flow"}
+	stream["scw"]["http_100k"] = {"count":100000,"fun":"flow"}
+	##定时函数
+	#stream["st"]["st_day"] = {"times":86400,"fun":"print_day"}
+	###存储内存
+	stream["max_mem"] = 8
+}
+
+#事件处理函数
+events => {
+	push_scw("http_100k",o)
+}
+
+##系统定时函数    一天调用一次
+print_day => {
+	save_day()
+}
+
+#窗口函数，使用FBI的原语     一分钟:60s调用一次
+flow => stw{
+	#k = @sdf sys_timestamp
+	##对当前数据进行分组聚合
+	df1 = group df by app,url,srcip,dstip,account agg id:count,ll:sum,time:max
+	df1 = @udf df1 by udf0.df_reset_index
+	#rename df1 as ('id_count':'visit_num','ll_sum':'visit_flow','time_max':'time')
+	#df1 = loc df1 by app,url,srcip,dstip,account,visit_num,visit_flow,time
+	store df1 to pq by xlink/api_visit_hx_min/min_@k.pq
+	drop df1
+}
+
+
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+}

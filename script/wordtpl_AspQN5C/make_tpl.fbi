@@ -1,0 +1,812 @@
+#LastModifyDate:　2024-01-18T09:48:00    Author:   superFBI
+#LastModifyDate:　2024-01-17T16:18:31    Author:   superFBI
+#LastModifyDate:　2024-01-10T14:37:01    Author:   zwl
+#LastModifyDate:　2023-09-15T18:23:49.142833    Author:   zwl
+#LastModifyDate:　2023-09-15T18:22:04.287720    Author:   zwl
+#LastModifyDate:　2023-08-23T17:11:00.444812    Author:   zwl
+#LastModifyDate:　2023-08-02T14:00:33.014933    Author:   zwl
+#LastModifyDate:　2023-07-24T15:54:16.898120    Author:   zwl
+#LastModifyDate:　2023-07-17T17:54:54.192697    Author:   zwl
+#LastModifyDate:　2023-07-06T18:44:07.533257    Author:   zwl
+#LastModifyDate:　2023-05-18T11:34:54.906038    Author:   zwl
+#FBI生成docx文档脚本文件
+
+#@link 链接
+#@table 表名
+#@data_key 数据
+#@zh 中文表名
+
+#@vars 模板文档里面变量的前缀，比如{{info.name}}变量,vars就是info
+#@var_keys代表变量的值对应的df表的key，比如name
+#@id 模板填充好生成的文件目录位置，目录为workspace/temp_word/@id
+#@table_vars,docx模板文件的table里面变量名
+#@table_keys,存储表格数据的key
+#@report_name,生成报告的文件名称
+
+
+use @FID
+
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+##判断a是否有值
+a_num = eval a by index.size
+if $a_num == 0 with a = @udf udf0.new_df with name,status
+if $a_num == 0 with a = @udf a by udf0.df_append with (,正在生成报告)
+
+now = @sdf sys_now
+now = @sdf format_now with ($now,"%Y-%m-%dT%H:%M:%S")
+
+#先判断报告名称是否为空
+if "@report_name".strip() in ["","undefined"] with """
+	set param by define as report_name with @zh-$now
+""" else """
+	set param by define as report_name with @report_name-$now
+"""
+
+a = add name by  ('@report_name')
+
+#生成报告记录
+#保存
+t = @udf a by CRUD.save_table with (@link,@table)
+assert True as notice to @report_name 报告开始生成! with 报告生成发现错误!
+
+######################################################基本变量信息(根据实际情况修改)###############################################
+aa = @udf udf0.new_df with trend
+aa = @udf aa by udf0.df_append with (上升)
+aa = @udf aa by udf0.df_append with (无变化)
+aa = @udf aa by udf0.df_append with (下降)
+
+##时间
+day1 = @sdf sys_now with -2d
+#yday = @sdf format_now with ($day1,"%Y-%m-%d")
+day1 = @sdf format_now with ($day1,"%Y-%m-%dT00:00:00")
+day2 = @sdf sys_now with -1d
+#tday = @sdf format_now with ($day2,"%Y-%m-%d")
+dd24 = @sdf format_now with ($day2,"%Y-%m-%dT%H:00:00")
+day2 = @sdf format_now with ($day2,"%Y-%m-%dT00:00:00")
+day3 = @sdf sys_now 
+time = @sdf format_now with ($day3,"%Y-%m-%d")
+dd3 = @sdf format_now with ($day3,"%Y-%m-%dT%H:00:00")
+day3 = @sdf format_now with ($day3,"%Y-%m-%dT00:00:00")
+###24小时
+j_hour = @udf udf0.new_df_timerange with ($dd24,$dd3,1H)
+j_hour.hour = lambda end_time by (x:x[11:13])
+j_hour = loc j_hour by hour
+#j_hour.hours = lambda hour by (x:x+'时')
+
+##日期
+date = @udf udf0.new_df with time
+date = @udf date by udf0.df_append with $time
+store date to ssdb by ssdb0 with date_daily
+
+##一、丢包处理率-------------------------------------------------------------------------------------------------------------
+#aa = @udf ZNSM.dpdk_stats
+dbdk = load ssdb by ssdb0 with dbdk_day
+dbdk1 = filter dbdk by times == '$day1'
+if dbdk1.index.size == 0 with dbdk1 = @udf dbdk1 by udf0.df_append with ($day1,0,0,0,0)
+dbdk1_ipackets = eval dbdk1 by iloc[0,1]
+dbdk1_ibytes = eval dbdk1 by iloc[0,2]
+dbdk1_imissed = eval dbdk1 by iloc[0,3]
+dbdk1_cll = eval dbdk1 by iloc[0,4]
+dbdk2 = filter dbdk by times == '$day2'
+if dbdk2.index.size == 0 with dbdk2 = @udf dbdk2 by udf0.df_append with ($day2,0,0,0,0)
+dbdk2_ipackets = eval dbdk2 by iloc[0,1]
+dbdk2_ibytes = eval dbdk2 by iloc[0,2]
+dbdk2_imissed = eval dbdk2 by iloc[0,3]
+dbdk2_cll = eval dbdk2 by iloc[0,4]
+dbdk3 = filter dbdk by times == '$day3'
+if dbdk3.index.size == 0 with dbdk3 = @udf dbdk3 by udf0.df_append with ($day3,0,0,0,0)
+dbdk3_ipackets = eval dbdk3 by iloc[0,1]
+dbdk3_ibytes = eval dbdk3 by iloc[0,2]
+dbdk3_imissed = eval dbdk3 by iloc[0,3]
+dbdk3_cll = eval dbdk3 by iloc[0,4]
+dbdk4 = filter dbdk by times == '$dd3'
+if dbdk4.index.size == 0 with dbdk4 = @udf dbdk4 by udf0.df_append with ($dd3,0,0,0,0)
+dbdk4_ipackets = eval dbdk4 by iloc[0,1]
+dbdk4_ibytes = eval dbdk4 by iloc[0,2]
+dbdk4_imissed = eval dbdk4 by iloc[0,3]
+dbdk4_cll = eval dbdk4 by iloc[0,4]
+##取出昨天、今天的值
+yes_ipackets = @sdf sys_eval with ($dbdk2_ipackets-$dbdk1_ipackets)
+yes_ibytes = @sdf sys_eval with ($dbdk2_ibytes-$dbdk1_ibytes)
+yes_imissed = @sdf sys_eval with ($dbdk2_imissed-$dbdk1_imissed)
+tod_ipackets = @sdf sys_eval with ($dbdk3_ipackets-$dbdk2_ipackets)
+tod_ibytes = @sdf sys_eval with ($dbdk3_ibytes-$dbdk2_ibytes)
+tod_imissed = @sdf sys_eval with ($dbdk3_imissed-$dbdk2_imissed)
+##新建表
+dbdk_daily = @udf udf0.new_df with tt,yes,tod,trend,count
+##判断包变化的趋势
+tt10 = @sdf sys_eval with ($yes_ipackets-$tod_ipackets)
+if $tt10 > 0 with bb = eval aa by iloc[2,0]
+if $tt10 == 0 with bb = eval aa by iloc[1,0]
+if $tt10 < 0 with bb = eval aa by iloc[0,0]
+dbdk_daily = @udf dbdk_daily by udf0.df_append with (ipackets,$yes_ipackets,$tod_ipackets,$bb,$dbdk4_ipackets)
+##判断字节变化的趋势
+tt11 = @sdf sys_eval with ($yes_ibytes-$tod_ibytes)
+if $tt11 > 0 with bb = eval aa by iloc[2,0]
+if $tt11 == 0 with bb = eval aa by iloc[1,0]
+if $tt11 < 0 with bb = eval aa by iloc[0,0]
+dbdk_daily = @udf dbdk_daily by udf0.df_append with (ibytes,$yes_ibytes,$tod_ibytes,$bb,$dbdk4_ibytes)
+##判断丢包变化的趋势
+tt12 = @sdf sys_eval with ($yes_imissed-$tod_imissed)
+if $tt12 > 0 with bb = eval aa by iloc[2,0]
+if $tt12 == 0 with bb = eval aa by iloc[1,0]
+if $tt12 < 0 with bb = eval aa by iloc[0,0]
+dbdk_daily = @udf dbdk_daily by udf0.df_append with (imissed,$yes_imissed,$tod_imissed,$bb,$dbdk4_imissed)
+##判断处理率变化的趋势
+tt13 = @sdf sys_eval with ($dbdk2_cll-$dbdk3_cll)
+if $tt13 > 0 with bb = eval aa by iloc[2,0]
+if $tt13 == 0 with bb = eval aa by iloc[1,0]
+if $tt13 < 0 with bb = eval aa by iloc[0,0]
+dbdk_daily = @udf dbdk_daily by udf0.df_append with (处理率,$dbdk2_cll,$dbdk3_cll,$bb,$dbdk4_cll)
+rename dbdk_daily as ('tt':'主题','yes':'前天','tod':'昨天','trend':'趋势','count':'当前')
+store dbdk_daily to ssdb by ssdb0 with dbdk_daily
+
+##近24小时变化趋势
+dbdk_24 = filter dbdk by times > '$dd24'
+dbdk_24.times = str times by (slice(11,13))
+dbdk_24 = join dbdk_24,j_hour by times,hour with right
+#dbdk_24.times = lambda times by (x:x+'时')
+##丢包、进包
+dbdk_24_1 = loc dbdk_24 by hour,ipackets,imissed
+dbdk_24_1 = @udf dbdk_24_1 by udf0.df_fillna_cols with hour:'0',ipackets:'0',imissed:'0'
+dbdk_24_1 = loc dbdk_24_1 by hour to index
+dbdk_24_1 = loc dbdk_24_1 by ipackets,imissed
+rename dbdk_24_1 as ('ipackets':'包数','imissed':'丢包数')          
+store dbdk_24_1 to ssdb by ssdb0 with dbdk_24h
+##字节
+dbdk_24_2 = loc dbdk_24 by hour,ibytes
+dbdk_24_2 = @udf dbdk_24_2 by udf0.df_fillna_cols with hour:'0',ibytes:'0'
+dbdk_24_2 = loc dbdk_24_2 by hour to index
+dbdk_24_2 = loc dbdk_24_2 by ibytes
+rename dbdk_24_2 as ('ibytes':'字节数')          
+store dbdk_24_2 to ssdb by ssdb0 with dbdk1_24h
+
+yyyy = @udf udf0.new_df with 异常项,异常指标,异常详情
+##处理率异常
+alter dbdk by 处理率:int
+cll = filter dbdk by 处理率 < 90
+cll = order cll by times with desc limit 1
+if cll.index.size == 1 with """
+	tt = eval cll by iloc[0,0]
+	cll = loc cll by 处理率
+	cll = add 异常项 by ('处理率')
+	rename cll as ('处理率':'异常指标')
+	cll = add 异常详情 by ('$tt处理率低于90%')
+	yyyy = union yyyy,cll
+"""
+yyyy = loc yyyy by 异常项,异常指标,异常详情
+
+##二、协议审计-------------------------------------------------------------------------------------------------------------
+xy = @udf udf0.new_df with tt,yes,tod,trend,count
+##DNS协议
+y_dns = load ckh by ckh with select count(*) as yes from api_dns where timestamp >= '$day1' and timestamp < '$day2'
+y_dns = eval y_dns by iloc[0,0]
+t_dns = load ckh by ckh with select count(*) as tod from api_dns where timestamp >= '$day2' and timestamp < '$day3'
+t_dns = eval t_dns by iloc[0,0]
+dns = load ckh by ckh with select count(*) as count from api_dns
+dns = eval dns by iloc[0,0]
+tt = @sdf sys_eval with ($y_dns-$t_dns)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+xy = @udf xy by udf0.df_append with (DNS协议,$y_dns,$t_dns,$bb,$dns)
+###DNS协议异常
+y_dns1 = @sdf sys_eval by ($y_dns/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_dns1 < $tt with yyyy = @udf yyyy by udf0.df_append with (DNS协议,$t_dns,昨天新增事件数比前天新增事件数$bb超50%)
+##Pop3邮件协议
+y_pop3 = load ckh by ckh with select count(*) as num from api_pop3 where timestamp >= '$day1' and timestamp < '$day2'
+y_pop3 = eval y_pop3 by iloc[0,0]
+t_pop3 = load ckh by ckh with select count(*) as num from api_pop3 where timestamp >= '$day2' and timestamp < '$day3'
+t_pop3 = eval t_pop3 by iloc[0,0]
+pop3 = load ckh by ckh with select count(*) as num from api_pop3
+pop3 = eval pop3 by iloc[0,0]
+tt = @sdf sys_eval with ($y_pop3-$t_pop3)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+xy = @udf xy by udf0.df_append with (Pop3邮件协议,$y_pop3,$t_pop3,$bb,$pop3)
+###Pop3邮件协议异常
+y_pop31 = @sdf sys_eval by ($y_pop3/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_pop31 < $tt with yyyy = @udf yyyy by udf0.df_append with (Pop3邮件协议,$t_pop3,昨天新增事件数比前天新增事件数$bb超50%)
+##Imap邮件协议
+y_imap = load ckh by ckh with select count(*) as num from api_imap where timestamp >= '$day1' and timestamp < '$day2'
+y_imap = eval y_imap by iloc[0,0]
+t_imap = load ckh by ckh with select count(*) as num from api_imap where timestamp >= '$day2' and timestamp < '$day3'
+t_imap = eval t_imap by iloc[0,0]
+imap = load ckh by ckh with select count(*) as num from api_imap 
+imap = eval imap by iloc[0,0]
+tt = @sdf sys_eval with ($y_imap-$t_imap)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+xy = @udf xy by udf0.df_append with (Imap邮件协议,$y_imap,$t_imap,$bb,$imap)
+###Imap邮件协议异常
+y_imap1 = @sdf sys_eval by ($y_imap/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_imap1 < $tt with yyyy = @udf yyyy by udf0.df_append with (Imap邮件协议,$t_imap,昨天新增事件数比前天新增事件数$bb超50%)
+##Smtp邮件协议
+y_smtp = load ckh by ckh with select count(*) as num from api_smtp where timestamp >= '$day1' and timestamp < '$day2'
+y_smtp = eval y_smtp by iloc[0,0]
+t_smtp = load ckh by ckh with select count(*) as num from api_smtp where timestamp >= '$day2' and timestamp < '$day3'
+t_smtp = eval t_smtp by iloc[0,0]
+smtp = load ckh by ckh with select count(*) as num from api_smtp 
+smtp = eval smtp by iloc[0,0]
+tt = @sdf sys_eval with ($y_smtp-$t_smtp)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+xy = @udf xy by udf0.df_append with (Smtp邮件协议,$y_smtp,$t_smtp,$bb,$smtp)
+###Smtp邮件协议异常
+y_smtp1 = @sdf sys_eval by ($y_smtp/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_smtp1 < $tt with yyyy = @udf yyyy by udf0.df_append with (Smtp邮件协议,$t_smtp,昨天新增事件数比前天新增事件数$bb超50%)
+##Windows共享
+y_smb = load ckh by ckh with select count(*) as num from api_smb where timestamp >= '$day1' and timestamp < '$day2'
+y_smb = eval y_smb by iloc[0,0]
+t_smb = load ckh by ckh with select count(*) as num from api_smb where timestamp >= '$day2' and timestamp < '$day3'
+t_smb = eval t_smb by iloc[0,0]
+smb = load ckh by ckh with select count(*) as num from api_smb 
+smb = eval smb by iloc[0,0]
+tt = @sdf sys_eval with ($y_smb-$t_smb)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+xy = @udf xy by udf0.df_append with (Windows共享,$y_smb,$t_smb,$bb,$smb)
+###Windows共享异常
+y_smb1 = @sdf sys_eval by ($y_smb/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_smb1 < $tt with yyyy = @udf yyyy by udf0.df_append with (Windows共享,$t_smb,昨天新增事件数比前天新增事件数$bb超50%)
+##Ftp文件传输
+y_ftp = load ckh by ckh with select count(*) as num from api_ftp where timestamp >= '$day1' and timestamp < '$day2'
+y_ftp = eval y_ftp by iloc[0,0]
+t_ftp = load ckh by ckh with select count(*) as num from api_ftp where timestamp >= '$day2' and timestamp < '$day3'
+t_ftp = eval t_ftp by iloc[0,0]
+ftp = load ckh by ckh with select count(*) as num from api_ftp 
+ftp = eval ftp by iloc[0,0]
+tt = @sdf sys_eval with ($y_ftp-$t_ftp)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+xy = @udf xy by udf0.df_append with (Ftp文件传输,$y_ftp,$t_ftp,$bb,$ftp)
+###Ftp文件传输异常
+y_ftp1 = @sdf sys_eval by ($y_ftp/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_smtp1 < $tt with yyyy = @udf yyyy by udf0.df_append with (Ftp文件传输,$t_ftp,昨天新增事件数比前天新增事件数$bb超50%)
+##Tftp文件传输
+y_tftp = load ckh by ckh with select count(*) as num from api_tftp where timestamp >= '$day1' and timestamp < '$day2' 
+y_tftp = eval y_tftp by iloc[0,0]
+t_tftp = load ckh by ckh with select count(*) as num from api_tftp where timestamp >= '$day2' and timestamp < '$day3' 
+t_tftp = eval t_tftp by iloc[0,0]
+tftp = load ckh by ckh with select count(*) as num from api_tftp 
+tftp = eval tftp by iloc[0,0]
+tt = @sdf sys_eval with ($y_tftp-$t_tftp)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+xy = @udf xy by udf0.df_append with (Tftp文件传输,$y_tftp,$t_tftp,$bb,$tftp)
+###Tftp文件传输异常
+y_tftp1 = @sdf sys_eval by ($y_tftp/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_tftp1 < $tt with yyyy = @udf yyyy by udf0.df_append with (Tftp文件传输,$t_tftp,昨天新增事件数比前天新增事件数$bb超50%)
+##文件信息
+y_fileinfo = load ckh by ckh with select count(*) as num from api_fileinfo where timestamp >= '$day1' and timestamp < '$day2'
+y_fileinfo = eval y_fileinfo by iloc[0,0]
+t_fileinfo = load ckh by ckh with select count(*) as num from api_fileinfo where timestamp >= '$day2' and timestamp < '$day3'
+t_fileinfo = eval t_fileinfo by iloc[0,0]
+fileinfo = load ckh by ckh with select count(*) as num from api_fileinfo 
+fileinfo = eval fileinfo by iloc[0,0]
+tt = @sdf sys_eval with ($y_fileinfo-$t_fileinfo)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+xy = @udf xy by udf0.df_append with (文件信息,$y_fileinfo,$t_fileinfo,$bb,$fileinfo)
+###文件信息异常
+y_fileinfo1 = @sdf sys_eval by ($y_fileinfo/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_fileinfo1 < $tt with yyyy = @udf yyyy by udf0.df_append with (文件信息,$t_fileinfo,昨天新增事件数比前天新增事件数$bb超50%)
+##重命名、保存
+rename xy as ('tt':'协议','yes':'前天','tod':'昨天','trend':'趋势','count':'总数')
+alter xy by 总数:int
+xy.counts = lambda 总数 by (x:round(x/10000,2))
+sss = loc xy by 协议,counts
+xy = loc xy by 协议,前天,昨天,趋势,总数
+store xy to ssdb by ssdb0 with xy_daily
+
+
+
+
+##审计协议分布：
+#sss = loc xy by 协议,counts
+sss = loc sss by 协议 to index
+rename sss as ('counts':'数量')
+store sss to ssdb by ssdb0 with api_num
+
+##三、管理对象-------------------------------------------------------------------------------------------------------------
+dddd = @udf udf0.new_df with tt,yes,tod,trend,count
+##应用数量
+y_app = load db by mysql1 with select count(*) as yes from data_app_new where first_time >= '$day1' and first_time < '$day2' and merge_state != 1 
+y_app = eval y_app by iloc[0,0]
+t_app = load db by mysql1 with select count(*) as tod from data_app_new where first_time >= '$day2' and first_time < '$day3' and merge_state != 1 
+t_app = eval t_app by iloc[0,0]
+app = load db by mysql1 with select count(*) as count from data_app_new where merge_state != 1
+app = eval app by iloc[0,0]
+tt = @sdf sys_eval with ($y_app-$t_app)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+dddd = @udf dddd by udf0.df_append with (应用(新增),$y_app,$t_app,$bb,$app)
+###应用新增异常
+y_app1 = @sdf sys_eval by ($y_app/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_app1 < $tt with yyyy = @udf yyyy by udf0.df_append with (应用,$t_app,昨天新增应用数比前天新增应用数$bb超50%)
+##接口数量
+y_api = load db by mysql1 with select count(*) as yes from data_api_new where first_time >= '$day1' and first_time < '$day2' and merge_state != 1 
+y_api = eval y_api by iloc[0,0]
+t_api = load db by mysql1 with select count(*) as tod from data_api_new where first_time >= '$day2' and first_time < '$day3' and merge_state != 1 
+t_api = eval t_api by iloc[0,0]
+api = load db by mysql1 with select count(*) as count from data_api_new where merge_state != 1
+api = eval api by iloc[0,0]
+tt = @sdf sys_eval with ($y_api-$t_api)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+dddd = @udf dddd by udf0.df_append with (接口(新增),$y_api,$t_api,$bb,$api)
+###接口新增异常
+y_api1 = @sdf sys_eval by ($y_api/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_api1 < $tt with yyyy = @udf yyyy by udf0.df_append with (接口,$t_api,昨天新增接口数比前天新增接口数$bb超50%)
+##终端数量
+y_ip = load db by mysql1 with select count(*) as yes from data_ip_new where firsttime >= '$day1' and firsttime < '$day2' 
+y_ip = eval y_ip by iloc[0,0]
+t_ip = load db by mysql1 with select count(*) as tod from data_ip_new where firsttime >= '$day2' and firsttime < '$day3'
+t_ip = eval t_ip by iloc[0,0]
+ip = load db by mysql1 with select count(*) as count from data_ip_new 
+ip = eval ip by iloc[0,0]
+tt = @sdf sys_eval with ($y_ip-$t_ip)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+dddd = @udf dddd by udf0.df_append with (终端(新增),$y_ip,$t_ip,$bb,$ip)
+###终端新增异常
+y_ip1 = @sdf sys_eval by ($y_ip/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_ip1 < $tt with yyyy = @udf yyyy by udf0.df_append with (终端,$t_ip,昨天新增终端数比前天新增终端数$bb超50%)
+##账号数量
+y_account = load db by mysql1 with select count(*) as yes from data_account_new where firsttime >= '$day1' and firsttime < '$day2' 
+y_account = eval y_account by iloc[0,0]
+t_account = load db by mysql1 with select count(*) as tod from data_account_new where firsttime >= '$day2' and firsttime < '$day3'
+t_account = eval t_account by iloc[0,0]
+account = load db by mysql1 with select count(*) as count from data_account_new 
+account = eval account by iloc[0,0]
+tt = @sdf sys_eval with ($y_account-$t_account)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+dddd = @udf dddd by udf0.df_append with (账号(新增),$y_account,$t_account,$bb,$account)
+rename dddd as ('tt':'对象','yes':'前天','tod':'昨天','trend':'趋势','count':'总数')
+store dddd to ssdb by ssdb0 with dddd_daily
+###账号新增异常
+y_account1 = @sdf sys_eval by ($y_account/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_account1 < $tt with yyyy = @udf yyyy by udf0.df_append with (账号,$t_account,昨天新增账号数比前天新增账号数$bb超50%)
+
+##
+dddd = loc dddd by 对象,总数
+dddd.对象 = lambda 对象 by (x:x[0:2])
+dddd = loc dddd by 对象 to index
+rename dddd as ('总数':'数量')
+store dddd to ssdb by ssdb0 with dddd_num
+
+#Delete 注释 by zwl on 2023-03-28 14:54:07
+####近24小时对象数量变化趋势
+#app = load db by mysql1 with select substring(first_time,12,2) as hour,count(*) as 应用 from data_app_new where first_time > '$dd24' group by hour
+#api = load db by mysql1 with select substring(first_time,12,2) as hour,count(*) as 接口 from data_api_new where first_time > '$dd24' group by hour
+#ip = load db by mysql1 with select substring(firsttime,12,2) as hour,count(*) as 终端 from data_ip_new where firsttime > '$dd24' group by hour
+#account = load db by mysql1 with select substring(firsttime,12,2) as hour,count(*) as 账号 from data_account_new where firsttime > '$dd24' group by hour
+#dx = join j_hour,app by hour,hour with left
+#dx = join dx,api by hour,hour with left
+#dx = join dx,ip by hour,hour with left
+#dx = join dx,account by hour,hour with left
+#dx = @udf dx by udf0.df_fillna with 0
+#dx = loc dx by hours to index 
+#dx = loc dx by 应用,接口,终端,账号
+#store dx to ssdb by ssdb0 with dx_24h
+
+##四、业务审计-------------------------------------------------------------------------------------------------------------
+sj = @udf udf0.new_df with tt,yes,tod,trend,count
+##---应用审计---- 
+yapp_num = load db by mysql1 with select sum(ysjjk) as yes from audit_statistics where gmt_create >= '$day1' and gmt_create < '$day2'
+yapp_num = @udf yapp_num by udf0.df_fillna_cols with yes:'0'
+yapp_num.yes = lambda yes by (x:x if x != '' else 0)
+yapp_num = eval yapp_num by iloc[0,0]
+tapp_num = load db by mysql1 with select sum(ysjjk) as tod from audit_statistics where gmt_create >= '$day2' and gmt_create < '$day3'
+tapp_num = @udf tapp_num by udf0.df_fillna_cols with tod:'0'
+tapp_num.tod = lambda tod by (x:x if x != '' else 0)
+tapp_num = eval tapp_num by iloc[0,0]
+app_num = load db by mysql1 with select sum(ysjjk) as count from audit_statistics 
+app_num = @udf app_num by udf0.df_fillna_cols with count:'0'
+app_num.count = lambda count by (x:x if x != '' else 0)
+alter app_num by count:int
+app_num = eval app_num by iloc[0,0]
+##判断应用审计变化的趋势
+tt = @sdf sys_eval with ($yapp_num-$tapp_num)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+sj = @udf sj by udf0.df_append with (应用审计,$yapp_num,$tapp_num,$bb,$app_num)
+####应用审计异常
+#yapp_num1 = @sdf sys_eval by ($yapp_num/2)
+#if $yapp_num1 > $tapp_num with yyyy = @udf yyyy by udf0.df_append with (应用审计,$tapp_num,昨天新增审计应用数比前天新增审计应用数$bb超50%)
+##----接口审计---- 
+yapi_num = load ckh by ckh with select count() as yes from api_monitor where time >= '$day1' and time < '$day2'
+yapi_num = eval yapi_num by iloc[0,0]
+tapi_num = load ckh by ckh with select count() as tod from api_monitor where time >= '$day2' and time < '$day3'
+tapi_num = eval tapi_num by iloc[0,0]
+api_num = load ckh by ckh with select count() as count from api_monitor
+api_num = eval api_num by iloc[0,0]
+##判断接口审计变化的趋势
+tt = @sdf sys_eval with ($yapi_num-$tapi_num)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+sj = @udf sj by udf0.df_append with (接口审计,$yapi_num,$tapi_num,$bb,$api_num)
+rename sj as ('tt':'审计对象','yes':'前天','tod':'昨天','trend':'趋势','count':'总数')
+store sj to ssdb by ssdb0 with sj_daily
+####接口审计异常
+#yapi_num1 = @sdf sys_eval by ($yapi_num/2)
+#if $yapi_num1 > $tapi_num with yyyy = @udf yyyy by udf0.df_append with (接口审计,$tapi_num,昨天新增审计接口数比前天新增审计接口数$bb超50%)
+
+##审计应用、接口数量分布
+sj1 = loc sj by 审计对象,总数
+sj1 = loc sj1 by 审计对象 to index 
+rename sj1 as ('总数':'数量')
+store sj1 to ssdb by ssdb0 with sj_num
+
+###24小时审计变化趋势
+#sj24 = load db by mysql1 with select substring(gmt_create,12,2) as hour,count(*) as 应用审计 from audit_statistics where gmt_create > '$dd24' group by hour
+#sj24 = join sj24,j_hour by hour,hour with right
+#api_mon = load ckh by ckh with select substring(toString(time),12,2) as hour,count() as num from api_monitor where time > '$dd24' group by hour
+#sj24 = join sj24,api_mon by hour,hour with left
+#rename sj24 as ('num':'接口审计')
+#sj24 = @udf sj24 by udf0.df_fillna with 0
+#sj24 = loc sj24 by hours to index
+#sj24 = loc sj24 by 应用审计,接口审计
+#store sj24 to ssdb by ssdb0 with sj_24h
+
+##五、数据流动-------------------------------------------------------------------------------------------------------------
+sens1 = @udf udf0.new_df with tt,yes,tod,trend,count
+##敏感数据监控------------------------
+y_sens_1 = load ckh by ckh with select count(*) as yes from sen_http_count where timestamp >= '$day1' and timestamp < '$day2'
+y_sens_1 = eval y_sens_1 by iloc[0,0]
+t_sens_1 = load ckh by ckh with select count(*) as tod from sen_http_count where timestamp >= '$day2' and timestamp < '$day3' 
+t_sens_1 = eval t_sens_1 by iloc[0,0]
+sens_1 = load ckh by ckh with select count(*) as count from sen_http_count 
+sens_1 = eval sens_1 by iloc[0,0]
+tt = @sdf sys_eval with ($y_sens_1-$t_sens_1)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+sens1 = @udf sens1 by udf0.df_append with (敏感数据监控,$y_sens_1,$t_sens_1,$bb,$sens_1)
+###敏感数据异常
+y_sens_11 = @sdf sys_eval by ($y_sens_1/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_sens_11 < $tt with yyyy = @udf yyyy by udf0.df_append with (敏感数据监控,$t_sens_1,昨天新增事件数比前天新增事件数$bb超50%)
+##敏感数据溯源--------------------------------
+#y_sens = load ckh by ckh with select count(*) as yes from sensitive_data where time >= '$day1' and time < '$day2'
+#y_sens = eval y_sens by iloc[0,0]
+#t_sens = load ckh by ckh with select count(*) as tod from sensitive_data where time >= '$day2' and time < '$day3' 
+#t_sens = eval t_sens by iloc[0,0]
+#sens = load ckh by ckh with select count(*) as count from sensitive_data 
+#sens = eval sens by iloc[0,0]
+#tt = @sdf sys_eval with ($y_sens-$t_sens)
+#if $tt > 0 with bb = eval aa by iloc[2,0]
+#if $tt == 0 with bb = eval aa by iloc[1,0]
+#if $tt < 0 with bb = eval aa by iloc[0,0]
+#sens1 = @udf sens1 by udf0.df_append with (敏感数据溯源,$y_sens,$t_sens,$bb,$sens)
+####敏感数据异常
+#y_sens1 = @sdf sys_eval by ($y_sens/2)
+#if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+#if $y_sens1 < $tt with yyyy = @udf yyyy by udf0.df_append with (敏感数据溯源,$t_sens,昨天新增事件数比前天新增事件数$bb超50%)
+##敏感文件监控------------------------------------
+y_fil_1 = load ckh by ckh with select count(*) as yes from datafilter where timestamp >= '$day1' and timestamp < '$day2'
+y_fil_1 = eval y_fil_1 by iloc[0,0]
+t_fil_1 = load ckh by ckh with select count(*) as tod from datafilter where timestamp >= '$day2' and timestamp < '$day3' 
+t_fil_1 = eval t_fil_1 by iloc[0,0]
+fil_1 = load ckh by ckh with select count(*) as count from datafilter 
+fil_1 = eval fil_1 by iloc[0,0]
+tt = @sdf sys_eval with ($y_fil_1 - $t_fil_1)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+sens1 = @udf sens1 by udf0.df_append with (敏感文件监控,$y_fil_1,$t_fil_1,$bb,$fil_1)
+###敏感文件异常
+y_fil_11 = @sdf sys_eval by ($y_fil_1/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_fil_11 < $tt with yyyy = @udf yyyy by udf0.df_append with (敏感文件监控,$t_fil_1,昨天新增事件数比前天新增事件数$bb超50%)
+##敏感文件溯源-----------------------------
+#y_fil = load ckh by ckh with select count(*) as yes from datafilter where timestamp >= '$day1' and timestamp < '$day2'
+#y_fil = eval y_fil by iloc[0,0]
+#t_fil = load ckh by ckh with select count(*) as tod from datafilter where timestamp >= '$day2' and timestamp < '$day3' 
+#t_fil = eval t_fil by iloc[0,0]
+#fil = load ckh by ckh with select count(*) as count from datafilter 
+#fil = eval fil by iloc[0,0]
+#tt = @sdf sys_eval with ($y_fil-$t_fil)
+#if $tt > 0 with bb = eval aa by iloc[2,0]
+#if $tt == 0 with bb = eval aa by iloc[1,0]
+#if $tt < 0 with bb = eval aa by iloc[0,0]
+#sens1 = @udf sens1 by udf0.df_append with (敏感文件溯源,$y_fil,$t_fil,$bb,$fil)
+####敏感文件异常
+#y_fil1 = @sdf sys_eval by ($y_fil/2)
+#if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+#if $y_fil1 < $tt with yyyy = @udf yyyy by udf0.df_append with (敏感文件溯源,$t_fil,昨天新增事件数比前天新增事件数$bb超50%)
+##重命名、保存
+rename sens1 as ('tt':'敏感数据','yes':'前天','tod':'昨天','trend':'趋势','count':'总数')
+alter sens1 by 总数:int
+sens1 = add aa by 1
+pj = group sens1 by aa agg 总数:mean
+pj = eval pj by iloc[0,0]
+if $pj >= 100000 with sens1.counts = lambda 总数 by (x:round(x/10000,2))
+if $pj < 100000 with sens1.counts = lambda 总数 by (x:x)
+eeee = loc sens1 by 敏感数据,counts
+sens1 = loc sens1 by 敏感数据,前天,昨天,趋势,总数
+store sens1 to ssdb by ssdb0 with sens_daily
+
+##单位
+dw = @udf udf0.new_df with dw
+if $pj >= 100000 with dw = @udf dw by udf0.df_append with ((万))
+if $pj < 100000 with dw = @udf dw by udf0.df_append with ()
+store dw to ssdb by ssdb0 with sens_dw
+
+##敏感数据分布
+#eeee = loc sens1 by 敏感数据,counts
+eeee = loc eeee by 敏感数据 to index 
+rename eeee as ('counts':'数量')
+store eeee to ssdb by ssdb0 with sens_num
+
+
+###近24小时敏感数据变化趋势
+#sens = load ckh by ckh with select substring(toString(time),12,2) as hour,count(*) as data from sensitive_data where time > '$dd24' group by hour
+#filter = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as fil from datafilter where timestamp > '$dd24' group by hour
+#sens = join j_hour,sens by hour,hour with left
+#sens = join sens,filter by hour,hour with left
+#sens = @udf sens by udf0.df_fillna with 0
+#sens = loc sens by hours to index 
+#rename sens as ('data':'敏感数据','fil':'敏感文件')
+#sens = loc sens by 敏感数据,敏感文件
+#store sens to ssdb by ssdb0 with sens_24h
+
+
+##六、风险监控-------------------------------------------------------------------------------------------------------------
+##6.1数据泄露场景分析
+risk = @udf udf0.new_df with tt,yes,tod,trend,count
+model_type = load ssdb by ssdb0 with dd:model_type
+model_type = loc model_type by index to type
+foreach model_type run """
+	y_model = load ckh by ckh with select count(*) as yes from api_model where timestamp >= '$day1' and timestamp < '$day2' and type = '@tt'
+	y_model = eval y_model by iloc[0,0]
+	t_model = load ckh by ckh with select count(*) as tod from api_model where timestamp >= '$day2' and timestamp < '$day3' and type = '@tt'
+	t_model = eval t_model by iloc[0,0]
+	model = load ckh by ckh with select count(*) as count from api_model where type = '@tt'
+	model = eval model by iloc[0,0]
+	tt = @sdf sys_eval with ($y_model-$t_model)
+	if $tt > 0 with bb = eval aa by iloc[2,0]
+	if $tt == 0 with bb = eval aa by iloc[1,0]
+	if $tt < 0 with bb = eval aa by iloc[0,0]
+	risk = @udf risk by udf0.df_append with (@type,$y_model,$t_model,$bb,$model)
+	###敏感文件异常
+	y_model1 = @sdf sys_eval by ($y_model/2)
+	if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+	if $y_model1 < $tt with yyyy = @udf yyyy by udf0.df_append with (@type,$t_model,昨天新增事件数比前天新增事件数$bb超50%)
+""" with (tt=$1,type=$2)
+##重命名、保存
+rename risk as ('tt':'告警','yes':'前天','tod':'昨天','trend':'趋势','count':'总数')
+alter risk by 总数:int
+risk = add aa by 1
+pj = group risk by aa agg 总数:mean
+pj = eval pj by iloc[0,0]
+if $pj >= 100000 with risk.counts = lambda 总数 by (x:round(x/10000,2))
+if $pj < 100000 with risk.counts = lambda 总数 by (x:x)
+risk1 = loc risk by 告警,counts
+risk = loc risk by 告警,前天,昨天,趋势,总数
+store risk to ssdb by ssdb0 with risk1_daily
+
+##单位
+dw = @udf udf0.new_df with dw
+if $pj >= 100000 with dw = @udf dw by udf0.df_append with ((万))
+if $pj < 100000 with dw = @udf dw by udf0.df_append with ()
+store dw to ssdb by ssdb0 with risk1_dw
+
+##告警模型分布：
+#risk = loc risk by 告警,counts
+rename risk1 as ('counts':'数量')
+risk1 = loc risk1 by 告警 to index 
+store risk1 to ssdb by ssdb0 with risk1_num
+
+##6.2风险告警
+##阈值告警
+risk = @udf udf0.new_df with tt,yes,tod,trend,count
+y_yz = load ckh by ckh with select count(risk_label) as yes from api_risk where first_time >= '$day1' and first_time < '$day2'
+y_yz = eval y_yz by iloc[0,0]
+t_yz = load ckh by ckh with select count(risk_label) as tod from api_risk where first_time >= '$day2' and first_time < '$day3' 
+t_yz = eval t_yz by iloc[0,0]
+yz = load ckh by ckh with select count(risk_label) as count from api_risk 
+yz = eval yz by iloc[0,0]
+tt = @sdf sys_eval with ($y_yz-$t_yz)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+risk = @udf risk by udf0.df_append with (阈值告警,$y_yz,$t_yz,$bb,$yz)
+###阈值告警异常
+y_yz1 = @sdf sys_eval by ($y_yz/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_yz1 < $tt with yyyy = @udf yyyy by udf0.df_append with (阈值告警,$t_yz,昨天新增告警事件数比前天新增告警事件数$bb超50%)
+# 访问耗时告警
+y_delay = load ckh by ckh with select count(*) as yes from api_delay where time >= '$day1' and time < '$day2'
+y_delay = eval y_delay by iloc[0,0]
+t_delay = load ckh by ckh with select count(*) as tod from api_delay where time >= '$day2' and time < '$day3' 
+t_delay = eval t_delay by iloc[0,0]
+delay = load ckh by ckh with select count(*) as count from api_delay 
+delay = eval delay by iloc[0,0]
+tt = @sdf sys_eval with ($y_delay-$t_delay)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+risk = @udf risk by udf0.df_append with (访问耗时告警,$y_delay,$t_delay,$bb,$delay)
+###访问耗时告警异常
+y_delay1 = @sdf sys_eval by ($y_delay/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_delay1 < $tt with yyyy = @udf yyyy by udf0.df_append with (访问耗时告警,$t_delay,昨天新增告警事件数比前天新增告警事件数$bb超50%)
+# 异地访问告警
+y_req = load ckh by ckh with select count(*) as yes from r_req_alm where timestamp >= '$day1' and timestamp < '$day2'
+y_req = eval y_req by iloc[0,0]
+t_req = load ckh by ckh with select count(*) as tod from r_req_alm where timestamp >= '$day2' and timestamp < '$day3' 
+t_req = eval t_req by iloc[0,0]
+req = load ckh by ckh with select count(*) as count from r_req_alm 
+req = eval req by iloc[0,0]
+tt = @sdf sys_eval with ($y_req-$t_req)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+risk = @udf risk by udf0.df_append with (异地访问告警,$y_req,$t_req,$bb,$req)
+###异地访问告警异常
+y_req1 = @sdf sys_eval by ($y_req/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_req1 < $tt with yyyy = @udf yyyy by udf0.df_append with (异地访问告警,$t_req,昨天新增告警事件数比前天新增告警事件数$bb超50%)
+# 请求异常告警
+y_stat = load ckh by ckh with select count(*) as yes from stat_req_alm where timestamp >= '$day1' and timestamp < '$day2'
+y_stat = eval y_stat by iloc[0,0]
+t_stat = load ckh by ckh with select count(*) as tod from stat_req_alm where timestamp >= '$day2' and timestamp < '$day3' 
+t_stat = eval t_stat by iloc[0,0]
+stat = load ckh by ckh with select count(*) as count from stat_req_alm 
+stat = eval stat by iloc[0,0]
+tt = @sdf sys_eval with ($y_stat-$t_stat)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+risk = @udf risk by udf0.df_append with (请求异常告警,$y_stat,$t_stat,$bb,$stat)
+###请求异常告警异常
+y_stat1 = @sdf sys_eval by ($y_stat/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_stat1 < $tt with yyyy = @udf yyyy by udf0.df_append with (请求异常告警,$t_stat,昨天新增告警事件数比前天新增告警事件数$bb超50%)
+# 敏感数据告警
+y_sensitive = load ckh by ckh with select count(*) as yes from sensitive_data_alarm where time >= '$day1' and time < '$day2'
+y_sensitive = eval y_sensitive by iloc[0,0]
+t_sensitive = load ckh by ckh with select count(*) as tod from sensitive_data_alarm where time >= '$day2' and time < '$day3' 
+t_sensitive = eval t_sensitive by iloc[0,0]
+sensitive = load ckh by ckh with select count(*) as count from sensitive_data_alarm 
+sensitive = eval sensitive by iloc[0,0]
+tt = @sdf sys_eval with ($y_sensitive-$t_sensitive)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+risk = @udf risk by udf0.df_append with (敏感数据告警,$y_sensitive,$t_sensitive,$bb,$sensitive)
+###敏感数据告警异常
+y_sensitive1 = @sdf sys_eval by ($y_sensitive/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_sensitive1 < $tt with yyyy = @udf yyyy by udf0.df_append with (敏感数据告警,$t_sensitive,昨天新增告警事件数比前天新增告警事件数$bb超50%)
+# 境外访问告警
+y_abroad = load ckh by ckh with select count(*) as yes from api_abroad where timestamp >= '$day1' and timestamp < '$day2'
+y_abroad = eval y_abroad by iloc[0,0]
+t_abroad = load ckh by ckh with select count(*) as tod from api_abroad where timestamp >= '$day2' and timestamp < '$day3' 
+t_abroad = eval t_abroad by iloc[0,0]
+abroad = load ckh by ckh with select count(*) as count from api_abroad 
+abroad = eval abroad by iloc[0,0]
+tt = @sdf sys_eval with ($y_abroad-$t_abroad)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+risk = @udf risk by udf0.df_append with (境外访问告警,$y_abroad,$t_abroad,$bb,$abroad)
+###境外访问告警异常
+y_abroad1 = @sdf sys_eval by ($y_abroad/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_abroad1 < $tt with yyyy = @udf yyyy by udf0.df_append with (境外访问告警,$t_abroad,昨天新增告警事件数比前天新增告警事件数$bb超50%)
+# 文件敏感信息告警
+y_filter = load ckh by ckh with select count(*) as yes from datafilter_alarm where timestamp >= '$day1' and timestamp < '$day2'
+y_filter = eval y_filter by iloc[0,0]
+t_filter = load ckh by ckh with select count(*) as tod from datafilter_alarm where timestamp >= '$day2' and timestamp < '$day3' 
+t_filter = eval t_filter by iloc[0,0]
+filter1 = load ckh by ckh with select count(*) as count from datafilter_alarm 
+filter1 = eval filter1 by iloc[0,0]
+tt = @sdf sys_eval with ($y_filter-$t_filter)
+if $tt > 0 with bb = eval aa by iloc[2,0]
+if $tt == 0 with bb = eval aa by iloc[1,0]
+if $tt < 0 with bb = eval aa by iloc[0,0]
+risk = @udf risk by udf0.df_append with (文件敏感信息告警,$y_filter,$t_filter,$bb,$filter1)
+###文件敏感信息告警异常
+y_filter1 = @sdf sys_eval by ($y_filter/2)
+if $tt < 0 with tt = @sdf sys_eval by ($tt * -1)
+if $y_filter1 < $tt with yyyy = @udf yyyy by udf0.df_append with (文件敏感信息告警,$t_abroad,昨天新增告警事件数比前天新增告警事件数$bb超50%)
+##重命名、保存
+rename risk as ('tt':'告警','yes':'前天','tod':'昨天','trend':'趋势','count':'总数')
+alter risk by 总数:int
+risk = add aa by 1
+pj = group risk by aa agg 总数:mean
+pj = eval pj by iloc[0,0]
+if $pj >= 100000 with risk.counts = lambda 总数 by (x:round(x/10000,2))
+if $pj < 100000 with risk.counts = lambda 总数 by (x:x)
+risk2 = loc risk by 告警,counts
+risk = loc risk by 告警,前天,昨天,趋势,总数
+store risk to ssdb by ssdb0 with risk_daily
+
+##单位
+dw = @udf udf0.new_df with dw
+if $pj >= 100000 with dw = @udf dw by udf0.df_append with ((万))
+if $pj < 100000 with dw = @udf dw by udf0.df_append with ()
+store dw to ssdb by ssdb0 with risk_dw
+
+##告警事件数分布：
+#risk2 = loc risk by 告警,counts
+risk2 = loc risk2 by 告警 to index
+rename risk2 as ('counts':'数量')
+store risk2 to ssdb by ssdb0 with risk_num
+
+###近24小时告警变化趋势
+#api_risk = load ckh by ckh with select SUBSTRING(toString(first_time),12,2) as hour,count(*) as risk from api_risk where toString(first_time) > '$dd24' group by hour
+#api_delay = load ckh by ckh with select substring(toString(time),12,2) as hour,count(*) as delay from api_delay where time > '$dd24' group by hour
+#req = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as req from r_req_alm where timestamp > '$dd24' group by hour
+#stat = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as stat from stat_req_alm where timestamp > '$dd24' group by hour
+#sensitive = load ckh by ckh with select substring(toString(time),12,2) as hour,count(*) as sens from sensitive_data_alarm where time > '$dd24' group by hour
+#api_abroad = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as abroad from api_abroad where timestamp > '$dd24' group by hour
+#datafilter = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as filter from datafilter_alarm where timestamp > '$dd24' group by hour
+#risk = join j_hour,api_risk by hour,hour with left
+#risk = join risk,api_delay by hour,hour with left
+#risk = join risk,req by hour,hour with left
+#risk = join risk,stat by hour,hour with left
+#risk = join risk,sensitive by hour,hour with left
+#risk = join risk,api_abroad by hour,hour with left
+#risk = join risk,datafilter by hour,hour with left
+#risk = @udf risk by udf0.df_fillna with 0
+#risk = loc risk by hours to index 
+#rename risk as ('risk':'阈值告警','delay':'访问耗时告警','req':'异地访问告警','stat':'请求异常告警','sens':'敏感数据告警','abroad':'境外访问告警','filter':'文件敏感信息告警')
+#risk = loc risk by 阈值告警,访问耗时告警,异地访问告警,请求异常告警,敏感数据告警,境外访问告警,文件敏感信息告警
+#store risk to ssdb by ssdb0 with risk_24h
+
+#####处理异常--------------------------------------------------------------------------------------
+yyyy = loc yyyy by 异常项,异常指标,异常详情
+store yyyy to ssdb by ssdb0 with yyyy_daily
+##############################################################################下面脚本不需要修改##################################################################
+#加载图片数据的key
+data=load ssdb by ssdb0 with @pics_data
+#生成图片
+@udf data by doc.generate_pic with @id
+#生成模板,result表返回的是是否成功生成模板，result表有两列，一列是status，一列是errMessage，status为1代表成功生成模板,为0代表生成模板失败
+result=@udf data by doc.modifiy_doc with (@id,@base,@var_data,@tbs_data,@report_name)
+
+#生成在线文档
+html = @udf doc.word2html with @report_name
+#页面提示
+assert not_have_error() as alert to 报告生成完成! with 报告生成发现错误!
+
+#保存
+t = add status with ('报告生成完毕')
+t = @udf t by CRUD.save_table with (@link,@table)
+assert t by df.index[0] >0  as notice to @report_name 报告生成完毕! with @report_name 报告生成发现错误!
+
+push t as table
+
+#清理工作区
+clear @FID

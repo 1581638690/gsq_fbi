@@ -1,0 +1,34 @@
+#LastModifyDate:　2023-07-07T15:01:25.129021    Author:   zwl
+#LastModifyDate:　2023-07-06T15:46:49.273325    Author:   zwl
+#LastModifyDate:　2023-07-05T18:41:25.651850    Author:   zwl
+#LastModifyDate:　2023-03-21T14:14:49.895081    Author:   zwl
+#LastModifyDate:　2023-03-15T15:10:22.081234    Author:   zwl
+#LastModifyDate:　2023-03-13T17:29:17.662328    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+
+datas = load db by mysql1 with select a.id as _id,a.api,a.api_name,a.app,a.app_name,a.dest_ip,a.dest_port,a.method,a.length,a.first_time,a.last_time,a.state,b.type1,a.more from api19_risk a join api19_type b on a.type = b.type where b.type1 = '@type' order by a.last_time desc
+datas = @udf datas by udf0.df_fillna
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+""" 
+###截取  more  字段最新发现的证据  
+datas.more = lambda more by x: json.loads(x)
+datas.more = lambda more by x: x[-1] if isinstance(x,list) else x
+alter datas.more as str
+datas.more = lambda more by (x:x[0:30000])
+rename datas as ('id':'_id','api':'接口','api_name':'接口名','app':'应用','app_name':'应用名','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','length':'返回数据最大数据量','first_time':'首次发现时间','last_time':'最新监测时间','state':'弱点状态','type1':'弱点类型','more':'详情')
+store datas to csv by 弱点分析_@type_$day.csv
+
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 弱点分析_@type_$day.csv
+push name as file_name
+
+clear @FID

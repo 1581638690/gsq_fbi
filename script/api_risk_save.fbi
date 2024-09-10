@@ -1,0 +1,59 @@
+#LastModifyDate:　2024-03-08T15:29:34    Author:   zwl
+#LastModifyDate:　2024-01-15T10:49:14    Author:   zwl
+#LastModifyDate:　2023-12-27T09:45:33.109859    Author:   zwl
+#LastModifyDate:　2023-07-05T15:00:18.769427    Author:   zwl
+#LastModifyDate:　2023-05-04T18:59:38.883403    Author:   zwl
+#LastModifyDate:　2023-03-24T11:03:55.125954    Author:   zwl
+#LastModifyDate:　2023-03-18T14:07:22.950632    Author:   zwl
+#LastModifyDate:　2023-03-14T11:09:03.934614    Author:   zwl
+use @FID
+
+#FBI脚本文件
+
+#保存语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+alter a._id as int
+#保存
+id = eval a by iloc[0,0]
+api = load db by mysql1 with select id,api,api_name,app,app_name,dest_ip,dest_port,method,length,first_time,last_time,type,more from api19_risk where id = '$id'
+a = join a,api by _id,id 
+a = loc a by id,api,api_name,app,app_name,dest_ip,dest_port,method,length,first_time,last_time,type,more,弱点状态
+type = eval a by iloc[0,11]
+rename a as ('弱点状态':'state')
+alter a.first_time.last_time as str
+a = loc a by id to index
+b = loc a by id,api,state
+b = @udf b by CRUD.save_table with (mysql1,api19_risk)
+
+assert find_df('b',ptree) as  alert  to 保存成功！ with 保存失败！
+
+
+###修改后重新保存
+api19_risk = load db by mysql1 with select id as _id,api,api_name,app,app_name,dest_ip,dest_port,method,length,first_time,last_time,state,type,more from api19_risk where type = '$type' order by last_time desc
+tt = @udf api19_risk by udf0.df_fillna 
+tt = filter tt by type != ''
+tt = order tt by last_time with desc limit 10000
+alter tt.first_time.last_time as str
+#保存为pkl文件
+#store tt to pkl by dt_table/api19_risk_@type.pkl
+tt = loc tt by _id,api,app,dest_ip,dest_port,method,last_time,state,type
+#重命名
+rename tt as ('api':'接口','api_name':'接口名','app':'应用','app_name':'应用名','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','length':'返回数据最大数据量','first_time':'首次发现时间','last_time':'最新监测时间','state':'弱点状态','type':'弱点类型','more':'详情')
+tt = loc tt by _id,接口,应用,部署IP,部署端口,请求类型,最新监测时间,弱点状态
+#清空Q
+b = load ssdb by ssdb0 query qclear,api19_risk_@type,-,-
+#保存Q
+store tt to ssdb by ssdb0 with api19_risk_@type as Q         
+
+
+
+#push c as table
+#清除工作区
+clear @FID

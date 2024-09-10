@@ -1,0 +1,10 @@
+#LastModifyDate:　2024-03-13T19:00:38    Author:   pjb
+use @FID
+
+#共享数据
+run alds_share.fbi
+
+#文件服务器
+run file_count.fbi
+
+clear @FID

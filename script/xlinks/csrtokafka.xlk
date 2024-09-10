@@ -1,0 +1,116 @@
+#LastModifyDate:　2022-10-20T14:26:21.067149    Author:   gsp
+#LastModifyDate:　2022-10-20T14:19:29.486841    Author:   gsp
+#xlink脚本
+#file: csrtokafka.xlk
+#name: 云探针到Kafka
+#描述： 云探针到Kafka
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with csrtokafka
+
+#停止
+#a = @udf FBI.x_finder3_stop with csrtokafka
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:csrtokafka,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::csrtokafka
+
+
+#初始化
+init => {
+	stream["meta_name"] = "云探针到Kafka"
+	stream["meta_desc"] = "云探针到Kafka"
+	stream["link"] = load_ssdb_kv("setting")["kfk"]["origin"]["link"]
+	stream["topic"] = load_ssdb_kv("setting")["kfk"]["origin"]["topic"]
+	stream["redis"] = load_ssdb_kv("agent")["redis"]
+	stream["header"] = load_ssdb_kv("agent")["header"]
+	#取第一个topic
+	stream["topic1"] = load_ssdb_kv("agent")["header"][0]["topic"]
+	#字典 key-topic:value-destip
+	stream["cfg"] = {}
+	for flag in stream["header"]:
+		stream["cfg"][flag["topic"]] = flag["destip"]
+    	#value = list(flag.values())
+    	#stream["cfg"].setdefault("{}".format(value[0]), "{}".format(value[1]))
+	#把剩下的topic生成一个列表
+	stream["topics"] = []
+	for tp in stream["header"]:
+		topic = tp.get("topic")
+		stream["topics"].append(topic)
+	stream["topics"].pop(0)
+	
+	stream["source"]= {"link":stream["redis"],"topic":stream["topic1"],"redis":"list","topics":stream["topics"]}
+	#stream["source"]= {"link":stream["redis"],"topic":"csr-data-1","redis":"list","topics":["csr-data-2"]}
+	#stream["cfg"] = {"csr-data-1":"192.168.1.175","csr-data-2":"192.168.1.86","csr-data-3":"192.168.1.187"}
+	#stream["kfk"]={"link":stream["link"],"topic":stream["topic"],"key":""}
+	stream["kfk"]={"link":"192.168.1.190:9092","topic":"csrtest","key":""}
+	stream["stw"]["stw_flow"]={"times":60,"fun":"flow"}
+	stream["stw"]["stw_http"]={"times":60,"fun":"http"}
+	stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	stream["count"] = 0
+	stream["count-10"] = 0
+	#chk的链接
+	#stream["CKH"] = CKH_Client(host="192.168.1.192",port=19999,user="default",password="client")
+	#chk创建表
+	#stream["CKH"].execute("CREATE TABLE test2 (x Int32) ENGINE = MergeTree() order by x")
+	#创建pool
+	pool["ckh"] = []
+}
+
+
+#事件处理函数
+events => {
+	k = iso_to_timestamp(o["timestamp"])
+	#o["test"] = ss(o["event_type"],o["event_type"],o["event_type"])
+	#k =  int(o["time_int"]/1000)
+	stream["count"] +=1
+	stream["count-10"] +=1
+	if o["event_type"] =="http":
+		to_kfk(o)
+	#to_es(o)
+	#to_kfk(o)
+	#to_table(o)
+	#to_pool("ckh",o)
+	#push_stw("stw_10s",k,o)
+}
+
+#系统定时函数
+print10 => {
+	printf("print10","%s==sum==%d"%(st,stream["count"]))
+	printf("print10","%s==10===%d"%(st,stream["count-10"]))
+	stream["count-10"] = 0
+}
+
+#窗口函数，使用FBI的原语
+flow => stw{
+
+}
+
+#窗口函数，使用FBI的原语
+http => stw{
+	#assert df3 by df.index.size >0 as notice to 调度成功[$t2] with 调度失败!
+}
+
+#自定义批处理函数，使用FBI语句块, 可以在系统定时函数中调用
+#使用push_arrays_to_df函数生成df,在语句块中使用
+#如: push_arrays_to_df(table,"flow")
+save => fbi{
+	#@udf flow by CRUD.save_table with (msyql,flow_info)
+	#drop flow
+}
+
+#自定义python函数，必须有参数,可以在初始化函数，事件处理函数，和定时函数中使用
+ss => (d1,d2,d3){
+	return d1+d2+d3
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+}		

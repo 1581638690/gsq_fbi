@@ -1,0 +1,191 @@
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:23.873596","nav_name":"main_process__4","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:23.874384","nav_name":"main_process__4","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:23.876759","nav_name":"main_process__4","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:23.877014","nav_name":"main_process__4","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:23.877192","nav_name":"main_process__4","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.198101","nav_name":"main_process","action":"启动xlink子任务[0]","params":"ID-0,PID-1544616","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.201289","nav_name":"main_process__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.201905","nav_name":"main_process__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.201823","nav_name":"main_process","action":"启动xlink子任务[1]","params":"ID-1,PID-1544617","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.203885","nav_name":"main_process__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.204208","nav_name":"main_process__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.204391","nav_name":"main_process__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.205104","nav_name":"main_process__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.205570","nav_name":"main_process__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.205595","nav_name":"main_process","action":"启动xlink子任务[2]","params":"ID-2,PID-1544621","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.207656","nav_name":"main_process__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.208019","nav_name":"main_process__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.208183","nav_name":"main_process__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.209037","nav_name":"main_process__2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.209510","nav_name":"main_process__2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.209245","nav_name":"main_process","action":"启动xlink子任务[3]","params":"ID-3,PID-1544625","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.211666","nav_name":"main_process__2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.211910","nav_name":"main_process__2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.212061","nav_name":"main_process__2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.212439","nav_name":"main_process__3","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.212884","nav_name":"main_process__3","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.213199","nav_name":"main_process","action":"启动xlink子任务[4]","params":"ID-4,PID-1544629","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.215632","nav_name":"main_process__3","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.215890","nav_name":"main_process__3","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.216047","nav_name":"main_process__3","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.216404","nav_name":"main_process__4","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.216876","nav_name":"main_process__4","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.216939","nav_name":"main_process","action":"启动xlink子任务[5]","params":"ID-5,PID-1544633","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.219190","nav_name":"main_process__4","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.219452","nav_name":"main_process__4","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.219633","nav_name":"main_process__4","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.220248","nav_name":"main_process__5","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.220707","nav_name":"main_process__5","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.220751","nav_name":"main_process","action":"启动xlink子任务[6]","params":"ID-6,PID-1544637","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.222784","nav_name":"main_process__5","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.223163","nav_name":"main_process__5","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.223315","nav_name":"main_process__5","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.224077","nav_name":"main_process__6","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.224538","nav_name":"main_process__6","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.224420","nav_name":"main_process","action":"启动xlink子任务[7]","params":"ID-7,PID-1544641","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.226763","nav_name":"main_process__6","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.226996","nav_name":"main_process__6","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.227132","nav_name":"main_process__6","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.228147","nav_name":"main_process__7","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.228712","nav_name":"main_process__7","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.228323","nav_name":"main_process","action":"启动xlink子任务[8]","params":"ID-8,PID-1544647","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.232129","nav_name":"main_process__7","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.232470","nav_name":"main_process__7","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.232373","nav_name":"main_process__8","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.232609","nav_name":"main_process__7","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.232791","nav_name":"main_process__8","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.232070","nav_name":"main_process","action":"启动xlink主任务[-1]","params":"PID-1544710","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.233277","nav_name":"main_process","action":"启动参数","params":"unix_udp: \/tmp\/znsm_main,mode: json,socket: \/tmp\/znsm_main.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.233456","nav_name":"main_process","action":"守护开始","params":"PID:1544054,主任务+9","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.234559","nav_name":"main_process","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.235087","nav_name":"main_process","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.238167","nav_name":"main_process__8","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.238431","nav_name":"main_process__8","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.238574","nav_name":"main_process__8","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.248826","nav_name":"main_process","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.249029","nav_name":"main_process","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:27.249141","nav_name":"main_process","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.510879","nav_name":"main_process","action":"启动xlink子任务[0]","params":"ID-0,PID-1610597","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.514624","nav_name":"main_process__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.515154","nav_name":"main_process__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.515083","nav_name":"main_process","action":"启动xlink子任务[1]","params":"ID-1,PID-1610599","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.517309","nav_name":"main_process__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.517556","nav_name":"main_process__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.517791","nav_name":"main_process__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.518836","nav_name":"main_process__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.519289","nav_name":"main_process__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.518983","nav_name":"main_process","action":"启动xlink子任务[2]","params":"ID-2,PID-1610603","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.522825","nav_name":"main_process","action":"启动xlink子任务[3]","params":"ID-3,PID-1610607","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.525872","nav_name":"main_process__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.526141","nav_name":"main_process__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.526331","nav_name":"main_process__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.526550","nav_name":"main_process","action":"启动xlink子任务[4]","params":"ID-4,PID-1610608","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.530829","nav_name":"main_process","action":"启动xlink子任务[5]","params":"ID-5,PID-1610609","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.532442","nav_name":"main_process__2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.532455","nav_name":"main_process__4","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.532443","nav_name":"main_process__3","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.532971","nav_name":"main_process__4","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.532972","nav_name":"main_process__3","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.532973","nav_name":"main_process__2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535375","nav_name":"main_process__3","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535375","nav_name":"main_process__4","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535484","nav_name":"main_process__2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535673","nav_name":"main_process__3","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535671","nav_name":"main_process__4","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.534694","nav_name":"main_process","action":"启动xlink子任务[6]","params":"ID-6,PID-1610610","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535742","nav_name":"main_process__2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535688","nav_name":"main_process__5","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535885","nav_name":"main_process__4","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535884","nav_name":"main_process__3","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.535920","nav_name":"main_process__2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.536188","nav_name":"main_process__5","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.538568","nav_name":"main_process__5","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.538871","nav_name":"main_process__5","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.539048","nav_name":"main_process__5","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.539081","nav_name":"main_process__6","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.538598","nav_name":"main_process","action":"启动xlink子任务[7]","params":"ID-7,PID-1610620","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.539538","nav_name":"main_process__6","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.541680","nav_name":"main_process__6","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.541904","nav_name":"main_process__6","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.542085","nav_name":"main_process__6","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.542540","nav_name":"main_process__7","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.541894","nav_name":"main_process","action":"启动xlink子任务[8]","params":"ID-8,PID-1610625","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.543036","nav_name":"main_process__7","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.545111","nav_name":"main_process__7","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.545316","nav_name":"main_process__7","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.545496","nav_name":"main_process__7","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.546161","nav_name":"main_process__8","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.545146","nav_name":"main_process","action":"启动xlink主任务[-1]","params":"PID-1610629","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.546577","nav_name":"main_process__8","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.546594","nav_name":"main_process","action":"启动参数","params":"unix_udp: \/tmp\/znsm_main,mode: json,socket: \/tmp\/znsm_main.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.546778","nav_name":"main_process","action":"守护开始","params":"PID:1609911,主任务+9","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.548738","nav_name":"main_process__8","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.548974","nav_name":"main_process__8","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.549160","nav_name":"main_process__8","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.549977","nav_name":"main_process","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.550530","nav_name":"main_process","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.553721","nav_name":"main_process","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.554239","nav_name":"main_process","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:00.554470","nav_name":"main_process","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.519831","nav_name":"main_process","action":"启动xlink子任务[0]","params":"ID-0,PID-1763011","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.523297","nav_name":"main_process__0","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.523993","nav_name":"main_process__0","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.523497","nav_name":"main_process","action":"启动xlink子任务[1]","params":"ID-1,PID-1763012","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.526680","nav_name":"main_process__0","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.526940","nav_name":"main_process__0","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.527126","nav_name":"main_process__0","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.526965","nav_name":"main_process__1","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.527451","nav_name":"main_process__1","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.527254","nav_name":"main_process","action":"启动xlink子任务[2]","params":"ID-2,PID-1763014","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.529715","nav_name":"main_process__1","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.530092","nav_name":"main_process__1","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.530256","nav_name":"main_process__1","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.530964","nav_name":"main_process","action":"启动xlink子任务[3]","params":"ID-3,PID-1763020","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.534531","nav_name":"main_process","action":"启动xlink子任务[4]","params":"ID-4,PID-1763021","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.537960","nav_name":"main_process","action":"启动xlink子任务[5]","params":"ID-5,PID-1763022","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.541436","nav_name":"main_process","action":"启动xlink子任务[6]","params":"ID-6,PID-1763023","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.544678","nav_name":"main_process","action":"启动xlink子任务[7]","params":"ID-7,PID-1763034","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.548449","nav_name":"main_process__2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.548994","nav_name":"main_process__2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.548155","nav_name":"main_process","action":"启动xlink子任务[8]","params":"ID-8,PID-1763088","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.549209","nav_name":"main_process__4","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.549625","nav_name":"main_process__4","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.549841","nav_name":"main_process__7","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.550321","nav_name":"main_process__7","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.550238","nav_name":"main_process__5","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.550730","nav_name":"main_process__5","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.550578","nav_name":"main_process__3","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.551065","nav_name":"main_process__3","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.551254","nav_name":"main_process__6","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.551743","nav_name":"main_process__6","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.551978","nav_name":"main_process__2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.552404","nav_name":"main_process__2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.552098","nav_name":"main_process__4","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.552597","nav_name":"main_process__2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.552599","nav_name":"main_process__4","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.552823","nav_name":"main_process__4","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.552805","nav_name":"main_process__8","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553011","nav_name":"main_process__5","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553226","nav_name":"main_process__8","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553039","nav_name":"main_process__7","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553322","nav_name":"main_process__5","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553417","nav_name":"main_process__7","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553466","nav_name":"main_process__5","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.552399","nav_name":"main_process","action":"启动xlink主任务[-1]","params":"PID-1763091","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553340","nav_name":"main_process__3","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553574","nav_name":"main_process__7","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553635","nav_name":"main_process__3","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553694","nav_name":"main_process","action":"启动参数","params":"unix_udp: \/tmp\/znsm_main,mode: json,socket: \/tmp\/znsm_main.1,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553783","nav_name":"main_process__3","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553846","nav_name":"main_process","action":"守护开始","params":"PID:1762184,主任务+9","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.553868","nav_name":"main_process__6","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.554103","nav_name":"main_process__6","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.554232","nav_name":"main_process__6","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.554274","nav_name":"main_process","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.554707","nav_name":"main_process","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.558434","nav_name":"main_process__8","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.558644","nav_name":"main_process__8","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.558423","nav_name":"main_process","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-1","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.558775","nav_name":"main_process__8","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.558810","nav_name":"main_process","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:05.559147","nav_name":"main_process","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}

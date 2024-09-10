@@ -1,0 +1,250 @@
+#LastModifyDate:　2024-01-18T17:54:35    Author:   chw
+#LastModifyDate:　2024-01-16T13:56:04    Author:   zwl
+#LastModifyDate:　2024-01-12T10:28:09    Author:   zwl
+#LastModifyDate:　2023-09-12T13:57:38.002064    Author:   zwl
+#LastModifyDate:　2023-09-08T10:09:34.442105    Author:   zwl
+#LastModifyDate:　2023-08-31T17:01:40.675852    Author:   zwl
+#LastModifyDate:　2023-07-04T18:37:36.613932    Author:   pjb
+#LastModifyDate:　2023-07-03T11:27:26.846111    Author:   pjb
+#LastModifyDate:　2023-07-03T10:59:03.000189    Author:   pjb
+#LastModifyDate:　2023-06-25T17:15:19.362077    Author:   pjb
+#LastModifyDate:　2023-05-23T13:56:20.052291    Author:   zwl
+#FBI脚本文件
+#文件名: qh_set_risklevel.fbi
+#作者: qiaohan
+#敏感标签、风险标签、请求响应标签
+use @FID
+#Delete 注释 by qh on 2022-11-24 15:11:26
+#api_r = @udf RS.load_mysql_sql with (mysql1,select url,id from data_api_new)
+##api_risk = @udf RS.load_mysql_sql with (mysql1,select distinct url,risk_level as newr,risk_label,risk_label_value from risk_api)
+#api_risk = load ckh by ckh with select distinct url,risk_label,risk_label_value from risk_api
+#api_risk1 = group api_risk by url agg risk_label:sum
+#api_risk2 = group api_risk by url agg risk_label_value:sum
+#api = join api_r,api_risk1 by url,url with left
+#api = join api,api_risk2 by url,url with left
+#api = @udf api by udf0.df_fillna with (0)
+#api = filter api by (risk_label_sum != 0)
+#api = @udf api by udf0.df_rowl with (lambda x:"2" if "19-1" in x[2] or "19-2" in x[2] or "19-4" in x[2] or "19-7" in x[2] or "19-8" in x[2] else "1" )
+#rename api as ("lambda0":"risk_level","risk_label_sum":"risk_label","risk_label_value_sum":"risk_label_value")
+#api = @udf api by udf0.df_set_index with id
+#api = @udf api by CRUD.save_table with (mysql1,data_api_new)
+
+
+api_r = @udf RS.load_mysql_sql with (mysql1,select url,id from data_api_new)
+api19_risk = load db by mysql1 with select distinct api,type from api19_risk
+api19_risk.type = str type by (findall('API19-[1-9]'))
+alter api19_risk.type as str
+api19_risk.type = lambda type by (x:x[2:-2])
+api19_risk = distinct api19_risk by (api,type)
+api19_risk.type = lambda type by (x:x+';')
+api19_risk1 = group api19_risk by api agg type:sum
+api19_risk1.type_sum = lambda type_sum by (x:x[:-1])
+api19_risk1 = add risk_label_value by (df["type_sum"])
+api19_risk1.risk_label_value = str risk_label_value by (replace('API19-1','API19-1损坏的对象级别授权'))
+api19_risk1.risk_label_value = str risk_label_value by (replace('API19-2','API19-2损坏的用户身份验证'))
+api19_risk1.risk_label_value = str risk_label_value by (replace('API19-3','API19-3过度的数据暴露'))
+api19_risk1.risk_label_value = str risk_label_value by (replace('API19-4','API19-4缺乏资源和速率限制'))
+api19_risk1.risk_label_value = str risk_label_value by (replace('API19-7','API19-7安全性配置错误'))
+api19_risk1.risk_label_value = str risk_label_value by (replace('API19-8','API19-8注入'))
+api19_risk1 = @udf api19_risk1 by udf0.df_reset_index
+rename api19_risk1 as ("risk_label_sum":"risk_label","api":"url")
+api = join api_r,api19_risk1 by url,url with left
+api = @udf api by udf0.df_fillna_cols with type_sum:'0',risk_label_value:'0'
+api = filter api by (risk_label_value != '0')
+api = @udf api by udf0.df_rowl with (lambda x:"2" if "19-1" in x[2] or "19-2" in x[2] or "19-4" in x[2] or "19-7" in x[2] or "19-8" in x[2] else "1" )
+rename api as ("lambda0":"risk_level","type_sum":"risk_label")
+api = @udf api by udf0.df_set_index with id
+api = @udf api by CRUD.save_table with (mysql1,data_api_new)
+
+
+######加载sensitive_tab.fbi  处理sen_http_count的数据
+#sens = load pkl by sensitive/sens_data.pkl
+sens = load pq by sensitive/sens_data.pq
+alter sens by app:str,url:str,src_ip:str,account:str,key:str,num:int
+api1 = load db by mysql1 with select id,url from data_api_new 
+alter api1 by id:int,url:str
+####响应体  更新接口管理   返回数据标签
+sens1 = filter sens by type == '响应体'
+sens1 = loc sens1 by url,key
+sens1 = distinct sens1 by url,key
+sens1.key = str key by (replace('身份证','0'))
+sens1.key = str key by (replace('手机号','1'))
+sens1.key = str key by (replace('邮箱','2'))
+sens1.key = str key by (replace('地址','3'))
+sens1.key = str key by (replace('婚姻状况','4'))
+sens1.key = str key by (replace('宗教信仰','5'))
+sens1.key = str key by (replace('发票代码','6'))
+sens1.key = str key by (replace('纳税人识别号或社会统一信用代码','7'))
+sens1.key = str key by (replace('纳税人名称或公司名称','8'))
+sens1.key = str key by (replace('银行卡号','9'))
+sens1.key = str key by (replace('收入','10'))
+sens1.key = str key by (replace('姓名','11'))
+#对sens1进行去重
+sens1 = distinct sens1 by (url,key)
+sens1 = filter sens1 by key !="发票号码"
+#根据url列 将key值 替换到 req_label
+sens1 = add key by (sens1.key+',')
+sens1 = group sens1 by url agg key:sum
+sens1.key_sum = lambda key_sum by x:x.split(",")[0:-1]
+alter sens1.key_sum as str
+sens1.key_sum = lambda key_sum by x:x.replace("'",'"')
+sens1 = @udf sens1 by udf0.df_reset_index
+#将sens1与api1进行联合
+rename sens1 as ("key_sum":"res_llabel")
+sens1 = join api1,sens1 by url,url
+sens1 = @udf sens1 by udf0.df_set_index with id
+sens1 = @udf sens1 by CRUD.save_table with (mysql1,data_api_new)
+
+
+##计算请求体   更新接口管理   请求数据标签
+sens2 = filter sens by type == '请求体'
+sens2 = loc sens2 by url,key
+sens2 = distinct sens2 by url,key
+sens2.key = str key by (replace('身份证','0'))
+sens2.key = str key by (replace('手机号','1'))
+sens2.key = str key by (replace('邮箱','2'))
+sens2.key = str key by (replace('地址','3'))
+sens2.key = str key by (replace('婚姻状况','4'))
+sens2.key = str key by (replace('宗教信仰','5'))
+sens2.key = str key by (replace('发票代码','6'))
+sens2.key = str key by (replace('纳税人识别号或社会统一信用代码','7'))
+sens2.key = str key by (replace('纳税人名称或公司名称','8'))
+sens2.key = str key by (replace('银行卡号','9'))
+sens2.key = str key by (replace('收入','10'))
+sens2.key = str key by (replace('姓名','11'))
+sens2 = distinct sens2 by (url,key)
+sens2 = filter sens2 by key !="发票号码"
+#根据url列 将key值 替换到 req_label
+sens2 = add key by (sens2.key+',')
+sens2 = group sens2 by url agg key:sum
+sens2.key_sum = lambda key_sum by x:x.split(",")[0:-1]
+alter sens2.key_sum as str
+sens2.key_sum = lambda key_sum by x:x.replace("'",'"')
+sens2 = @udf sens2 by udf0.df_reset_index
+#将sens1与api1进行联合
+rename sens2 as ("key_sum":"req_label")
+sens2 = join api1,sens2 by url,url
+sens2 = @udf sens2 by udf0.df_set_index with id
+sens2 = @udf sens2 by CRUD.save_table with (mysql1,data_api_new)
+
+
+
+#####根据 sensitive_data进行统计
+#之前
+#Delete 注释 by superFBI on 2023-05-17 15:22:37
+#sens = load ckh by ckh with select distinct url_c as url,key from sensitive_data where sens = '请求体'
+##sens = load ckh by ckh with select distinct url_c as url,key from sen_http_count
+##reqs_label = load ssdb by ssdb0 with dd:reqs_label
+#sens.key =str key by (replace('身份证','0'))
+#sens.key =str key by (replace('手机号','1'))
+#sens.key =str key by (replace('邮箱','2'))
+#sens.key =str key by (replace('地址','3'))
+#sens.key =str key by (replace('婚姻状况','4'))
+#sens.key =str key by (replace('宗教信仰','5'))
+#sens.key =str key by (replace('发票代码','6'))
+#sens.key =str key by (replace('纳税人识别号或社会统一信用代码','7'))
+#sens.key =str key by (replace('纳税人名称或公司名称','8'))
+#sens.key =str key by (replace('银行卡号','9'))
+#sens.key =str key by (replace('收入','10'))
+#sens.key =str key by (replace('姓名','11'))
+#sens = add key by (sens.key+',')
+#sens = group sens by url agg key:sum
+#sens.key_sum =str key_sum by (replace(',$',''))
+#sens.key_sum =str key_sum by (replace(',','","'))
+#sens.key_sum = lambda key_sum by (x:'["'+x+'"]') 
+#sens = @udf sens by udf0.df_reset_index
+#rename sens as ("key_sum":"req_label")
+#api2 = join api1,sens by url,url with left
+#sens = load ckh by ckh with select distinct url_c as url,key from sensitive_data where sens = '响应体'
+##sens = load ckh by ckh with select * from sen_http_count order by timestamp desc limit 100
+##sens = load ckh by ckh with select sen_type_count from sen_http_count order by timestamp desc limit 100
+##df2 = @udf sens by udf0.json_df with sen_type_count
+#sens.key =str key by (replace('身份证','0'))
+#sens.key =str key by (replace('手机号','1'))
+#sens.key =str key by (replace('邮箱','2'))
+#sens.key =str key by (replace('地址','3'))
+#sens.key =str key by (replace('婚姻状况','4'))
+#sens.key =str key by (replace('宗教信仰','5'))
+#sens.key =str key by (replace('发票代码','6'))
+#sens.key =str key by (replace('纳税人识别号或社会统一信用代码','7'))
+#sens.key =str key by (replace('纳税人名称或公司名称','8'))
+#sens.key =str key by (replace('银行卡号','9'))
+#sens.key =str key by (replace('收入','10'))
+#sens.key =str key by (replace('姓名','11'))
+#sens = add key by (sens.key+',')
+#sens = group sens by url agg key:sum
+#sens.key_sum =str key_sum by (replace(',$',''))
+#sens.key_sum =str key_sum by (replace(',','","'))
+#sens.key_sum = lambda key_sum by (x:'["'+x+'"]') 
+#sens = @udf sens by udf0.df_reset_index
+#rename sens as ("key_sum":"res_llabel")
+#api2 = join api2,sens by url,url with left
+#api2 = @udf api2 by udf0.df_fillna with ()
+#api2 = @udf api2 by udf0.df_set_index with id
+#api20 = filter api2 by (req_label != "" or res_llabel != "")
+#api20 = add sensitive_label by 1
+#api21 = filter api2 by (req_label == "" and res_llabel == "")
+#api21 = add sensitive_label by 0
+#api2 = union api20,api21
+#api2 = @udf api2 by CRUD.save_table with (mysql1,data_api_new)
+
+
+#####更新接口是否敏感
+#senapi = load ckh by ckh with select distinct url_c as url from sensitive_data
+# 获取等级
+sen_level = load ssdb by ssdb0 with sensitive as json
+sen_level = @udf sen_level by FBI.json2df
+alter sen_level by data:string
+sen_level.sensitive_label = str data by (findall("level': '(.*?)'"))
+sen_level.key = str data by (findall("rekey': '(.*?)',"))
+sen_level = @udf sen_level by udf0.df_drop_col with data
+alter sen_level by key:string,sensitive_label:string
+#alter sen_level.sensitive_label as str
+sen_level.key = lambda key by (x:x[2:-2])
+sen_level.sensitive_label = lambda sensitive_label by (x:x[2:-2])
+# join更新
+senapi = loc sens by url,key
+senapi = join senapi,sen_level by key,key with left
+senapi = @udf senapi by udf0.df_fillna_cols with url:'',key:'',sensitive_label:''
+senapi = filter senapi by sensitive_label != ""
+senapi = @udf senapi by udf0.df_drop_col with key
+senapi = distinct senapi by url,sensitive_label
+alter senapi.sensitive_label as str
+senapi.sensitive_label = lambda sensitive_label by x:x + ',' if x != "" else x
+senapi = group senapi by url agg sensitive_label:sum
+senapi = @udf senapi by udf0.df_reset_index
+rename senapi as ("sensitive_label_sum":"sensitive_label")
+senapi.sensitive_label = lambda sensitive_label by x:'3' if '3' in x else x
+senapi.sensitive_label = lambda sensitive_label by x:'2' if '2' in x else x
+senapi.sensitive_label = lambda sensitive_label by x:'1' if '1' in x else x
+api = load db by mysql1 with select url,id from data_api_new
+api = join api,senapi by url,url with left
+alter api.sensitive_label as float64
+api = @udf api by udf0.df_fillna_cols with sensitive_label:0
+alter api.sensitive_label as int
+api = filter api by (sensitive_label != 0)
+api = @udf api by udf0.df_set_index with id
+api = @udf api by CRUD.save_table with (mysql1,data_api_new)
+
+####更新应用是否敏感
+##senapp = load ckh by ckh with select distinct app from sensitive_data
+senapp = load db by mysql1 with select app,sensitive_label from data_api_new where sensitive_label != 0
+senapp = distinct senapp by (app,sensitive_label)
+alter senapp.sensitive_label as str
+senapp.sensitive_label = lambda sensitive_label by x:x + ',' if x != "" else x
+senapp = group senapp by app agg sensitive_label:sum
+senapp = @udf senapp by udf0.df_reset_index
+rename senapp as ("sensitive_label_sum":"sensitive_label")
+senapp.sensitive_label = lambda sensitive_label by x:'3' if '3' in x else x
+senapp.sensitive_label = lambda sensitive_label by x:'2' if '2' in x else x
+senapp.sensitive_label = lambda sensitive_label by x:'1' if '1' in x else x
+app = load db by mysql1 with select app,id from data_app_new
+app = join app,senapp by app,app with left
+alter app.sensitive_label as float64
+app = @udf app by udf0.df_fillna_cols with sensitive_label:0
+alter app.sensitive_label as int
+app = filter app by (sensitive_label != 0)
+app = @udf app by udf0.df_set_index with id
+app = @udf app by CRUD.save_table with (mysql1,data_app_new)
+
+clear @FID

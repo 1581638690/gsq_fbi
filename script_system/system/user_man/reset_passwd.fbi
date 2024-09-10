@@ -1,0 +1,12 @@
+#FBI脚本文件
+#reset_passwd.fbi
+
+#构建唯一工作区，处理并发
+use @FID
+
+#重置密码
+a=@udf udfA.reset_passwd with (@name)
+store a to ssdb by ssdb0 with @name:reset_passwd:@FPS as 600
+
+#清除工作区
+clear @FID

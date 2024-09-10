@@ -1,0 +1,39 @@
+#LastModifyDate:　2024-01-20T14:56:55    Author:   zwl
+#LastModifyDate:　2023-03-30T17:23:38.675100    Author:   zwl
+#LastModifyDate:　2023-03-17T16:20:57.737546    Author:   zwl
+#LastModifyDate:　2023-03-15T18:48:31.867280    Author:   zwl
+use @FID
+
+ss = load ssdb by ssdb0 with @datakey
+
+a = load pq by dt_table/app_g_risk_@app.pq
+a = loc a by index to __index
+#a = loc a by _id,app,url_count,srcip_count,account_count,sensitive_count,s_num_sum
+
+##判断是否进行   搜索--------------------------------------------
+ppp = load ssdb by ssdb0 with @filterKey
+ppp = filter ppp by app != ''
+ppp_num = eval ppp by index.size
+ppp_num = @sdf sys_eval with $ppp_num != 0
+#全文检索
+q = @sdf sys_if_run with ($ppp_num, "app = eval ppp by iloc[0,0]")
+q = @sdf sys_if_run with ($ppp_num, "a = filter a with $app")
+
+##判断是否进行   筛选--------------------------------------------
+sss_num = eval ss by index.size 
+sss_num = @sdf sys_eval with $sss_num != 0
+q = @sdf sys_if_run with ($sss_num, "ss1 = eval ss by iloc[0,0]")
+q = @sdf sys_if_run with ($sss_num, "a = filter a by $ss1")
+
+
+b = loc a by _id,app,url,risk_level,first_time,api_type,risk_label,api_status
+count = eval b by index.size
+c = @udf udf0.new_df with count
+c = @udf c by udf0.df_append with $count
+b = limit b by 1000
+rename b as ("app":"应用","url":"风险接口","risk_level":"风险等级","first_time":"首次发现时间","api_type":"接口类型","risk_label":"风险内容","api_status":"监控状态")
+
+push b as table
+push c as count
+
+clear @FID

@@ -1,0 +1,30 @@
+#LastModifyDate:　2024-01-20T15:44:34    Author:   zwl
+#LastModifyDate:　2023-08-23T17:16:20.472499    Author:   zwl
+#LastModifyDate:　2023-07-07T17:20:45.961901    Author:   zwl
+#LastModifyDate:　2023-03-23T10:05:42.786377    Author:   zwl
+#LastModifyDate:　2023-03-21T14:21:10.202455    Author:   zwl
+#LastModifyDate:　2023-03-18T17:23:09.941066    Author:   zwl
+#LastModifyDate:　2023-03-15T15:24:49.872130    Author:   zwl
+#LastModifyDate:　2023-03-07T10:45:33.564628    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/account_visit_url1_@account.pq
+datas = @udf datas by udf0.df_fillna_cols with account:'',url:'',url_num:0,flow:0,value:''
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+""" 
+rename datas as ("account":"账号","url":"接口","url_num":"访问数量","flow":"访问流量(k)","value":"接口类型")
+store datas to csv by 账号画像接口清单_@account_$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 账号画像接口清单_@account_$day.csv
+push name as file_name
+
+clear @FID

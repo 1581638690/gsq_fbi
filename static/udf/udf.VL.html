@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.VL</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.VL</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/VL.py">/opt/openfbi/fbi-bin/udf/VL.py</a></td></tr></table>
+    <p><span class="code">和可视化相关的一些函数</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="datetime.html">datetime</a><br>
+</td><td class="multicolumn"><a href="numpy.html">numpy</a><br>
+</td><td class="multicolumn"><a href="pandas.html">pandas</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-fgl"><strong>fgl</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-hotmap"><strong>hotmap</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-hotmap_max_min"><strong>hotmap_max_min</strong></a>(df1, p='')</dt><dd><span class="code">#根据第一列的最大最小值（最小为1,最大为10）来设置地图热力的颜色</span></dd></dl>
+ <dl><dt><a name="-hotmap_mean"><strong>hotmap_mean</strong></a>(df1, p='')</dt><dd><span class="code">#根据第一列的均值来设置地图热力的颜色</span></dd></dl>
+ <dl><dt><a name="-hotmap_median"><strong>hotmap_median</strong></a>(df1, p='')</dt><dd><span class="code">#根据第一列的,按中位数（中位数=5,最大为10,其余等宽分布）来设置地图热力的颜色</span></dd></dl>
+ <dl><dt><a name="-rgl"><strong>rgl</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-rgl2"><strong>rgl2</strong></a>(dfx, dfy, p='')</dt></dl>
+ <dl><dt><a name="-sankey"><strong>sankey</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-set_col_color"><strong>set_col_color</strong></a>(df, p='')</dt><dd><span class="code">设置表格的每列颜色<br>
+用法：&nbsp;df&nbsp;=&nbsp;@udf&nbsp;df&nbsp;by&nbsp;VL.set_col_color&nbsp;with&nbsp;(#ff00ff,#aacdf0)</span></dd></dl>
+ <dl><dt><a name="-set_col_width"><strong>set_col_width</strong></a>(df, p='')</dt><dd><span class="code">设置表格的列宽度<br>
+用法：&nbsp;df&nbsp;=&nbsp;@udf&nbsp;df&nbsp;by&nbsp;VL.set_col_width&nbsp;with&nbsp;(100,200,300,400)</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>nan</strong> = nan</td></tr></table>
+</body></html>

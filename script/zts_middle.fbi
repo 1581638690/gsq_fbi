@@ -1,0 +1,13 @@
+#LastModifyDate:　2022-11-22T17:45:13.040059    Author:   pjb
+#LastModifyDate:　2022-05-10T10:00:01.741058
+#FBI脚本文件
+#文件名: zts_middle.fbi
+#作者: admin
+zts_sja = @udf RS.load_mysql_sql with (mysql1,select * from middle_biao)
+foreach zts_sja run """
+@udf CRUD.delete_table with (mysql1,middle_biao,@id)
+""" with (id=$1)
+b = @udf udf0.new_df with (uuid)
+b = @udf b by udf0.df_append with (@name)
+b = @udf b by udf0.df_zero_index
+b = @udf b by CRUD.save_table with (mysql1,middle_biao) 

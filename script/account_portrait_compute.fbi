@@ -1,0 +1,59 @@
+#LastModifyDate:　2024-01-18T18:04:23    Author:   superFBI
+#LastModifyDate:　2023-08-23T17:09:36.813705    Author:   zwl
+#LastModifyDate:　2023-07-17T14:33:07.403503    Author:   zwl
+#LastModifyDate:　2023-05-26T14:02:54.754477    Author:   zwl
+#LastModifyDate:　2023-05-12T15:01:00.406699    Author:   zwl
+#LastModifyDate:　2023-05-11T18:16:04.606599    Author:   zwl
+#LastModifyDate:　2022-11-23T17:57:57.329900    Author:   zwl
+#LastModifyDate:　2022-11-02T15:16:39.868217    Author:   pjb
+use @FID
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with account_portrait_compute
+##判断key是否为空，若为空，取api_visit_hour的最小值
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_visit_hour
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(time) as time from api_visit_hour
+time2 = eval aa by iloc[0,0]
+store aa to ssdb by ssdb0 with account_portrait_compute
+
+
+##1、账号访问次数
+account_visits_num = load ckh by ckh with select account ,sum(visit_num) as visit_num1 from api_visit_hour where time >= '$time1' and time < '$time2' and account is not null  group by account
+##2、账号访问接口数量
+account_api_num = load ckh by ckh with select a.account, count(a.account) as api_num from (select url,account from api_visit_hour where account != '' group by url,account ) a group by a.account
+account_api = join account_visits_num,account_api_num by account,account
+drop account_visits_num
+drop account_api_num
+##3、账号使用终端ip数量
+account_ip_num = load ckh by ckh with select a.account, count(a.account) as ip_num from (select account,srcip from api_visit_hour where account != '' group by account,srcip ) a group by a.account
+account_api = join account_api,account_ip_num by account,account
+drop account_ip_num
+##4、账号访问应用数量
+account_app_num = load ckh by ckh with select a.account, count(a.account) as app_num from (select app,account from api_visit_hour where account != '' group by app,account ) a group by a.account
+account_api = join account_api,account_app_num by account,account
+drop account_app_num
+##5、账号总访问流量
+account_visits_flow = load ckh by ckh with select account, sum(visit_flow) as visit_flow1 from api_visit_hour where time >= '$time1' and time < '$time2' and account != '' group by account
+account_api = join account_api,account_visits_flow by account,account
+drop account_visits_flow
+#6、最后活跃时间
+account_lasttime = load ckh by ckh with select account, MAX(`time`) as lasttime from api_visit_hour where account != '' group by account
+alter account_lasttime by lasttime:str
+account_api = join account_api,account_lasttime by account,account
+drop account_lasttime
+##连接
+accountlist1 = @udf RS.load_mysql_sql with (mysql1,select id,account,flag,dept,firsttime,visit_num as visit_num2,visit_flow as visit_flow2 from data_account_new)
+accountlist1 = @udf accountlist1 by udf0.df_fillna_cols with account:0,flag:0,dept:0,visit_num2:0,visit_flow2:0
+accountlist1 = join accountlist1,account_api by account,account
+accountlist1 = add visit_num by df["visit_num1"]+df["visit_num2"]
+accountlist1 = add visit_flow by df["visit_flow1"]+df["visit_flow2"]
+accountlist1 = loc accountlist1 by id,account,flag,dept,firsttime,visit_num,visit_flow,lasttime,app_num,api_num,ip_num
+drop account_api
+accountlist1 = @udf accountlist1 by udf0.df_set_index with id
+accountlist1 = @udf accountlist1 by CRUD.save_table with (mysql1,data_account_new) 
+
+
+clear @FID

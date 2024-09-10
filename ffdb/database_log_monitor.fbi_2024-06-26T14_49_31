@@ -1,0 +1,136 @@
+#LastModifyDate:　2024-06-26T14:48:56    Author:   xzb
+#LastModifyDate:　2024-06-26T11:27:25    Author:   xzb
+#LastModifyDate:　2024-06-26T11:27:03    Author:   xzb
+#LastModifyDate:　2024-06-25T17:49:40    Author:   xzb
+#LastModifyDate:　2024-06-25T16:48:31    Author:   xzb
+use @FID
+
+#####################################################################################################################
+# 动态日志-用户字典
+user = load ckh by ckh with select account from event_monitor_oper group by account order by count(*) desc
+user.account = lambda account by (x: '未知' if x == '' else x) 
+user = add account1 by user.account
+user = loc user by account1 to index
+a = @udf udf0.new_df with account,account1
+a = @udf a by udf0.df_append with (全部,全部)
+a = loc a by account1 to index
+tab1 = union a,user
+store tab1 to ssdb by ssdb0 with dd:logList_user
+
+
+# 动态日志-应用字典
+app = load ckh by ckh with select app_name from event_monitor_oper where app_name != '' group by app_name order by count(*) desc
+app = add app_name1 by app.app_name
+app = loc app by app_name1 to index
+b = @udf udf0.new_df with app_name,app_name1
+b = @udf b by udf0.df_append with (全部,全部)
+b = loc b by app_name1 to index
+tab2 = union b,app
+store tab2 to ssdb by ssdb0 with dd:logList_app
+
+
+# 动态日志-动作行为字典
+action = load ckh by ckh with select action from event_monitor_oper where action != '' group by action order by count(*) desc
+action = add action1 by action.action
+action = loc action by action1 to index
+c = @udf udf0.new_df with action,action1
+c = @udf c by udf0.df_append with (全部,全部)
+c = loc c by action1 to index
+tab3 = union c,action
+store tab3 to ssdb by ssdb0 with dd:logList_action
+
+#####################################################################################################################################
+
+
+# 累计用户数
+users = load db by mysql1 with select count(account) as 累计用户数 from data_account_new
+store users to ssdb by ssdb0 with userCount
+
+# 累计应用数
+apps = load db by mysql1 with select count(app) as 累计应用数 from data_app_new where merge_state != 1
+store apps to ssdb by ssdb0 with appCount
+
+# 累计日志总数
+logs = load ckh by ckh with select count(*) from event_monitor_oper
+rename logs as {"count()":"累计日志总数"}
+store logs to ssdb by ssdb0 with logCount
+
+# 当天新增日志
+now_time = @sdf sys_now
+now_time = @sdf format_now with ($now_time,"%Y-%m-%d")
+intraday_logs = load ckh by ckh with select count(*) from event_monitor_oper where time > '$now_time'
+rename intraday_logs as {"count()":"当天新增日志"}
+store intraday_logs to ssdb by ssdb0 with IntradayLogCount
+
+
+
+# 用户日志Top5
+user_log_top5 = load ckh by ckh with select account,count(*) from event_monitor_oper group by account order by count(*) desc limit 5
+user_log_top5.account = lambda account by (x: '未知' if x == '' else x) 
+rename user_log_top5 as {"count()":"总量"}
+user_log_top5 = loc user_log_top5 by account to index
+store user_log_top5 to ssdb by ssdb0 with userLogTop5
+
+# 应用日志Top5
+app_log_top5 = load ckh by ckh with select app_name,count(*) from event_monitor_oper where app_name != '' group by app_name order by count(*) desc limit 5
+rename app_log_top5 as {"count()":"总量"}
+app_log_top5 = loc app_log_top5 by app_name to index
+store app_log_top5 to ssdb by ssdb0 with appLogTop5_ces
+
+# 动态日志
+log_list = load ckh by ckh with select time,account,app_name,name,action,event from event_monitor_oper order by time desc limit 100
+## 处理时间,保留到分钟
+alter log_list.time as str
+log_list.time = lambda time by (x:x[0:16])
+# alter log_list.time as datetime64
+## 处理操作参数
+log_list.event = lambda event by x:x.replace("{","")
+log_list.event = lambda event by x:x.replace("}","")
+log_list.event = lambda event by x:x.replace("[","")
+log_list.event = lambda event by x:x.replace("]","")
+log_list.event = lambda event by x:x.replace('"','')
+rename log_list as {"time":"时间","account":"用户","app_name":"应用名","name":"接口事件","action":"动作行为","event":"操作参数"}
+# log_list = add 操作参数 by ('')
+# 设置187插件表格的宽度
+new = @udf udf0.new_df with (时间,用户,应用名,接口事件,动作行为,操作参数,width)
+new = @udf new by udf0.df_append with (170,150,150,200,150,450,td_width)
+new = loc new by width to index
+log_list = union new,log_list
+log_list = loc log_list by 时间,用户,应用名,接口事件,动作行为,操作参数
+store log_list to ssdb by ssdb0 with logList_ces
+
+# 近24小时日志访问次数趋势
+day = @sdf sys_now with -1d
+now = @sdf sys_now 
+day = @sdf format_now with ($day,"%Y-%m-%d %H:00:00")
+now = @sdf format_now with ($now,"%Y-%m-%d %H:00:00")
+j_hour = @udf udf0.new_df_timerange with ($day,$now,1H)
+j_hour.hour = lambda end_time by (x:x[11:13])
+j_hour = loc j_hour by hour
+emo = load ckh by ckh with select substring(toString(time),12,2) as hour,count(*) as num from event_monitor_oper where time >= '$day' group by hour
+alter emo by hour:str,num:int
+res = join j_hour,emo by hour,hour with left
+res = @udf res by udf0.df_fillna with 0
+res.hour = lambda hour by (x:x+'时')
+res = loc res by hour to index
+rename res as {"num":"访问次数"}
+store res to ssdb by ssdb0 with data:log_visit_24h
+
+# 日访问趋势(近30天)
+day = @sdf sys_now with -30d
+now = @sdf sys_now 
+day = @sdf format_now with ($day,"%Y-%m-%d")
+now = @sdf format_now with ($now,"%Y-%m-%d")
+j_day = @udf udf0.new_df_timerange with ($day,$now,1d)
+j_day.day = lambda start_time by (x:x[0:10])
+j_day = loc j_day by day
+emo = load ckh by ckh with select substring(toString(time),1,10) as day,count(*) as num from event_monitor_oper where time >= '$day' group by day
+alter emo by day:str,num:int
+res = join j_day,emo by day,day with left
+res = @udf res by udf0.df_fillna with 0
+res = loc res by day to index
+rename res as {"num":"访问次数"}
+store res to ssdb by ssdb0 with data:log_visit_30d
+
+
+clear @FID

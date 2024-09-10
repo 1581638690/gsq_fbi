@@ -1,0 +1,28 @@
+#LastModifyDate:　2024-01-20T15:27:07    Author:   zwl
+#LastModifyDate:　2023-07-07T17:31:40.115410    Author:   zwl
+#LastModifyDate:　2023-03-23T10:04:25.730893    Author:   zwl
+#LastModifyDate:　2023-03-21T14:16:44.579370    Author:   zwl
+#LastModifyDate:　2023-03-15T15:22:28.571483    Author:   zwl
+#LastModifyDate:　2023-03-07T10:46:42.839858    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/ip_visit_dstip1_@srcip.pq
+datas = @udf datas by udf0.df_fillna_cols with srcip:'',dstip:'',dstip_num:0
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+""" 
+rename datas as ("srcip":"终端IP","dstip":"目的IP","dstip_num":"访问数量")
+store datas to csv by 终端画像服务器清单_@srcip_$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 终端画像服务器清单_@srcip_$day.csv
+push name as file_name
+
+clear @FID

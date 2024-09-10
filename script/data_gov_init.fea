@@ -1,0 +1,60 @@
+#LastModifyDate:　2023-12-01T15:06:02.527585    Author:   superFBI
+#LastModifyDate:　2023-10-12T18:09:28.204589    Author:   superFBI
+#LastModifyDate:　2023-08-17T18:44:53.740357    Author:   zwl
+#LastModifyDate:　2023-08-15T10:14:03.629340    Author:   pjb
+#LastModifyDate:　2023-08-10T11:39:29.757328    Author:   zwl
+#LastModifyDate:　2023-07-25T14:45:06.392243    Author:   zwl
+#LastModifyDate:　2023-06-15T15:09:57.275889    Author:   zwl
+#LastModifyDate:　2023-05-15T15:05:53.365799    Author:   pjb
+#LastModifyDate:　2023-03-13T16:21:59.435544    Author:   pjb
+#LastModifyDate:　2023-03-01T11:16:14.966059    Author:   zwl1
+#LastModifyDate:　2023-02-09T15:47:32.325429    Author:   pjb
+#LastModifyDate:　2023-01-31T11:43:13.803468    Author:   pjb
+#LastModifyDate:　2023-01-13T15:50:59.720085    Author:   pjb
+#LastModifyDate:　2023-01-11T17:44:39.082583    Author:   pjb
+#LastModifyDate:　2022-12-19T15:49:38.464184    Author:   pjb
+#LastModifyDate:　2022-11-18T17:20:45.099710    Author:   pjb
+#LastModifyDate:　2022-11-18T10:43:35.010633    Author:   pjb
+#LastModifyDate:　2022-11-17T15:31:56.280236    Author:   superFBI
+#LastModifyDate:　2022-11-17T15:29:51.873494    Author:   superFBI
+use @FID
+
+
+#data_key
+pk = show defines
+data_key = filter pk by (key=="data_key")
+pk = filter pk by (key=="PK")
+pk = loc pk by value
+pk.value = lambda value by (x:x[:8]+''.join(random.sample('A!@#',4))+x[-4:])
+pk = @udf pk by udf0.df_zero_index
+#key可能已经存在，如果存在不覆盖
+pk_0 = load ssdb by ssdb0 with data_gov_data_key
+pk = union pk_0,pk
+pk = @udf pk by udf0.df_limit with 1
+store pk to ssdb by ssdb0 with data_gov_data_key
+
+pd_data_key = eval data_key by (index.size==0)
+if $pd_data_key== 1 with """
+#act_data_key = @sdf sys_if_run with ($pd_data_key,"""
+data_key1 = eval pk by (iloc[0,0])
+define data_key as $data_key1
+"""
+
+
+# 导入用户
+run data_gov_init_1.fea
+
+###图谱初始化
+run init_mkd.fbi
+
+#syslog发送操作日志默认数据
+t = @sdf sys_now
+t = @sdf sys_str by $t,[0:10]
+s = @udf udf0.new_df with time
+s = @udf s by udf0.df_append with $t
+s = add count by 0
+store s to ssdb with syslog_cz
+run qh_model.fbi
+
+
+clear @FID

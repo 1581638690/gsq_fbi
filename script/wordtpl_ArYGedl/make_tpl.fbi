@@ -1,0 +1,279 @@
+#LastModifyDate:　2024-01-17T17:17:27    Author:   zwl
+#LastModifyDate:　2024-01-17T16:10:02    Author:   superFBI
+#LastModifyDate:　2024-01-16T17:51:23    Author:   zwl
+#LastModifyDate:　2024-01-16T13:52:09    Author:   zwl
+#LastModifyDate:　2023-08-23T17:20:01.048853    Author:   zwl
+#LastModifyDate:　2023-07-03T15:34:59.408981    Author:   zwl
+#LastModifyDate:　2023-06-28T15:16:08.430328    Author:   zwl
+#LastModifyDate:　2023-06-27T19:04:05.931069    Author:   zwl
+#LastModifyDate:　2023-06-26T19:05:32.966749    Author:   zwl
+#LastModifyDate:　2023-06-25T10:43:34.573123    Author:   zwl
+#LastModifyDate:　2023-06-21T17:31:26.734631    Author:   zwl
+#FBI生成docx文档脚本文件
+
+#@link 链接
+#@table 表名
+#@data_key 数据
+#@zh 中文表名
+
+#@vars 模板文档里面变量的前缀，比如{{info.name}}变量,vars就是info
+#@var_keys代表变量的值对应的df表的key，比如name
+#@id 模板填充好生成的文件目录位置，目录为workspace/temp_word/@id
+#@table_vars,docx模板文件的table里面变量名
+#@table_keys,存储表格数据的key
+#@report_name,生成报告的文件名称
+
+
+use @FID
+
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+##判断a是否有值
+a_num = eval a by index.size
+if $a_num == 0 with a = @udf udf0.new_df with name,status
+if $a_num == 0 with a = @udf a by udf0.df_append with (,正在生成报告)
+
+now = @sdf sys_now
+now = @sdf format_now with ($now,"%Y-%m-%dT%H:%M:%S")
+
+#先判断报告名称是否为空
+if "@report_name".strip() in ["","undefined"] with """
+	set param by define as report_name with @zh-$now
+""" else """
+	set param by define as report_name with @report_name-$now
+"""
+
+a = add name by  ('@report_name')
+
+#生成报告记录
+#保存
+t = @udf a by CRUD.save_table with (@link,@table)
+assert True as notice to @report_name 报告开始生成! with 报告生成发现错误!
+
+######################################################基本变量信息(根据实际情况修改)###############################################
+### 1、应用统计
+###时间
+tt = @sdf sys_now
+tt = @sdf format_now with ($tt,"%Y-%m-%d %H")
+date = @udf udf0.new_df with time
+date = @udf date by udf0.df_append with ($tt)
+store date to ssdb by ssdb0 with date_t
+
+##应用统计
+data_app_new = load db by mysql1 with select app,app_type,sx,sensitive_label,merge_state from data_app_new where merge_state != 1
+app = @udf udf0.new_df with num
+num = eval data_app_new by index.size
+app = @udf app by udf0.df_append with ($num)
+store app to ssdb by ssdb0 with app_sum
+##内外部应用统计
+type = @udf udf0.new_df with type_0,type_1
+type0 = filter data_app_new by app_type == 0
+type0 = eval type0 by index.size
+type1 = filter data_app_new by app_type == 1
+type1 = eval type1 by index.size
+type = @udf type by udf0.df_append with ($type0,$type1)
+store type to ssdb by ssdb0 with type_app
+###已纳管以及未纳管
+ng = @udf udf0.new_df with y,w
+yng = filter data_app_new by sx != 0 
+yng = eval yng by index.size
+wng = filter data_app_new by sx == 0 
+wng = eval wng by index.size
+ng = @udf ng by udf0.df_append with ($yng,$wng)
+store ng to ssdb by ssdb0 with app_ng
+####敏感非敏感
+sens = @udf udf0.new_df with mg,fmg
+mg = filter data_app_new by sensitive_label == '1'
+mg = eval mg by index.size 
+fmg = filter data_app_new by sensitive_label == '0'
+fmg = eval fmg by index.size 
+sens = @udf sens by udf0.df_append with ($mg,$fmg)
+store sens to ssdb by ssdb0 with app_mg
+####合并 未合并
+app = @udf udf0.new_df with hb,whb
+hb = filter data_app_new by merge_state == 2
+hb = eval hb by index.size
+whb = filter data_app_new by merge_state == 0
+whb = eval whb by index.size
+app = @udf app by udf0.df_append with ($hb,$whb)
+store app to ssdb by ssdb0 with app_hb
+###弱点应用
+app_risk = load pq by dt_table/app_risk.pq
+alter risks by app:str
+risk = loc app_risk by app
+risk = add aa by 1
+risk = group risk by aa agg app:count
+store risk to ssdb by ssdb0 with app_risk
+###安全事件
+modsecurity = load ckh by ckh with select distinct app from api_modsecurity 
+alter modsecurity by app:str
+modsecurity = add aa by 1
+modsecurity = group modsecurity by aa agg app:count
+store modsecurity to ssdb by ssdb0 with app_modsecurity
+
+
+### 2、基于应用视角的排名TOP 20
+datas = load pq by dt_table/data_app_new.pq
+
+###  2.1 应用服务器数量排名
+###   2.1.1 基于部署服务器数量的应用排名Top20
+app_dest = loc datas by app_type,app,name,dstip_num
+app_dest = order app_dest by dstip_num with desc limit 20
+#alter app_dest.dstip_num as int
+alter app_dest by dstip_num:str
+rename app_dest as ('app_type':'应用类型','app':'应用','name':'应用名称','dstip_num':'部署服务器数量')
+store app_dest to ssdb by ssdb0 with app_dest
+
+###  2.2 访问量类排名
+###   2.2.1 基于访问次数的应用排名Top20
+app_visit = loc datas by app_type,app,name,visits_num
+app_visit = order app_visit by visits_num with desc limit 20
+#alter app_visit.visits_num as int
+alter app_visit by visits_num:int
+rename app_visit as ('app_type':'应用类型','app':'应用','name':'应用名称','visits_num':'访问数量')
+store app_visit to ssdb by ssdb0 with app_visit
+
+###   2.2.2 基于流量大小的应用排名Top20
+app_flow = loc datas by app_type,app,name,visits_flow
+app_flow = order app_flow by visits_flow with desc limit 20
+#alter app_flow.visits_flow as str
+alter app_flow by visits_flow:str
+app_flow.visits_flow = lambda visits_flow by (x:x+'(M)')
+rename app_flow as ('app_type':'应用类型','app':'应用','name':'应用名称','visits_flow':'访问流量')
+store app_flow to ssdb by ssdb0 with app_flow
+
+###   2.2.3 基于接口数量的应用排名Top20
+app_u = loc datas by app_type,app,name,api_num
+app_u = order app_u by api_num with desc limit 20
+alter app_u by api_num:int
+rename app_u as ('app_type':'应用类型','app':'应用','name':'应用名称','api_num':'接口数量')
+store app_u to ssdb by ssdb0 with app_api
+
+###   2.2.4 基于终端访问数量最多的应用排名Top20
+app_srcip = loc datas by app_type,app,name,srcip_num
+app_srcip = order app_srcip by srcip_num with desc limit 20
+alter app_srcip by srcip_num:int
+rename app_srcip as ('app_type':'应用类型','app':'应用','name':'应用名称','srcip_num':'访问IP数量')
+store app_srcip to ssdb by ssdb0 with app_srcip 
+
+###   2.2.5 基于访问账号数量的应用排名Top20
+app_account = loc datas by app_type,app,name,account_num
+app_account = order app_account by account_num with desc limit 20
+alter app_account by account_num:int
+rename app_account as ('app_type':'应用类型','app':'应用','name':'应用名称','account_num':'访问账号数量')
+store app_account to ssdb by ssdb0 with app_account 
+
+###  2.3 内容敏感识别类排名
+sens = load pq by sensitive/sensitive_app.pq
+alter sens by app:str,url_count:int,srcip_count:int,account_count:int,sensitive_count:int,s_num_sum:str
+###   2.3.1 基于应用敏感信息条数总数排名Top20
+app_sens1 = loc sens by app,url_count,srcip_count,account_count,sensitive_count
+app_sens1 = order app_sens1 by sensitive_count with desc limit 20
+#alter app_sens1.url_count.srcip_count.account_count.sensitive_count as int
+alter app_sens1 by url_count:int,srcip_count:int,account_count:int,sensitive_count:int
+rename app_sens1 as ('app':'应用','url_count':'接口数量','srcip_count':'终端数量','account_count':'账号数量','sensitive_count':'敏感数据数量')
+store app_sens1 to ssdb by ssdb0 with app_sens1
+
+###   2.3.2 基于应用敏感信息类型数量排序Top20
+app_sens2 = loc sens by app,s_num_sum,sensitive_count
+sens = load pq by sensitive/sens_data.pq
+alter sens by app:str,url:str,src_ip:str,account:str,key:str,num:int
+sens = loc sens by app,key
+sens = distinct sens by app,key
+sens = group sens by app agg key:count
+sens = loc sens by index to app
+app_sens2 = join app_sens2,sens by app,app with left
+app_sens2 = order app_sens2 by key_count with desc limit 20
+app_sens2 = loc app_sens2 by app,key_count,s_num_sum,sensitive_count
+alter app_sens2.key_count.sensitive_count as int
+rename app_sens2 as ('app':'应用','key_count':'敏感类型数量','s_num_sum':'敏感数据类型访问分布','sensitive_count':'敏感数据数量')
+store app_sens2 to ssdb by ssdb0 with app_sens2
+
+###  2.4 接口弱点类排名
+risks = load pq by dt_table/app_risk.pq
+alter risks by app:str,api_num:int,api_count:int,type_num:str
+###   2.4.1 基于弱点总量的应用排名Top20
+app_risk1 = loc risks by app,api_num,api_count,type_num
+app_risk1 = order app_risk1 by api_count with desc limit 20
+alter app_risk1.api_num.api_count as int
+rename app_risk1 as ('app':'应用','api_num':'接口总数','api_count':'接口弱点量','type_num':'弱点类型分布')
+store app_risk1 to ssdb by ssdb0 with app_risk1
+
+###   2.4.2 基于弱点高风险的弱点数排名Top20  
+api19_risk = load db by mysql1 with select a.app,b.level,count(*) as num from api19_risk a join api19_type b on a.type = b.type group by a.app,b.level
+api19_risk = filter api19_risk by level == '高'
+app_risk2 = loc risks by app,api_count,type_num
+app_risk2 = join app_risk2,api19_risk by app,app with left
+app_risk2 = order app_risk2 by num with desc limit 20
+app_risk2 = loc app_risk2 by app,num,api_count,type_num
+app_risk2 = @udf app_risk2 by udf0.df_fillna
+app_risk2.num = lambda num by (x:0 if x == '' else x)
+alter app_risk2 by num:int,api_count:int
+rename app_risk2 as ('app':'应用','num':'弱点高风险数量','api_count':'接口弱点量','type_num':'弱点类型分布')
+store app_risk2 to ssdb by ssdb0 with app_risk2
+
+###  2.5 安全事件类排名
+###   2.5.1 基于安全事件数的应用排名Top20
+app_mod1 = load ckh by ckh with select app,class,count(*) as num from api_modsecurity where class != '' group by app,class
+app = group app_mod1 by app agg num:sum
+app = @udf app by udf0.df_reset_index 
+alter app_mod1 by num:str
+app_mod1 = add s_num by  df['class'] +"("+ df['num'] + ")"
+app_mod1.s_num = lambda s_num by x: x+'，'
+app_mod1 = group app_mod1 by app agg s_num:sum
+app_mod1 = @udf app_mod1 by udf0.df_reset_index 
+app_mod1.s_num_sum = lambda s_num_sum by x:x[:-1]
+app_mod1 = join app,app_mod1 by app,app with left
+app_mod1 = order app_mod1 by num_sum with desc limit 20
+app_mod1 = @udf app_mod1 by udf0.df_fillna 
+alter app_mod1 by num_sum:int
+rename app_mod1 as ('app':'应用','num_sum':'安全事件数','s_num_sum':'安全事件类型分布')
+store app_mod1 to ssdb by ssdb0 with app_mod1
+
+###   2.5.2 基于安全事件高风险的应用排名Top20
+app_mod2 = load ckh by ckh with select app,level,count(*) as num from api_modsecurity where level = '高级' or level = '中级' or level = '低级' or level = '信息' group by app,level
+lel = load ssdb by ssdb0 with dd:modsecurity_level
+dd1 = group app_mod2 by app agg num:sum
+dd1 = @udf dd1 by udf0.df_reset_index
+app = filter app_mod2 by level == '高级'
+app_mod2 = order app_mod2 by num
+alter app_mod2 by num:str
+app_mod2 = add s_num by  df['level'] +"("+ df['num'] + ")"
+app_mod2.s_num = lambda s_num by x: x+'，'
+app_mod2 = group app_mod2 by app agg s_num:sum
+app_mod2 = @udf app_mod2 by udf0.df_reset_index 
+app_mod2.s_num_sum = lambda s_num_sum by x:x[:-1]
+app_mod2 = join app_mod2,dd1 by app,app with left
+app_mod2 = join app_mod2,app by app,app with left
+app_mod2 = order app_mod2 by num with desc limit 20
+app_mod2 = @udf app_mod2 by udf0.df_fillna
+app_mod2.num = lambda num by (x:0 if x == '' else x)
+app_mod2 = filter app_mod2 by num != ''
+app_mod2 = loc app_mod2 by app,num,num_sum,s_num_sum
+alter app_mod2 by num:int,num_sum:int
+rename app_mod2 as ('app':'应用','num':'安全事件高级风险数','num_sum':'应用总风险数','s_num_sum':'安全事件等级分布')
+store app_mod2 to ssdb by ssdb0 with app_mod2
+# 
+##############################################################################下面脚本不需要修改##################################################################
+#加载图片数据的key
+data = load ssdb by ssdb0 with @pics_data
+#生成图片
+@udf data by doc.generate_pic with @id
+#生成模板,result表返回的是是否成功生成模板，result表有两列，一列是status，一列是errMessage，status为1代表成功生成模板,为0代表生成模板失败
+result = @udf data by doc.modifiy_doc with (@id,@base,@var_data,@tbs_data,@report_name)
+
+#生成在线文档
+html = @udf doc.word2html with @report_name
+#页面提示
+assert not_have_error() as alert to 报告生成完成! with 报告生成发现错误!
+
+#保存
+t = add status with ('报告生成完毕')
+t = @udf t by CRUD.save_table with (@link,@table)
+assert t by df.index[0] >0  as notice to @report_name 报告生成完毕! with @report_name 报告生成发现错误!
+
+push t as table
+
+#清理工作区
+clear @FID

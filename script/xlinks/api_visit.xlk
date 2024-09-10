@@ -1,0 +1,109 @@
+#LastModifyDate:　2024-01-09T10:23:26    Author:   rzc
+#LastModifyDate:　2024-01-08T09:38:41    Author:   superFBI
+#LastModifyDate:　2024-01-06T16:25:07    Author:   superFBI
+#LastModifyDate:　2024-01-06T15:42:04    Author:   superFBI
+#LastModifyDate:　2024-01-06T14:00:16    Author:   superFBI
+#LastModifyDate:　2024-01-05T11:19:46.689746    Author:   superFBI
+#LastModifyDate:　2023-08-08T18:31:57.316818    Author:   pjb
+#LastModifyDate:　2023-05-31T09:48:57.634546    Author:   rzc
+#LastModifyDate:　2023-05-24T15:51:19.833329    Author:   rzc
+#LastModifyDate:　2023-05-24T15:14:56.425260    Author:   rzc
+#LastModifyDate:　2023-05-24T11:44:23.098578    Author:   rzc
+#xlink脚本
+#file: api_visit.xlk
+#name: 用来存储单一的http协议数据
+#描述： 将http协议进行去重进行单一存储
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with api_visit
+
+#停止
+#a = @udf FBI.x_finder3_stop with api_visit
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:api_visit,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::api_visit
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "存储首次发现数据"
+	stream["meta_desc"] = "将http协议进行去重进行单一存储"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["ckh_link"] = a["kfk"]["data"]["addr_c"]
+	stream["CKH"] = CKH_Client(host=stream["ckh_link"],port=19000,user="default",password="client")
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	stream["st"]["st_1s"]={"times":1,"fun":"print1"}
+	stream["st"]["st_30s"]={"times":30,"fun":"print10"}
+	#从ssdb中加载一个hashmap的字典，用于比对去重等
+	stream["url_dis"] = load_ssdb_hall("FF:urldis")
+	stream["api_merge1"] = load_ssdb_hall("FF:api_merge1")
+	pool["http_visit"] = []
+}
+
+
+#事件处理函数
+events => {
+	url=o.get("url")
+	if url not in stream["url_dis"]:
+	#解除注释 by superFBI on 2023-05-12 10:10:20
+		#hp = ujson.loads(o.get("httpjson"))
+		http=o.get("http")
+		url_c=o.get("url_c")
+		if url_c in stream["api_merge1"]:
+			url_c=url
+		data = {
+			"id": xlink_uuid(0),
+			"url": url_c,
+			"urld": o.get("url"),
+			"time": iso_to_datetime(o.get('timestamp')),
+			"app": o.get("app"),
+			"srcip": o.get("src_ip"),
+			"account": o.get("account"),    "content_type": o.get("data_type"),
+			"api_type": str(o.get("api_type")),
+			"content_length": o.get("http").get('length', 0),
+			"parameter": o.get("parameter"),
+			"http_method": http.get('http_method'),
+			"request_headers": http.get('request_headers'),
+			"response_headers": http.get('response_headers'),
+			"status": http.get('status'),
+			"response_body": o.get('http_response_body'),
+			"request_body": o.get('http_request_body'),
+			"dstip": o.get("dest_ip"),
+			"dstport": o.get("dest_port"),
+			"srcport": o.get("src_port")
+		}
+		to_pool("http_visit",data)
+		stream["url_dis"][url] = True
+		to_ssdb_h("FF:urldis", url, True)
+}
+
+#系统定时函数
+print1 => {
+	store_ckh(pool["http_visit"],"api_httpdata")
+}
+
+#窗口函数，使用FBI的原语
+print10 => {
+	stream["api_merge1"] = load_ssdb_hall("FF:api_merge1")
+}
+xlink_uuid =>(x){
+	return str(time.time_ns())
+}
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	
+}

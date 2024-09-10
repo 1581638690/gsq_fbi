@@ -1,0 +1,39 @@
+#LastModifyDate:　2023-11-14T17:58:48.199656    Author:   pjb
+#LastModifyDate:　2023-11-14T16:28:05.170564    Author:   pjb
+#LastModifyDate:　2023-11-14T16:23:35.459076    Author:   pjb
+#LastModifyDate:　2023-11-14T16:19:51.444774    Author:   pjb
+#LastModifyDate:　2023-11-14T16:18:23.298373    Author:   pjb
+#LastModifyDate:　2023-11-14T16:11:38.794626    Author:   pjb
+#LastModifyDate:　2023-11-14T16:08:46.516322    Author:   pjb
+#LastModifyDate:　2023-11-14T16:04:27.602687    Author:   pjb
+#LastModifyDate:　2023-11-14T15:44:41.702619    Author:   pjb
+#LastModifyDate:　2023-11-14T15:24:26.463900    Author:   pjb
+#FBI脚本文件
+
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单中的条件信息
+a = load ssdb by ssdb0 with @data_key
+a = filter a by name=="sen_key" 
+sen_key = eval a by iloc[0,1]
+#保存
+#b,c = @udf a by CRUD.query_table with (@link,@table)
+b = load db by @link with select src_ip,type,sen_key,sum(num) num from @table group by src_ip,type,sen_key having sen_key ='$sen_key' order by num desc 
+
+assert find_df('b',ptree) as  alert with 数据查询失败！
+
+count = eval b by index.size
+c = @udf udf0.new_df with count(id)
+c = @udf c by udf0.df_append with $count
+b = limit b by 100 
+
+push b as table
+push c as count
+#清除工作区
+clear @FID

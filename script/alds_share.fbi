@@ -1,0 +1,293 @@
+#LastModifyDate:　2024-03-14T14:27:23    Author:   pjb
+#LastModifyDate:　2024-03-13T16:41:12    Author:   pjb
+#LastModifyDate:　2024-03-12T17:04:49    Author:   pjb
+#LastModifyDate:　2024-03-11T17:52:34    Author:   pjb
+#LastModifyDate:　2024-03-05T17:37:13    Author:   pjb
+#LastModifyDate:　2024-03-05T10:30:33    Author:   pjb
+#LastModifyDate:　2024-03-04T18:41:16    Author:   pjb
+use @FID
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE data_api_new ADD COLUMN api_yuw int DEFAULT 0)
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE data_api_new ADD COLUMN api_share int DEFAULT 0)
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE data_app_new ADD COLUMN app_share int DEFAULT 0)
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE dbms_obj ADD COLUMN dbms_yuw int DEFAULT 0)
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE dbms_obj ADD COLUMN dbms_share int DEFAULT 0)
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE dbms_obj ADD COLUMN dstip char(255))
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE dbms_obj ADD COLUMN dstport int)
+#s = @udf RS.exec_mysql_sql with (mysql1,desc data_file_user)
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE data_file_server DROP COLUMN dstip)
+#s = @udf RS.exec_mysql_sql with (mysql1,ALTER TABLE data_file_server ADD COLUMN dstip char(255))
+
+#app+api
+#共享http
+api = load ckh by ckh with SELECT DISTINCT srcip,dstip,dstip ip FROM api_monitor WHERE time >= today() - 1;
+api = add id by api.index
+ynw = @udf api by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 1
+ynw = loc ynw by srcip,dstip,id
+rename ynw as ('srcip':'ip')
+ynw = @udf ynw by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 0
+ynw = loc ynw by dstip,yn
+ynw.dstip = lambda dstip by x:x+','
+ynw = group ynw by yn agg dstip:sum
+ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+ynw = eval ynw by iloc[0,0]
+#更新共享app
+data_app = load db by mysql1 with select id,dstip from data_app_new
+#data_app.dstip1 = lambda dstip by x:($ynw)
+data_app.dstip = lambda dstip by x:set(x.split(","))
+data_app.app_share = lambda dstip by x:len(x.intersection($ynw))
+data_app = filter data_app by app_share != 0
+data_app = loc data_app by id
+data_app.app_share = lambda id by x:1
+data_app = @udf data_app by udf0.df_set_index with id
+data_app = @udf data_app by CRUD.save_table with (mysql1,data_app_new)
+#更新共享api
+data_api = load db by mysql1 with select id,dstip from data_api_new
+#data_app.dstip1 = lambda dstip by x:($ynw)
+data_api.dstip = lambda dstip by x:set(x.split(","))
+data_api.api_share = lambda dstip by x:len(x.intersection($ynw))
+data_api = filter data_api by api_share != 0
+data_api = loc data_api by id
+data_api.api_share = lambda id by x:1
+data_api = @udf data_api by udf0.df_set_index with id
+data_api = @udf data_api by CRUD.save_table with (mysql1,data_api_new)
+#共享dbms
+dbms = load ckh by ckh with SELECT DISTINCT src_ip srcip,dest_ip dstip,dest_ip ip FROM dbms WHERE timestamp >= today() - 1;
+dbms = add id by dbms.index
+ynw = @udf dbms by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 1
+ynw = loc ynw by srcip,dstip,id
+rename ynw as ('srcip':'ip')
+ynw = @udf ynw by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 0
+ynw = loc ynw by dstip,yn
+ynw.dstip = lambda dstip by x:x+','
+ynw = group ynw by yn agg dstip:sum
+ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+ynw = eval ynw by iloc[0,0]
+
+#dbms
+dbms = load db by mysql1 with select dstip,id from dbms_obj
+dbms.dstip = lambda dstip by x:set(x.split(","))
+dbms.api_share = lambda dstip by x:len(x.intersection($ynw))
+dbms = filter dbms by api_share != 0
+dbms = loc dbms by id
+dbms.dbms_share = lambda id by x:1
+dbms = @udf dbms by udf0.df_set_index with id
+dbms = @udf dbms by CRUD.save_table with (mysql1,dbms_obj)
+
+#file_server http
+fileinfo = load ckh by ckh with select DISTINCT srcip,dstip,dstip ip from api_fileinfo where app_proto == 'http' and timestamp >= today() - 1
+fileinfo = add id by fileinfo.index
+ynw = @udf fileinfo by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 0
+ynw = loc ynw by srcip,dstip,id
+rename ynw as ('srcip':'ip')
+ynw = @udf ynw by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 1
+ynw = loc ynw by dstip,yn
+ynw.dstip = lambda dstip by x:x+','
+ynw = group ynw by yn agg dstip:sum
+ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+ynw = eval ynw by iloc[0,0]
+file_server = load db by mysql1 with select dstip,id from data_file_server where protocol = 'http'
+file_server.dstip = lambda dstip by x:set(x.split(","))
+file_server.file_share = lambda dstip by x:len(x.intersection($ynw))
+file_server = filter file_server by file_share != 0
+file_server = loc file_server by id
+file_server.file_share = lambda id by x:1
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+#ftp
+fileinfo = load ckh by ckh with select DISTINCT srcip,dstip,dstip ip from api_ftp where  timestamp >= today() - 1
+fileinfo = add id by fileinfo.index
+ynw = @udf fileinfo by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 1
+ynw = loc ynw by srcip,dstip,id
+rename ynw as ('srcip':'ip')
+ynw = @udf ynw by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 0
+ynw = loc ynw by dstip,yn
+ynw.dstip = lambda dstip by x:x+','
+ynw = group ynw by yn agg dstip:sum
+ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+ynw = eval ynw by iloc[0,0]
+file_server = load db by mysql1 with select dstip,id from data_file_server where protocol = 'ftp'
+file_server.dstip = lambda dstip by x:set(x.split(","))
+file_server.file_share = lambda dstip by x:len(x.intersection($ynw))
+file_server = filter file_server by file_share != 0
+file_server = loc file_server by id
+file_server.file_share = lambda id by x:1
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+#pop3
+#Delete 注释 by pjb on 2024-03-14 14:23:55
+#fileinfo = load ckh by ckh with select DISTINCT srcip,dstip,dstip ip from api_pop3 where dstport = '110' and timestamp >= today() - 1
+#fileinfo = add id by fileinfo.index
+#ynw = @udf fileinfo by ip24.repeat with ip
+#ynw.yn = lambda yn by x:1 if x==1 else 0
+#ynw = filter ynw by yn == 1
+#ynw = loc ynw by srcip,dstip,id
+#rename ynw as ('srcip':'ip')
+#ynw = @udf ynw by ip24.repeat with ip
+#ynw.yn = lambda yn by x:1 if x==1 else 0
+#ynw = filter ynw by yn == 0
+#ynw = loc ynw by dstip,yn
+#ynw.dstip = lambda dstip by x:x+','
+#ynw = group ynw by yn agg dstip:sum
+#ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+#ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+#ynw = eval ynw by iloc[0,0]
+#file_server = load db by mysql1 with select dstip,id from data_file_server where protocol = 'pop3'
+#file_server.dstip = lambda dstip by x:set(x.split(","))
+#file_server.file_share = lambda dstip by x:len(x.intersection($ynw))
+#file_server = filter file_server by file_share != 0
+#file_server = loc file_server by id
+#file_server.file_share = lambda id by x:1
+#file_server = @udf file_server by udf0.df_set_index with id
+#file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+##pop3 2
+#fileinfo = load ckh by ckh with select DISTINCT srcip,dstip,dstip ip from api_pop3 where srcport = '110' and timestamp >= today() - 1
+#fileinfo = add id by fileinfo.index
+#ynw = @udf fileinfo by ip24.repeat with ip
+#ynw.yn = lambda yn by x:1 if x==1 else 0
+#ynw = filter ynw by yn == 0
+#ynw = loc ynw by srcip,dstip,id
+#rename ynw as ('srcip':'ip')
+#ynw = @udf ynw by ip24.repeat with ip
+#ynw.yn = lambda yn by x:1 if x==1 else 0
+#ynw = filter ynw by yn == 1
+#ynw = loc ynw by ip,yn
+#ynw.ip = lambda ip by x:x+','
+#ynw = group ynw by yn agg ip:sum
+#ynw.ip_sum = lambda ip_sum by x:x[:-1]
+#ynw.ip_sum = lambda ip_sum by x:set(x.split(","))
+#ynw = eval ynw by iloc[0,0]
+#file_server = load db by mysql1 with select dstip,id from data_file_server where protocol = 'pop3'
+#file_server.dstip = lambda dstip by x:set(x.split(","))
+#file_server.file_share = lambda dstip by x:len(x.intersection($ynw))
+#file_server = filter file_server by file_share != 0
+#file_server = loc file_server by id
+#file_server.file_share = lambda id by x:1
+#file_server = @udf file_server by udf0.df_set_index with id
+#file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+
+#tftp
+fileinfo = load ckh by ckh with select DISTINCT srcip,dstip,dstip ip from api_tftp where timestamp >= today() - 1
+fileinfo = add id by fileinfo.index
+ynw = @udf fileinfo by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 1
+ynw = loc ynw by srcip,dstip,id
+rename ynw as ('srcip':'ip')
+ynw = @udf ynw by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 0
+ynw = loc ynw by dstip,yn
+ynw.dstip = lambda dstip by x:x+','
+ynw = group ynw by yn agg dstip:sum
+ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+ynw = eval ynw by iloc[0,0]
+file_server = load db by mysql1 with select dstip,id from data_file_server where protocol = 'tftp'
+file_server.dstip = lambda dstip by x:set(x.split(","))
+file_server.file_share = lambda dstip by x:len(x.intersection($ynw))
+file_server = filter file_server by file_share != 0
+file_server = loc file_server by id
+file_server.file_share = lambda id by x:1
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+#smtp
+#Delete 注释 by pjb on 2024-03-14 14:24:29
+#fileinfo = load ckh by ckh with select DISTINCT srcip,dstip,dstip ip from api_smtp where timestamp >= today() - 1
+#fileinfo = add id by fileinfo.index
+#ynw = @udf fileinfo by ip24.repeat with ip
+#ynw.yn = lambda yn by x:1 if x==1 else 0
+#ynw = filter ynw by yn == 1
+#ynw = loc ynw by srcip,dstip,id
+#rename ynw as ('srcip':'ip')
+#ynw = @udf ynw by ip24.repeat with ip
+#ynw.yn = lambda yn by x:1 if x==1 else 0
+#ynw = filter ynw by yn == 0
+#ynw = loc ynw by dstip,yn
+#ynw.dstip = lambda dstip by x:x+','
+#ynw = group ynw by yn agg dstip:sum
+#ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+#ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+#ynw = eval ynw by iloc[0,0]
+#file_server = load db by mysql1 with select dstip,id from data_file_server where protocol = 'smtp'
+#file_server.dstip = lambda dstip by x:set(x.split(","))
+#file_server.file_share = lambda dstip by x:len(x.intersection($ynw))
+#file_server = filter file_server by file_share != 0
+#file_server = loc file_server by id
+#file_server.file_share = lambda id by x:1
+#file_server = @udf file_server by udf0.df_set_index with id
+#file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+##imap
+#fileinfo = load ckh by ckh with select DISTINCT srcip,dstip,dstip ip from api_imap where timestamp >= today() - 1
+#fileinfo = add id by fileinfo.index
+#ynw = @udf fileinfo by ip24.repeat with ip
+#ynw.yn = lambda yn by x:1 if x==1 else 0
+#ynw = filter ynw by yn == 1
+#ynw = loc ynw by srcip,dstip,id
+#rename ynw as ('srcip':'ip')
+#ynw = @udf ynw by ip24.repeat with ip
+#ynw.yn = lambda yn by x:1 if x==1 else 0
+#ynw = filter ynw by yn == 0
+#ynw = loc ynw by dstip,yn
+#ynw.dstip = lambda dstip by x:x+','
+#ynw = group ynw by yn agg dstip:sum
+#ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+#ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+#ynw = eval ynw by iloc[0,0]
+#file_server = load db by mysql1 with select dstip,id from data_file_server where protocol = 'imap'
+#file_server.dstip = lambda dstip by x:set(x.split(","))
+#file_server.file_share = lambda dstip by x:len(x.intersection($ynw))
+#file_server = filter file_server by file_share != 0
+#file_server = loc file_server by id
+#file_server.file_share = lambda id by x:1
+#file_server = @udf file_server by udf0.df_set_index with id
+#file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+
+#smb
+fileinfo = load ckh by ckh with select DISTINCT srcip,dstip,dstip ip from api_smb where dialect !='unknown' and timestamp >= today() - 1
+fileinfo = add id by fileinfo.index
+ynw = @udf fileinfo by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 1
+ynw = loc ynw by srcip,dstip,id
+rename ynw as ('srcip':'ip')
+ynw = @udf ynw by ip24.repeat with ip
+ynw.yn = lambda yn by x:1 if x==1 else 0
+ynw = filter ynw by yn == 0
+ynw = loc ynw by dstip,yn
+ynw.dstip = lambda dstip by x:x+','
+ynw = group ynw by yn agg dstip:sum
+ynw.dstip_sum = lambda dstip_sum by x:x[:-1]
+ynw.dstip_sum = lambda dstip_sum by x:set(x.split(","))
+ynw = eval ynw by iloc[0,0]
+file_server = load db by mysql1 with select dstip,id from data_file_server where protocol = 'smb'
+file_server.dstip = lambda dstip by x:set(x.split(","))
+file_server.file_share = lambda dstip by x:len(x.intersection($ynw))
+file_server = filter file_server by file_share != 0
+file_server = loc file_server by id
+file_server.file_share = lambda id by x:1
+file_server = @udf file_server by udf0.df_set_index with id
+file_server = @udf file_server by CRUD.save_table with (mysql1,data_file_server)
+
+
+
+clear @FID

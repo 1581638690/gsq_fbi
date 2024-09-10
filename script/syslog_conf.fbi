@@ -1,0 +1,33 @@
+#LastModifyDate:　2023-02-28T15:10:05.035873    Author:   qh
+#LastModifyDate:　2023-02-08T17:02:59.454314    Author:   qh
+#LastModifyDate:　2023-02-07T09:50:53.076027    Author:   qh
+#LastModifyDate:　2023-02-02T10:41:26.279151    Author:   qh
+#LastModifyDate:　2023-01-31T17:16:35.794210    Author:   qh
+#LastModifyDate:　2023-01-31T16:27:17.176314    Author:   qh
+#LastModifyDate:　2023-01-31T15:33:14.109969    Author:   qh
+#syslog远程控制
+
+#Delete 注释 by qh on 2023-01-31 16:18:44
+#df1 = @udf udf0.new_df
+#df1 = add a by 1
+#df1 = @udf df1 by udf0.df_append with (@send)
+#store df1 to ssdb with sysconf:test
+
+
+a = load ssdb by ssdb0 with qh_send as json
+s = @sdf @send by sys_str2 with replace("|",",")
+#s = @sdf $s by sys_str2 with replace("api_http","api_visit")
+jaas a by a["sends"]="$s"
+jaas a by a["syslog_proto"]="@proto"
+jaas a by a["syslog_ip"]="@ip"
+jaas a by a["syslog_port"]="@port"
+jaas a by a["SDK"]="@SDK"
+jaas a by a["SDK_enc"]="@SDKenc"
+jaas a by a["SDK_ip_or_id"]="@SDK_ip_or_id"
+jaas a by a["SDK_IP"]="@SDK_ip"
+jaas a by a["SDK_port"]="@SDK_port"
+jaas a by a["SDK_protocol"]="@SDK_protocol"
+jaas a by a["SOC_ip"]="@SOC_ip"
+jaas a by a["SOC_port"]="@SOC_port"
+store a to ssdb with qh_send
+

@@ -1,0 +1,15 @@
+#LastModifyDate:　2022-10-29T13:56:02.275667    Author:   gsp
+#LastModifyDate:　2022-10-29T13:42:22.194367    Author:   gsp
+#LastModifyDate:　2022-10-11T15:04:45.959228    Author:   admin
+#FBI脚本文件
+#文件名: copyright/do.fbi
+#作者: admin
+
+
+#激活授权码
+a=@udf udf0.new_df with xl
+a = @udf a by udf0.df_append with @xl
+store a to ssdb by ssdb0 with xlh
+
+define SN as @SN
+update xxxx

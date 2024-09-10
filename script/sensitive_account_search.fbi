@@ -1,0 +1,41 @@
+#LastModifyDate:　2024-01-16T11:38:26    Author:   zwl
+#LastModifyDate:　2023-08-23T17:19:22.538579    Author:   zwl
+#LastModifyDate:　2023-07-07T11:16:05.754240    Author:   zwl
+#LastModifyDate:　2023-03-30T17:19:19.224435    Author:   zwl
+#LastModifyDate:　2023-03-15T15:02:14.692840    Author:   zwl
+#LastModifyDate:　2023-02-04T10:37:07.123983    Author:   zwl
+use @FID
+
+ss = load ssdb by ssdb0 with @datakey
+
+a = load pq by sensitive/sensitive_account.pq
+alter a by account:str,url_count:int,srcip_count:int,app_count:int,sensitive_count:int,s_num_sum:str
+a = loc a by index to __index
+
+##判断是否进行   搜索--------------------------------------------
+ppp = load ssdb by ssdb0 with @filterKey
+ppp = filter ppp by account != ''
+ppp_num = eval ppp by index.size
+ppp_num = @sdf sys_eval with $ppp_num != 0
+#全文检索
+q = @sdf sys_if_run with ($ppp_num, "account = eval ppp by iloc[0,0]")
+q = @sdf sys_if_run with ($ppp_num, "a = filter a with $account")
+
+##判断是否进行   筛选--------------------------------------------
+sss_num = eval ss by index.size 
+sss_num = @sdf sys_eval with $sss_num != 0
+q = @sdf sys_if_run with ($sss_num, "ss1 = eval ss by iloc[0,0]")
+q = @sdf sys_if_run with ($sss_num, "a = filter a by $ss1")
+
+
+b = loc a by account,app_count,url_count,srcip_count,sensitive_count,s_num_sum,_id
+count = eval b by index.size
+c = @udf udf0.new_df with count
+c = @udf c by udf0.df_append with $count
+b = limit b by 1000
+rename b as ("account":"账号","url_count":"接口数量","srcip_count":"终端数量","app_count":"应用数量","sensitive_count":"敏感数据数量","s_num_sum":"敏感数据分类数量")
+
+push b as table
+push c as count
+
+clear @FID

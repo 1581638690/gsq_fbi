@@ -1,0 +1,111 @@
+#LastModifyDate:　2023-07-27T11:10:43.745131    Author:   superFBI
+#LastModifyDate:　2023-07-20T14:29:49.139502    Author:   qh
+#LastModifyDate:　2023-02-28T14:45:08.837100    Author:   qh
+#LastModifyDate:　2023-01-13T10:34:36.998786    Author:   pjb
+#LastModifyDate:　2023-01-13T09:55:27.927277    Author:   qh
+#LastModifyDate:　2023-01-12T17:04:29.301476    Author:   superFBI
+#LastModifyDate:　2023-01-12T16:59:42.545132    Author:   qh
+#LastModifyDate:　2023-01-12T16:24:07.322546    Author:   qh
+#LastModifyDate:　2023-01-12T16:13:39.866780    Author:   qh
+#LastModifyDate:　2022-12-02T17:28:11.092184    Author:   qh
+#LastModifyDate:　2022-12-01T15:14:14.415574    Author:   qh
+#LastModifyDate:　2022-11-22T15:06:02.452436    Author:   qh
+#LastModifyDate:　2022-11-22T10:53:53.972407    Author:   gjw
+#LastModifyDate:　2022-11-21T18:36:02.028768    Author:   hs
+#LastModifyDate:　2022-11-21T18:32:02.390639    Author:   hs
+#LastModifyDate:　2022-11-21T17:33:11.700364    Author:   qh
+#LastModifyDate:　2022-11-01T15:04:17.097777    Author:   qh
+#LastModifyDate:　2022-10-29T14:20:41.705838    Author:   qh
+#LastModifyDate:　2022-10-29T11:20:09.840900    Author:   admin
+#LastModifyDate:　2022-10-28T22:46:00.870173    Author:   admin
+#LastModifyDate:　2022-10-28T19:37:23.476961    Author:   admin
+#LastModifyDate:　2022-10-28T18:22:25.421061    Author:   admin
+#LastModifyDate:　2022-10-28T11:59:33.703941    Author:   admin
+
+#只发http协议
+
+#初始化
+init => {
+	#stream["source"]= {"link":"127.0.0.1:9092","topic":"api_send","group":"send0112","start-0":False}
+	stream["source"] = {"files":"/data/syslog_file/eve_*"}
+	stream["SDK"] = load_ssdb_kv("qh_send")["SDK"]
+	stream["cert"] = load_ssdb_kv("cert:TorF")["data"][0][0]
+	stream["st"]["st_10s"]={"times":5,"fun":"print10"}
+	stream["st"]["st_60s"]={"times":60,"fun":"sdk"}
+	stream["count"] = 0
+	stream["count-10"] = 0
+	stream["m"]={"http":0}
+}
+
+
+#事件处理函数
+events => {
+	s = 1
+	if stream["SDK"] == "1":
+		while s:
+			if stream["cert"]:
+				s = 0
+			else:
+				cert_again()
+				time.sleep(60)
+	a = {}
+	#for k,v in o.items():
+	#	o[k] = str(v)
+	a["data"] = json.dumps(o)
+	to_table(a)
+
+}
+
+
+
+#系统定时函数
+print10 => {
+	#printf("print10","sum==%d==%d==%d"%(m["http"],m["flow"],m["alert"] ))
+	push_arrays_to_df(table,"logs")
+	save()
+}
+
+sdk => {
+	stream["SDK"] = load_ssdb_kv("qh_send")["SDK"]
+	stream["cert"] = load_ssdb_kv("cert:TorF")["data"][0][0]
+}
+#自定义批处理函数，使用FBI语句块, 可以在系统定时函数中调用
+#使用push_arrays_to_df函数生成df,在语句块中使用
+#如: push_arrays_to_df(table,"flow")
+cert_again => fbi {
+	run qh_sdk.fbi
+}
+save => fbi {
+	#content_lenth int类型  
+	#store logs to pkl  by 2.pkl
+	zz = load ssdb by ssdb0 with qh_send as json
+	proto = jaas zz by zz["syslog_proto"] as sdf
+	ip = jaas zz by zz["syslog_ip"] as sdf
+	port = jaas zz by zz["syslog_port"] as sdf
+	enc = jaas zz by zz["syslog_enc"] as sdf
+	SDK = jaas zz by zz["SDK"] as sdf
+	SDK_enc = jaas zz by zz["SDK_enc"] as sdf
+	ip_or_id = jaas zz by zz["SDK_ip_or_id"] as sdf
+	ip = @sdf sys_str with ($ip,[1:-1])
+	enc= @sdf sys_str with ($enc,[1:-1])
+	SDK= @sdf sys_str with ($SDK,[1:-1])
+	ip_or_id= @sdf sys_str with ($ip_or_id,[1:-1])
+	df1 = @udf udf0.new_df
+	df1 = add a by 1
+	df1 = @udf df1 by udf0.df_append with (utf-8)
+	charset = eval df1 by iloc[0,0]
+	if $proto == "UDP" with """
+		df2 = @udf logs by net2.send_udp_syslog with $ip,$port,$enc,$charset,$SDK,$ip_or_id,$SDK_enc
+	"""
+	if $proto == "TCP" with """
+		df2 = @udf logs by net2.send_tcp_syslog with $ip,$port,$enc,$charset,$SDK,$ip_or_id,$SDK_enc
+	"""
+	drop logs
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	#import time
+}

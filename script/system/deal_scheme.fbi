@@ -1,0 +1,6 @@
+#FBI脚本文件
+d = filter a by (var3=="@id")
+d = loc d by (value)
+d = union b,d 
+store d to ssdb by ssdb0 with FEAStyle:@f:@id
+store d to ssdb by ssdb0 with FBIStyle:@f:@id

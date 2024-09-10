@@ -1,0 +1,40 @@
+#LastModifyDate:　2023-10-07T18:20:38.527338    Author:   zwl
+#LastModifyDate:　2023-04-20T18:01:50.141968    Author:   zwl
+#LastModifyDate:　2023-03-13T10:29:48.154238    Author:   pjb
+#LastModifyDate:　2023-03-10T11:58:58.044769    Author:   pjb
+#LastModifyDate:　2022-12-28T11:47:58.908942    Author:   pjb
+use @FID
+
+# 关闭应用审计
+#a = load ssdb by ssdb0 with @data_key
+a = load db by mysql1 with select * from data_app_new where app = '@app'
+app = loc a by app
+app1 = eval app by iloc[0,0]
+alter a.id as int
+a = loc a by id,app
+a = add app_status by ('0')
+a = @udf a by udf0.df_set_index with id
+b = @udf a by CRUD.save_table with (@link,data_app_new)
+# 合并应用处理合并
+app = load db by mysql1 with select app,id from data_app_new where app_merges='$app1' and merge_state =1
+app = add app_status by ("0")
+app = @udf app by udf0.df_set_index with id
+app = @udf app by CRUD.save_table with (@link,data_app_new)
+# 关闭合并应用接口审计
+api = @udf RS.load_mysql_sql with (mysql1,select i.id,i.api_status,i.app from data_app_new p left join data_api_new i on p.app=i.app  where p.app_merges='$app1' and p.merge_state =1 )
+api = add api_status by ("0")
+api = @udf api by udf0.df_set_index with id
+d = @udf api by CRUD.save_table with (@link,data_api_new)
+# 关闭接口审计
+api = @udf RS.load_mysql_sql with (mysql1,select id,api_status from data_api_new where app = '$app1' )
+api = add api_status by ("0")
+api = @udf api by udf0.df_set_index with id
+d = @udf api by CRUD.save_table with (@link,data_api_new)
+# 从应用管理删除
+dd = @udf RS.load_mysql_sql with (mysql1,select id from audit_statistics where name = '$app1' )
+id = eval dd by iloc[0,0]
+@udf dd by CRUD.delete_table with (mysql1,audit_statistics,$id)
+
+push b as table
+
+clear @FID

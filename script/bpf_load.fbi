@@ -1,0 +1,11 @@
+#FBI脚本文件
+#文件名: bpf_load.fbi
+#作者: superFBI
+
+
+#装载BPF配置文件
+
+a = load ssdb with znsm:BPF:config
+
+
+push a as table

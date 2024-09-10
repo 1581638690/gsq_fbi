@@ -1,0 +1,118 @@
+#LastModifyDate:　2024-08-08T16:50:06    Author:   rzc
+#LastModifyDate:　2024-08-08T16:37:24    Author:   rzc
+#LastModifyDate:　2024-08-08T10:27:25    Author:   rzc
+#LastModifyDate:　2024-08-07T16:25:35    Author:   rzc
+#LastModifyDate:　2024-08-07T14:36:15    Author:   rzc
+#LastModifyDate:　2024-08-07T11:29:18    Author:   rzc
+#LastModifyDate:　2024-08-07T11:28:11    Author:   rzc
+#LastModifyDate:　2024-08-07T11:17:53    Author:   rzc
+#LastModifyDate:　2024-08-06T15:52:09    Author:   rzc
+#LastModifyDate:　2024-07-31T16:07:07    Author:   rzc
+#LastModifyDate:　2024-07-31T15:48:42    Author:   rzc
+
+
+#xlink脚本
+
+#初始化
+init => {
+	stream["meta_name"] = "[CSR]收集流程，根据页面配置"
+	stream["meta_desc"] = "处理redis数据到/tmp/csr_main"
+
+	stream["redis_l"] = load_ssdb_kv("agent")["redis"]
+	try:
+		stream["header"] = load_ssdb_kv("agent")["header"]
+	except:
+		stream["header"] = []
+	#取第一个topic
+	try:
+		stream["topic1"] = load_ssdb_kv("agent")["header"][0]["topic"]
+	except:
+		stream["topic1"] = ""
+	#字典 key-topic:value-destip
+	stream["cfg"] = {}
+	for flag in stream["header"]:
+		stream["cfg"][flag["topic"]] = flag["destip"]
+	stream["topics"] = []
+	stream["pubshm"] = {"shm_name":"events", "size": 2048*2048}
+	for tp in stream["header"]:
+		topic = tp.get("topic")
+		stream["topics"].append(topic)
+	#stream["pubshm"] = {"shm_name":"events","size":}
+	#stream["topics"].pop(0)
+	stream["source"]= {"link":stream["redis_l"],"topic":stream["topic1"],"redis":"list_json","topics":stream["topics"]}
+	stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	#stream["st"]["st_20s"]={"times":20,"fun":"print20"}
+	#Delete 注释 by rzc on 2024-08-08 16:29:14
+	#stream["stw"]["stw_cpu"]={"times":10,"fun":"stw_cpu"}
+	#	stream["stw"]["stw_mem"]={"times":10,"fun":"stw_mem"}
+	#	stream["stw"]["csr_sum"]={"times":10,"fun":"csr_sum"}
+	#	stream["stw"]["csr_los"]={"times":10,"fun":"csr_los"}
+
+	#stream["st"]["st_60s"]={"times":20,"fun":"print60"}
+	stream["count_scrip"] = {"csr_type":"csr"}
+	stream["csr_info"] = {}
+	stream["count_scrip"] = {}
+	#stream["urls"] = []
+	stream["http_c"]=0
+}
+
+
+#事件处理函数
+events => {
+	k = iso_to_timestamp(o["timestamp"])
+	#目的ip
+	dest_ip = stream["cfg"][topic]
+	# 计算事件数
+	if dest_ip in stream["count_scrip"]:
+		stream["count_scrip"][dest_ip] += 1
+	else:
+		stream["count_scrip"][dest_ip] = 1
+	if o.get("event_type") == "stats" and o.get("basic"):
+		# 探针状态信息 cpu、内存使用率
+		#总包数，丢失数，丢包率
+		if o.get("stats") and o.get("stats").get("capture"):
+			stream["csr_info"][dest_ip] = {}
+			stream["csr_info"][dest_ip]["IP"] = dest_ip
+			stream["csr_info"][dest_ip]["CPU使用率"] = float(o.get("basic").get("os_cpu",0))
+			stream["csr_info"][dest_ip]["内存使用率"] = float(o.get("basic").get("os_mem",0))
+			stream["csr_info"][dest_ip]["总包数"] = o.get("stats").get("capture").get("kernel_packets")
+			stream["csr_info"][dest_ip]["丢包数"] = o.get("stats").get("capture").get("kernel_drops")
+			stream["csr_info"][dest_ip]["丢包率"] = str(round(o.get("stats").get("capture").get("kernel_drops")/o.get("stats").get("capture").get("kernel_packets"),4) * 100) + '%'
+			stream["csr_info"][dest_ip]["事件总数"] = stream["count_scrip"][dest_ip] if stream["count_scrip"].get(dest_ip) else 0
+
+	#修改dest_ip
+	if o.get("dest_ip") == '127.0.0.1':
+		o["dest_ip"] = stream["cfg"][topic]
+	if o.get("http"):
+		url = o.get("http").get("url")
+		#stream["urls"]["url"] =[]
+		if o.get("http").get("hostname") == "59.202.68.95" and o.get("http").get("http_port") == 8215:
+			stream["urls"].append(url)
+		
+			printf("urls",stream["urls"])
+			#stream["http_c"] += 1
+		if o.get("http").get("hostname") == "localhost" or o.get("http").get("hostname") == '127.0.0.1':
+			o.get("http")["hostname"] = stream["cfg"][topic]
+		
+		
+		if url:
+			#to_redis_n("yuan_http",o,8)
+			to_unix_udp(o,"/tmp/yuans_http")
+	to_unix_udp_n(o,"/tmp/csr_main",9)
+}
+print10 =>{
+	push_dict_to_df(stream["csr_info"],"csr_info")
+	save()
+}
+#系统定时函数
+save => fbi{
+	csr_info = @udf csr_info by udf0.clone_df
+	store csr_info to ssdb by ssdb0 with csr_info:10s
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+
+}

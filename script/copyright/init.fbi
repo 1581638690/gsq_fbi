@@ -1,0 +1,24 @@
+#LastModifyDate:　2022-10-11T15:06:03.795798    Author:   admin
+#LastModifyDate:　2022-07-11T17:11:10.814314    Author:   liuhouqi
+#LastModifyDate:　2022-06-17T21:17:54.836942    Author:   liuhouqi
+#LastModifyDate:　2022-04-28T15:01:37.128512
+#FBI脚本文件
+#文件名: copyright/init.fbi
+#作者: admin
+
+
+use  copyright
+
+c = @udf udfG.copyright
+a = @udf udf0.new_df with kernel
+a = @udf a by udf0.df_append with 云安数据安全访问控制系统
+a = join a,c by index
+
+#应用的key, 不需要加use:
+b =@udf udfA.get_vbs with DSAW
+a = join a,b by index
+
+#store a to ssdb with a:@FPS
+push a as table
+
+clear copyright

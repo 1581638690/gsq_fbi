@@ -1,0 +1,132 @@
+#LastModifyDate:　2024-01-03T12:43:10.559366    Author:   superFBI
+#xlink脚本
+#file: test_unix_recv.xlk
+#name: 测试接受
+#描述： 测试接受消息，不做任何处理，４个并发
+#创建时间: 2024-01-03T12:26:18.981695
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with test_unix_recv
+
+#停止
+#a = @udf FBI.x_finder3_stop with test_unix_recv
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:test_unix_recv,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::test_unix_recv
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "测试接受"
+	stream["meta_desc"] = "测试接受消息，不做任何处理，４个并发"
+	stream["source"]= {"unix_udp":"/tmp/http_monitor2"}
+	stream["max_xlink"]=8
+	
+
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+
+	#chk的链接
+	#stream["CKH"] = CKH_Client(host="192.168.1.192",port=19999,user="default",password="client")
+	#chk创建表
+	#stream["CKH"].execute("CREATE TABLE test2 (x Int32) ENGINE = MergeTree() order by x")
+	#创建pool
+	#pool["ckh"] = []
+
+	#从ssdb中加载配置，可以和json表单配合
+	setting = load_ssdb_kv("setting")
+	stream["link"] = setting["kfk"]["origin"]["link"]
+
+	#从ssdb中加载一个hashmap的字典，用于比对去重等
+	stream["url2"] = load_ssdb_hall("FF:url2")
+}
+
+
+#事件处理函数
+events => {
+	#时间窗口，需要一个到秒时间戳
+	#k = iso_to_timestamp(o["timestamp"])
+	pass
+}
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+	stream["count-10"] = 0
+	push_arrays_to_df(table,"flow")
+	#store_ckh(pools["ckh"],"flow")
+	save()
+}
+
+#窗口函数，使用FBI的原语
+flow => stw{
+
+	df2 = group df by dest_ip agg count
+	df3 = @udf df by udf0.df_sum
+	store df2 to ssdb by ssdb0 with DF:agg=>@k
+    store df3 to ssdb by ssdb0 with DF:sum=>@k    
+    @udf flow by CRUD.save_table with (msyql,df)
+	assert df by df.index.size >0 as xlink to 调度成功[df.index.size] with 调度失败!
+}
+
+#窗口函数，使用FBI的原语
+http => stw{
+	df2 = group df by dest_ip agg count
+	df3 = @udf df by udf0.df_sum
+	store df2 to ssdb by ssdb0 with DF:agg=>@k
+    store df3 to ssdb by ssdb0 with DF:sum=>@k
+	t2 = @sdf format_timestamp with (@k,"%Y-%m-%dT%H:%M:%S")
+	#调试语句
+	assert True as xlink to 调度成功[$t2] with 调度失败!
+}
+
+#自定义批处理函数，使用FBI语句块, 可以在系统定时函数中调用
+#使用push_arrays_to_df函数生成df,在语句块中使用
+#如: push_arrays_to_df(table,"flow")
+save => fbi{
+	#@udf flow by CRUD.save_table with (msyql,flow_info)
+	drop flow
+}
+
+#自定义python函数，必须有参数,可以在初始化函数，事件处理函数，和定时函数中使用
+ss => (d1,d2,d3){
+	return d1+d2+d3
+}
+
+
+#克隆一个新事件,创建一个新的变量，并返回
+clone_event =>(o){
+	e={}
+	e["timestamp"]= o["timestamp"]
+	e["src_ip"]= o["src_ip"]
+	e["dest_ip"]= o["dest_ip"]
+	e["dest_port"]= o["dest_port"]
+	return e
+}
+
+#base64字符串的解码,处理被截断的情况
+base64_decode =>(x){
+	try:
+		a =  base64.b64decode(x).decode("utf-8")
+	except Exception as e:
+		a = base64.b64decode(x)[0:e.start].decode("utf-8")
+	return a
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+}

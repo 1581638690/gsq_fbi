@@ -1,0 +1,23 @@
+#LastModifyDate:　2023-07-11T19:01:11.506304    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+
+##加载数据
+datas = load db by mysql1 with select a.id as _id,a.api,a.api_name,a.app,a.app_name,a.dest_ip,a.dest_port,a.method,a.length,a.first_time,a.last_time,a.state,b.type1,a.more from api19_risk a join api19_type b on a.type = b.type where a.last_time >= '@date1' and a.last_time <= '@date2' order by a.last_time desc
+datas = @udf datas by udf0.df_fillna
+datas.more = lambda more by x: json.loads(x)
+datas.more = lambda more by x: x[-1] if isinstance(x,list) else x
+alter datas.more as str
+datas.more = lambda more by (x:x[0:30000])
+rename datas as ('api':'接口','api_name':'接口名','app':'应用','app_name':'应用名','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','length':'返回数据最大数据量','first_time':'首次发现时间','last_time':'最新监测时间','state':'弱点状态','type1':'弱点类型','more':'详情')
+store datas to csv by 应用弱点_$day.csv
+
+###下载标签：数据Key
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 应用弱点_$day.csv
+push name as file_name
+
+clear @FID

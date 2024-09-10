@@ -1,0 +1,17 @@
+#FBI脚本文件
+#文件名: pot_user/del_table.fea
+#作者: admin
+use @FID
+
+a = @udf CRUD.get_object_table with (@link,@table,@id)
+#根据id加载对象
+b = @udf CRUD.delete_table with (@link,@table,@id)
+#删除user表中的用户
+
+c= @udf a by udfA.drop_users
+
+
+
+
+#清除工作区
+clear @FID

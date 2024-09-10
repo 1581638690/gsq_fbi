@@ -1,0 +1,13 @@
+#FBI脚本文件
+#文件名: docxdownload.fbi
+#作者: admin
+use @FID
+a= load ssdb by ssdb0 with @data_key
+file = eval a by (iloc[0,0])
+df2 = @udf  Daily_func.formatByte with (/opt/openfbi/workspace/csv/$file)
+sum = eval df2 by (iloc[0,1])
+bb = @udf udf0.new_df with (file,sum)
+bb2 = @udf bb by udf0.df_append with (csv/$file,$sum)
+store bb2 to ssdb by ssdb0 with pot_bb3:@FPS as 600
+#push bb2 as table
+clear @FID

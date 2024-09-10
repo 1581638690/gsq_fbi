@@ -1,0 +1,33 @@
+use @FID
+
+#获取表单数据
+t = load ssdb by ssdb0 with @data_key
+t = loc t by drop sys_role
+
+# 获取用户名字
+a = filter t by name != 'admin'
+#assert False as altert to 执行成功 with 未执行或执行失败
+assert a by df.index.size > 0 as break with '不能添加admin用户，权限不足！'
+name=eval a by (get_value(0,"name"))
+
+# 判断用户是否存储
+g = @udf CRUD.exec_mysql_sql with (@link,select * from @table where name="$name")
+assert g by df.index.size == 0 as break with '用户已存在！'
+
+#保存
+b = @udf t by CRUD.save_table with (@link,@table)
+b = @udf b by udf0.df_fillna with ('')
+b = @udf b by udf0.df_drop_col with (gmt_create,gmt_modified)
+b = @udf b by udfA.imp_users
+
+q = @udf udf0.new_df with (name,value,type)
+q = @udf q by udf0.df_append with (limit,100,sys)
+q = @udf q by udf0.df_append with (gmt_modified,desc,order)
+
+df,count = @udf q by CRUD.query_table with (@link,@table)
+#返回结果
+push df as table
+push count to count
+
+#清除工作区
+clear @FID

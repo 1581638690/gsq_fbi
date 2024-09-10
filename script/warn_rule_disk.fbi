@@ -1,0 +1,113 @@
+#LastModifyDate:　2024-02-28T14:35:05    Author:   pjb
+#LastModifyDate:　2023-11-24T10:06:33.213473    Author:   superFBI
+#LastModifyDate:　2023-11-20T18:09:22.485229    Author:   superFBI
+#LastModifyDate:　2023-11-06T18:29:35.644034    Author:   superFBI
+#LastModifyDate:　2023-11-06T18:19:38.354125    Author:   superFBI
+#LastModifyDate:　2023-11-06T15:29:40.127346    Author:   superFBI
+#LastModifyDate:　2023-11-06T15:22:08.344423    Author:   superFBI
+#LastModifyDate:　2023-11-06T09:27:25.073778    Author:   superFBI
+#LastModifyDate:　2023-10-31T17:49:40.101395    Author:   pjb
+#LastModifyDate:　2023-07-17T14:06:17.064058    Author:   zwl
+#LastModifyDate:　2023-06-07T10:15:13.450613    Author:   superFBI
+#FBI脚本文件
+#文件名: warn_rule_disk.fbi
+#作者: lhq
+use @FID
+#应用审计
+run zts_sj2.fbi
+#定时查询数据库脚本
+run lhq_sec_sql.fbi
+#自增id 
+#k = @udf KFK.df_link with escount
+#ecount = eval k by iloc[0,0]
+
+ip = @udf SH.network_cards2
+ips = @udf ip by udf0.df_limit with (0,1)
+ips.address = lambda address by (x:str(x).replace("\'","").replace("[","").replace("]","").split('/')[0])
+ip = eval ips by iloc[0,1]
+
+date = @sdf sys_now
+wd = @udf PS.disk_usage
+wd = add disk by (wd.Free*100)//wd.Total
+disk = eval wd by iloc[0,4]
+diskf = eval wd by iloc[0,3]
+disku = eval wd by iloc[0,2]
+diskt = eval wd by iloc[0,1]
+dsre = @udf RS.load_mysql_sql with (mysql1,select replace(threshod,"%","")/100 as threshod from disk_resource where sid =1)
+alter dsre.threshod as float
+a = load ssdb by ssdb0 with disk as json
+per = jaas a by a["data"] as sdf
+num = @sdf sys_eval with ($diskt * $per)
+#define es10 by 10.99.20.105:9200
+#a = load es by es10 with select * from event_risk
+#i = load es by es11 with 'insert into event_risk(_id=3,timestamp="$date",srcip=10.99.20.105 ,msg=磁盘警告：剩余容量3404.0 G,占比2.0 %！,name=磁盘告警)'
+assert not 100-$disk > int($per) as notice  with 磁盘空间剩余$disk %
+
+a = if $disku> $num with """
+	disk_table = @udf udf0.new_df with (id,timestamp,srcip,srcport,dstip,dstport,action,signature,category,severity,filename,proto,app_proto)
+	disk_table = @udf disk_table by udf0.df_append with ("0",$date,$ip,,,,,,系统告警,1,,系统,)
+	#dsre = add result by '$per'
+	#ips = add timestamp by ('$date')
+	disk_table.id = lambda id by x: str(uuid.uuid1())
+	disk_table = add signature by ("磁盘警告：剩余容量$diskf G,占比$disk %！")
+	alter disk_table.timestamp as datetime64
+	#disk_table = loc disk_table by id to index
+	store disk_table to ckh by ckh with api_alert
+	#ecount =  @sdf sys_eval with ($ecount +1)
+"""
+
+s = @udf FBI.local_cmd with df -h
+
+#assert $disk < $nn as notice with 磁盘警告：剩余容量$diskf G,占比$disk %！
+#ca  = load es by es10 with select timestamp,srcip,msg,name from event_risk limit 10
+#内存告警 查过设定的值即显示告警
+memory = @udf RS.load_mysql_sql with (mysql1,select replace(threshod,"%","")/100 as threshod from disk_resource where sid =2)
+set_num = eval memory by iloc[0,0]
+sys_info = @udf PS.sys_baseinfo
+sys_status = @udf PS.sys_stats
+#cpu 总核数
+sys_cpu_t = eval sys_info by iloc[0,1]
+#cpu使用核数
+sys_cpu_u = eval sys_status by iloc[0,1]
+
+#内存使用比例
+sys_mo = eval sys_status by iloc[3,1]
+#已使用内存大小
+mo_u  = eval sys_status by iloc[1,1]
+#总内存大小
+mo_t = eval sys_status by iloc[2,1]
+mo_s = @sdf sys_eval with ($mo_t - $mo_u)
+mo_bie = @sdf sys_lambda with ($sys_mo, x:"%.2f"%float(x))
+mo_bies = @sdf sys_eval with ($mo_bie *100)
+if $sys_mo >= $set_num with """
+	me_table = @udf udf0.new_df with (id,timestamp,srcip,srcport,dstip,dstport,action,signature,category,severity,filename,proto,app_proto)
+	me_table = @udf me_table by udf0.df_append with ("0",$date,$ip,,,,,,系统告警,1,,系统,)
+	me_table = add signature by ("内存警告：内存使用$mo_u G,占比$mo_bies %！")
+	me_table.id = lambda id by x: str(uuid.uuid1())
+	alter me_table.timestamp as datetime64
+	#me_table = loc me_table by id to index
+	store me_table to ckh by ckh with api_alert
+	#ecount =  @sdf sys_eval with ($ecount +1)
+"""
+
+cpu_bie = @sdf sys_eval with ($sys_cpu_u / $sys_cpu_t * 100)
+cpu_s = @sdf sys_eval with ($sys_cpu_t - $sys_cpu_u)
+cpu_bies = @sdf sys_lambda with ($cpu_bie, x:"%.2f"%float(x))
+cpu_mo = @udf RS.load_mysql_sql with (mysql1,select replace(threshod,"%","")/100 as threshod from disk_resource where sid =3)
+cpu_mo = eval cpu_mo by iloc[0,0]
+cpu_mo = @sdf sys_eval with ($cpu_mo * 100)
+ac = if $cpu_bie >= $cpu_mo with """
+	cpu_table = @udf udf0.new_df with (id,timestamp,srcip,srcport,dstip,dstport,action,signature,category,severity,filename,proto,app_proto)
+	cpu_table = @udf cpu_table by udf0.df_append with ("0",$date,$ip,,,,,,系统告警,1,,系统,)
+	cpu_table = add signature by ("CPU警告：系统CPU共$sys_cpu_t个,现CPU使用率$cpu_bies %！")
+	cpu_table.id = lambda id by x: str(uuid.uuid1())
+	alter cpu_table.timestamp as datetime64
+	#cpu_table = loc cpu_table by id to index
+	store cpu_table to ckh by ckh with api_alert
+	#ecount =  @sdf sys_eval with ($ecount +1)
+"""
+
+
+#define escount by $ecount:10
+
+clear @FID

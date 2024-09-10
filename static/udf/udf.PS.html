@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.PS</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.PS</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/PS.py">/opt/openfbi/fbi-bin/udf/PS.py</a></td></tr></table>
+    <p><span class="code">使用pstuil模块，对系统资源进行全方位的系统的监控</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="json.html">json</a><br>
+<a href="math.html">math</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td class="multicolumn"><a href="pandas.html">pandas</a><br>
+<a href="psutil.html">psutil</a><br>
+<a href="random.html">random</a><br>
+</td><td class="multicolumn"><a href="re.html">re</a><br>
+<a href="requests.html">requests</a><br>
+<a href="sys.html">sys</a><br>
+</td><td class="multicolumn"><a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-disk_usage"><strong>disk_usage</strong></a>(df, p='')</dt><dd><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;@author：&nbsp;gjw<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@date:&nbsp;20200724<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@函数：磁盘容量监控，单位GB<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@参数：<br>
+&nbsp;&nbsp;&nbsp;&nbsp;挂载点，如无则为所有当前挂载点<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@描述：<br>
+基本信息<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@返回：<br>
+&nbsp;&nbsp;&nbsp;&nbsp;df表</span></dd></dl>
+ <dl><dt><a name="-lg_m_pipeline"><strong>lg_m_pipeline</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-net_conns"><strong>net_conns</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：网络链接数<br>
+@参数：&nbsp;&nbsp;&nbsp;&nbsp;<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-net_listens"><strong>net_listens</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：监听的服务<br>
+@参数：&nbsp;&nbsp;&nbsp;&nbsp;<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-net_open_port"><strong>net_open_port</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：相关端口的信息<br>
+@参数：&nbsp;&nbsp;&nbsp;&nbsp;<br>
+端口号<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-pids"><strong>pids</strong></a>(df, p='')</dt><dd><span class="code">#根据进程名获取进程信息,可以得到所有匹配的进程信息</span></dd></dl>
+ <dl><dt><a name="-pids_name"><strong>pids_name</strong></a>(df, p='')</dt><dd><span class="code">#根据进程名获取进程信息,可以得到所有匹配的进程信息</span></dd></dl>
+ <dl><dt><a name="-proc_conns_pid"><strong>proc_conns_pid</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：进程打开的网络链接<br>
+@参数：&nbsp;&nbsp;&nbsp;&nbsp;<br>
+pid&nbsp;进程号<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-proc_files_pid"><strong>proc_files_pid</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：进程打开的文件<br>
+@参数：&nbsp;&nbsp;&nbsp;&nbsp;<br>
+pid&nbsp;进程号<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-proc_name"><strong>proc_name</strong></a>(df, p='')</dt><dd><span class="code">#根据进程名获取进程信息,只能获取名称匹配的一个进程</span></dd></dl>
+ <dl><dt><a name="-proc_name_or_arg"><strong>proc_name_or_arg</strong></a>(df, p='')</dt><dd><span class="code">#根据进程名或参数获取进程信息,只能获取名称匹配的一个进程</span></dd></dl>
+ <dl><dt><a name="-proc_pid"><strong>proc_pid</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：进程信息<br>
+@参数：&nbsp;&nbsp;&nbsp;&nbsp;<br>
+pid&nbsp;进程号<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-proc_threads_pid"><strong>proc_threads_pid</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：进程打开线程<br>
+@参数：&nbsp;&nbsp;&nbsp;&nbsp;<br>
+pid&nbsp;进程号<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-sys_baseinfo"><strong>sys_baseinfo</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：系统基本信息，包括cpu&nbsp;,内存，硬盘等<br>
+@参数：<br>
+无<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-sys_stats"><strong>sys_stats</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：cpu,和内存<br>
+@参数：<br>
+无<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-sys_time"><strong>sys_time</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200724<br>
+@函数：系统启动时间<br>
+@参数：&nbsp;&nbsp;&nbsp;&nbsp;<br>
+@描述：<br>
+基本信息<br>
+@返回：<br>
+df表</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>nan</strong> = nan</td></tr></table>
+</body></html>

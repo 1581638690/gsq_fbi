@@ -1,0 +1,5 @@
+#FBI脚本文件
+#文件名: pot_get_fire.fbi
+#作者: admin
+data_df = @udf data_df by udf0.df_replace with (ACCEPT,允许)
+data_df = @udf data_df by udf0.df_replace with (DROP,拒绝)

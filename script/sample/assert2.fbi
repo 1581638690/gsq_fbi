@@ -1,0 +1,40 @@
+
+#assert断言的类型目前有四种：
+# 1 altert  告警，页面交互告警
+# 2 break 中断，中断后续运行并在页面交互告警
+#3  notice 通知， 在通知中心通知，门户4,6,7已经支持，可以在页面输出
+#4 log 后台记录，可以发不为小程序，进行查看
+
+
+
+
+#查找表
+assert find_df('b',ptree) as altert with 数据库查询失败！
+#查找变量
+assert find_var('aa',ptree) as altert with 建表失败
+
+
+#对DF表的内部属性如 索引字段等做出的断言
+assert aj by 'lrsj' not in df.columns as alert to 数据处理成功! with 数据处理失败!
+assert a1 by df.index.size >0 as notice with 数据装载失败
+
+
+#assert增加find_df_have_data函数，可以判断DF表存在并且有数据
+c = load csv by cs334.csv
+dd = assert find_df_have_data('c',ptree) as notice to 成功！ with 加载表失败！
+
+
+#发现上述有错误而终止运行的
+a = @udf a1 by  udf0.new_df
+assert   not_have_error() as break with 发现错误停止处理
+b = @udf udf0.new_df
+
+
+
+#3  notice 通知， 在通知中心通知，门户4,6,7已经支持，可以在页面输出
+#4 log 后台记录，可以发不为小程序，进行查看
+
+#清空通知队列(assert ) notice
+b,a1  =load ssdb by ssdb0 query2 qclear,N_log,-,-
+#查看日志队列(assert) log
+b,a1  =load ssdb by ssdb0 query2 qrange,A_log_2020-04-28,0,100

@@ -1,0 +1,384 @@
+#LastModifyDate:　2024-01-25T17:53:15    Author:   zwl
+#LastModifyDate:　2024-01-24T17:41:58    Author:   zwl
+#LastModifyDate:　2023-11-27T17:28:27.238562    Author:   zwl
+#LastModifyDate:　2023-11-23T11:19:18.150311    Author:   zwl
+#LastModifyDate:　2023-11-20T18:36:47.220768    Author:   zwl
+#LastModifyDate:　2023-11-18T11:08:05.056953    Author:   zwl
+#LastModifyDate:　2023-11-16T16:27:41.761656    Author:   zwl
+#LastModifyDate:　2023-11-15T14:32:39.620821    Author:   zwl
+#LastModifyDate:　2023-11-14T11:47:37.969670    Author:   zwl
+#LastModifyDate:　2023-11-08T16:47:10.527713    Author:   zwl
+#LastModifyDate:　2023-11-07T18:55:22.463776    Author:   zwl
+#FBI脚本文件
+#文件名: link_tupu.fbi
+#作者: zwl
+use @FID
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with link_agent
+##判断key是否为空，若为空，api_monitor
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_monitor
+#aa = load ckh by ckh with select * from api_monitor limit 1
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(time) as time from api_monitor
+time2 = eval aa by iloc[0,0]
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_monitor where time >= '$time1' and time < '$time2' limit 1
+assert find_df_have_data('ccc',ptree) as exit with 数据库未连接 或 无数据更新！
+
+store aa to ssdb by ssdb0 with link_agent
+
+#len1 = load db by mysql1 with select max(length(account)) as len1 from data_account_new limit 1
+#len1 = eval len1 by iloc [0,0]
+
+##### 应用  --》 数据库-----------------------------------------------------------------------------------------------------------------------------------------------
+ss6 = load ckh by ckh with select distinct src_ip,dest_ip,dest_port as O from dbms where timestamp >= '$time1' and timestamp < '$time2'
+alter ss6 by src_ip:str,dest_ip:str,O:str
+ss6 = loc ss6 by src_ip,dest_ip,O
+ss6 = @udf ss6 by udf0.df_row_lambda with (x: x[0] if x[0] != '127.0.0.1' else x[1])
+rename ss6 as ('lambda1':'S')
+ss6 = add O by (df['dest_ip']+':'+df['O'])
+ss6 = add P by ('link_sql')
+##############################
+ss6.len1 = lambda O by (x:len(x))
+ss6 = filter ss6 by len1 < 80
+ss6.len1 = lambda S by (x:len(x))
+ss6 = filter ss6 by len1 < 80
+###########################3##
+ss6 = loc ss6 by S,O,P
+###节点信息  应用、数据库
+type7 = loc ss6 by S 
+type7 = add type by ('应用')
+type8 = loc ss6 by O
+rename type8 as ('O':'S')
+type8 = add type by ('数据库')
+
+
+##应用账户  --》终端-----------------------------------------------------------------------------------------------------------------------------------------------
+ss1 = load ckh by ckh with select distinct account as S,srcip,real_ip from api_monitor where account != '' and time >= '$time1' and time < '$time2'
+alter ss1 by S:str,srcip:str,real_ip:str
+ss1 = @udf ss1 by udf0.df_row_lambda with (x: x[1] if x[1] != '127.0.0.1' else x[2])
+rename ss1 as ('lambda1':'O')
+ss1 = filter ss1 by O != ''
+ss1 = add P by ('link_belong')
+#########################################
+ss1.len1 = lambda S by (x:len(x))
+ss1 = filter ss1 by len1 < 80
+ss1.len1 = lambda O by (x:len(x))
+ss1 = filter ss1 by len1 < 80
+########################################
+ss1 = loc ss1 by S,O,P
+ss1 = distinct ss1 by S,O,P
+##节点类型  应用账户、终端
+type1 = loc ss1 by S 
+type1 = add type by ('应用账号')
+type2 = loc ss1 by O
+rename type2 as ('O':'S')
+type2 = add type by ('终端')
+
+###  终端 -- 》 应用   -----------------------------------------------------------------------------------------------------------------------------------------------
+ss2 = load ckh by ckh with select distinct srcip,real_ip,app from api_monitor where content_type not in ('XML','JSON','数据文件') and time >= '$time1' and time < '$time2'
+alter ss2 by srcip:str,real_ip:str,app:str
+ss2 = @udf ss2 by udf0.df_row_lambda with (x: x[0] if x[0] != '127.0.0.1' else x[1])
+rename ss2 as ('lambda1':'S')
+ss2 = filter ss2 by S != ''
+ss2.app1 = lambda app by (x:x.split(":"))
+ss2 = @udf ss2 by udf0.df_l2cs with app1
+ss2 = @udf ss2 by udf0.df_reset_index
+rename ss2 as ('n100':'O')
+ss2 = loc ss2 by S,O
+####  排除终端IP与应用IP相同
+ss2 = add aa by 0
+ss2 = @udf ss2 by udf0.df_row_lambda with (x: x[2] if x[0] != x[1] else 1)
+ss2 = filter ss2 by lambda1 != 1
+ss2 = add P by ('link_http1')
+#########################################
+ss2.len1 = lambda S by (x:len(x))
+ss2 = filter ss2 by len1 < 80
+ss2.len1 = lambda O by (x:len(x))
+ss2 = filter ss2 by len1 < 80
+########################################
+ss2 = loc ss2 by S,O,P
+ss2 = distinct ss2 by S,O,P
+###节点信息  终端、应用
+type5 = loc ss2 by S 
+type5 = add type by ('终端')
+type6 = loc ss2 by O
+rename type6 as ('O':'S')
+type6 = add type by ('应用')
+
+##接口  --》 应用-----------------------------------------------------------------------------------------------------------------------------------------------
+ss3 = load ckh by ckh with select distinct urld as url,app,api_type,http_method,risk_level from api_monitor where content_type in ('XML','JSON','数据文件') and time >= '$time1' and time < '$time2'
+alter ss3 by url:str,app:str,api_type:str,http_method:str,risk_level:str 
+#########################################  过滤请求类型 异常格式
+ss3 = loc ss3 by http_method,url,app,api_type,risk_level
+ss3 = @udf ss3 by udf0.df_row_lambda with (x: '' if x[0] != 'OPTIONS' and x[0] != 'POST' and x[0] != 'GET' and x[0] != 'PUT' and x[0] != 'PATCH' and x[0] != 'DELETE' and x[0] != 'HEAD' and x[0] != 'CONNECT' else x[0] )
+ss3 = loc ss3 drop http_method
+ss3_1 = filter ss3 by lambda1 == ''
+rename ss3_1 as ('lambda1':'http_method')
+ss3_2 = filter ss3 by lambda1 != ''
+ss3_2.lambda1 = lambda lambda1 by (x:x+',')
+ss3_2 = group ss3_2 by url,app,api_type,risk_level agg lambda1:sum
+ss3_2.http_method = lambda lambda1_sum by (x:x[:-1])
+ss3_2 = @udf ss3_2 by udf0.df_reset_index
+ss3_2 = loc ss3_2 drop lambda1_sum
+ss3 = union ss3_1,ss3_2
+#########################################  过滤请求类型 异常格式
+##取接口管理由的接口
+url = load db by mysql1 with select distinct url from data_api_new where data_type in ('XML','JSON','数据文件')
+alter url by url:str
+ss3 = join ss3,url by url,url 
+ss3.app1 = lambda app by (x:x.split(":"))
+ss3 = @udf ss3 by udf0.df_l2cs with app1
+ss3 = @udf ss3 by udf0.df_reset_index
+rename ss3 as ('n100':'app2')
+ss3 = loc ss3 by url,app,app2,api_type,http_method,risk_level
+api_type = load ssdb by ssdb0 with dd:API-api_type
+ss3 = @udf ss3,api_type by SP.tag2dict with api_type
+alter ss3.app2 as str
+app = loc ss3 by app2
+app = distinct app by app2
+ss4 = @udf udf0.new_df
+foreach app run """
+	tt = filter ss3 by app2 == '@app'
+	tt = @udf tt by udf0.df_reset_index
+	tt = add url_name by (df["app2"]+"-"+df["api_type"]+"接口")
+	#tt = add app2 by ("应用-"+df["app2"])
+	tt = loc tt by url,app2,url_name,http_method,risk_level
+	ss4 = union ss4,tt
+""" with (app = $1)
+###接口名称
+aa1 = load pq by link/url_name.pq
+a1 = loc ss4 by url,url_name,http_method,risk_level
+a1 = union a1,aa1
+a1 = distinct a1 by url,url_name,http_method,risk_level
+store a1 to pq by link/url_name.pq
+a1 = loc a1 by url,url_name
+#
+ss4 = loc ss4 by app2,url_name
+ss4 = distinct ss4 by app2,url_name
+rename ss4 as ('app2':'O','url_name':'S')
+ss4 = add P by ('link_belong1')
+#########################################
+ss4.len1 = lambda S by (x:len(x))
+ss4 = filter ss4 by len1 < 80
+ss4.len1 = lambda O by (x:len(x))
+ss4 = filter ss4 by len1 < 80
+########################################
+ss4 = loc ss4 by S,O,P
+ss4 = distinct ss4 by S,O,P
+####节点信息  应用、接口
+type3 = loc ss4 by S
+type3 = add type by ('接口')
+type4 = loc ss4 by O
+rename type4 as ('O':'S')
+type4 = add type by ('应用')
+
+
+##终端  --》 接口-----------------------------------------------------------------------------------------------------------------------------------------------
+ss5 = load ckh by ckh with select distinct srcip,real_ip,urld as url from api_monitor where content_type in ('XML','JSON','数据文件') and time >= '$time1' and time < '$time2'
+alter ss5 by srcip:str,real_ip:str,url:str
+##取接口管理由的接口
+ss5 = join ss5,url by url,url
+ss5 = @udf ss5 by udf0.df_row_lambda with (x: x[0] if x[0] != '127.0.0.1' else x[1])
+rename ss5 as ('lambda1':'S')
+ss5 = filter ss5 by S != ''
+ss5 = loc ss5 by S,url
+ss5 = join ss5,a1 by url,url with left
+rename ss5 as ('url_name':'O')
+ss5 = add P by ('link_http')
+#########################################
+ss5.len1 = lambda S by (x:len(x))
+ss5 = filter ss5 by len1 < 80
+ss5.len1 = lambda O by (x:len(x))
+ss5 = filter ss5 by len1 < 80
+########################################
+ss5 = loc ss5 by S,O,P
+ss5 = distinct ss5 by S,O,P
+###节点信息  终端、接口
+type11 = loc ss5 by S 
+type11 = add type by ('终端')
+type12 = loc ss5 by O
+rename type12 as ('O':'S')
+type12 = add type by ('接口')
+
+
+
+###图谱关系数据=============================================================
+ss = union ss1,ss2,ss4,ss5,ss6
+data = load ckh by ckh with select distinct S,O,P from link_data
+alter data by S:str,O:str,P:str
+data = add aa by 1
+ss = join ss,data by [S,O,P],[S,O,P] with left
+ss = @udf ss by udf0.df_fillna_cols with aa:0
+alter ss by aa:int
+ss = filter ss by aa == 0
+ss = distinct ss by S,O,P
+ss = @udf ss by udf0.df_reset_index
+ss = loc ss by S,O,P
+
+
+## 新数据入图谱(计算数据写入次数)
+new_count = eval ss by index.size
+add_count = @sdf sys_eval with (int($new_count/5000) + 2)
+
+new_pd = @udf udf0.new_df
+new_pd = add num by (range(1,$add_count))
+foreach new_pd run """
+	add1 = filter ss by index >= 5000 * (@num - 1) and index < 5000 * @num
+	ret = @udf add1 by GL.add_http_mkd
+	ret_pd = @sdf sys_lambda with ($ret,x: 'Successfully' in x )
+	#if $ret_pd == True with store add1 to ckh by ckh with link_data
+""" with (num = $1)
+
+###
+data = loc ss by S,O,P
+store data to ckh by ckh with link_data
+
+
+###图谱节点数据##########################################################################################################################################################
+type_1 = union type1,type2,type3,type4,type5,type6,type7,type8,type11,type12
+rename type_1 as ('S':'id')
+type = load pq by link/link_type.pq
+type = union type_1,type
+## IP 同时是终端和应用时  过滤
+app = load db by mysql1 with select app from data_app_new 
+alter app by app:str
+app.app1 = lambda app by (x:x.split(":"))
+app = @udf app by udf0.df_l2cs with app1
+rename app as ('n100':'app2')
+app = loc app by app2
+app = distinct app by app2
+node1 = filter type by type == '应用' or type == '业务终端' or type == '管理终端' or type == '数据终端' or type == '终端'
+###应用管理有的应用为应用   其他为终端
+node1 = join node1,app by id,app2 with left
+node1 = @udf node1 by udf0.df_fillna_cols with app2:''
+## 应用
+node2 = filter node1 by app2 != ''
+node2 = loc node2 by id
+node2 = add type by ('应用')
+## 终端
+node1 = filter node1 by app2 == ''
+node1 = loc node1 by id
+node1 = add type by ('终端')
+############################################## 终端类型判断   数据终端:只有sql访问行为；  业务终端:左右http访问行为；   管理终端:有sql、http访问行为
+ss = load ckh by ckh with select distinct S,O,P from link_data
+alter ss by S:str,O:str,P:str
+tt1 = loc ss by S,P
+rename tt1 as ('S':'jd','P':'pp')
+tt2 = loc ss by O,P
+rename tt2 as ('O':'jd','P':'pp')
+tt = union tt1,tt2
+node4 = join tt,node1 by jd,id with left
+node4 = @udf node4 by udf0.df_fillna_cols with id:'',type:''
+node4.pp = str pp by replace('1','')
+node4 = filter node4 by id != '' and pp != 'link_belong'
+node4 = distinct node4 by jd,pp
+node4 = order node4 by pp with desc
+node4.pp = lambda pp by (x:x+',')
+node4 = group node4 by id agg pp:sum
+node4 = loc node4 by index to id
+node4.pp = lambda pp_sum by (x:x[:-1])
+###数据终端
+node_sj = filter node4 by pp == 'link_sql'
+node_sj = loc node_sj by id
+node_sj = add type by ("数据终端")
+###业务终端
+node_yw = filter node4 by pp == 'link_http'
+node_yw = loc node_yw by id
+node_yw = add type by ("业务终端")
+###管理终端
+node_gl = filter node4 by pp != 'link_http' and pp != 'link_sql'
+node_gl = loc node_gl by id
+node_gl = add type by ("管理终端")
+############################################## 终端类型判断   数据终端:只有sql访问行为；  业务终端:左右http访问行为；   管理终端:有sql、http访问行为
+### 应用账号、接口、数据库ip
+node3 = filter type by type != '应用' and type != '终端' and type != '业务终端' and type != '管理终端' and type != '数据终端'
+node = union node2,node3,node_sj,node_yw,node_gl
+node = distinct node by id,type
+store node to pq by link/link_type.pq 
+
+
+#### 终端--》接口关系  关联  应用账号################################################################################################################################################
+ddd = load ckh by ckh with select distinct account,srcip,real_ip,dstip,urld as url from api_monitor where account != '' and content_type in ('XML','JSON','数据文件') 
+alter ddd by account:str,srcip:str,real_ip:str,dstip:str,url:str
+ddd = @udf ddd by udf0.df_row_lambda with (x: x[1] if x[1] != '127.0.0.1' else x[2])
+rename ddd as ('lambda1':'zd')
+ddd = filter ddd by zd != ''
+ddd = join ddd,a1 by url,url with left
+ddd = @udf ddd by udf0.df_fillna_cols with url_name:''
+ddd = filter ddd by url_name != ''
+#########################################
+ddd.len1 = lambda account by (x:len(x))
+ddd = filter ddd by len1 < 80
+ddd.len1 = lambda zd by (x:len(x))
+ddd = filter ddd by len1 < 80
+########################################
+###账户拆分
+ddd = loc ddd by zd,url_name,account
+ddd = distinct ddd by zd,url_name,account
+ddd.account = lambda account by (x:x+';')
+ddd = group ddd by zd,url_name agg account:sum
+ddd = @udf ddd by udf0.df_reset_index
+ddd.account = lambda account_sum by (x:x[:-1])
+ddd = loc ddd by zd,url_name,account
+ddd = distinct ddd by zd,url_name,account
+b = @udf ZFile.rm_file with link/link_http_acc.pq
+store ddd to pq by link/link_http_acc.pq
+
+#### 终端--》应用关系  关联  应用账号################################################################################################################################################
+ddd = load ckh by ckh with select distinct srcip,real_ip,app,account from api_monitor where content_type not in ('XML','JSON','数据文件') and account != ''
+alter ddd by srcip:str,real_ip:str,app:str,account:str
+ddd = @udf ddd by udf0.df_row_lambda with (x: x[0] if x[0] != '127.0.0.1' else x[1])
+rename ddd as ('lambda1':'zd')
+ddd = filter ddd by zd != ''
+ddd.app1 = lambda app by (x:x.split(":"))
+ddd = @udf ddd by udf0.df_l2cs with app1
+ddd = @udf ddd by udf0.df_reset_index
+ddd = loc ddd by zd,n100,account
+rename ddd as ('n100':'app')
+####  排除终端IP与应用IP相同
+ddd = add aa by 0
+ddd = @udf ddd by udf0.df_row_lambda with (x: x[3] if x[0] != x[1] else 1)
+###############################################
+ddd.len1 = lambda account by (x:len(x))
+ddd = filter ddd by len1 < 80
+ddd.len1 = lambda zd by (x:len(x))
+ddd = filter ddd by len1 < 80
+###########################3###################
+ddd = loc ddd by zd,app,account
+ddd = distinct ddd by zd,app,account
+ddd.account = lambda account by (x:x+';')
+ddd = group ddd by zd,app agg account:sum
+ddd = @udf ddd by udf0.df_reset_index
+ddd.account1 = lambda account_sum by (x:x[:-1])
+ddd = loc ddd by zd,app,account1
+ddd = distinct ddd by zd,app,account1
+b = @udf ZFile.rm_file with link/link_http1_acc.pq
+store ddd to pq by link/link_http1_acc.pq
+
+#### 应用--》数据库关系 关联  数据库账号######################################################################################################################
+ddd = load ckh by ckh with select distinct src_ip,dest_ip,dest_port,user from dbms where user != ''
+alter ddd by src_ip:str,dest_ip:str,dest_port:str,user:str
+ddd = @udf ddd by udf0.df_row_lambda with (x: x[0] if x[0] != '127.0.0.1' else x[1])
+rename ddd as ('lambda1':'app')
+ddd = add db by (df['dest_ip']+':'+df['dest_port'])
+###############################################
+ddd.len1 = lambda user by (x:len(x))
+ddd = filter ddd by len1 < 80
+###########################3###################
+ddd = loc ddd by app,db,user
+ddd = distinct ddd by app,db,user
+ddd.user = lambda user by (x:x+';')
+ddd = group ddd by app,db agg user:sum
+ddd = @udf ddd by udf0.df_reset_index
+ddd.user = lambda user_sum by (x:x[:-1])
+ddd = loc ddd by app,db,user
+ddd = distinct ddd by app,db,user 
+b = @udf ZFile.rm_file with link/link_sql_user.pq
+store ddd to pq by link/link_sql_user.pq
+
+clear @FID

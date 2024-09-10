@@ -1,0 +1,28 @@
+#LastModifyDate:　2022-10-21T17:45:36.990445    Author:   gsp
+#LastModifyDate:　2022-10-21T17:44:21.380450    Author:   gsp
+#FEA脚本文件
+
+#保存语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+name = eval a by iloc[0,0]
+ip = eval a by iloc[0,1]
+gateway = eval a by iloc[0,2]
+ip6 = eval a by iloc[0,3]
+gateway6 = eval a by iloc[0,4]
+dns = eval a by iloc[0,5]
+#ip = @sdf sys_lambda with ($ip,x:x+'/$mask')
+#dns = @sdf sys_lambda with ($dns,x'['+x+']')
+b = @udf SH.modify_ip2 with ($name,$ip,$gateway,$ip6,$gateway6,$dns)
+assert find_df('b',ptree) as  alert  to 保存成功！ with 保存成功！
+#返回结果
+push b as table
+#清除工作区
+clear @FID

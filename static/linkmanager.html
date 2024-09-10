@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>链接管理</title>
+   <link rel="stylesheet" type="text/css" media="screen" href="/static/libs/jq-ui/jquery-ui.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/ui.jqgrid.css" />   
+	<link rel="stylesheet" type="text/css" href="/static/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" href="/static/css/split-pane.css" />
+	<link rel="stylesheet" type="text/css" href="/static/css/pretty-split-pane.css" />
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script> 
+    <script type="text/javascript" src="/static/libs/jq-ui/jquery-ui.min.js"></script> 
+    <script type="text/javascript" src="/static/js/split-pane.js"></script>
+    <script type="text/javascript" src="/static/js/cursor.js"></script> 
+    <script type="text/javascript" src="/static/js/jquery.easing.1.3.js"></script>   
+    
+    <script type="text/javascript" src="/static/libs/i18n/grid.locale-cn.js" ></script>   
+    <script type="text/javascript" src="/static/libs/jquery.jqGrid.src.js" ></script>
+
+<script type="text/javascript">
+
+function pageInit(data){
+	
+	var config={
+        datatype : "local",
+        height: "80%",
+        colNames : [ '链接名', '值', '用户'],
+        colModel : [ 
+                     {name : 'key',index : 'key',width : 150, editable : true, editoptions : {readonly : false,size : 20}}, 
+                     {name : 'value',index : 'value',width : 300, editable : true,edittype : "textarea",editoptions : {rows : "5",cols : "20"}}, 
+                     {name : 'user',index : 'user',width : 100, editable : true,editoptions : {readonly : true,size : 10}} 
+                   ],
+		rowNum : 14,
+        pager : '#pagersr',
+        sortname : 'key',
+        viewrecords : true,
+        sortorder : "desc",
+        editurl : "/db/DFEditing",
+        caption : "链接管理器"
+    };
+    var result = JSON.parse(data.result);
+    var result2=[];
+	for(var i=0;i<result.data.length;i++){
+		var rawdata={};
+		for (key in result.columns){
+			rawdata[result.columns[key]] = result.data[i][result.columns[key]];
+		}
+		result2.push(rawdata);
+	}
+	config.data = result2;
+	jQuery("#search").jqGrid(config);
+}
+
+//reload
+function reload(){
+	$.ajax({
+                 type: "post",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"look defines"
+                 },
+                 success: pageInit,
+                 dataType:"json",
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+        });
+}
+
+$(document).ready(function() {
+	
+	
+		$.ajax({
+                 type: "post",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"look defines"
+                 },
+                 success: pageInit,
+                 dataType:"json",
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        
+                 }
+        });
+        
+   $("#adata").click(function() {
+    jQuery("#search").jqGrid('editGridRow', "new", {
+      height : 300,
+      reloadAfterSubmit : true
+    });
+  });
+  
+  $("#udata").click(function() {
+    var gr = jQuery("#search").jqGrid('getGridParam', 'selrow');
+    if (gr != null)
+      jQuery("#search").jqGrid('editGridRow', gr, {
+        height : 300,
+        reloadAfterSubmit : true
+      });
+    else
+      alert("请选择修改记录");
+  });
+
+ $("#ddata").click(function() {
+    var gr = jQuery("#search").jqGrid('getGridParam', 'selrow');
+    if (gr != null){
+      var id = jQuery("#search").jqGrid('getCell', gr,"key");
+      console.log(id);
+      jQuery("#search").jqGrid('delGridRow', id, {
+        reloadAfterSubmit : true
+      });
+    }
+    else{
+      alert("请选择要删除的记录");
+    }
+  });
+
+//搜索
+$("#sdata").click(function() {
+    jQuery("#search").jqGrid('searchGrid', {
+      sopt : [ 'cn', 'eq']
+    });
+  });
+
+//刷新
+$("#rdata").click(function() {
+	jQuery("#main").html('<table id="search"></table><div id="pagersr"></div>');
+    reload();
+  });
+
+//结束
+});
+
+
+
+
+
+</script>
+</head>
+<body>
+<div>
+	<div>    
+		<input type="BUTTON" id="adata" value="新增" />
+		<input type="BUTTON" id="udata" value="修改" />
+		<input type="BUTTON" id="ddata" value="删除" />
+		<input type="BUTTON" id="sdata" value="搜索" />
+		<input type="BUTTON" id="rdata" value="刷新" />
+	</div>
+	<div id="main">
+		<table id="search"></table>
+		<div id="pagersr"></div>
+	</div>
+ 
+</div>
+</body>
+</html>

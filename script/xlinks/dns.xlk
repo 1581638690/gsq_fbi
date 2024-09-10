@@ -1,0 +1,111 @@
+#LastModifyDate:　2024-01-09T10:27:18    Author:   rzc
+#LastModifyDate:　2024-01-06T16:35:19    Author:   superFBI
+#LastModifyDate:　2024-01-06T15:41:44    Author:   superFBI
+#LastModifyDate:　2024-01-06T14:01:35    Author:   superFBI
+#LastModifyDate:　2024-01-05T11:24:38.081331    Author:   superFBI
+#LastModifyDate:　2023-12-27T14:07:47.008807    Author:   superFBI
+#LastModifyDate:　2023-09-27T17:45:18.855540    Author:   superFBI
+#LastModifyDate:　2023-08-08T18:34:07.234278    Author:   pjb
+#LastModifyDate:　2023-07-27T16:23:29.025567    Author:   superFBI
+#LastModifyDate:　2023-07-21T09:56:24.594496    Author:   qh
+#LastModifyDate:　2023-07-20T10:27:18.463257    Author:   qh
+#xlink脚本
+#file: dns.xlk
+#name: 协议处理
+#描述： 从redis中取出dns数据
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with dns
+
+#停止
+#a = @udf FBI.x_finder3_stop with dns
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:dns,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::dns
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "协议处理"
+	stream["meta_desc"] = "从redis中取出dns数据"
+	#a = load_ssdb_kv("setting")
+	#stream["link"] = a["kfk"]["origin"]["link"]
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["ckh_link"] = a["kfk"]["data"]["addr_c"]
+	#stream["source"]={"link":stream["redis_link"]+":16379","topic":"dns_proto","redis":"list"}
+	stream["source"]={"unix_udp":"/tmp/dns_proto"}
+	stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	stream["sends"] = load_ssdb_kv("qh_send")["sends"].split(',')
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+	#chk的链接
+	stream["CKH"] = CKH_Client(host=stream["ckh_link"],port=19000,user="default",password="client")
+	pool["dns"] = []
+}
+#事件处理函数
+events => {
+	stream["count-10"] +=1
+	if stream["count-10"] %2 !=0: return -1 #2分之一采样
+	a = {
+		"id": xlink_uuid(0),
+		"flow_id": str(o.get("flow_id", "")),
+		"timestamp": iso_to_datetime(o.get("timestamp")),
+		"srcip": o.get('src_ip'),
+		"srcport": o.get('src_port'),
+		"dstip": o.get('dest_ip'),
+		"dstport": o.get('dest_port'),
+		"ID": str(o.get('dns').get("id", "")),
+		"rrname": o.get('dns').get("rrname", ""),
+		"type": o.get('dns').get("type", ""),
+		"version": str(o.get('dns').get("version", "")),
+		"groupedA": str(o.get('dns').get("grouped", {}).get("A", "")).replace("[", "").replace("]", "").replace("'", ""),
+		"groupedCNAME": str(o.get('dns').get("grouped", {}).get("CNAME", "")),
+		"qr": str(o.get('dns').get("qr", "")),
+		"ra": str(o.get('dns').get("ra", "")),
+		"rd": str(o.get('dns').get("rd", "")),
+		"rrtype": o.get('dns').get("rrtype", ""),
+		"flags": o.get('dns').get("flags", ""),
+		"rcode": str(o.get('dns').get("rcode", ""))
+	}
+	to_pool("dns",a)
+	if "api_dns" in stream["sends"]:
+		s = deepcopy(a)
+		s["event_type"] = "dns"
+		#to_kfk2("api_send",s)
+		#to_redis("api_send",s)
+		s["timestamp"] = str(s["timestamp"])
+		to_json_file("/data/syslog_file/eve",s)
+}
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+	stream["count-10"] = 0
+	ret = len(pool["dns"])
+	store_ckh(pool["dns"],"api_dns")
+	return ret
+}
+xlink_uuid =>(x){
+	return str(time.time_ns())
+}
+
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	from copy import deepcopy
+}

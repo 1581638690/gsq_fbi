@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.GL</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.GL</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/GL.py">/opt/openfbi/fbi-bin/udf/GL.py</a></td></tr></table>
+    <p><span class="code">#/bin/python<br>
+#&nbsp;-*-&nbsp;coding:&nbsp;utf-8&nbsp;-*-</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="datetime.html">datetime</a><br>
+</td><td class="multicolumn"><a href="networkx.html">networkx</a><br>
+</td><td class="multicolumn"><a href="pandas.html">pandas</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-BA"><strong>BA</strong></a>(df, p='20,1')</dt></dl>
+ <dl><dt><a name="-ER"><strong>ER</strong></a>(df, p='20,0.2')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：生成一个ER图<br>
+@参数：<br>
+p决定图的类型，缺省Graph<br>
+@详解：<br>
+df要求source,target,value列，</span></dd></dl>
+ <dl><dt><a name="-G2df"><strong>G2df</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161101<br>
+@函数：将图转化成一个DF<br>
+@参数：<br>
+无<br>
+@详解：<br>
+DF是一个顶点（source）到顶点(target)的二维表格，数值是关系数（value）<br>
+会很大，现实是最好能</span></dd></dl>
+ <dl><dt><a name="-add_df2G"><strong>add_df2G</strong></a>(df, G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161109<br>
+@函数：将df添加到一个图中<br>
+@参数：<br>
+p决定图的类型，缺省Graph<br>
+@详解：<br>
+df要求source,target,value列，</span></dd></dl>
+ <dl><dt><a name="-add_http_mkd"><strong>add_http_mkd</strong></a>(df, p='')</dt><dd><span class="code">batch&nbsp;add&nbsp;数据到数据库，&nbsp;DF表必须三列S,P,O</span></dd></dl>
+ <dl><dt><a name="-add_one_mkd"><strong>add_one_mkd</strong></a>(df, p='')</dt><dd><span class="code">add数据到数据库，&nbsp;DF表必须三列S,P,O</span></dd></dl>
+ <dl><dt><a name="-all_neighbors"><strong>all_neighbors</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：返回图的某一节点相邻的所有节点<br>
+@参数：<br>
+p是节点<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-all_nodes"><strong>all_nodes</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161109<br>
+@函数：返回图的所有节点<br>
+@参数：<br>
+p决定图的类型，缺省Graph<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-bridges"><strong>bridges</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：返回图的的某个节点的桥梁<br>
+@参数：<br>
+p是节点<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-chains"><strong>chains</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：返回图的某一节点的链<br>
+@参数：<br>
+p是节点<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-cycle_A"><strong>cycle_A</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161101<br>
+@函数：有向图G的闭环检测<br>
+@参数：无<br>
+@详解：</span></dd></dl>
+ <dl><dt><a name="-cycle_B"><strong>cycle_B</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161101<br>
+@函数：图G的闭环检测<br>
+@参数：<br>
+可选，无或选择的顶点<br>
+@详解：</span></dd></dl>
+ <dl><dt><a name="-del_http_mkd"><strong>del_http_mkd</strong></a>(df, p='')</dt><dd><span class="code">删除数据到数据库，&nbsp;DF表必须三列S,P,O</span></dd></dl>
+ <dl><dt><a name="-desc"><strong>desc</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：返回图的节点数和边数<br>
+@参数：<br>
+p是节点<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-df22G"><strong>df22G</strong></a>(df1, df2, p='Graph')</dt></dl>
+ <dl><dt><a name="-df2G"><strong>df2G</strong></a>(df, p='Graph')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161101<br>
+@函数：将df转化成一个无向图<br>
+@参数：<br>
+p决定图的类型，缺省Graph<br>
+@详解：<br>
+df要求source,target,value列，</span></dd></dl>
+ <dl><dt><a name="-df2G_A"><strong>df2G_A</strong></a>(df, p='DiGraph')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161101<br>
+@函数：将df转化成一个有向图<br>
+@参数：<br>
+p决定图的类型，缺省DiGraph<br>
+@详解：<br>
+df要求source,target,value列，</span></dd></dl>
+ <dl><dt><a name="-dfs_edges"><strong>dfs_edges</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：返回图的某一节点所有相连的边<br>
+@参数：<br>
+p是节点<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-dfs_nodes"><strong>dfs_nodes</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：返回图的某一节点所有相连的节点<br>
+@参数：<br>
+p是节点<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-gen_nq"><strong>gen_nq</strong></a>(df)</dt></dl>
+ <dl><dt><a name="-init_mkd"><strong>init_mkd</strong></a>(df, p='/opt/openfbi/conf/mkd.yml')</dt><dd><span class="code">初始化一个知识图谱，p为配置文件</span></dd></dl>
+ <dl><dt><a name="-isolates"><strong>isolates</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：返回图的孤立节点<br>
+@参数：<br>
+p是节点<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-load_to_mkd"><strong>load_to_mkd</strong></a>(df, p='/opt/openfbi/conf/mkd.yml')</dt><dd><span class="code">加载数据到数据库，&nbsp;DF表必须三列S,P,O</span></dd></dl>
+ <dl><dt><a name="-node_neighbors"><strong>node_neighbors</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180403<br>
+@函数：返回图的某一节点相邻的所有节点<br>
+@参数：<br>
+p是节点<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-query_http_mkd"><strong>query_http_mkd</strong></a>(df, p='')</dt><dd><span class="code">查询语句：&nbsp;<br>
+g.V("192.168.1.86").Out(['fw_dbms','web_account']).All()</span></dd></dl>
+ <dl><dt><a name="-query_http_mkd_df"><strong>query_http_mkd_df</strong></a>(df, p='')</dt><dd><span class="code">查询语句：&nbsp;<br>
+g.V("192.168.1.86").Out(['fw_dbms','web_account']).All()</span></dd></dl>
+ <dl><dt><a name="-short_path"><strong>short_path</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161109<br>
+@函数：返回一个点的最短路径<br>
+@参数：<br>
+source,target<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-short_path2"><strong>short_path2</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161109<br>
+@函数：返回两点间的最短路径<br>
+@参数：<br>
+source,target<br>
+@详解：<br>
+df=[node]</span></dd></dl>
+ <dl><dt><a name="-start_http_mkd"><strong>start_http_mkd</strong></a>(df, p='/opt/openfbi/conf/mkd.yml')</dt><dd><span class="code">启动一个http实例，p为配置文件</span></dd></dl>
+ <dl><dt><a name="-stop_http_mkd"><strong>stop_http_mkd</strong></a>(df, p='/opt/openfbi/conf/mkd.yml')</dt><dd><span class="code">停止一个http实例，p为配置文件</span></dd></dl>
+ <dl><dt><a name="-to_A"><strong>to_A</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161109<br>
+@函数：无向图转有向图<br>
+@参数：<br>
+p决定图的类型，缺省Graph<br>
+@详解：<br>
+df要求source,target,value列，</span></dd></dl>
+ <dl><dt><a name="-to_B"><strong>to_B</strong></a>(G, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161109<br>
+@函数：有向图转无向图<br>
+@参数：<br>
+p决定图的类型，缺省Graph<br>
+@详解：<br>
+df要求source,target,value列，</span></dd></dl>
+</td></tr></table>
+</body></html>

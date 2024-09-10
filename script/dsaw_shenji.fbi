@@ -1,0 +1,13 @@
+#LastModifyDate:　2023-06-06T18:54:40.806609    Author:   pjb
+#LastModifyDate:　2023-03-18T10:29:29.385580    Author:   qh
+#LastModifyDate:　2023-02-06T17:36:50.493795    Author:   pjb
+#LastModifyDate:　2022-10-27T15:49:58.801479    Author:   pjb
+use @FID
+
+# 更新应用类型（内部外部）
+run data_ynw.fbi
+
+
+run qh_model.fbi
+
+clear @FID

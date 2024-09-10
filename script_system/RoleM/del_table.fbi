@@ -1,0 +1,19 @@
+#FBI脚本文件
+
+#删除记录
+#@id  记录ID
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#根据id加载对象
+d = @udf CRUD.delete_table with (@link,@table,@id)
+#生成字典
+dd = @udf  CRUD.load_mysql_sql with @link,select gid,gname from @table
+dd = loc dd by gid to index
+rename dd as {"gname":"value"}
+store dd to ssdb by ssdb0 with dd:role_group
+#清除工作区
+clear @FID

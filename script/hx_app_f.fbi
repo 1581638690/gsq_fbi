@@ -1,0 +1,29 @@
+#LastModifyDate:　2023-08-29T18:22:49.814278    Author:   zwl
+#LastModifyDate:　2023-06-20T16:57:13.334177    Author:   zwl
+#LastModifyDate:　2023-06-12T18:42:24.714992    Author:   zwl
+#FBI脚本文件
+#文件名: hx_f.fbi
+#作者: zwl
+use hx_f
+
+##概览界面的应用
+gl_app = load ssdb by ssdb0 with gl_app
+gl_app = add aa by 1
+a = load ssdb by ssdb0 with @data_key
+a = join a,gl_app by app,app with left
+aa = loc a by aa
+aa = filter aa by aa != 1
+assert find_df_have_data('aa',ptree) as break with 应用概览界面的应用默认开启画像！
+
+a = loc a by id,app
+alter a.id as int
+a = add portrait_status by (0)
+a = @udf a by udf0.df_set_index with id
+b = @udf a by CRUD.save_table with (@link,@table)
+push b as table
+
+
+
+
+
+clear hx_f

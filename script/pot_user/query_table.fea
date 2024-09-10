@@ -1,0 +1,20 @@
+#FEA脚本文件
+#保存语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单中的条件信息
+a = load ssdb by ssdb0 with @data_key
+#获取当前用户信息
+#a1 = @udf udfA.get_user
+#合并信息
+#a = join a,a1 by index
+#保存
+b,c = @udf a by CRUD.query_table with (@link,@table)
+push b as table
+push c as count
+#清除工作区
+clear @FID

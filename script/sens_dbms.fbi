@@ -1,0 +1,65 @@
+#LastModifyDate:　2024-03-13T18:31:33    Author:   zwl
+#LastModifyDate:　2024-03-01T18:13:10    Author:   zwl
+#LastModifyDate:　2023-11-10T11:55:36.770525    Author:   zwl
+#LastModifyDate:　2023-11-10T10:26:07.961199    Author:   superFBI
+#LastModifyDate:　2023-11-10T10:25:21.611642    Author:   zwl
+#FBI脚本文件
+#文件名: sens_dbms.fbi
+#作者: zwl
+use @FID
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with sens_dbms
+##判断key是否为空，若为空，取api_visit_hour的最小值
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(timestamp) as time from dbms_sendata
+#aa = load ckh by ckh with select min(timestamp) as time from dbms_sendata
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(timestamp) as time from dbms_sendata
+time2 = eval aa by iloc[0,0]
+
+
+ccc = load ckh by ckh with select dest_ip from dbms_sendata where timestamp >= '$time1' and timestamp < '$time2' limit 1
+assert find_df('ccc',ptree) as exit with 无数据更新 或者 数据库未连接！
+
+store aa to ssdb by ssdb0 with sens_dbms
+
+#####################################数据库--敏感信息########################################22222222222222222222222222222222222222222222
+###   Msg值
+sens = load ckh by ckh with select dest_ip,dest_port,db,db_type,user,res_count,count(*) num from dbms_sendata where timestamp >= '$time1' and timestamp < '$time2'  group by dest_ip,dest_port,user,res_count,db,db_type
+alter sens by dest_ip:str,dest_port:int,user:str,db:str,db_type:str,res_count:str,num:int
+sens = filter sens by res_count != '' and res_count != 'null' and res_count != '{}' and res_count != 'None'
+sens.res_count = str res_count by replace(' ','')
+sens = filter sens by res_count unlike name
+sens = @udf sens by udf0.df_d2df with res_count
+alter sens by num:int,value:int
+sens = add num by df["num"] * df["value"]
+sens = add total_type by ('Msg值')
+sens1 = loc sens by dest_ip,dest_port,db,db_type,user,total_type,key,num
+###   Msg值
+sens = load ckh by ckh with select dest_ip,dest_port,db,db_type,user,req_count,count(*) num from dbms_sendata where timestamp >= '$time1' and timestamp < '$time2'  group by dest_ip,dest_port,user,req_count,db,db_type
+alter sens by dest_ip:str,dest_port:int,user:str,db:str,db_type:str,req_count:str,num:int
+sens = filter sens by req_count != '' and req_count != 'null' and req_count != '{}' and req_count != 'None'
+sens.req_count = str req_count by replace(' ','')
+sens = filter sens by req_count unlike name
+sens = @udf sens by udf0.df_d2df with req_count
+alter sens by num:int,value:int
+sens = add num by df["num"] * df["value"]
+sens = add total_type by ('Sql语句')
+sens2 = loc sens by dest_ip,dest_port,db,db_type,user,total_type,key,num
+##   合并  Sql语句  Msg值
+sens = union sens1,sens2
+##合并历史（断点之前）数据
+sss = load pq by sensitive/sens_dbms.pq
+alter sss.num as int
+sens = union sens,sss
+sens = group sens by dest_ip,dest_port,db,db_type,user,total_type,key agg num:sum
+sens = @udf sens by udf0.df_reset_index
+rename sens as ('num_sum':'num')
+sens = loc sens by dest_ip,dest_port,db,db_type,user,total_type,key,num
+store sens to pq by sensitive/sens_dbms.pq
+
+
+
+clear @FID

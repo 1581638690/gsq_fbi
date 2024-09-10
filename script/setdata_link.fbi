@@ -1,0 +1,11 @@
+#LastModifyDate:　2023-08-19T15:37:58.823988    Author:   pjb
+#LastModifyDate:　2023-08-18T18:26:28.864908    Author:   pjb
+use @FID
+
+setting = load ssdb by ssdb0 with setting as json
+ckh = jaas setting by setting["kfk"]["data"]["addr_c"] 
+define ckh as $ckh:19000:default:client
+redis = jaas setting by setting["kfk"]["redis"]["addr_r"] 
+s = @udf FBI.local_cmd with sed -i s/"redis_host":".*","redis_port"/"redis_host":$redis,"redis_port"/g /opt/openfbi/conf/config
+
+clear @FID

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.udf0</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.udf0</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/udf0.py">/opt/openfbi/fbi-bin/udf/udf0.py</a></td></tr></table>
+    <p><span class="code">@author&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20150922<br>
+@version&nbsp;0.1<br>
+@describe&nbsp;&nbsp;UDF函数最经常使用的最基本函数</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="lxml.etree.html">lxml.etree</a><br>
+<a href="json.html">json</a><br>
+<a href="math.html">math</a><br>
+</td><td class="multicolumn"><a href="numpy.html">numpy</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="random.html">random</a><br>
+</td><td class="multicolumn"><a href="re.html">re</a><br>
+<a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-append"><strong>append</strong></a>(df, df2, p='')</dt><dd><span class="code">#添加DF表</span></dd></dl>
+ <dl><dt><a name="-append_df"><strong>append_df</strong></a>(df, df2, p='')</dt><dd><span class="code">#添加DF表</span></dd></dl>
+ <dl><dt><a name="-clone_df"><strong>clone_df</strong></a>(df, p=None)</dt><dd><span class="code">#克隆一个df</span></dd></dl>
+ <dl><dt><a name="-df_10k"><strong>df_10k</strong></a>(df, p='')</dt><dd><span class="code">#小数定标归一化</span></dd></dl>
+ <dl><dt><a name="-df_2one"><strong>df_2one</strong></a>(df, p=None)</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;201611101<br>
+#多列变一列</span></dd></dl>
+ <dl><dt><a name="-df_Comp"><strong>df_Comp</strong></a>(df1, df2, p='')</dt><dd><span class="code">#两个DF表的补</span></dd></dl>
+ <dl><dt><a name="-df_Comp2"><strong>df_Comp2</strong></a>(df1, df2, p='')</dt><dd><span class="code">#连个表的补集</span></dd></dl>
+ <dl><dt><a name="-df_Diff"><strong>df_Diff</strong></a>(df1, df2, p='')</dt><dd><span class="code">#两个DF表的差</span></dd></dl>
+ <dl><dt><a name="-df_Diff2"><strong>df_Diff2</strong></a>(df1, df2, p='')</dt><dd><span class="code">#连个表的差集</span></dd></dl>
+ <dl><dt><a name="-df_T"><strong>df_T</strong></a>(df, p=None)</dt><dd><span class="code">#行列互换</span></dd></dl>
+ <dl><dt><a name="-df_agg_count"><strong>df_agg_count</strong></a>(df, p=None)</dt><dd><span class="code">#分组count</span></dd></dl>
+ <dl><dt><a name="-df_agg_sum"><strong>df_agg_sum</strong></a>(df, p=None)</dt><dd><span class="code">#分组sum</span></dd></dl>
+ <dl><dt><a name="-df_append"><strong>df_append</strong></a>(df, p='')</dt><dd><span class="code">#添加一行数据</span></dd></dl>
+ <dl><dt><a name="-df_club"><strong>df_club</strong></a>(df, p=None)</dt><dd><span class="code">#测试函数club</span></dd></dl>
+ <dl><dt><a name="-df_cols_fix"><strong>df_cols_fix</strong></a>(df, p='')</dt><dd><span class="code">#标准化列名，所有列名增加前缀(参数p)</span></dd></dl>
+ <dl><dt><a name="-df_cols_fmt"><strong>df_cols_fmt</strong></a>(df, p='')</dt><dd><span class="code">#标准化列名，数字列加x_前缀，含有,号的列改成下划线_</span></dd></dl>
+ <dl><dt><a name="-df_copy_index"><strong>df_copy_index</strong></a>(df, p='cindex')</dt><dd><span class="code">#copy索引为例</span></dd></dl>
+ <dl><dt><a name="-df_count"><strong>df_count</strong></a>(df, p='')</dt><dd><span class="code">#求行列的count信息,0按列求，1按行求,空则只要一个总行数</span></dd></dl>
+ <dl><dt><a name="-df_cs2l"><strong>df_cs2l</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161120<br>
+#将多列转成一个列表列</span></dd></dl>
+ <dl><dt><a name="-df_cummax"><strong>df_cummax</strong></a>(df, p='0')</dt><dd><span class="code">#累计最大值&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_cummin"><strong>df_cummin</strong></a>(df, p='0')</dt><dd><span class="code">#累计最小值&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_cumprod"><strong>df_cumprod</strong></a>(df, p='0')</dt><dd><span class="code">#累计积&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_cumsum"><strong>df_cumsum</strong></a>(df, p='0')</dt><dd><span class="code">#累计和&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_d2cs"><strong>df_d2cs</strong></a>(df, p='')</dt><dd><span class="code">#&nbsp;将json字符串的分成多列</span></dd></dl>
+ <dl><dt><a name="-df_d2df"><strong>df_d2df</strong></a>(df, p='')</dt><dd><span class="code">#&nbsp;add&nbsp;rzc&nbsp;2024/1/16<br>
+#&nbsp;将json类型的列，生成一个新的DF表</span></dd></dl>
+ <dl><dt><a name="-df_desc"><strong>df_desc</strong></a>(df, p=None)</dt><dd><span class="code">#表统计信息</span></dd></dl>
+ <dl><dt><a name="-df_diff"><strong>df_diff</strong></a>(df, p=1)</dt><dd><span class="code">#差分,参数代表阶&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_drop_col"><strong>df_drop_col</strong></a>(df, p='')</dt><dd><span class="code">#drop列</span></dd></dl>
+ <dl><dt><a name="-df_drop_icol"><strong>df_drop_icol</strong></a>(df, p='')</dt><dd><span class="code">#drop列,数字类型的例</span></dd></dl>
+ <dl><dt><a name="-df_drop_row"><strong>df_drop_row</strong></a>(df, p='')</dt><dd><span class="code">#drop行</span></dd></dl>
+ <dl><dt><a name="-df_dropna"><strong>df_dropna</strong></a>(df, p='')</dt><dd><span class="code">#删除空行和空列</span></dd></dl>
+ <dl><dt><a name="-df_fillna"><strong>df_fillna</strong></a>(df, p='')</dt><dd><span class="code">#整个DF表填充空值</span></dd></dl>
+ <dl><dt><a name="-df_fillna_cols"><strong>df_fillna_cols</strong></a>(df, p='')</dt><dd><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用法如下：<br>
+sens&nbsp;=&nbsp;@udf&nbsp;sens&nbsp;&nbsp;by&nbsp;udf0.df_fillna_cols&nbsp;with&nbsp;列名:填充值<br>
+sens&nbsp;=&nbsp;@udf&nbsp;sens&nbsp;&nbsp;by&nbsp;udf0.df_fillna_cols&nbsp;with&nbsp;列名:填充值,列名:填充值,...<br>
+&nbsp;<br>
+实例<br>
+sens&nbsp;=&nbsp;@udf&nbsp;sens&nbsp;&nbsp;by&nbsp;udf0.df_fillna_cols&nbsp;with&nbsp;age:0,&nbsp;name:'君君'</span></dd></dl>
+ <dl><dt><a name="-df_format"><strong>df_format</strong></a>(df, p='')</dt><dd><span class="code">#标准化列名，数字列加x_前缀，含有,和.号的列改成下划线_</span></dd></dl>
+ <dl><dt><a name="-df_info"><strong>df_info</strong></a>(df, p=None)</dt><dd><span class="code">#表字段信息</span></dd></dl>
+ <dl><dt><a name="-df_isna"><strong>df_isna</strong></a>(df, p='')</dt><dd><span class="code">#判断是否为NA</span></dd></dl>
+ <dl><dt><a name="-df_join2"><strong>df_join2</strong></a>(dfl, dfr, p)</dt></dl>
+ <dl><dt><a name="-df_json"><strong>df_json</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20180801</span></dd></dl>
+ <dl><dt><a name="-df_kmeans"><strong>df_kmeans</strong></a>(df, p='2')</dt><dd><span class="code">#kmeans聚类分析，已经废弃，请使用ML包中的kmeans函数！</span></dd></dl>
+ <dl><dt><a name="-df_l2cs"><strong>df_l2cs</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161007<br>
+#将list类型的列，转换成多列</span></dd></dl>
+ <dl><dt><a name="-df_l2df"><strong>df_l2df</strong></a>(df, p='')</dt><dd><span class="code">#将list类型的列，生成一个新的DF表</span></dd></dl>
+ <dl><dt><a name="-df_like_query"><strong>df_like_query</strong></a>(df, p='')</dt><dd><span class="code">#模糊查询</span></dd></dl>
+ <dl><dt><a name="-df_limit"><strong>df_limit</strong></a>(df, p='')</dt><dd><span class="code">#返回limit数</span></dd></dl>
+ <dl><dt><a name="-df_ljoin"><strong>df_ljoin</strong></a>(dfl, dfr, p='')</dt><dd><span class="code">#左连接，已废弃</span></dd></dl>
+ <dl><dt><a name="-df_mad"><strong>df_mad</strong></a>(df, p='0')</dt><dd><span class="code">#求绝对平均离差,0按列求，1按行求,&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_max"><strong>df_max</strong></a>(df, p='0')</dt><dd><span class="code">#求max,0按列求，1按行求,&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_mean"><strong>df_mean</strong></a>(df, p='0')</dt><dd><span class="code">#求平均值,0按列求，1按行求,&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_mean_std"><strong>df_mean_std</strong></a>(df, p='')</dt><dd><span class="code">#零均值归一化</span></dd></dl>
+ <dl><dt><a name="-df_median"><strong>df_median</strong></a>(df, p='0')</dt><dd><span class="code">#求中位数,0按列求，1按行求,&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_min"><strong>df_min</strong></a>(df, p='0')</dt><dd><span class="code">#求max,0按列求，1按行求,&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_min_max"><strong>df_min_max</strong></a>(df, p='')</dt><dd><span class="code">#最小最大归一化</span></dd></dl>
+ <dl><dt><a name="-df_n2df"><strong>df_n2df</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161217<br>
+#将一列的n行转化新的DF表m列,p=(列名，m)</span></dd></dl>
+ <dl><dt><a name="-df_print"><strong>df_print</strong></a>(df, p='5')</dt><dd><span class="code">#打印DF表的默认前5行元素，可以用show&nbsp;logs查看</span></dd></dl>
+ <dl><dt><a name="-df_query"><strong>df_query</strong></a>(df, p=None)</dt><dd><span class="code">#测试query</span></dd></dl>
+ <dl><dt><a name="-df_random"><strong>df_random</strong></a>(df, p=None)</dt><dd><span class="code">#生成随机的DF表</span></dd></dl>
+ <dl><dt><a name="-df_replace"><strong>df_replace</strong></a>(df, p='')</dt><dd><span class="code">#替换df表中的值,&nbsp;参数为p1,p2</span></dd></dl>
+ <dl><dt><a name="-df_reset_index"><strong>df_reset_index</strong></a>(df, p=None)</dt><dd><span class="code">#设置多重索引中的一个为例</span></dd></dl>
+ <dl><dt><a name="-df_reset_index2"><strong>df_reset_index2</strong></a>(df, p=None)</dt><dd><span class="code">#设置单个索引中的一个列，并命名</span></dd></dl>
+ <dl><dt><a name="-df_rjoin"><strong>df_rjoin</strong></a>(dfl, dfr, p='')</dt><dd><span class="code">#右连接，已废弃</span></dd></dl>
+ <dl><dt><a name="-df_row_lambda"><strong>df_row_lambda</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161026<br>
+#将一行作为参数进行lambda运算</span></dd></dl>
+ <dl><dt><a name="-df_rowl"><strong>df_rowl</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161015<br>
+#将一行作为参数进行lambda运算</span></dd></dl>
+ <dl><dt><a name="-df_seq_first"><strong>df_seq_first</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161217<br>
+#将p列数值进行序列（从1开始）,形成新的表&nbsp;for&nbsp;JD&nbsp;评论</span></dd></dl>
+ <dl><dt><a name="-df_seq_index"><strong>df_seq_index</strong></a>(df, p=None)</dt><dd><span class="code">#顺序号替代索引</span></dd></dl>
+ <dl><dt><a name="-df_seq_zero"><strong>df_seq_zero</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161217<br>
+#将p列数值进行序列（从0开始）,形成新的表&nbsp;for&nbsp;JD评论</span></dd></dl>
+ <dl><dt><a name="-df_set"><strong>df_set</strong></a>(df, p='')</dt><dd><span class="code">#设置某个单元格的数值</span></dd></dl>
+ <dl><dt><a name="-df_set_header"><strong>df_set_header</strong></a>(df, p='0')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20170719<br>
+#设置列的名称</span></dd></dl>
+ <dl><dt><a name="-df_set_index"><strong>df_set_index</strong></a>(df, p='')</dt><dd><span class="code">#设置列为索引</span></dd></dl>
+ <dl><dt><a name="-df_setindex"><strong>df_setindex</strong></a>(df, p='')</dt><dd><span class="code">#设置列为索引</span></dd></dl>
+ <dl><dt><a name="-df_sort_index"><strong>df_sort_index</strong></a>(df, p='')</dt><dd><span class="code">#按索引排序</span></dd></dl>
+ <dl><dt><a name="-df_stack"><strong>df_stack</strong></a>(df, p='')</dt><dd><span class="code">#转换为矩阵多重索引</span></dd></dl>
+ <dl><dt><a name="-df_std"><strong>df_std</strong></a>(df, p='0')</dt><dd><span class="code">#求标准差,0按列求，1按行求,&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_sum"><strong>df_sum</strong></a>(df, p='0')</dt><dd><span class="code">#求和信息,0按列求，1按行求,&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_test"><strong>df_test</strong></a>(df, p=None)</dt><dd><span class="code">udf&nbsp;测试函数</span></dd></dl>
+ <dl><dt><a name="-df_transpose"><strong>df_transpose</strong></a>(df, p=None)</dt><dd><span class="code">#行列互换</span></dd></dl>
+ <dl><dt><a name="-df_types"><strong>df_types</strong></a>(df, p=None)</dt><dd><span class="code">#表字段类型</span></dd></dl>
+ <dl><dt><a name="-df_unstack"><strong>df_unstack</strong></a>(df, p='')</dt><dd><span class="code">#转换多重索引为矩阵</span></dd></dl>
+ <dl><dt><a name="-df_utf8_zh"><strong>df_utf8_zh</strong></a>(df, p='')</dt><dd><span class="code">#udf8重新编码</span></dd></dl>
+ <dl><dt><a name="-df_var"><strong>df_var</strong></a>(df, p='0')</dt><dd><span class="code">#求方差,0按列求，1按行求,&nbsp;add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161122</span></dd></dl>
+ <dl><dt><a name="-df_worktime"><strong>df_worktime</strong></a>(df, p='8,9,10,11,14,15,16,17')</dt><dd><span class="code">#工作时间分析</span></dd></dl>
+ <dl><dt><a name="-df_zero_index"><strong>df_zero_index</strong></a>(df, p=None)</dt><dd><span class="code">#用0来填充索引</span></dd></dl>
+ <dl><dt><a name="-format_df"><strong>format_df</strong></a>(df, p='')</dt><dd><span class="code">#标准化列名，数字列加x_前缀，含有,号的列改成下划线_</span></dd></dl>
+ <dl><dt><a name="-gen_batch_size"><strong>gen_batch_size</strong></a>(df0, df1, p='1000')</dt><dd><span class="code">@函数：gen_df_batch,&nbsp;根据两个df的值，和batch的大小，生成循环列表<br>
+@参数："startnum,endnum,stamp"<br>
+@返回：joined&nbsp;DateFrame<br>
+@示例：daterange&nbsp;=&nbsp;@udf&nbsp;df0,df1&nbsp;by&nbsp;udf0.gen_batch_size&nbsp;with&nbsp;1000</span></dd></dl>
+ <dl><dt><a name="-json_df"><strong>json_df</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20180801</span></dd></dl>
+ <dl><dt><a name="-new_df"><strong>new_df</strong></a>(df, p='')</dt><dd><span class="code">#新建一个空的df</span></dd></dl>
+ <dl><dt><a name="-new_df_daterange"><strong>new_df_daterange</strong></a>(df, p=None)</dt><dd><span class="code">@函数：new_df_daterange，生成日期范围序列<br>
+@参数："start_date,end_date,stamp"<br>
+@返回：joined&nbsp;DateFrame<br>
+@示例：传入参数格式p="2016-03-01,2016-05-05,3"</span></dd></dl>
+ <dl><dt><a name="-new_df_hourrange"><strong>new_df_hourrange</strong></a>(df, p=None)</dt><dd><span class="code">@函数：new_df_hourrange，生成小时范围序列<br>
+@参数："start_time,end_time,stamp"<br>
+@返回：joined&nbsp;DateFrame<br>
+@示例：传入参数格式p="2016-03-01&nbsp;09:31:00,2016-05-05&nbsp;17:12:00,3"</span></dd></dl>
+ <dl><dt><a name="-new_df_range"><strong>new_df_range</strong></a>(df, p=None)</dt><dd><span class="code">@函数：new_df_range，&nbsp;生成数字序列<br>
+@参数："startnum,endnum,stamp"<br>
+@返回：joined&nbsp;DateFrame<br>
+@示例：daterange&nbsp;=&nbsp;@udf&nbsp;df0@sys&nbsp;by&nbsp;udf0.new_df_range&nbsp;with&nbsp;(0,1000,5)</span></dd></dl>
+ <dl><dt><a name="-new_df_timerange"><strong>new_df_timerange</strong></a>(df, p=None)</dt><dd><span class="code">@函数：new_df_timerange，生成到秒的时间序列<br>
+@参数："start_time,end_time,stamp"<br>
+@返回：joined&nbsp;DateFrame<br>
+@示例：传入参数格式p="2016-03-01&nbsp;09:31:00,2016-05-05&nbsp;17:12:00,3M"<br>
+#自己定义时间间隔</span></dd></dl>
+ <dl><dt><a name="-replace_cols_name"><strong>replace_cols_name</strong></a>(df, p='0')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20170719<br>
+#设置列的名称</span></dd></dl>
+ <dl><dt><a name="-set_index_name"><strong>set_index_name</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20170719<br>
+#设置索引的名称</span></dd></dl>
+ <dl><dt><a name="-sys_modules"><strong>sys_modules</strong></a>(df, p='')</dt><dd><span class="code">#列出已有模块</span></dd></dl>
+ <dl><dt><a name="-test"><strong>test</strong></a>(df, p='')</dt><dd><span class="code">#测试函数</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>nan</strong> = nan</td></tr></table>
+</body></html>

@@ -1,0 +1,143 @@
+#LastModifyDate:　2024-01-09T10:26:59    Author:   rzc
+#LastModifyDate:　2024-01-06T20:59:46    Author:   superFBI
+#LastModifyDate:　2024-01-06T15:56:35    Author:   superFBI
+#LastModifyDate:　2024-01-06T15:40:11    Author:   superFBI
+#LastModifyDate:　2024-01-06T14:05:04    Author:   superFBI
+#LastModifyDate:　2023-12-28T09:33:55.490381    Author:   superFBI
+#LastModifyDate:　2023-12-27T15:20:08.366904    Author:   superFBI
+#LastModifyDate:　2023-12-27T10:17:34.589303    Author:   superFBI
+#LastModifyDate:　2023-08-11T17:12:03.389651    Author:   zwl
+#LastModifyDate:　2023-08-08T18:31:40.100268    Author:   pjb
+#LastModifyDate:　2023-05-26T16:57:30.642692    Author:   pjb
+#xlink脚本
+#file: modsecurity.xlk
+#name: modsecurity安全事件
+#描述： modsecurity安全事件
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with modsecurity
+
+#停止
+#a = @udf FBI.x_finder3_stop with modsecurity
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:modsecurity,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::modsecurity
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "modsecurity安全事件"
+	stream["meta_desc"] = "modsecurity安全事件"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["ckh_link"] = a["kfk"]["data"]["addr_c"]
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	#stream["source"]= {"unix_udp":"/tmp/mod"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	stream["CKH"] = CKH_Client(host=stream["ckh_link"],port=19000,user="default",password="client")
+
+	stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	stream["libCalc"] = modsecurity_init()
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+	stream["modsecurity_store"] = load_ssdb_kv("protocol_data")["function"]["event"]["modsecurity_store"]
+	stream["modsecurity_key"] = load_ssdb_kv("protocol_data")["function"]["event"]["modsecurity_key"]
+	with open("/opt/openfbi/pylibs/modsecurity_id.json",encoding='utf-8')as f:
+		stream["modsecurity_id"] = ujson.load(f)
+	with open("/opt/openfbi/pylibs/modsecurity_all.json",encoding='utf-8')as f:
+		stream["modsecurity_all"] = ujson.load(f)
+	with open("/opt/openfbi/pylibs/modsecurity_class.json",encoding='utf-8')as f:
+		stream["modsecurity_class"] = ujson.load(f)
+	pool["modsecurity"] = []
+
+}
+
+
+#事件处理函数
+events => {
+	if stream["modsecurity_key"]=="true":
+		#printf("httpjson",httpjson)
+		sjt=time.time()
+		mod = stream["libCalc"].modsecurity(o)
+		printf("安全检查", '{:.3f}'.format((time.time() - sjt) * 1000))
+		st = ""
+		level = ""
+		cla = ""
+		of = False
+		for id in mod:
+			id = str(id)
+			if id in stream["modsecurity_id"]:
+				of = True
+				st += stream["modsecurity_id"].get(id)
+				st +='，'
+			else:
+				if id in stream["modsecurity_all"]:
+					of = True
+					if stream["modsecurity_all"].get(id).get("msg"):
+						st += stream["modsecurity_all"].get(id).get("msg")
+						st +='，'
+		if str(mod[0]) in stream["modsecurity_all"]:
+			if stream["modsecurity_all"].get(str(mod[0])).get("severity"):
+				level += stream["modsecurity_all"].get(str(mod[0])).get("severity")
+		if str(mod[0])[:3] in stream["modsecurity_class"]:
+			cla = stream["modsecurity_class"].get(str(mod[0])[:3])
+		else:
+			if str(mod[0])[:4] in stream["modsecurity_class"]:
+				cla = stream["modsecurity_class"].get(str(mod[0])[:4])
+		if of:
+			if st:
+				st = st[0:-1]
+			if stream["modsecurity_store"] == "true":
+				httpjson = ujson.dumps(o, ensure_ascii=False)
+			else:
+				httpjson = ""
+			a = {
+				"timestamp": iso_to_datetime(o.get("timestamp")),
+				"id": xlink_uuid(0),
+				"srcip": o.get("src_ip"),
+				"srcport": o.get("src_port"),
+				"dstip": o.get("dest_ip"),
+				"dstport": o.get("dest_port"),
+				"app": o.get("app"),
+				"url": o.get("url_c"),
+				"content_length": o.get("http").get("length", 0),
+				"url_a": o.get("url"),
+				"method": o.get("http").get("http_method"),
+				"modsecurity_id": str(mod),
+				"modsecurity_str": st,
+				"flow_id": o.get("flow_id"),
+				"level": level,
+				"class": cla,
+				"httpjson": httpjson
+			}
+			to_pool("modsecurity",a)
+}
+xlink_uuid =>(x){
+	return str(time.time_ns())
+}
+#系统定时函数
+print10 => {
+	stream["modsecurity_store"] = load_ssdb_kv("protocol_data")["function"]["event"]["modsecurity_store"]
+	stream["modsecurity_key"] = load_ssdb_kv("protocol_data")["function"]["event"]["modsecurity_key"]
+	store_ckh(pool["modsecurity"],"api_modsecurity")
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	from modsecurity import * 
+}

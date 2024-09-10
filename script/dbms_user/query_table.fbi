@@ -1,0 +1,23 @@
+#LastModifyDate:　2024-01-15T10:22:02    Author:   pjb
+#FBI脚本文件
+
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单中的条件信息
+a = load ssdb by ssdb0 with @data_key
+
+#保存
+b,c = @udf a by CRUD.query_mtable with (@link,@table)
+
+assert find_df('b',ptree) as  alert with 数据查询失败！
+
+push b as table
+push c as count
+#清除工作区
+clear @FID

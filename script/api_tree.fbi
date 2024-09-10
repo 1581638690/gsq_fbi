@@ -1,0 +1,67 @@
+#LastModifyDate:　2023-03-16T15:51:57.605455    Author:   zwl
+#LastModifyDate:　2023-03-16T15:19:54.461459    Author:   zwl
+#LastModifyDate:　2023-03-15T15:09:29.437787    Author:   zwl
+#LastModifyDate:　2023-03-14T11:51:29.608315    Author:   zwl
+#LastModifyDate:　2023-03-13T18:31:26.326693    Author:   zwl
+#LastModifyDate:　2022-11-28T15:03:39.790821    Author:   zwl
+#LastModifyDate:　2022-11-16T16:21:54.040638    Author:   zwl
+#LastModifyDate:　2022-11-10T18:13:00.869712    Author:   zwl
+#LastModifyDate:　2022-11-09T19:02:01.486113    Author:   zwl
+#LastModifyDate:　2022-11-08T17:57:06.556703    Author:   zwl
+use @FID
+
+api19_type = load db by mysql1 with select type,type1,type2,level,weakness,possibility,influence,advise from api19_type
+
+api = filter api19_type by (type1 == u"@type")
+#api = filter api19_type by (type1 == u"参数可遍历")
+type = eval api by iloc[0,0]
+type1 = eval api by iloc[0,1]
+
+####自定义容器   (文本标签    弱点描述,漏洞被利用可能性,漏洞被利用后影响,整改建议)
+tt = loc api by type1,weakness,possibility,influence,advise
+push tt as aa_data
+
+##布局容器
+layout = @udf udf0.new_df with (key)
+layout = @udf layout by udf0.df_append with ('aa_data')
+push layout as bj_layout_data
+
+
+
+
+#Delete 注释 by zwl on 2023-03-16 15:51:55
+###表格
+#api19_risk = load db by mysql1 with select id,api,app,dest_ip,dest_port,method,last_time,state from api19_risk where type = '$type' order by last_time desc limit 100
+##api19_risk = loc api19_risk by id,api,app,dest_ip,dest_port,method,last_time,state,type
+##api19_risk_count = eval api19_risk by index.size
+##acount = @udf udf0.new_df with count
+##acount = @udf acount by udf0.df_append with ($api19_risk_count)
+#acount = load db by mysql1 with select count(*) as count from api19_risk where type = '$type'
+#rename api19_risk as ('id':'_id','api':'接口','app':'应用','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','last_time':'最新监测时间','state':'弱点状态')
+###表格
+#push api19_risk as api19_risk
+###总数
+#push acount as api19_risk_count
+
+
+
+
+#Delete 注释 by zwl on 2023-03-16 15:19:51
+#######动态表格
+#api19_risk = load db by mysql1 with select id as _id,api,api_name,app,app_name,dest_ip,dest_port,method,length,first_time,last_time,state,type,more from api19_risk where type = '$type' order by last_time desc
+###保存为pkl文件
+#store api19_risk to pkl by dt_table/api19_risk_$type1.pkl
+#api19_risk = loc api19_risk by _id,api,app,dest_ip,dest_port,method,last_time,state
+###重命名
+#rename api19_risk as ('api':'接口','api_name':'接口名','app':'应用','app_name':'应用名','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','length':'返回数据最大数据量','first_time':'首次发现时间','last_time':'最新监测时间','state':'弱点状态','type':'弱点类型','more':'详情')
+###清空Q
+#b = load ssdb by ssdb0 query qclear,api19_risk_$type1,-,-
+###保存Q
+#store api19_risk to ssdb by ssdb0 with api19_risk_$type1 as Q
+
+
+
+
+
+
+clear @FID

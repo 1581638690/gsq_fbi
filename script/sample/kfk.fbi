@@ -1,0 +1,69 @@
+#LastModifyDate:　2022-06-07T11:38:23.646848    Author:   superFBI
+#FBI脚本文件
+#文件名: sample/kfk.fbi
+#作者: admin
+
+#定义链接
+define kfk252 as 192.168.1.251:9092
+
+#生成链接ＤＦ
+k = @udf KFK.df_link with kfk252
+
+#查看所有topic
+topic = @udf k by KFK.show_topics
+
+#查看所有brokers
+b = @udf k by KFK.show_brokers
+
+#查看客户端版本
+b = @udf k by KFK.show_version
+
+#查看队列消息数量
+o = @udf k by KFK.show_offset with api_urls
+
+#查看所有队列消息
+o = @udf k,topic by KFK.show_muli_offset
+
+#查看多个队列消息
+o = @udf k by KFK.show_muli_offset with api_urls,api_flow,api_alert,api_user,api_ip,api_visit,api_app
+
+#主题详情
+d = @udf k by KFK.describe with suricata
+
+d = @udf k by KFK.show_partitions with test
+
+
+#创建主题,一个broker可以创建多个分片，但副本数据不能为０，也不能超过broker数据
+c = @udf k by KFK.create_topics with zichan_330001,2,1
+
+
+#删除主题
+d = @udf k by KFK.delete_topics with api_urls,api_flow,api_alert,api_user,api_ips,api_visit
+
+#生产数据
+p = @udf topic by KFK.store with kfk,zichan_330001
+
+#消费数据-- 主题，消费group_id, 消息条数,链接超时时长(秒),是否从0消费
+q = @udf k by KFK.fetch with test,g5,3000,3,True
+#load 等同于fetch
+q = @udf k by KFK.load with api_urls,g5,3000,3,True
+
+
+#消费者组群
+c = @udf k by KFK.list_all_cgs
+
+#消费者群组offsets信息
+a = @udf k by KFK.get_offset_by_name with mq4
+
+#消费者群组详情
+b = @udf k by KFK.desc_cgs with aa2
+
+
+#add by gjw on 20220607 快速加载，和xlink用的是相同的kafka驱动
+#消费数据-- 参数：主题，消费group_id, 消息条数,链接超时时长(秒),是否从0消费
+a = @udf k by KFK.fast_load with test,g5,3,3,True
+#生产数据-- 参数：链接名,主题
+a=@udf q by  by KFK.fast_store with kfk2,zichan_3
+
+
+

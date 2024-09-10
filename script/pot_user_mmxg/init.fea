@@ -1,0 +1,10 @@
+#FBI脚本文件
+#文件名: pot_user_mmxg/init.fea
+#作者: superFBI
+
+use @FID
+
+df = @udf udf0.new_df with (name)
+df = @udf df by udf0.df_append with (@name)
+store df to ssdb by ssdb0 with pot_user_mmxg:up_passwd:@FPS as 600
+clear @FID

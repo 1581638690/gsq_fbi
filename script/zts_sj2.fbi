@@ -1,0 +1,100 @@
+#LastModifyDate:　2023-06-29T18:17:12.034652    Author:   pjb
+#LastModifyDate:　2023-06-08T11:20:28.161693    Author:   rzc
+#LastModifyDate:　2023-05-29T17:26:23.090999    Author:   pjb
+#LastModifyDate:　2023-05-29T11:32:52.864026    Author:   pjb
+#LastModifyDate:　2023-05-24T16:28:32.348309    Author:   pjb
+#LastModifyDate:　2023-05-24T14:44:21.089758    Author:   pjb
+#LastModifyDate:　2023-03-13T11:03:59.317048    Author:   pjb
+#LastModifyDate:　2023-03-09T18:49:53.868394    Author:   pjb
+#LastModifyDate:　2022-12-26T09:50:45.786723    Author:   pjb
+#LastModifyDate:　2022-10-27T15:50:36.562192    Author:   pjb
+#LastModifyDate:　2022-10-27T11:31:01.878106    Author:   pjb
+#LastModifyDate:　2022-10-22T16:05:11.119257    Author:   pjb
+use @FID
+
+#@udf RS.exec_mysql_sql with (mysql1,truncate table audit_statistics)
+#a = load db by mysql1 with select distince app from data_api_new where app_status=1
+#aa = load db by mysql1 with select id,name from audit_statistics 
+zts_sj01 = @udf RS.load_mysql_sql with (mysql1,SELECT app,count(id) audit_old from data_api_new where api_status=1 and merge_state != 1 group by app)
+qqq = load db by mysql1 with select app,app_merges from data_app_new where app_status=1 and merge_state != 2
+zts_sj01 = join zts_sj01,qqq by app,app with left
+qq = @udf zts_sj01 by udf0.df_fillna
+qq1 = filter qq by app_merges == ''
+qq2 = filter qq by app_merges != ''
+qq2.app = lambda app_merges by x: x if x !=''  else ''
+zts_sj01 = union qq1,qq2
+zts_sj01 = loc zts_sj01 by app,audit_old
+zts_sj01 = group zts_sj01 by app agg audit_old:sum
+zts_sj01 = @udf zts_sj01 by udf0.df_reset_index
+rename zts_sj01 by ("audit_old_sum":"audit_old")
+
+zts_sj02 = @udf RS.load_mysql_sql with (mysql1,SELECT app,count(id) audit_sum from data_api_new where merge_state != 1 group by app)
+zts_sj02 = join zts_sj02,qqq by app,app with left
+qq = @udf zts_sj02 by udf0.df_fillna
+qq1 = filter qq by app_merges == ''
+qq2 = filter qq by app_merges != ''
+qq2.app = lambda app_merges by x: x if x !=''  else ''
+zts_sj02 = union qq1,qq2
+zts_sj02 = loc zts_sj02 by app,audit_sum
+zts_sj02 = group zts_sj02 by app agg audit_sum:sum
+zts_sj02 = @udf zts_sj02 by udf0.df_reset_index
+rename zts_sj02 by ("audit_sum_sum":"audit_sum")
+
+zts_sj = join zts_sj01,zts_sj02 by app,app with left
+zts_sj03 =load ckh by ckh with SELECT app,count() audit_data from api_monitor group by app
+zts_sj = join zts_sj,zts_sj03 by app,app with left
+zts_sj04 = load ckh by ckh with SELECT distinct app,api_type from api_monitor group by app,api_type
+zts_sj04 = group zts_sj04 by app agg api_type:count
+zts_sj04 = @udf zts_sj04 by udf0.df_reset_index
+zts_sj = join zts_sj,zts_sj04 by app,app with left
+zts_sj = @udf zts_sj by udf0.df_fillna with 0
+zts_sj05 = @udf RS.load_mysql_sql with (mysql1,SELECT distinct app,name app_name from data_app_new where name != '')
+zts_sj = join zts_sj,zts_sj05 by app,app with left
+zts_sj = @udf zts_sj by udf0.df_fillna
+rename zts_sj as ('app':'name','audit_sum':'xsjjk','audit_old':'ysjjk','audit_data':'sjfw','api_type_count':'sjlx')
+
+#添加,更新
+dd = @udf RS.load_mysql_sql with (mysql1,select id,name from audit_statistics )
+b5 = join zts_sj,dd by name,name with left
+b5 = @udf b5 by udf0.df_fillna with 0
+b5 = @udf b5 by udf0.df_set_index with id
+@udf b5 by CRUD.save_table with (mysql1,audit_statistics)
+
+
+#智能表单-审计统计2
+#@udf RS.exec_mysql_sql with (mysql1,truncate table audit_statistics_2)
+#zts_sj1 = load ckh by ckh with SELECT app,api_type as sjlx,count(distinct url) as sjjk,count(*) as sjfw from api_monitor group by app,api_type
+#alter zts_sj1.sjlx as str
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (0,普通)
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (1,登录)
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (2,敏感数据)
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (3,文件上传)
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (4,文件下载)
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (5,服务接口)
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (6,数据库操作)
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (7,命令操作)
+#zts_sj1 = @udf zts_sj1 by udf0.df_replace with (8,注销)
+#zts_sj1 = @udf zts_sj1 by udf0.df_zero_index
+#b = @udf zts_sj1 by CRUD.save_table with (mysql1,audit_statistics_2) 
+
+
+## 自动开启应用审计下的接口
+a = load db by mysql1 with select app from data_app_new where app_status=1 and merge_state = 2
+foreach a run """
+	# 正常开启
+	api = @udf RS.load_mysql_sql with (mysql1,select id,api_status from data_api_new where app='@app' and api_status=0 )
+	api = add api_status by ("1")
+	api = @udf api by udf0.df_set_index with id
+	d = @udf api by CRUD.save_table with (mysql1,data_api_new)
+"""  with app=$1
+a = load db by mysql1 with select app from data_app_new where app_status=1 and merge_state != 2
+foreach a run """
+	# 正常开启
+	api = @udf RS.load_mysql_sql with (mysql1,select id,api_status from data_api_new where app='@app' and api_status=0 )
+	api = add api_status by ("1")
+	api = @udf api by udf0.df_set_index with id
+	d = @udf api by CRUD.save_table with (mysql1,data_api_new)
+"""  with app=$1
+
+
+clear @FID

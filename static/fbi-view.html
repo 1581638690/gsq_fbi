@@ -1,0 +1,143 @@
+<html>
+  <head>
+    <title>FBI代码预览</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/ui.jqgrid.css" />   
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script> 
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+	 <!--demo代码高亮-->
+    <script type="text/javascript" src="/static/highlight/highlight.js"></script>
+    <script type="text/javascript" src="/static/highlight/languages/pig.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/highlight/styles/magula.css" />
+    <script type="text/javascript">
+       hljs.initHighlightingOnLoad();
+    </script>
+    
+    <script type="text/javascript">
+	function GetRequest() {
+		var theRequest={};
+		var url = location.search; //获取url中"?"符后的字串
+		var a = decodeURI(url);
+		if (a.indexOf("?") != -1) {
+			str = a.substr(1);
+			var strs = str.split("&");
+			for (var i = 0; i < strs.length; i++) {
+				theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+			}
+		}
+		return theRequest;
+	  }
+      $(document).ready(function() {
+		var req = GetRequest();
+		
+		//确定当前的脚本文件
+		var fea_name = req.name;		
+        //获取脚本文件的内容
+		get_fbi(fea_name);
+		
+		 //gbk编码转utf8编码
+         jQuery("#gbk_code").click(function(){  
+			$.get("/db/gbk2utf8?name="+fea_name,function(data,status){
+				//清空
+				$("#code_space").empty();
+				//刷新FEA
+				get_fbi(fea_name);
+			});		
+         });
+         
+         //标准化fea脚本
+         jQuery("#format_code").click(function(){  
+			$.get("/db/format?name="+fea_name,function(data,status){
+				//清空
+				$("#code_space").empty();
+				//刷新FEA
+				get_fbi(fea_name);
+			});
+         });
+         
+         
+         //在线编辑
+         jQuery("#edit_code").click(function(){
+			window.location="/static/online.html?name="+fea_name;
+		});
+      });
+      
+      function get_fbi(fea_name){
+         //获取FEA
+			$.ajax({
+                 type: "get",
+                 async: false,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/fbi_script/"+fea_name,           
+                 success: function(response) {
+					$("#code_space").append("<pre><code class='fea'># 文件名: "+fea_name+"</code></pre>");
+					var items = response.split("\n");
+					var j=1;
+					for (i in items)
+					{		
+						var line_num="0";
+						if (j<10)
+						{
+							line_num="00"+j
+						}else if (j<100)
+						{
+							line_num="0"+j
+						}else{
+							line_num= j
+						}					
+						var axx = items[i].replace(/</g,"&lt;");
+						axx = axx.replace(/>/g,"&gt;");
+						$("#code_space").append("<pre><code class='fea'>"+line_num+"  "+axx+"</code></pre>");
+					
+						j++;
+					}
+					//每次渲染后，调用高亮
+					hljs.reInitHighlighting();
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+         }
+    </script>
+    <style>
+		#code_space {
+			margin : 10px 0px 15px 5px;
+			border:1px solid;
+			border-radius:10px;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+			padding: 0px;
+			font-size: 14px;
+		}
+		p { word-wrap:break-word; }
+		.t{
+			margin : 0px;
+		}
+		li{
+			margin : 5px;
+			list-style-type:none;
+			}
+		.tips
+		{
+			color:red;
+			font-size: 12px;
+		}
+    </style>
+  </head>
+  <body>
+
+    <div id="code_all">
+	<button id="edit_code">在线编辑</button>
+	<button id="format_code">标准化FBI脚本</button>
+	<button id="gbk_code">gbk编码转utf8编码</button>
+	<div id="code_space" style="color:green;" >
+	</div>	
+	</div>
+   
+
+</body> 
+</html>
+
+

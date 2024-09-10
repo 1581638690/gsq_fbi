@@ -1,0 +1,18 @@
+#LastModifyDate:　2023-08-07T16:41:38.899551    Author:   zwl
+use @FID
+
+###获取关闭审计接口信息
+a = load ssdb by ssdb0 with @data_key
+a = loc a by index to id
+a = loc a by id,url
+
+if a.index.size > 0 with """
+	alter a.id as int
+	a = add api_status by ('0')
+	a = @udf a by udf0.df_set_index with id
+	b = @udf a by CRUD.save_table with (@link,@table)
+"""
+
+push b as table
+
+clear @FID

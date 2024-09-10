@@ -1,0 +1,186 @@
+#LastModifyDate:　2024-03-08T15:28:33    Author:   zwl
+#LastModifyDate:　2024-01-18T11:22:12    Author:   zwl
+#LastModifyDate:　2023-11-20T17:29:08.503740    Author:   zwl
+#LastModifyDate:　2023-08-29T18:25:28.624689    Author:   zwl
+#LastModifyDate:　2023-08-23T16:48:32.474839    Author:   zwl
+#LastModifyDate:　2023-08-10T14:39:05.101453    Author:   zwl
+#LastModifyDate:　2023-07-17T11:12:37.811898    Author:   zwl
+#LastModifyDate:　2023-06-20T17:29:38.270649    Author:   zwl
+#LastModifyDate:　2023-06-16T15:08:13.539520    Author:   zwl
+#LastModifyDate:　2023-03-31T09:35:26.779349    Author:   zwl
+#LastModifyDate:　2023-03-24T11:06:58.231517    Author:   zwl
+
+#FBI脚本文件
+#文件名: lhq_account.fbi
+#作者: test
+# 应账号览
+use @FID
+####################################################################################################33
+data_account_new = load db by mysql1 with select id,account,dept,active,type,visit_num,visit_flow,api_num,app_num,ip_num from data_account_new
+data_account_new = @udf data_account_new by udf0.df_fillna_cols with dept:'',active:0,type:'',visit_num:0,visit_flow:0,api_num:0,app_num:0,ip_num:0
+alter data_account_new by id:int,account:str,dept:str,active:int,type:str,visit_num:int,visit_flow:int,api_num:int,app_num:int,ip_num:int
+
+###更多  -- 动态表格-----------------------------------------------动态表格
+data_account_new1 = loc data_account_new by id,account,visit_num,visit_flow,app_num,api_num,ip_num,type,active
+alter data_account_new1.active as str
+active = load ssdb by ssdb0 with dd:api_active
+data_account_new1 = @udf data_account_new1,active by SP.tag2dict with active
+data_account_new1.visit_flow = lambda visit_flow by (x:round(x/1048576,2))
+rename data_account_new1 as ('id':'_id')
+data_account_new11 = order data_account_new1 by visit_num with desc limit 1000
+#保存pkl
+store data_account_new11 to pq by dt_table/data_account_new.pq
+rename data_account_new1 as ('account':'账号','visit_num':'访问次数','visit_flow':'访问流量(M)','app_num':'访问应用数量','api_num':'访问接口数量','ip_num':'访问终端数量','dept':'部门','type':'类型','active':'活跃状态')
+
+b = load ssdb by ssdb0 query qclear,data_account_new_1,-,-
+data_account_new11 = order data_account_new1 by 访问接口数量 with desc limit 1000
+store data_account_new11 to ssdb with data_account_new_1 as Q
+b = load ssdb by ssdb0 query qclear,data_account_new_2,-,-
+data_account_new11 = order data_account_new1 by 访问流量(M) with desc limit 1000
+store data_account_new11 to ssdb with data_account_new_2 as Q
+b = load ssdb by ssdb0 query qclear,data_account_new_3,-,-
+data_account_new11 = order data_account_new1 by 访问应用数量 with desc limit 1000
+store data_account_new11 to ssdb with data_account_new_3 as Q
+b = load ssdb by ssdb0 query qclear,data_account_new_4,-,-
+data_account_new11 = order data_account_new1 by 访问终端数量 with desc limit 1000
+store data_account_new11 to ssdb with data_account_new_4 as Q
+b = load ssdb by ssdb0 query qclear,data_account_new_5,-,-
+data_account_new11 = order data_account_new1 by 访问次数 with desc limit 1000
+store data_account_new11 to ssdb with data_account_new_5 as Q
+drop data_account_new11
+drop data_account_new1
+
+##清空Q
+#b = load ssdb by ssdb0 query qclear,data_account_new,-,-
+##保存Q
+#store data_account_new1 to ssdb with data_account_new as Q
+###更多  -- 动态表格-----------------------------------------------动态表格
+
+
+#大屏(接口总数)
+account_count = @udf udf0.new_df with num
+account_num = eval data_account_new by index.size
+account_count = @udf account_count by udf0.df_append with $account_num
+store account_count to ssdb by ssdb0 with account1:count
+
+#新增账号数量
+account_num = @udf udf0.new_df with name,value,icon
+
+#账号数量
+num = eval data_account_new by index.size
+account_num = @udf account_num by udf0.df_append with 账号数量,$num,F363
+
+# 活跃账号数量
+active_2 = filter data_account_new by active == 0
+num2 = eval active_2 by index.size
+account_num = @udf account_num by udf0.df_append with 活跃账号数,$num2,F216
+
+# 非活跃账号数量
+active_1 = filter data_account_new by active == 1
+num1 = eval active_1 by index.size
+account_num = @udf account_num by udf0.df_append with 失活账号数,$num1,F280
+
+##复活账号
+active_2 = filter data_account_new by active == 2
+num2 = eval active_2 by index.size
+account_num = @udf account_num by udf0.df_append with 复活账号数,$num2,F022
+
+# 新增账号数量
+active_3 = filter data_account_new by active == 3
+num3 = eval active_3 by index.size
+account_num = @udf account_num by udf0.df_append with 新增账号数,$num3,F368
+
+# 账号类型数量
+account_type = loc data_account_new by type
+account_type = distinct account_type by type
+num1 = eval account_type by index.size
+account_num = @udf account_num by udf0.df_append with 账号类型数,$num1,F362
+account_num = add pageid by ('modeling:account_new','modeling:account_new','modeling:account_new','modeling:account_new','modeling:account_new','')
+account_num = add 参数 by ('','@active=0','@active=1','@active=2','@active=3','')
+store account_num to ssdb by ssdb0 with account_type:count
+
+
+##访问量Top5-----------------------------------------------------
+account_trend = loc data_account_new by account,visit_num
+account_trend = order account_trend by visit_num with desc limit 5
+account_1 = loc account_trend by account
+account_trend.详情 = lambda account by (x:x)
+rename account_trend by ("account":"账号","visit_num":"访问量")
+store account_trend to ssdb by ssdb0 with account_trend:table
+
+###流量输出Top5-----------------------------------------------------------------------------------
+account_flow = loc data_account_new by account,visit_flow,dept
+account_flow = order account_flow by visit_flow limit 5
+account_2 = loc account_flow by account
+account_flow.flow1 = lambda visit_flow by (x:round(x/1024/1024,2))
+account_flow = add aa by ("(M)")
+alter account_flow.flow1 as str
+account_flow = add flow by account_flow["flow1"]+account_flow["aa"]
+account_flow = loc account_flow by account,flow
+account_flow.详情 = lambda account by (x:x)
+rename account_flow by ("account":"访问流量最多账号","flow":"访问流量(M)")
+store account_flow to ssdb by ssdb0 with account_visit:table
+
+##账号访问接口分布----------------------------------------------------------
+ua_aui = loc data_account_new by account,api_num
+ua_aui = order ua_aui by api_num with desc limit 5
+account_3 = loc ua_aui by account
+ua_aui = order ua_aui by api_num with asc
+ua_aui.详情 = lambda account by (x:x)
+rename ua_aui by ("api_num":"接口数量")
+ua_aui = loc ua_aui by account to index
+store ua_aui to ssdb by ssdb0 with account_api:pie
+
+#应用最多的账号-----------------------------------------------------------
+ua_au = loc data_account_new by account,app_num
+ua_au = order ua_au by app_num with desc limit 10
+account_4 = loc ua_au by account
+rename ua_au by ("app_num":"应用数量")
+ua_au.详情 = lambda account by (x:x)
+ua_au = loc ua_au by account to index
+store ua_au to ssdb by ssdb0 with account_app1:pie
+ua_au = loc ua_au by drop 详情
+ua_au = loc ua_au by index to 账号名称
+store ua_au to ssdb by ssdb0 with account_app:pie
+
+##账号使用终端分布Top10（一个账号对多个终端）---------------------------------------------------------
+ua_au = loc data_account_new by account,ip_num
+ua_au.详情 = lambda account by (x:x)
+account_ip = order ua_au by ip_num limit 10
+account_5 = loc account_ip by account
+rename account_ip by ("ip_num":"终端数量")
+account_ip = loc account_ip by account to index
+store account_ip to ssdb by ssdb0 with account_ip:pie
+
+
+
+##终端被账号使用分布Top10（一个终端对多个账号）------------------------------------------------
+aa_au = load db by mysql1 with select srcip,account_num as 账号数量 from data_ip_new order by account_num desc limit 10
+alter aa_au by srcip:str,账号数量:int
+aa_au.详情 = lambda srcip by (x:x)
+aa_au = loc aa_au by srcip to index 
+store aa_au to ssdb by ssdb0 with srcip:pie
+
+
+#######账号概览  --> 下钻画像
+account = union account_1,account_2,account_3,account_4,account_5
+account = distinct account by account
+store account to ssdb by ssdb0 with gl_account
+####吧概览界面的终端   开启画像状态
+aa = load db by mysql1 with select id,account from data_account_new where portrait_status = 0
+alter aa by id:int,account:str
+account = join aa,account by account,account with left
+account = @udf account by udf0.df_fillna_cols with id:0 
+account = filter account by id != 0
+if account.index.size > 0 with """
+	alter account.id as int
+	account = add portrait_status by (1)
+	bbb = @sdf sys_now
+	account = add portrait_time by ('$bbb')
+	account = @udf account by udf0.df_set_index with id
+	b = @udf account by CRUD.save_table with (mysql1,data_account_new)
+	account = loc account by index to id
+"""
+
+
+clear @FID

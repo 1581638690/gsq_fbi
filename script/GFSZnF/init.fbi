@@ -1,0 +1,26 @@
+#LastModifyDate:　2023-06-09T13:45:21.317948    Author:   superFBI
+#LastModifyDate:　2023-06-09T13:36:25.283074    Author:   superFBI
+#LastModifyDate:　2023-02-27T11:58:34.280408    Author:   superFBI
+#FBI脚本文件
+#文件名: GFSZnF/init.fbi
+#作者: superFBI
+use @FID
+a1 = @udf udf0.new_df with key
+a1 = @udf a1 by udf0.df_append with (setting)
+a1 = @udf a1 by udf0.df_append with (manage_type)
+a1 = @udf a1 by udf0.df_append with (alarm)
+a1 = @udf a1 by udf0.df_append with (agent)
+a1 = @udf a1 by udf0.df_append with (Traffic)
+a1 = @udf a1 by udf0.df_append with (json_wdgl)
+a1 = @udf a1 by udf0.df_append with (disk)
+a1 = @udf a1 by udf0.df_append with (loginl)
+a1 = @udf a1 by udf0.df_append with (qh_owasp)
+a1 = @udf a1 by udf0.df_append with (qh_send)
+a1 = @udf a1 by udf0.df_append with (sensitive)
+a1 = @udf a1 by udf0.df_append with (snmp_config)
+a1 = @udf a1 by udf0.df_append with (model_config)
+a1 = @udf a1 by udf0.df_append with (protocol_data)
+
+a1 = @udf a1 by SSDB.dump_keys2 with setting
+
+clear @FID

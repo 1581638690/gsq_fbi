@@ -1,0 +1,183 @@
+#LastModifyDate:　2022-11-18T16:25:24.842886    Author:   hs
+#LastModifyDate:　2022-11-18T16:01:59.018779    Author:   hs
+#LastModifyDate:　2022-10-29T17:02:54.948191    Author:   hs
+#LastModifyDate:　2022-10-28T16:05:47.970059    Author:   hs
+#LastModifyDate:　2022-10-26T10:42:39.716906    Author:   hs
+#LastModifyDate:　2022-10-26T10:40:31.269249    Author:   hs
+#LastModifyDate:　2022-10-25T22:44:16.164316    Author:   hs
+#LastModifyDate:　2022-10-25T22:33:59.479658    Author:   hs
+#LastModifyDate:　2022-10-25T22:28:23.322978    Author:   hs
+#LastModifyDate:　2022-10-25T22:18:08.218254    Author:   hs
+#LastModifyDate:　2022-10-25T21:00:20.802065    Author:   hs
+#LastModifyDate:　2022-10-25T19:39:43.476837    Author:   hs
+#LastModifyDate:　2022-10-25T18:58:43.682991    Author:   hs
+#FBI生成docx文档脚本文件
+
+#@link 链接
+#@table 表名
+#@data_key 数据
+#@zh 中文表名
+
+#@vars 模板文档里面变量的前缀，比如{{info.name}}变量,vars就是info
+#@var_keys代表变量的值对应的df表的key，比如name
+#@id 模板填充好生成的文件目录位置，目录为workspace/temp_word/@id
+#@table_vars,docx模板文件的table里面变量名
+#@table_keys,存储表格数据的key
+#@report_name,生成报告的文件名称
+
+
+use @FID
+
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+# 测试
+store a to ssdb with fsffdsfd
+# 加载数据
+
+now = @sdf sys_now
+now = @sdf format_now with ($now,"%Y-%m-%dT%H:%M:%S")
+
+#先判断报告名称是否为空
+if "@report_name".strip() in ["","undefined"] with """
+	set param by define as report_name with @zh-$now
+""" else """
+	set param by define as report_name with @report_name-$now
+"""
+
+a = add name by  ('@report_name')
+
+#生成报告记录
+#保存
+t = @udf a by CRUD.save_table with (@link,@table)
+assert True as notice to @report_name 报告开始生成! with 报告生成发现错误!
+
+######################################################基本变量信息(根据实际情况修改)###############################################
+#生成单变量对应的表
+#a1= @udf udf0.new_df with (name,value)
+#a1= @udf a1 by udf0.df_append with (year,2015)
+#a1= @udf a1 by udf0.df_append with (total,5)
+#a1= @udf a1 by udf0.df_append with (type_id,3)
+#a1= @udf a1 by udf0.df_append with (month,4)
+#a1= @udf a1 by udf0.df_append with (day,8)
+#store a1 to ssdb by ssdb0 with base_exam
+
+# 测试
+#a = load ssdb by ssdb0 with hhkjss
+
+
+start_time = eval a by loc[0,'start_time']
+end_time = eval a by loc[0,'end_time']
+
+
+#先判断是否为空时间
+if "$start_time".strip() in ["","undefined"] with """
+	start_time = @sdf sys_now with -1m
+	start_time = @sdf format_now with ($start_time,"%Y-%m-%d")
+"""
+if "$end_time".strip() in ["","undefined"] with """
+	end_time = @sdf sys_now with +1d
+	end_time = @sdf format_now with ($end_time,"%Y-%m-%d")
+"""
+
+now_time = @sdf sys_now
+now_time = @sdf format_now with ($now_time,"%Y-%m-%d")
+# 存储时间
+protocal_time = @udf udf0.new_df with (start_time,end_time,now_time)
+protocal_time = @udf protocal_time by udf0.df_append with ($start_time,$end_time,$now_time)
+store protocal_time to ssdb by ssdb0 with protocal_time
+# 分割协议名
+protocol = loc a by (protocol)
+protocol = eval protocol by (iloc[0,0])
+protocol = @udf protocol by FBI.json2df
+#a.protocol = str protocol by (split(","))
+#protocol = @udf a by udf0.df_l2df with protocol
+df1 = @udf udf0.new_df with (协议名,审计记录数)
+
+# 准备工作
+df2 = @udf udf0.new_df with (api_smtp,api_dns,api_pop3,api_imap,api_smb,api_ftp,api_tftp,api_visit)
+df2 = @udf df2 by udf0.df_append with (smtp邮件协议,dns协议,pop3邮件协议,imap邮件协议,Windows共享,FTP文件传输,TFTP文件传输,HTTP协议)
+
+# 查询数据
+foreach protocol run """
+	prot_count = load ckh by ckh with select count(*) as `审计记录数` from @prot where left(toString(timestamp),10) <= '$end_time' and left(toString(timestamp),10) > '$start_time'
+	prot_count = eval prot_count by (iloc[0,0])
+	prot_name = loc df2 by (@prot)
+	prot_name = eval prot_name by (iloc[0,0])
+	df1 = @udf df1 by udf0.df_append with ($prot_name,$prot_count)
+""" with (@prot=$1)
+
+store df1 to ssdb by ssdb0 with protocal_list_tab
+
+df1 = loc df1 by 协议名 to index
+alter df1.审计记录数 as int
+store df1 to ssdb by ssdb0 with protocal_list
+
+#生成前缀为t1变量的表
+#Delete 注释 by hs on 2022-10-25 20:39:41
+#b = @udf udf0.new_df with (sys_name,dns,vuln_type,level,des,url)
+#b = @udf b by udf0.df_append with (漏洞修复中心,www.baidu.com,5,12,木马漏洞,www.google.com)
+#store b to ssdb by ssdb0 with exam_t1
+##生成前缀为t2变量的表
+#c = @udf udf0.new_df with (fix_comm,org_name)
+#c = @udf c by udf0.df_append with (定时修复,商务部组织)
+#store c to ssdb by ssdb0 with exam_t2
+###########################################################图表数据(根据实际情况修改)####################################################
+##生成散点图对应的表
+#scatter= @udf udf0.new_df with (length,width)
+#scatter= @udf scatter by udf0.df_append with (5.1,3.5)
+#scatter= @udf scatter by udf0.df_append with (4.9,3.0)
+#scatter= @udf scatter by udf0.df_append with (7.0,3.2)
+#scatter= @udf scatter by udf0.df_append with (6.4,3.2)
+#scatter= @udf scatter by udf0.df_append with (5.9,3.0)
+#alter scatter.length as float
+#alter scatter.width as float
+#store scatter to ssdb by ssdb0 with scatter_key
+##生成其他五种图对应的表
+#other= @udf udf0.new_df with (lab,val)
+#other= @udf other by udf0.df_append with (厨师,10)
+#other= @udf other by udf0.df_append with (店主,30)
+#other= @udf other by udf0.df_append with (学生,20)
+#alter other.val as int
+#other = @udf other by udf0.df_set_index with (lab)
+#store other to ssdb by ssdb0 with other_key
+
+
+
+################################################################表格数据 (根据实际情况修改)#########################################################
+#生成正常表格数据对应的表
+#Delete 注释 by hs on 2022-10-25 20:39:45
+#c = @udf udf0.new_df with (date,type,desc)
+#c = @udf c by udf0.df_append with (2013-02-31,tt,例子1)
+#c = @udf c by udf0.df_append with (2004-02-24,vv,例子2)
+#c = @udf c by udf0.df_append with (2034-02-09,uu,例子3)
+#store c to ssdb by ssdb0 with table_exam
+##生成动态表格数据对应的表
+#d = @udf udf0.new_df with (title1,type1,instro1,method1,pop1,sys1,inco1)
+#d = @udf d by udf0.df_append with (HTTP_SQL注入攻击,CGI攻击,SQL注入攻击源于英文attack,使用安全的代码定期查看WEB服务日志,流行,Web 服务器,多种操作系统)
+#d = @udf d by udf0.df_append with (HTTP_XSS攻击,CGI攻击,XSCross-Site Scripting跨站脚本攻击,如无需要请在WEB浏览器上禁用javascript脚本,流行,Web 服务器,单一操作系统)
+#store d to ssdb by ssdb0 with reg_table_exam
+
+
+##############################################################################下面脚本不需要修改##################################################################
+#加载图片数据的key
+data=load ssdb by ssdb0 with @pics_data
+#生成图片
+@udf data by doc.generate_pic with @id
+#生成模板,result表返回的是是否成功生成模板，result表有两列，一列是status，一列是errMessage，status为1代表成功生成模板,为0代表生成模板失败
+result=@udf data by doc.modifiy_doc with (@id,@base,@var_data,@tbs_data,@report_name)
+
+#生成在线文档
+html = @udf doc.word2html with @report_name
+#页面提示
+assert not_have_error() as alert to 报告生成完成! with 报告生成发现错误!
+
+#保存
+t = add status with ('报告生成完毕')
+t = @udf t by CRUD.save_table with (@link,@table)
+assert t by df.index[0] >0  as notice to @report_name 报告生成完毕! with @report_name 报告生成发现错误!
+
+push t as table
+
+#清理工作区
+clear @FID

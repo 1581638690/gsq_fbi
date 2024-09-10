@@ -1,0 +1,63 @@
+#LastModifyDate:　2022-06-09T11:42:20.636112    Author:   superFBI
+#LastModifyDate:　2022-06-08T15:45:49.895926    Author:   gjw
+#LastModifyDate:　2022-06-08T15:07:55.442576    Author:   gjw
+#FBI脚本文件
+#文件名: sample/mkd.fbi
+#作者: gjw
+
+
+#知识图谱
+
+#初始化一个知识图谱，需要一个配置文件，默认是/opt/openfbi/conf/mkd.yml
+a = @udf GL.init_mkd
+# a = @udf GL.init_mkd with  mkd.yml
+
+#加载数据
+data = load csv by ldgz.csv
+
+#S为主语，P为谓语，O为宾语
+rename data as {"A":"S","B":"O","C":"P"}
+
+#加载数据入图, 可以跟配置文件，缺省/opt/openfbi/conf/mkd.yml
+count = @udf data by  GL.load_to_mkd 
+
+
+
+
+
+#1启动一个http实例， 可以跟配置文件，缺省/opt/openfbi/conf/mkd.yml
+ret = @udf GL.start_http_mkd
+
+#查询
+all = @udf GL.query_http_mkd with g.M().Out("192.168.1.86")
+
+
+all = @udf GL.query_http_mkd with g.V("192.168.1.86").Out().All()
+
+#2启动一个http实例，使用指定的端口和 配置文件，缺省/opt/openfbi/conf/mkd.yml
+
+link = @sdf sys_define with http:// 192.168.90.103:2345
+server = @udf  udf0.new_df with host
+server= @udf server by udf0.df_append with 192.168.90.103:2345
+ret = @udf server by  GL.start_http_mkd
+
+#查询
+all = @udf server by GL.query_http_mkd with g.M().Out("192.168.1.86")
+
+
+all = @udf server by GL.query_http_mkd with g.V("192.168.1.86").Out().All()
+
+
+
+#添加
+d2 = limit data by 10
+ret = @udf d2 by  GL.add_http_mkd 
+ret = @udf d2 by  GL.add_http_mkd  with http://192.168.90.103:2345
+
+#删除
+d2 = limit data by 10
+ret = @udf d2 by  GL.del_http_mkd 
+ret = @udf d2 by  GL.del_http_mkd  with $link
+
+
+

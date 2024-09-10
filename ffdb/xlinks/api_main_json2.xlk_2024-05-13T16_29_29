@@ -1,0 +1,417 @@
+#LastModifyDate:　2024-05-13T16:29:29    Author:   rzc
+#LastModifyDate:　2024-03-04T17:58:04    Author:   pjb
+#LastModifyDate:　2024-03-04T14:47:21    Author:   pjb
+#LastModifyDate:　2024-03-04T10:34:21    Author:   pjb
+#LastModifyDate:　2024-01-09T10:30:32    Author:   rzc
+#LastModifyDate:　2024-01-06T15:48:24    Author:   superFBI
+#LastModifyDate:　2024-01-06T13:47:54    Author:   superFBI
+#LastModifyDate:　2024-01-05T09:47:15.554256    Author:   superFBI
+#LastModifyDate:　2023-12-28T10:24:37.316559    Author:   superFBI
+#LastModifyDate:　2023-12-28T10:07:04.701138    Author:   superFBI
+#LastModifyDate:　2023-12-27T10:37:35.850338    Author:   superFBI
+#xlink脚本
+#
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with test
+
+#停止
+#a = @udf FBI.x_finder3_stop with test
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log_2020-05-27,0,1000
+#清除日志
+#a = load ssdb by ssdb0 query qclear,X_log_2020-05-27,-,-
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::脚本名称,  如，printf::test 
+
+
+#初始化
+init => {
+	stream["meta_name"] = "处理对象管理四个对象数据、合并接口数据(可选)"
+	stream["meta_desc"] = "从api_visit1主题中消费数据，解析http类型数据"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	
+	stream["account"] = handle_account(a["setting"]["account"]["account_key"])
+	#stream["login"] = handle_login(load_ssdb_kv("setting")["setting"]["login"]["login_key"])
+	stream["content"] = handle_content_type(a["setting"]["content_type"]["type"])
+	#stream["risk_on"] = handle_risk_on_off(a["setting"]["on-off"])
+	stream["lans"] = handle_lan(a["setting"]["lan"]["network"])
+	stream["flags"] = handle_flag(a["setting"]["flag"]["tag"])
+
+	#事件类型处理 
+	b = load_ssdb_kv("manage_type")
+	stream["login"] = handle_login(b["mtype"]["login"]["table"])
+	stream["logout"] = handle_login(b["mtype"]["logout"]["table"])
+	stream["download"] = handle_login(b["mtype"]["download"]["table"])
+	stream["upload"] = handle_login(b["mtype"]["upload"]["table"])
+	stream["server"] = handle_login(b["mtype"]["server"]["table"])
+	stream["sensitive"] = load_ssdb_kv("sensitive")
+	#域内域外
+	stream["json_wdgl"] = load_ssdb_kv("json_wdgl")
+	stream["wd"]=jk_tf(stream["json_wdgl"])
+	# 请求异常
+	#stream["request_status"] = c["setting"]["request_status_alarm"]["request_status"]
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	stream["source"]= {"unix_udp":"/tmp/main_json"}
+	stream["redis"]={"host":stream["redis_link"],"port":"6380"}
+	
+	#stream["pub_redis"]={"host":"127.0.0.1","port":"6380"}
+	stream["st"]["st_10s"]={"times":20,"fun":"print20s"}
+	stream["st"]["st_30"]={"times":30,"fun":"print30"}
+	stream["st"]["st_3f"]={"times":180,"fun":"print3f"}
+	stream["m"] = {"http": 0, "api": 0,"alert":0, "ip": 0, "app": 0, "visit": 0, "account": 0, "sen": 0,"mo":0,"delay":0}
+	
+		#加载文件中存储的对象管理对象
+	try:
+		stream["url2"]=remove_file("/dev/shm/FF_url2.pkl","/data/xlink","FF_url2.pkl")
+	except:
+		stream["url2"]=set()
+	try:
+		stream["ip2"]=remove_file("/dev/shm/FF_ip2.pkl","/data/xlink","FF_ip2.pkl")
+	except:
+		stream["ip2"]=set()
+	try:
+		stream["app2"]=remove_file("/dev/shm/FF_app2.pkl","/data/xlink","FF_app2.pkl")
+	except:
+		stream["app2"]=set()
+	try:
+		stream["user3"]=remove_file("/dev/shm/FF_user3.pkl","/data/xlink","FF_user3.pkl")
+	except:
+		stream["user3"]=set()
+	#stream["user3"] = load_set_pkl("/data/xlink/FF_user3.pkl")
+	# 数据接口认证规则
+	owasp = load_ssdb_kv("qh_owasp")
+	stream["token_rule"] = ""
+	if owasp['setting']['API19-2']['API19-2-3-1']:
+		for i in owasp['setting']['API19-2']['API19-2-3-1'].split('/'):
+			stream["token_rule"] += i + "|"
+	stream["token_rule"] = stream["token_rule"].strip("|")
+	
+	stream["ak_rule"] = ""
+	if owasp['setting']['API19-2']['API19-2-3-2']:
+		for i in owasp['setting']['API19-2']['API19-2-3-2'].split('/'):
+			stream["ak_rule"] += i + "|"
+	stream["ak_rule"] = stream["ak_rule"].strip("|")
+	send = load_ssdb_kv("qh_send")["sends"].split(',')
+	stream["sends"] = send
+	stream["merge_count"]=0
+	stream["unique_count"]=0
+	stream["api_merge"]= load_ssdb_hall("api_merge")
+	stream["app_merge"]= load_ssdb_hall("app_merge")
+	stream["api_merge1"]=load_ssdb_hall("api_merge1")
+	try:
+		stream["url_limit"]=remove_file("/dev/shm/urlimit.pkl","/data/xlink","urlimit.pkl")
+		
+	except:
+		stream["url_limit"]={}
+	stream["merge_off"]=load_ssdb_kv("protocol_data")["function"]["event"]["merge_off"]
+	
+	stream["trie"] = Trie()
+	file_path="/dev/shm/merge.pkl"
+	target_path="/data/xlink"
+	if os.path.exists(file_path):
+		new_file_path=os.path.join(target_path,os.path.basename(file_path))
+		shutil.move(file_path,new_file_path)
+	try:
+		stream["trie"].load_file_pkl("/data/xlink/merge.pkl")
+	except:
+		pass
+	stream["new_count"] = 0
+}
+
+
+#事件处理函数
+
+events => {
+	stream["new_count"]+=1
+	u_d={}
+	suid = xlink_uuid(1)
+	status = str(o["http"].get("status","")).strip()
+	stream["m"]["http"] += 1
+	# to_kfk(o)
+	account = o.get("account")
+	type = o.get("type")
+	#对o进行处理，获取url，app,
+	http = o.get("http")
+	http_url = http.get("url")
+	data_type=o.get("data_type")
+	#counts=o.get("counts")
+	#content_type=stream["content"]
+	timestamp=iso_to_datetime(o.get("timestamp"))
+	if http_url and http_url.startswith('/'):
+		http_port = o.get("http").get("http_port","")
+		app = o.get("app")
+		dstip = o.get("dest_ip")
+		protocol=http.get("protocol")
+		destport = o.get("dest_port")
+		#ht_type = http.get("http_content_type","")
+		#返回去掉？url，参数，接口类型，分段数量
+		srcip = o.get('src_ip')
+		yuw = yn(dstip,stream["wd"])
+		yun = yn(srcip,stream["wd"])
+		flow_id = o.get('flow_id')
+		#下面函数需要用到参数
+		response_body=o.get("http_response_body","")
+		server=http.get("server","")
+		length=http.get("length",0)
+		request_headers=http.get("request_headers")
+		http_user_agent=str(http.get('http_user_agent',''))
+		http_method=http.get("http_method")
+		if http_url:
+			if "?" in http_url:
+			# 剔除参数
+				suri = http_url.split('?')
+				uri = suri[0]
+				parameter = suri[1]
+				#counts=len(uri.split("/"))
+			else:
+				uri = http_url
+				#counts=len(uri.split("/"))
+				parameter = ''
+		counts=o.get("counts")
+		if stream["merge_off"]=="true":
+			#printf("1111","接口合并")
+			if data_type in ["CSS","JS","资源文件"] or uri.lower().endswith((".gif",".png",".jpg")):
+				courl=0
+				#直接对其最后一段进行合并,如果最后一段为空 则改原接口就是合并的接口
+				an=uri.split("/")
+				#先对长度进行判断
+				if counts>2 and an[-1] == "":
+					an[-2]="{dst}"
+				elif an[-1]!="":
+					an[-1]="{dst}"
+				url_c="/".join(an)
+			elif counts==2:
+				courl=0
+				url_c=uri
+			else:
+				url_c,courl=stream["trie"].add_uri(app,uri)#合并接口存储处理
+				#mapi,murl=urlc(mapi,uri,app)
+			printf("url_cc",url_c)
+			url_c,url=urlc(url_c,uri,app)
+			ltten_url=url_c
+			if 0< courl <5:
+				url_c=url
+			#mapi,murl=urlc(mapi,uri,app)
+			
+			printf("ltten_url",url_c)
+		else:
+			url_c=uri
+			url_c,url=urlc(url_c,uri,app)
+			ltten_url=url_c
+		app_dst=app
+		if  stream["app_merge"]:
+			app_values=stream["app_merge"].values()
+			for apps in app_values:
+				if app in apps.get("app_sum").split(","):
+					if apps.get("app"):
+						app_dst=apps.get("app")
+		if app_dst not in stream["app_merge"]:
+			if app_dst not in stream["app2"]:
+				http_app = http_apps(server,timestamp,response_body, app_dst,stream["lans"])
+				http_app["dstip"] = dstip
+				http_app["dstport"] = str(destport)
+				if http_app:
+					if yuw:
+						http_app["app_type"] = 1
+					else:
+						http_app["app_type"] = 0
+					if yuw and not yun:
+						http_app["app_share"] = 1
+					else:
+						http_app["app_share"] = 0
+					#活跃值状态
+					http_app["active"] = '3'
+					stream["m"]["app"] += 1
+					to_unix_udp(http_app,"/tmp/api_object")
+					stream["app2"].add(app_dst)
+		api_type=o.get("api_type")
+		#合并的接口数据
+		if url_c in stream["api_merge1"]:
+			url_c=url
+		if stream["api_merge"]: #合并的接口
+			api_values=stream["api_merge"].values()
+			for apis in api_values:
+				api=apis.get("url_sum").split(";|")
+				if url_c in api:#判断url_c是否存在
+					url_c=apis.get("url")
+		http_api = http_apis(http,timestamp,dstip,destport, url_c,app_dst, data_type, api_type,stream["token_rule"],stream["ak_rule"])
+		if http_api:
+			if stream["merge_off"]=="true":
+				if "{p1}" in ltten_url or "{p2}" in ltten_url or "{dst}" in ltten_url:#存在合并的接口
+					#对改接口进行30存储的限制
+					url_limit_set= set(stream["url_limit"].get("ltten_url",[]))
+					if url not in url_limit_set:
+						url_limit_set.add(url)
+						stream["url_limit"][ltten_url]=list(url_limit_set)
+						e=deepcopy(http_api)
+						e["url"]=ltten_url
+						e["timestamp"]=timestamp
+						e["dstip"]=dstip
+						e["active"] = 3
+						e["y_url"]=url
+						#to_redis("api_data",e)
+						to_unix_udp(e,"/tmp/api_data_req_alm")
+			#存入mysql数据库中
+			if url_c not in stream["api_merge"]:
+				if url_c not in stream["url2"]:
+					if yuw:
+						http_api["api_yuw"] = 1
+					else:
+						http_api["api_yuw"] = 0
+					if yuw and not yun:
+						http_api["api_share"] = 1
+					else:
+						http_api["api_share"] = 0
+					#活跃值状态
+					http_api["active"] = 3
+					http_api["dstip"]=dstip
+					http_api["ltten_url"]=ltten_url
+					http_api["auth_type"]=o.get("auth_type")
+					stream["m"]["api"] += 1
+					to_unix_udp(http_api,"/tmp/api_object")
+					stream["url2"].add(url_c)
+		#域内account
+		if account != "":
+			if account not in stream["user3"]:
+				http_account = account_data(timestamp,length, account, type)
+				if http_account:
+						#活跃值状态
+					http_account["active"] = 3
+					stream["m"]["account"] += 1
+					to_unix_udp(http_account,"/tmp/api_object")
+					stream["user3"].add(account)
+
+
+		#终端
+
+		http_ips = http_op(timestamp,srcip,length,http_user_agent, stream["lans"], stream["flags"],request_headers)
+		for http_ip in http_ips:
+			ip = http_ip["srcip"]
+			if ip not in stream["ip2"]:
+				if ip in stream["app2"]:
+					http_ip["type"] = '应用'
+					#活跃值状态
+				http_ip["active"] = 3
+				stream["ip2"].add(ip)
+				#stream["ip2"][ip] = True
+				#to_ssdb_h("FF:ip2", ip, True)
+				stream["m"]["ip"] += 1
+				#to_redis("http_ip",http_ip)
+				to_unix_udp(http_ip,"/tmp/api_object")
+			
+			
+			
+			
+}
+
+#系统定时函数
+print20s => {
+	stream["api_merge"]= load_ssdb_hall("api_merge")
+	stream["app_merge"]= load_ssdb_hall("app_merge")
+	#域内域外
+	stream["json_wdgl"] = load_ssdb_kv("json_wdgl")
+	stream["wd"]=jk_tf(stream["json_wdgl"])
+	stream["merge_off"]=load_ssdb_kv("protocol_data")["function"]["event"]["merge_off"]
+	
+	# 请求异常
+	#stream["request_status"] = c["setting"]["request_status_alarm"]["request_status"]
+	m = stream["m"]
+	printf("print10","sum==http%d==alert%d==api%d==sen%d"%(m["http"],m["visit"],m["api"], m["sen"] ))
+	printf("对象总数",stream["new_count"])
+	
+}
+print30 =>{
+	url2=copy.copy(stream["url2"])
+	dump_pkl("/data/xlink/FF_url2.pkl",url2)
+	ip2=copy.copy(stream["ip2"])
+	dump_pkl("/data/xlink/FF_ip2.pkl",ip2)
+	app2=copy.copy(stream["app2"])
+	dump_pkl("/data/xlink/FF_app2.pkl",app2)
+	user3=copy.copy(stream["user3"])
+	dump_pkl("/data/xlink/FF_user3.pkl",user3)
+}
+print3f =>{
+	if stream["merge_off"]=="true":
+		stream["trie"].dump_file_pkl("/data/xlink/merge.pkl")
+		url_json=copy.copy(stream["url_limit"])
+		dump_pkl("/data/xlink/urlimit.pkl",url_json)
+
+}
+
+xlink_uuid =>(x){
+ return "%d-%7f-%3f" % (x,time.time(), random.random())
+}
+type_class =>(content_type,url,ht_type){
+	data_type="未知"
+	c_k_list = list(content_type.keys())
+	c_v_list = list(content_type.values())
+	if "动态脚本" in c_v_list:
+		k_index = c_v_list.index("动态脚本")
+		kvalue = c_k_list[k_index]
+		kv_s = kvalue.split("/")
+	else:
+		kv_s = []
+	if url and "?" in url:
+		# 剔除参数
+		suri = url.split('?')
+		uri = suri[0]
+		parameter = suri[1]
+		if "html" in ht_type:
+			data_type = "动态脚本"
+	else:
+		uri = url
+		parameter = ''
+	splits = uri.split("/")
+	if data_type != "动态脚本":
+		if ht_type:
+			for i in range(len(content_type)):
+				if c_k_list[i] in ht_type or c_k_list[i]==ht_type:
+					#a = re.findall(r'%s' % c_k_list[i], ht_type)
+					#data_type = content_type[a[0]]
+					data_type = c_v_list[i]
+					break
+		else:
+			data_type = "未知"
+	if splits[-1] and '.' in splits[-1]:
+		if len(splits) >= 2:
+			find=splits[-1].split(".")
+			#find = re.findall(r'\.([a-zA-Z]+)', splits[-1])
+			if find and find[-1] in kv_s:
+				data_type = "动态脚本"
+	counts=len(splits)
+	return uri,parameter,data_type,counts
+}
+urlc =>(url_m,http_url,app){
+	if not app:
+		app=""
+	# 然后进行接口合并
+	url_c = "http://" + app + url_m
+	url = "http://" + app + http_url
+	return url_c,url
+}
+xlink_uuid =>(x){
+	return str(time.time_ns())
+}
+
+#需要额外引入的包
+imports => {
+	import sys
+	import gc
+	import uuid
+	import copy
+	import regex as re
+	from stream_official_1119_sw import * 
+	import IPy
+	from url_merge import *
+	from mondic import *
+	from jk_ip import *
+	import pickle
+	import shutil
+}

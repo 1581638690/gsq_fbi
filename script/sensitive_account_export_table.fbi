@@ -1,0 +1,28 @@
+#LastModifyDate:　2024-01-16T11:31:56    Author:   zwl
+#LastModifyDate:　2023-08-23T17:19:09.644914    Author:   zwl
+#LastModifyDate:　2023-07-07T17:37:12.294222    Author:   zwl
+#LastModifyDate:　2023-03-15T15:02:28.508088    Author:   zwl
+#LastModifyDate:　2023-02-15T11:10:13.438389    Author:   zwl
+#LastModifyDate:　2023-02-08T13:46:27.122758    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by sensitive/sensitive_account.pq
+alter datas by account:str,url_count:int,srcip_count:int,app_count:int,sensitive_count:int,s_num_sum:str
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+"""
+rename datas as ("account":"账号","url_count":"接口数量","srcip_count":"终端数量","app_count":"应用数量","sensitive_count":"敏感数据数量","s_num_sum":"敏感数据分类数量")
+store datas to csv by 敏感账号$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 敏感账号$day.csv
+push name as file_name
+
+clear @FID

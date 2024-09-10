@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>图形窗口</title>
+
+ <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js"></script> 
+   
+    <script type="text/javascript" src="/static/js/jquery.jUploader-1.0.min.js" ></script>
+        <script type="text/javascript">
+      $(document).ready(function() {
+         
+         var ST="";
+         var TI="";
+        //put
+		  $.ajax({
+                 type: "post",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/send_mq",
+                 data: {"mq":"sslx","msg":'{"alarm_id":300030,"time":"2017-07-14 10:09:35","source":"108.48.160.150","level":"\u9ad8","type":"\u5173\u6ce8","desc":"\u5a01\u80c1\u60c5\u62a5","resp_type":"scene","resp_para":"dashboard2:alarm_windows","resp_para1":"@ip=108.48.160.150"}'},            
+                 success: function(response) { 
+					 console.info(response);
+					//getStatus();
+     
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+     //get
+		function getStatus(){
+			
+			$.ajax({
+						 type: "get",
+						 async: true,
+						 dataType : 'jsonp',
+						 timeout : 1000*600, //超时时间设置，单位毫秒
+						 url: "/execp?prmtv=check task by "+TI+" with ("+ST+")",             
+						 success: function(response) { 
+							 console.info(response);
+							 $("#info").text(response.result.progress);
+							 if (response.result.isAlive==true){
+								setTimeout(getStatus(),5000);
+							}else{
+								$("#info").text("100%");
+							}
+						 },
+						 error: function(XMLHttpRequest, textStatus, errorThrown) {
+								alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+						 }
+					});
+			
+		
+		};
+        
+      });
+    </script>
+</head>
+<body>
+<div id="info"></div>
+</body>
+</html>

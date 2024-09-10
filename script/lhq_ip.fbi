@@ -1,0 +1,229 @@
+#LastModifyDate:　2024-03-08T15:27:43    Author:   zwl
+#LastModifyDate:　2024-01-18T10:45:24    Author:   zwl
+#LastModifyDate:　2023-08-29T18:26:42.578218    Author:   zwl
+#LastModifyDate:　2023-08-23T16:54:26.815197    Author:   zwl
+#LastModifyDate:　2023-08-17T15:32:42.191151    Author:   zwl
+#LastModifyDate:　2023-07-17T10:54:45.810084    Author:   zwl
+#LastModifyDate:　2023-06-20T17:28:43.691966    Author:   zwl
+#LastModifyDate:　2023-06-16T15:07:58.449169    Author:   zwl
+#LastModifyDate:　2023-04-21T14:04:50.942929    Author:   zwl
+#LastModifyDate:　2023-03-30T17:44:42.569591    Author:   zwl
+#LastModifyDate:　2023-03-24T10:49:29.753842    Author:   zwl
+
+#FBI脚本文件
+#文件名: lhq_ip.fbi
+#作者: test
+use @FID
+
+###################################################################################################################
+data_ip_new = load db by mysql1 with select id,srcip,region,type,visit_num,visit_flow,app_num,account_num,api_num,active from data_ip_new
+data_ip_new = @udf data_ip_new by udf0.df_fillna_cols with region:'',type:'',visit_num:0,visit_flow:0,app_num:0,account_num:0,api_num:0,active:0
+alter data_ip_new by region:str,type:str,visit_num:int,visit_flow:int,app_num:int,account_num:int,api_num:int,active:int
+
+###更多  -- 动态表格-----------------------------------------------动态表格
+data_ip_new1 = loc data_ip_new by id,srcip,visit_num,visit_flow,app_num,api_num,account_num,type,active
+alter data_ip_new1.active as str
+active = load ssdb by ssdb0 with dd:api_active
+data_ip_new1 = @udf data_ip_new1,active by SP.tag2dict with active
+data_ip_new1.visit_flow = lambda visit_flow by (x:round(x/1048576,2))
+rename data_ip_new1 as ('id':'_id')
+data_ip_new11 = order data_ip_new1 by visit_num with desc limit 1000
+#保存pkl
+store data_ip_new11 to pq by dt_table/data_ip_new.pq
+rename data_ip_new1 as ('srcip':'终端IP','visit_num':'访问次数','visit_flow':'访问流量(M)','app_num':'访问应用数量','api_num':'访问接口数量','account_num':'访问账号数量','region':'地域','type':'终端类型','active':'活跃状态')
+
+b = load ssdb by ssdb0 query qclear,data_ip_new_1,-,-
+data_ip_new11 = order data_ip_new1 by 访问流量(M) with desc limit 1000
+store data_ip_new11 to ssdb with data_ip_new_1 as Q
+b = load ssdb by ssdb0 query qclear,data_ip_new_2,-,-
+data_ip_new11 = order data_ip_new1 by 访问应用数量 with desc limit 1000
+store data_ip_new11 to ssdb with data_ip_new_2 as Q
+b = load ssdb by ssdb0 query qclear,data_ip_new_3,-,-
+data_ip_new11 = order data_ip_new1 by 访问账号数量 with desc limit 1000
+store data_ip_new11 to ssdb with data_ip_new_3 as Q
+b = load ssdb by ssdb0 query qclear,data_ip_new_4,-,-
+data_ip_new11 = order data_ip_new1 by 访问次数 with desc limit 1000
+store data_ip_new11 to ssdb with data_ip_new_4 as Q
+drop data_ip_new11
+drop data_ip_new1
+##清空Q
+#b = load ssdb by ssdb0 query qclear,data_ip_new,-,-
+##保存Q
+#store data_ip_new1 to ssdb with data_ip_new as Q
+
+###更多  -- 动态表格-----------------------------------------------动态表格
+
+
+#ip数量----------------------------------------------------------------------------
+#ip_num = @udf RS.load_mysql_sql with (mysql1,select count(srcip) as srcip_num from data_ip_new)
+#rename ip_num by ("srcip_num":"终端数量")
+
+#Delete 注释 by rzc on 2022-12-14 11:54:02
+#num = eval data_ip_new by index.size
+#ip_num = @udf udf0.new_df with 终端数量
+#ip_num = @udf ip_num by udf0.df_append with $num
+#store ip_num to ssdb by ssdb0 with ip:count
+#大屏(接口总数)
+ip_count = @udf udf0.new_df with num
+ip_num = eval data_ip_new by index.size
+ip_count = @udf ip_count by udf0.df_append with $ip_num
+store ip_count to ssdb by ssdb0 with ip1:count
+
+num = eval data_ip_new by index.size
+ip_num = @udf udf0.new_df with name,value,icon
+ip_num = @udf ip_num by udf0.df_append with 终端总数,$num,F441
+
+# 活跃终端数量
+active_2 = filter data_ip_new by active == 0
+num2 = eval active_2 by index.size
+ip_num = @udf ip_num by udf0.df_append with 活跃终端数,$num2,F140
+
+# 非活跃终端数量
+active_1 = filter data_ip_new by active == 1
+num1 = eval active_1 by index.size
+ip_num = @udf ip_num by udf0.df_append with 失活终端数,$num1,F141
+
+##复活终端
+active_2 = filter data_ip_new by active == 2
+num2 = eval active_2 by index.size
+ip_num = @udf ip_num by udf0.df_append with 复活终端数,$num2,F146
+
+# 新增终端数量
+active_3 = filter data_ip_new by active == 3
+num3 = eval active_3 by index.size
+ip_num = @udf ip_num by udf0.df_append with 新增终端数,$num3,F147
+
+ip_num = add pageid by ('modeling:ip_new','modeling:ip_new','modeling:ip_new','modeling:ip_new','modeling:ip_new')
+ip_num = add 参数 by ('','@active=0','@active=1','@active=2','@active=3')
+#ip_num = add details by ('','','','','')
+ip_num = loc ip_num by name,value,icon,pageid,参数
+store ip_num to ssdb by ssdb0 with zd:type
+#Delete 注释 by zwl on 2022-10-25 17:13:16
+##局域网ip数量----------------------------------------------------------------------------
+#local_ip = @udf RS.load_mysql_sql with (mysql1,select srcip from data_ip_new where region='局域网')
+#local_ip_num = @udf RS.load_mysql_sql with (mysql1,select count(srcip) as lsrcip_num from data_ip_new where region='局域网')
+#rename local_ip_num by ("lsrcip_num":"局域网终端数量")flow_iptop:table
+#store local_ip_num to ssdb by ssdb0 with local_ip:count
+
+
+#饼状图
+##网段分布(network)----------------------------------------------------------------------------
+ip_network = loc data_ip_new by srcip
+ip_network.srcip = str srcip by (findall('(.*\.)'))
+alter ip_network.srcip as str
+ip_network = filter ip_network by srcip != '[]'
+ip_network.srcip = lambda srcip by (x:x[2:-2]+'*')
+ip_network_group = group ip_network by srcip agg srcip:count
+n = load ssdb by ssdb0 with setting as json
+nn = jaas n by n['setting']['fbi_num']['network_num'] as sdf
+nn = @sdf sys_eval with (int($nn)-0)
+ip_network_group = order ip_network_group by srcip_count with desc limit $nn
+ip_network_group = loc ip_network_group by index to ip
+rename ip_network_group by ("srcip_count":"网段数量")
+store ip_network_group to ssdb by ssdb0 with ip_network:pie
+
+
+##地域分布----------------------------------------------------------------------------
+#ip_region = @udf RS.load_mysql_sql with (mysql1,select region,type from data_ip_new where region != '未知')
+ip_region = loc data_ip_new by region,type
+ip_region = filter ip_region by region != '未知'
+ip_region_group = group ip_region by region agg region:count
+#n = load ssdb by ssdb0 with setting as json
+an = jaas n by n['setting']['fbi_num']['areal_num'] as sdf
+an = @sdf sys_eval with (int($an)-2)
+ip_region_group = order ip_region_group by region_count with desc limit $an
+ip_region_group1 = loc ip_region_group by index to name
+rename ip_region_group1 by ("name":"地域",'region_count':'数量')
+store ip_region_group1 to ssdb by ssdb0 with ip_region1:pie
+#add rzc
+ip_region_group = loc ip_region_group by index to name
+ip_region_group.详情 = lambda name by (x:x)
+ip_region_group = loc ip_region_group by name to index
+rename ip_region_group by ("region_count":"数量")
+store ip_region_group to ssdb by ssdb0 with ip_region:pie
+
+#Delete 注释 by rzc on 2022-12-14 16:44:53
+#rename ip_region_group by ("region_count":"终端数量")
+#store ip_region_group to ssdb by ssdb0 with ip_region:pie
+
+
+
+##终端类型分布----------------------------------------------------------------------------
+aa = load ssdb by ssdb0 with dd:IP_type
+rename aa as ('value':'详情')
+ip_type = group data_ip_new by type agg type:count
+ip_type = join aa,ip_type by index,index with left
+ip_type = @udf ip_type by udf0.df_fillna_cols with type_count:0
+ip_type = loc ip_type by type_count,详情
+rename ip_type as ('type_count':'数量')
+store ip_type to ssdb by ssdb0 with zd:type_count
+#add by rzc
+
+#柱状图
+## 终端访问数量top ----------------------------------------------------------------------------
+ip_top = loc data_ip_new by srcip,visit_num
+ip_top = order ip_top by visit_num limit 10
+ip_top.详情 = lambda srcip by (x:x)
+srcip_1 = loc ip_top by srcip
+ip_top = loc ip_top by srcip to index
+ip_top = order ip_top by visit_num with asc
+rename ip_top by ("visit_num":"终端访问数量")
+store ip_top to ssdb by ssdb0 with ip_top:bar
+
+##终端访问流量top10----------------------------------------------------------------------------
+flow_ip = loc data_ip_new by srcip,visit_flow
+flow_ip = add 访问流量 by flow_ip.visit_flow//1048576
+flow_ip = order flow_ip by 访问流量 limit 10
+srcip_2 = loc flow_ip by srcip
+alter flow_ip.访问流量 as int
+alter flow_ip.访问流量 as str
+flow_ip.访问流量=lambda 访问流量 by x:x+'(M)'
+flow_ip = loc flow_ip by drop visit_flow
+rename flow_ip by ("srcip":"终端")
+#flow_ip = @udf flow_ip by VL.set_col_width with (320,120)
+store flow_ip to ssdb by ssdb0 with flow_iptop:table
+
+
+#应用最多 终端top10----------------------------------------------------------------------------
+app_topip = loc data_ip_new by srcip,app_num
+app_topip_order = order app_topip by app_num limit 10
+srcip_3 = loc app_topip_order by srcip
+app_topip_order = order app_topip_order by app_num with desc
+app_topip_order.详情 = lambda srcip by (x:x)
+app_topip_order  = loc app_topip_order by srcip to index
+rename app_topip_order by ("index":"应用最多终端","app_num":"应用数量")
+store app_topip_order to ssdb by ssdb0 with app_topip:bar
+
+#账号最多 终端top10----------------------------------------------------------------------------
+ao_oa = loc data_ip_new by srcip,account_num
+account_topip_order = order ao_oa by account_num limit 10
+srcip_4 = loc account_topip_order by srcip
+account_topip_order = order account_topip_order by account_num with asc
+account_topip_order.详情 = lambda srcip by (x:x)
+account_topip_order = loc account_topip_order by srcip to index
+rename account_topip_order by ("account_num":"账号数量")
+store account_topip_order to ssdb by ssdb0 with account_iptop:bar
+
+
+#######终端概览  --> 下钻画像
+srcip = union srcip_1,srcip_2,srcip_3,srcip_4
+srcip = distinct srcip by srcip
+store srcip to ssdb by ssdb0 with gl_ip
+####吧概览界面的终端   开启画像状态
+aa = load db by mysql1 with select id,srcip from data_ip_new where portrait_status = 0
+alter aa by id:int,srcip:str
+srcip = join aa,srcip by srcip,srcip with left
+srcip = @udf srcip by udf0.df_fillna_cols with id:0
+srcip = filter srcip by id != 0
+if srcip.index.size > 0 with """
+	alter srcip.id as int
+	srcip = add portrait_status by (1)
+	bbb = @sdf sys_now
+	srcip = add portrait_time by ('$bbb')
+	srcip = @udf srcip by udf0.df_set_index with id
+	b = @udf srcip by CRUD.save_table with (mysql1,data_ip_new)
+	srcip = loc srcip by index to id
+"""
+
+clear @FID
+

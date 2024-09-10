@@ -1,0 +1,58 @@
+#LastModifyDate:　2024-03-05T10:22:58    Author:   pjb
+#LastModifyDate:　2023-01-06T18:12:59.345149    Author:   rzc
+#LastModifyDate:　2022-12-07T09:36:17.860455    Author:   pjb
+#LastModifyDate:　2022-12-03T09:59:23.295585    Author:   pjb
+#LastModifyDate:　2022-10-21T18:29:41.753942    Author:   qh
+#LastModifyDate:　2022-10-21T16:26:24.925831    Author:   pjb
+#LastModifyDate:　2022-10-21T15:40:08.285898    Author:   pjb
+#LastModifyDate:　2022-10-21T15:36:14.753386    Author:   pjb
+#LastModifyDate:　2022-09-29T09:40:16.308191    Author:   admin
+#LastModifyDate:　2022-09-13T15:36:05.756721    Author:   admin
+#LastModifyDate:　2022-09-09T16:12:51.761829    Author:   admin
+#FBI脚本文件
+
+#保存语句
+#es7查询脚本
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+
+#Delete 注释 by admin on 2022-09-09 16:06:43
+#use @FID
+#a = load ssdb by ssdb0 with @data_key
+#sql_df = @udf a by CRUD.get_sql with (@table)
+#sql_query = eval sql_df by (iloc[0,0])
+#sql_count = eval sql_df by iloc[0,1]
+#
+#q = load ckh by @link with ($sql_query)
+#c = load ckh by @link with ($sql_count)
+#
+#assert find_df('q',ptree) as break with 查询失败！
+#
+#push q as table
+#push c as count
+#
+##清除工作区
+#clear @FID
+
+use @FID
+a = load ssdb by ssdb0 with @data_key
+sql_df = @udf a by CRUD.get_sql with (@table)
+sql_str= eval sql_df by (iloc[0,0])
+sql_count = eval sql_df by iloc[0,1]
+
+q = load ckh by @link with ($sql_str)
+c = load ckh by @link with ($sql_count)
+q.file_path = lambda file_path by x:x.split("files/")[-1]
+q = add file_path by ( '<a href="/db/download/znsm/'+df["file_path"]+'?filename='+df["filename"]+'">下载</a>' )
+#q = add file_path by ( '<a href=/workspace/znsm/'+df["file_path"]+'>下载</a>' )
+#q = add file_path by ( '<a href="https://10.99.20.107/workspace/znsm/'+df["file_path"]+'">下载</a>' )
+#q = add fileinfo.file_id by ( '<a href="https://192.168.1.175/workspace/znsm/1658785191">下载</a>' ) 
+assert find_df('q',ptree) as break with 查询失败！
+push q as table with us
+push c as count
+
+#清除工作区
+clear @FID

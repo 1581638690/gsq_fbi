@@ -1,0 +1,50 @@
+#LastModifyDate:　2023-08-23T17:06:36.607272    Author:   zwl
+#LastModifyDate:　2023-02-17T14:01:18.026805    Author:   pjb
+#LastModifyDate:　2023-02-17T11:51:22.676364    Author:   pjb
+# 文件名: crud-batch_exp.fbi
+
+#@file:	 	script/crud/batch_exp.fbi
+#@name: 	文件的中文名称
+#@desc: 	批量导出脚本
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2019-4-10T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+
+use @FID
+#页面使用|分割,替换为,
+v = @sdf sys_str with (@ids,replace("|",","))
+
+ids1 = @sdf sys_eval with (@ids=="")
+#如果ids为空,导出全部数据,不为空,导出选中条数
+
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table)")
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+
+#modify by gjw on 2021-1130
+cc = if $ids1 with """
+	#获取表单中的条件信息
+	datas = @udf udf0.new_df with id
+	a = load ssdb by ssdb0 with @data_key
+	#保存
+	datas,c = @udf a by CRUD.query_table with (@link,@table)
+"""
+a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table where id in ($v))")
+#a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table where id in ($v))")
+datas = loc datas drop (gmt_create,gmt_modified,creator,owner,network,region,zdtype,a,b)
+active = load ssdb by ssdb0 with dd:api_active
+active  = add id by active.index
+rename active as ("value":"活跃状态")
+datas = alter datas.active as str
+datas = join datas,active by active,id with left
+datas = loc datas drop id,active
+rename datas as ("srcip":"终端IP","flag":"标签备注","firsttime":"首次发现时间","lasttime":"最后活跃时间","type":"终端类型","account_num":"访问账号数量","api_num":"访问接口数量","app_num":"访问应用数量","visit_num":"访问次数","visit_flow":"访问流量","dep":"部门","dep_zrr":"责任人","safearea":"安全域","job":"岗位","country":"所属国家","province":"所属省份","city":"所属城市","scope":"终端标签")
+
+
+
+store datas to csv by @file_name
+
+clear @FID

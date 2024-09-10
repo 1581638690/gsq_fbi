@@ -1,0 +1,19 @@
+#LastModifyDate:　2023-10-08T16:17:48.498885    Author:   zwl
+#LastModifyDate:　2023-03-17T14:27:12.548012    Author:   zwl
+#LastModifyDate:　2023-03-17T13:54:04.291933    Author:   zwl
+#LastModifyDate:　2023-03-01T11:15:48.760457    Author:   zwl1
+#初始化一个知识图谱
+a = @udf GL.init_mkd
+
+#启动一个http实例
+ret = @udf GL.start_http_mkd
+
+api_link = load ckh by ckh with truncate api_link
+ip_link = load ckh by ckh with truncate ip_link
+api_link_data = load ckh by ckh with truncate api_link_data
+ip_link_data = load ckh by ckh with truncate ip_link_data
+
+aa = @udf udf0.new_df with time
+store aa to ssdb by ssdb0 with app_agent
+store aa to ssdb by ssdb0 with ip_agent
+

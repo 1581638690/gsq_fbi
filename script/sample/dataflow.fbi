@@ -1,0 +1,12 @@
+#单线心电图实例用法
+
+a = @udf udf0.new_df with age
+a = @udf a by  udf0.df_append with 20
+a = @udf a by  udf0.df_append with 60
+a = @udf a by  udf0.df_append with 35
+a = @udf a by  udf0.df_append with 24
+a = @udf a by  udf0.df_append with 90
+a = @udf a by  udf0.df_append with 10
+
+# system:cpu2 是单线心电图的key
+b = @udf a by RS.store_zbus_df with (127.0.0.1,system:cpu2,-)

@@ -1,0 +1,101 @@
+#LastModifyDate:　2023-08-23T17:20:18.313044    Author:   zwl
+#LastModifyDate:　2023-03-17T12:01:18.241544    Author:   pjb
+#LastModifyDate:　2023-03-17T11:39:45.372225    Author:   pjb
+#LastModifyDate:　2023-02-17T14:00:40.186432    Author:   pjb
+#LastModifyDate:　2023-02-17T11:36:10.898307    Author:   pjb
+#LastModifyDate:　2023-02-17T11:06:57.648080    Author:   superFBI
+#LastModifyDate:　2023-02-17T11:05:36.757192    Author:   superFBI
+#LastModifyDate:　2023-02-17T10:19:45.835729    Author:   pjb
+#LastModifyDate:　2023-02-16T19:02:55.058070    Author:   pjb
+# 文件名: crud-batch_exp.fbi
+
+#@file:	 	script/crud/batch_exp.fbi
+#@name: 	文件的中文名称
+#@desc: 	批量导出脚本
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2019-4-10T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+
+use @FID
+#页面使用|分割,替换为,
+v = @sdf sys_str with (@ids,replace("|",","))
+
+ids1 = @sdf sys_eval with (@ids=="")
+#如果ids为空,导出全部数据,不为空,导出选中条数
+
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table)")
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+
+#modify by gjw on 2021-1130
+cc = if $ids1 with """
+	#获取表单中的条件信息
+	datas = @udf udf0.new_df with id
+	a = load ssdb by ssdb0 with @data_key
+	#保存
+	datas,c = @udf a by CRUD.query_table with (@link,@table)
+"""
+a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table where id in ($v))")
+#a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table where id in ($v))")
+datas = loc datas drop (gmt_create,gmt_modified,creator,owner)
+datas.sensitive_label = lambda sensitive_label by x:"敏感" if x =='1' else "非敏感"
+datas.api_status = lambda api_status by x:"已审计" if x =='1' else "未审计"
+datas.app_type = lambda app_type by x:"内部应用" if x ==1 else "外部应用"
+
+api_type = load ssdb by ssdb0 with dd:API-api_type
+api_type  = add id by api_type.index
+rename api_type as ("value":"接口类型")
+datas = alter datas.api_type as str
+datas = join datas,api_type by api_type,id with left
+datas = loc datas drop id,api_type
+
+risk_level = load ssdb by ssdb0 with dd:API-risk_level
+risk_level  = add id by risk_level.index
+rename risk_level as ("value":"风险等级")
+datas = join datas,risk_level by risk_level,id with left
+datas = loc datas drop id,risk_level
+
+active = load ssdb by ssdb0 with dd:api_active
+active  = add id by active.index
+rename active as ("value":"活跃状态")
+datas = alter datas.active as str
+datas = join datas,active by active,id with left
+datas = loc datas drop id,active
+
+req_label = load ssdb by ssdb0 with dd:reqs_label
+rename req_label as ("data":"value")
+req_label = loc req_label by index to id
+req_label = order req_label by id with desc
+req_label = alter req_label.id as str
+datas.req_label = lambda req_label by x:x.replace("[","")
+datas.req_label = lambda req_label by x:x.replace("]","")
+datas.req_label = lambda req_label by x:x.replace('"',"")
+datas = @udf datas,req_label by DT.tag2dict with req_label
+rename datas as ("req_label":"请求数据标签")
+
+res_llabel = load ssdb by ssdb0 with dd:reqs_label
+rename res_llabel as ("data":"value")
+res_llabel = loc res_llabel by index to id
+res_llabel = order res_llabel by id with desc
+res_llabel = alter res_llabel.id as str
+datas.res_llabel = lambda res_llabel by x:x.replace("[","")
+datas.res_llabel = lambda res_llabel by x:x.replace("]","")
+datas.res_llabel = lambda res_llabel by x:x.replace('"',"")
+datas = @udf datas,res_llabel by DT.tag2dict with res_llabel
+rename datas as ("res_llabel":"返回数据标签")
+
+
+auth_type = load ssdb by ssdb0 with dd:API-auth_type
+auth_type  = add id by auth_type.index
+rename auth_type as ("value":"接口认证类型")
+datas = alter datas.auth_type as str
+datas = join datas,auth_type by auth_type,id with left
+datas = loc datas drop id,auth_type,id_x,id_y
+
+rename datas as ("url":"接口","api":"uri","protocol":"协议版本","first_time":"首次发现时间","name":"接口名","app":"应用名","method":"请求类型","data_type":"资源类型","risk_label":"风险标签","visits_num":"访问数量","srcip_num":"访问IP数量","visits_flow":"访问流量","sensitive_label":"敏感标签","dstip_num":"部署数量","dstip":"目的IP","dstport":"目的端口","last_time":"最后修改时间","api_status":"审计状态","scope":"接口标签","app_type":"应用类型","account_num":"访问账号数量","url_merges":"合并接口名","url_sum":"子接口","merge_state":"合并状态","parameter":"参数","risk_label_value":"风险标签")
+store datas to csv by @file_name
+
+clear @FID

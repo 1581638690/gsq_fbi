@@ -1,0 +1,28 @@
+#LastModifyDate:　2023-03-22T10:02:48.942615    Author:   pjb
+#LastModifyDate:　2023-03-22T09:59:39.913561    Author:   pjb
+#LastModifyDate:　2023-03-22T09:57:32.327849    Author:   pjb
+#LastModifyDate:　2023-03-22T09:42:41.806846    Author:   pjb
+#LastModifyDate:　2023-03-22T09:41:30.600213    Author:   pjb
+#LastModifyDate:　2023-03-13T11:44:49.299478    Author:   pjb
+#LastModifyDate:　2023-01-05T16:18:42.782631    Author:   pjb
+#LastModifyDate:　2022-12-02T17:56:46.263952    Author:   pjb
+#LastModifyDate:　2022-12-02T17:52:43.933642    Author:   pjb
+use  copyright2
+
+c = @udf udfG.copyright
+a = @udf udf0.new_df with kernel
+a = @udf a by udf0.df_append with 云信应用数据安全监测系统
+a = join a,c by index
+xl = load ssdb by ssdb0 with xlh
+xll = eval xl by index.size
+if $xll ==0 with xl = @udf xl by udf0.new_df with xl
+if $xll ==0 with xl = @udf xl by udf0.df_append with ()
+a = join a,xl by index
+#应用的key, 不需要加use:
+b =@udf udfA.get_vbs with APP-DLP-SE
+a = join a,b by index
+
+#store a to ssdb with a:@FPS
+push a as table
+
+clear copyright2

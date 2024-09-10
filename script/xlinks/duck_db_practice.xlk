@@ -1,0 +1,131 @@
+#LastModifyDate:　2024-03-29T14:21:46    Author:   rzc
+#LastModifyDate:　2024-03-29T14:11:10    Author:   rzc
+#LastModifyDate:　2024-03-29T14:10:53    Author:   rzc
+#LastModifyDate:　2024-03-29T13:59:38    Author:   rzc
+#LastModifyDate:　2024-03-29T13:55:14    Author:   rzc
+#LastModifyDate:　2024-03-29T11:57:20    Author:   rzc
+#LastModifyDate:　2024-03-29T11:56:54    Author:   rzc
+#LastModifyDate:　2024-03-29T11:56:18    Author:   rzc
+#LastModifyDate:　2024-03-29T11:51:50    Author:   rzc
+#LastModifyDate:　2024-03-29T11:51:04    Author:   rzc
+#xlink脚本
+#file: duck_db_practice.xlk
+#name: 将审计数据存储到duckdb中
+#描述： 
+#创建时间: 2024-03-29T10:54:12.028761
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with duck_db_practice
+
+#停止
+#a = @udf FBI.x_finder3_stop with duck_db_practice
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:duck_db_practice,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::duck_db_practice
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "将审计数据存储到duckdb中"
+	stream["meta_desc"] = ""
+	stream["source"]= {"unix_udp":"/tmp/duck_http"}
+	
+	stream["stw"]["stw_flow"]={"times":60,"fun":"flow"}
+	stream["stw"]["stw_http"]={"times":60,"fun":"http"}
+	stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+
+	#创建pool
+	#pool["ckh"] = []
+	stream["duck"] = []
+	file_db = "/data/xlink/my_db.db"
+	stream["d_stream"] = duck_var(file_db)
+	
+}
+
+
+#事件处理函数
+events => {
+	#printf("ducks",o)
+	#Delete 注释 by rzc on 2024-03-29 11:56:48
+	#解除注释 by rzc on 2024-03-29 14:05:46
+	o["request_headers"] = ujson.dumps(o["request_headers"])
+	o["response_headers"] = ujson.dumps(o["response_headers"])
+	o["info"] =  ujson.dumps(o["info"])
+	o["key"] =  ujson.dumps(o["key"])
+	o["api_type"]=str(o["api_type"])
+	stream["duck"].append(o)
+	
+}
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+	#insert_db(stream["duck"],"api_monitor",stream["d_stream"])
+	stream["duck"] = insert_db(stream["duck"],"api_monitor",stream["d_stream"])
+}
+
+#窗口函数，使用FBI的原语
+http => stw{
+	df2 = group df by dest_ip agg count
+	df3 = @udf df by udf0.df_sum
+	store df2 to ssdb by ssdb0 with DF:agg=>@k
+    store df3 to ssdb by ssdb0 with DF:sum=>@k
+	t2 = @sdf format_timestamp with (@k,"%Y-%m-%dT%H:%M:%S")
+	#调试语句
+	assert True as xlink to 调度成功[$t2] with 调度失败!
+}
+
+#自定义批处理函数，使用FBI语句块, 可以在系统定时函数中调用
+#使用push_arrays_to_df函数生成df,在语句块中使用
+#如: push_arrays_to_df(table,"flow")
+save => fbi{
+	#@udf flow by CRUD.save_table with (msyql,flow_info)
+	drop flow
+}
+
+#自定义python函数，必须有参数,可以在初始化函数，事件处理函数，和定时函数中使用
+ss => (d1,d2,d3){
+	return d1+d2+d3
+}
+
+
+#克隆一个新事件,创建一个新的变量，并返回
+clone_event =>(o){
+	e={}
+	e["timestamp"]= o["timestamp"]
+	e["src_ip"]= o["src_ip"]
+	e["dest_ip"]= o["dest_ip"]
+	e["dest_port"]= o["dest_port"]
+	return e
+}
+
+#base64字符串的解码,处理被截断的情况
+base64_decode =>(x){
+	try:
+		a =  base64.b64decode(x).decode("utf-8")
+	except Exception as e:
+		a = base64.b64decode(x)[0:e.start].decode("utf-8")
+	return a
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	from duck_pro import *
+}

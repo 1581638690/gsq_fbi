@@ -1,0 +1,41 @@
+#LastModifyDate:　2023-03-18T14:33:39.532364    Author:   pjb
+#LastModifyDate:　2023-03-18T14:32:39.097322    Author:   pjb
+#LastModifyDate:　2023-03-18T09:48:23.891905    Author:   pjb
+#LastModifyDate:　2023-03-18T09:39:20.216639    Author:   pjb
+#LastModifyDate:　2023-03-17T17:17:47.003056    Author:   pjb
+#LastModifyDate:　2023-03-17T17:15:50.492219    Author:   pjb
+#LastModifyDate:　2023-03-17T17:13:48.372750    Author:   pjb
+#LastModifyDate:　2023-03-17T17:07:09.303523    Author:   pjb
+#FBI脚本文件
+
+#保存语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+api = eval a by (iloc[0,0])
+qq = load db by mysql1 with select url from data_api_new where url='$api'
+assert qq by df.index.size <=0 as break with 接口已存在！
+a = loc a by url,name,api,dstip,protocol,app,dstport,method,api_type,api_status,data_type,auth_type,active,scope,merge_state,sensitive_label,risk_level,visits_flow
+a = add active by 3
+a = add merge_state by 0
+a = add visits_flow by 0
+a = add url_sum by ('')
+a = add risk_label by ('')
+a = add visits_num by 0
+#保存
+b = @udf a by CRUD.save_table with (@link,@table)
+assert find_df('b',ptree) as  alert  to 保存成功！ with 保存失败！
+b = add btn_show by ('1,1,1,1,0')
+#返回结果
+#id = eval b by index[0]
+#b = @udf CRUD.get_object_table with (@link,@table,$id)
+
+push b as table
+#清除工作区
+clear @FID

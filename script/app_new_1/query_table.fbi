@@ -1,0 +1,34 @@
+#LastModifyDate:　2024-01-15T10:25:38    Author:   pjb
+#LastModifyDate:　2023-06-09T18:07:40.686826    Author:   zwl
+#LastModifyDate:　2023-06-09T18:04:44.083652    Author:   zwl
+#LastModifyDate:　2023-05-24T19:08:38.453065    Author:   pjb
+#LastModifyDate:　2023-03-08T11:32:46.854238    Author:   pjb
+#LastModifyDate:　2023-03-07T18:04:29.636947    Author:   zwl
+#LastModifyDate:　2023-03-07T16:16:05.753518    Author:   zwl
+#LastModifyDate:　2023-03-07T14:45:42.498951    Author:   pjb
+#LastModifyDate:　2023-03-07T11:40:25.383081    Author:   pjb
+#LastModifyDate:　2023-03-03T18:01:09.763152    Author:   superFBI
+#LastModifyDate:　2023-03-03T11:20:48.413270    Author:   superFBI
+#FBI脚本文件
+
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单中的条件信息
+a = load ssdb by ssdb0 with @data_key
+
+#保存
+#b,c = @udf a by CRUD.query_table with (@link,@table)
+b,c = @udf a by  CRUD.query_mtable with (@link,@table,app_type = 1 and merge_state != 1)
+b.btn_show = lambda portrait_status by (x: '1,1,1,0,1,1' if x == 0  else '1,1,0,1,1,1')
+assert find_df('b',ptree) as  alert with 数据查询失败！
+
+push b as table
+push c as count
+#清除工作区
+clear @FID

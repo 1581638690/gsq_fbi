@@ -1,0 +1,17 @@
+#FBI脚本文件
+
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+#@id
+#@fea
+#构建唯一工作区，处理并发
+use @FID
+#设置定时器定时执行查询脚本
+
+b = @sdf sys_if_run with (True, "run @fea with (table=@table,link=@link,data_key=@data_key,num=@num)")
+
+settimer modeling_@id by "*/30 * * * * *"  run @fea with (table=@table,link=@link,data_key=@data_key,num=@num)
+#清除工作区
+clear @FID

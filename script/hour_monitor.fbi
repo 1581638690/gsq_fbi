@@ -1,0 +1,35 @@
+#LastModifyDate:　2024-03-04T09:44:47    Author:   zwl
+#LastModifyDate:　2024-03-04T09:40:33    Author:   zwl
+#LastModifyDate:　2024-03-01T10:03:23    Author:   zwl
+#LastModifyDate:　2024-02-29T14:25:53    Author:   zwl
+#LastModifyDate:　2024-02-29T10:49:14    Author:   zwl
+#FBI脚本文件
+#文件名: hour_monitor.fbi
+#作者: zwl
+
+use @FID
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with monitor_hour
+##判断key是否为空，若为空，api_hx
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_monitor
+#aa = load ckh by ckh with select min(time) as time from api_hx
+time1 = eval aa by iloc[0,0]
+##取时间
+time2 = @sdf sys_now with -5M
+aa = @udf udf0.new_df with time
+aa = @udf aa by udf0.df_append with $time2
+store aa to ssdb by ssdb0 with monitor_hour
+
+mon = load ckh by ckh with select substring(toString(time),1,13) as time1,app,url,srcip,account,count(*) as visit_num,sum(content_length) as flow,max(time) as times from api_monitor where time >= '$time1' and time < '$time2' group by time1,app,url,srcip,account
+mon = loc mon by app,url,srcip,account,visit_num,flow,times
+rename mon as ('times':'time')
+alter mon by visit_num:int,flow:int,time:datetime64
+##存入ckh
+ss = if mon.index.size != 0 with store mon to ckh by ckh with api_monitor_hour
+##防止内存不足，无法存入
+#k = @sdf sys_now
+#if $ss != True with store mon to pkl by xlink/monitor/mon_hour_$k.pkl
+
+clear @FID

@@ -1,0 +1,137 @@
+#LastModifyDate:　2024-01-16T13:59:09    Author:   zwl
+#LastModifyDate:　2024-01-10T14:38:28    Author:   zwl
+#LastModifyDate:　2023-11-15T11:45:00.142632    Author:   zwl
+#LastModifyDate:　2023-10-27T10:37:46.025740    Author:   pjb
+#LastModifyDate:　2023-10-08T10:48:24.112370    Author:   superFBI
+#LastModifyDate:　2023-09-01T15:16:15.708861    Author:   pjb
+#LastModifyDate:　2023-07-24T15:10:09.692237    Author:   pjb
+#LastModifyDate:　2023-07-20T16:53:45.296451    Author:   pjb
+#LastModifyDate:　2023-07-17T17:55:07.107204    Author:   pjb
+#LastModifyDate:　2023-07-17T10:49:35.530274    Author:   zwl
+#LastModifyDate:　2023-07-12T15:44:21.718720    Author:   pjb
+#FBI脚本文件
+#文件名: lhq_de_flow.fbi
+#作者: liuhouqi
+#定时清理ckh,数据库数据，只保留一个月的数据，减少硬盘压力，利于查询。
+use @FID
+
+#date = load ssdb by ssdb0 with setting as json
+#date_num = jaas date by date['setting']['delete_date']['ddate'] as sdf
+#当前时间戳
+#timestamp = @sdf sys_timestamp
+#运算后的时间戳
+#time = @sdf sys_eval with (int($timestamp) - 24*60*60*(int($date1_num)))
+#date_time = @sdf format_timestamp with ($time,"%Y-%m-%dT%H:%M:%S")
+#计算删除时间分区
+#od= @sdf sys_now with -$date1_numd
+#od= @sdf format_now with ($od,"%Y%m%d")
+clear_ckh = load ckh by ckh with """
+SELECT
+      partition,formatDateTime(toDate(partition), '%Y-%m-%d') as partition2
+FROM
+      system.parts
+WHERE
+      (database = 'default')
+      and (table = 'api_monitor')
+GROUP BY
+      partition
+order by
+      partition desc
+"""
+
+alter clear_ckh.partition as int
+
+# 硬盘大于八十删除一天的数据
+date = eval clear_ckh by index.max()
+date = filter clear_ckh by index == $date
+date1 = eval date by iloc[0,0]
+date2 = eval date by iloc[0,1]
+s = @udf FBI.local_cmd with df -h
+s.stdout = lambda stdout by x: str(x)[:-3]
+s.x = lambda stdout by x: len(x.split("/data"))
+s = filter s by x ==2
+s.stdout = lambda stdout by x: x.split("/data")[0]
+s.stdout = lambda stdout by x: x.strip()
+s.stdout = lambda stdout by x: x[x.rfind(' '):]
+s.stdout = lambda stdout by x: x.strip()
+s.stdout = lambda stdout by x: x.split("%")[0]
+if s.index.size==0 with """
+	s = @udf FBI.local_cmd with df -h
+	s.stdout = lambda stdout by x: str(x)[:-3]
+	s.x = lambda stdout by x: len(x.split("T"))
+	s = filter s by x >1
+	s.stdout = lambda stdout by x: x.split("%")[0]
+	s.stdout = lambda stdout by x: x[-3:]
+	s.stdout = lambda stdout by x: x.strip()
+"""
+alter s.stdout as int
+s = eval s by iloc[0,0]
+del_ckh = load ssdb by ssdb0 with setting as json
+del_ckh = jaas del_ckh by del_ckh["setting"]["delete_date"]["del_ckh"] as sdf
+if $s >= $del_ckh with """
+	d_ckh = load ckh by ckh with alter table api_bussiness drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_abroad drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_dns drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_ftp drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_http drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_imap drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_model drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_monitor drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_pop3 drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_smb drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_smtp drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_tftp drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table datafilter_alarm drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table merge_urls drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table sen_http_count drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table sensitive_data drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table sensitive_data_alarm drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table stat_req_alm drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_delay drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table agent_datalink drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_link_data drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_modsecurity drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table ip_link_data drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table ip_link drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_fileinfo drop partition '$date1'
+	a = load ckh by ckh with select distinct file_path filename from api_fileinfo where formatDateTime(toDate(timestamp), '%Y-%m-%d') = '$date2' and file_path != ''
+	a.filename = lambda filename by x: '../workspace/znsm/' + x
+	b = @udf a by ZFile.rm
+	###   断点取值，重新计算
+	aa = @udf udf0.new_df with time
+	###接口敏感信息
+	store aa to ssdb by ssdb0 with sensitive_tab
+	#bb = @udf ZFile.rm_file with sensitive/sens_data.pq
+	bb = @udf FBI.local_cmd with sudo rm -rf /data/workspace/sensitive
+	run sensitive_tab.fbi
+"""
+#ckh_month = @sdf sys_now with -1.3m 
+#ckh_month1 = @sdf format_now with ($ckh_month,"%Y-%m-%d")
+# 删除一个月之前的画像之前的的数据
+clear_ckh = load ckh by ckh with """
+SELECT
+      partition
+FROM
+      system.parts
+WHERE
+      (database = 'default')
+      and (table = 'api_visit_day')
+GROUP BY
+      partition
+order by
+      partition desc
+"""
+
+alter clear_ckh.partition as int
+date = eval clear_ckh by index.max()
+date = filter clear_ckh by index == $date1
+date = eval date by iloc[0,0]
+date0 = @sdf sys_now with -1m
+date0= @sdf format_now with ($date10,"%Y%m%d")
+if '$date1' == '$date10' with """
+	d_ckh = load ckh by ckh with alter table api_visit_hour drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_visit_day drop partition '$date1'
+	d_ckh = load ckh by ckh with alter table api_hx drop partition '$date1'
+"""
+
+clear @FID

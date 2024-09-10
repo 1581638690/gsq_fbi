@@ -1,0 +1,613 @@
+#LastModifyDate:　2024-01-18T10:22:27    Author:   superFBI
+#LastModifyDate:　2024-01-10T16:25:39    Author:   zwl
+#LastModifyDate:　2023-07-17T18:27:24.810484    Author:   zwl
+#LastModifyDate:　2023-05-12T16:09:11.314359    Author:   zwl
+#LastModifyDate:　2022-11-14T10:15:59.694284    Author:   hs
+#LastModifyDate:　2022-10-22T10:54:31.581765    Author:   gjw
+#LastModifyDate:　2022-10-20T18:55:21.113908    Author:   gjw
+#LastModifyDate:　2022-10-20T15:34:56.687576    Author:   gjw
+#LastModifyDate:　2022-10-11T15:18:28.118339    Author:   admin
+#LastModifyDate:　2022-10-10T11:15:50.070529    Author:   admin
+#LastModifyDate:　2022-10-09T11:03:08.854505    Author:   admin
+
+#FBI生成docx文档脚本文件
+#@link 链接
+#@table 表名
+#@data_key 数据
+#@zh 中文表名
+
+#@vars 模板文档里面变量的前缀，比如{{info.name}}变量,vars就是info
+#@var_keys代表变量的值对应的df表的key，比如name
+#@id 模板填充好生成的文件目录位置，目录为workspace/temp_word/@id
+#@table_vars,docx模板文件的table里面变量名
+#@table_keys,存储表格数据的key
+#@report_name,生成报告的文件名称
+use @FID
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+
+
+now = @sdf sys_now
+now = @sdf format_now with ($now,"%Y-%m-%dT%H:%M:%S")
+
+#先判断报告名称是否为空
+if "@report_name".strip() in ["","undefined"] with """
+	set param by define as report_name with @zh-$now
+""" else """
+	set param by define as report_name with @report_name-$now
+"""
+
+a = add name by  ('@report_name')
+
+#生成报告记录
+#保存
+b = @udf a by CRUD.save_table with (@link,@table)
+assert True as notice to @report_name 报告开始生成! with 报告生成发现错误!
+
+######################################################基本变量信息(根据实际情况修改)###############################################
+
+zts_1 = load ckh by ckh with SELECT count() as count FROM api_monitor WHERE toDate(time) > toDate(now())-30 and toDate(time) < toDate(now())
+zts = load ckh by ckh with SELECT LEFT(toString(now()),10) as time,uniqCombined(app) as yy,uniqCombined(url) as jk,count() as sj FROM api_monitor
+
+#count = eval zts_1 by iloc[0,1]
+store zts to ssdb by ssdb0 with zts
+store zts_1 to ssdb by ssdb0 with zts_1
+
+# ------------协议基础信息-----------------
+df1 = @udf udf0.new_df with (num,name1,name2,name3,name4,name5,name6,name7)
+df1 = @udf df1 by udf0.df_append with (8,dns协议,ftp协议,tftp协议,smb协议,imap协议,smtp协议,pop3协议)
+store df1 to ssdb by ssdb0 with protocal
+
+# http协议
+#http_sum = load ckh by ckh with SELECT count(*) as count FROM api_visit
+#http_sum  = add a with (http_sum['count'] >= 10000)
+#a1 = eval http_sum by iloc[0,1]
+#if a1 == "True" with """
+#alter http_sum.count as str
+#http_sum.count = str count by ([:-4])
+#http_sum  = add counts with http_sum['count'] + '万余'
+#""" else """
+#http_sum  = add counts with http_sum['count']
+#"""
+#http_sum = loc http_sum by (counts)
+#rename http_sum by ("counts":"count")
+#store http_sum to ssdb by ssdb0 with http_sum
+
+
+# dns协议
+dns_sum = load ckh by ckh with SELECT count(*) as count FROM api_dns
+dns_sum  = add a with (dns_sum['count'] >= 10000)
+a1 = eval dns_sum by iloc[0,1]
+if a1 == "True" with """
+alter dns_sum by count:str
+dns_sum.count = str count by ([:-4])
+dns_sum  = add counts with dns_sum['count'] + '万余'
+""" else """
+dns_sum  = add counts with dns_sum['count']
+"""
+dns_sum = loc dns_sum by (counts)
+rename dns_sum by ("counts":"count")
+store dns_sum to ssdb by ssdb0 with dns_sum
+
+# ftp协议
+ftp_sum = load ckh by ckh with SELECT count(*) as count FROM api_ftp
+ftp_sum  = add a with (ftp_sum['count'] >= 10000)
+a1 = eval ftp_sum by iloc[0,1]
+if a1 == "True" with """
+alter ftp_sum by count:str
+ftp_sum.count = str count by ([:-4])
+ftp_sum  = add counts with ftp_sum['count'] + '万余'
+""" else """
+ftp_sum  = add counts with ftp_sum['count']
+"""
+ftp_sum = loc ftp_sum by (counts)
+rename ftp_sum by ("counts":"count")
+store ftp_sum to ssdb by ssdb0 with ftp_sum
+
+# tftp协议
+tftp_sum = load ckh by ckh with SELECT count(*) as count FROM api_tftp
+tftp_sum  = add a with (tftp_sum['count'] >= 10000)
+a1 = eval tftp_sum by iloc[0,1]
+if a1 == "True" with """
+alter tftp_sum by count:str
+tftp_sum.count = str count by ([:-4])
+tftp_sum  = add counts with tftp_sum['count'] + '万余'
+""" else """
+tftp_sum  = add counts with tftp_sum['count']
+"""
+tftp_sum = loc tftp_sum by (counts)
+rename tftp_sum by ("counts":"count")
+store tftp_sum to ssdb by ssdb0 with tftp_sum
+
+# smb协议
+smb_sum = load ckh by ckh with SELECT count(*) as count FROM api_smb
+smb_sum  = add a with (smb_sum['count'] >= 10000)
+a1 = eval smb_sum by iloc[0,1]
+if a1 == "True" with """
+alter smb_sum by count:str
+smb_sum.count = str count by ([:-4])
+smb_sum  = add counts with smb_sum['count'] + '万余'
+""" else """
+smb_sum  = add counts with smb_sum['count']
+"""
+smb_sum = loc smb_sum by (counts)
+rename smb_sum by ("counts":"count")
+store smb_sum to ssdb by ssdb0 with smb_sum
+
+# imap协议
+imap_sum = load ckh by ckh with SELECT count(*) as count FROM api_imap
+imap_sum  = add a with (imap_sum['count'] >= 10000)
+a1 = eval imap_sum by iloc[0,1]
+if a1 == "True" with """
+alter imap_sum by count:str
+imap_sum.count = str count by ([:-4])
+imap_sum  = add counts with imap_sum['count'] + '万余'
+""" else """
+imap_sum  = add counts with imap_sum['count']
+"""
+imap_sum = loc imap_sum by (counts)
+rename imap_sum by ("counts":"count")
+store imap_sum to ssdb by ssdb0 with imap_sum
+
+# smtp协议
+smtp_sum = load ckh by ckh with SELECT count(*) as count FROM api_smtp
+smtp_sum  = add a with (smtp_sum['count'] >= 10000)
+a1 = eval smtp_sum by iloc[0,1]
+if a1 == "True" with """
+alter smtp_sum by count:str
+smtp_sum.count = str count by ([:-4])
+smtp_sum  = add counts with smtp_sum['count'] + '万余'
+""" else """
+smtp_sum  = add counts with smtp_sum['count']
+"""
+smtp_sum = loc smtp_sum by (counts)
+rename smtp_sum by ("counts":"count")
+store smtp_sum to ssdb by ssdb0 with smtp_sum
+
+# pop3协议
+pop3_sum = load ckh by ckh with SELECT count(*) as count FROM api_pop3
+pop3_sum  = add a with (pop3_sum['count'] >= 10000)
+a1 = eval pop3_sum by iloc[0,1]
+if a1 == "True" with """
+alter pop3_sum by count:str
+pop3_sum.count = str count by ([:-4])
+pop3_sum  = add counts with pop3_sum['count'] + '万余'
+""" else """
+pop3_sum  = add counts with pop3_sum['count']
+"""
+pop3_sum = loc pop3_sum by (counts)
+rename pop3_sum by ("counts":"count")
+store pop3_sum to ssdb by ssdb0 with pop3_sum
+
+
+
+# -----------告警基础信息-----------------
+df1 = @udf udf0.new_df with (num,name1,name2,name3,name4,name5,name6)
+df1 = @udf df1 by udf0.df_append with (6,阈值告警,耗时告警,异地访问告警,请求异常告警,API风险告警,敏感信息告警)
+store df1 to ssdb by ssdb0 with alm
+
+# 阈值告警总数计算
+temp_sum = load ckh by ckh with SELECT count(*) as count FROM api_risk
+temp_sum  = add a with (temp_sum['count'] >= 10000)
+a1 = eval temp_sum by iloc[0,1]
+if a1 == "True" with """
+alter temp_sum by count:str
+temp_sum.count = str count by ([:-4])
+temp_sum  = add counts with temp_sum['count'] + '万余'
+""" else """
+temp_sum  = add counts with temp_sum['count']
+"""
+temp_sum = loc temp_sum by (counts)
+rename temp_sum by ("counts":"count")
+store temp_sum to ssdb by ssdb0 with risk
+
+
+# 异地告警总数计算
+temp_sum = load ckh by ckh with SELECT count(*) as count FROM r_req_alm
+temp_sum  = add a with (temp_sum['count'] >= 10000)
+a1 = eval temp_sum by iloc[0,1]
+if a1 == "True" with """
+alter temp_sum by count:str
+temp_sum.count = str count by ([:-4])
+temp_sum  = add counts with temp_sum['count'] + '万余'
+""" else """
+temp_sum  = add counts with temp_sum['count']
+"""
+temp_sum = loc temp_sum by (counts)
+rename temp_sum by ("counts":"count")
+store temp_sum to ssdb by ssdb0 with r_req
+
+
+
+# 耗时告警总数计算
+temp_sum = load ckh by ckh with SELECT count(*) as count FROM api_delay
+temp_sum  = add a with (temp_sum['count'] >= 10000)
+a1 = eval temp_sum by iloc[0,1]
+if a1 == "True" with """
+
+alter temp_sum by count:str
+temp_sum.count = str count by ([:-4])
+temp_sum  = add counts with temp_sum['count'] + '万余'
+""" else """
+temp_sum  = add counts with temp_sum['count']
+"""
+temp_sum = loc temp_sum by (counts)
+rename temp_sum by ("counts":"count")
+store temp_sum to ssdb by ssdb0 with delay
+
+# 请求状态异常告警计算
+temp_sum = load ckh by ckh with SELECT count(*) as count FROM stat_req_alm
+temp_sum  = add a with (temp_sum['count'] >= 10000)
+a1 = eval temp_sum by iloc[0,1]
+if a1 == "True" with """
+alter temp_sum by count:str
+temp_sum.count = str count by ([:-4])
+temp_sum  = add counts with temp_sum['count'] + '万余'
+""" else """
+temp_sum  = add counts with temp_sum['count']
+"""
+temp_sum = loc temp_sum by (counts)
+rename temp_sum by ("counts":"count")
+store temp_sum to ssdb by ssdb0 with stat_req
+
+# API风险告警告警计算
+temp_sum = load ckh by ckh with SELECT count(*) as count FROM risk_api
+temp_sum  = add a with (temp_sum['count'] >= 10000)
+a1 = eval temp_sum by iloc[0,1]
+if a1 == "True" with """
+alter temp_sum by count:str
+temp_sum.count = str count by ([:-4])
+temp_sum  = add counts with temp_sum['count'] + '万余'
+""" else """
+temp_sum  = add counts with temp_sum['count']
+"""
+temp_sum = loc temp_sum by (counts)
+rename temp_sum by ("counts":"count")
+store temp_sum to ssdb by ssdb0 with risk_api
+
+# 敏感信息告警计算
+temp_sum = load ckh by ckh with SELECT count(*) as count FROM sensitive_data
+temp_sum  = add a with (temp_sum['count'] >= 10000)
+a1 = eval temp_sum by iloc[0,1]
+if a1 == "True" with """
+alter temp_sum by count:str
+temp_sum.count = str count by ([:-4])
+temp_sum  = add counts with temp_sum['count'] + '万余'
+""" else """
+temp_sum  = add counts with temp_sum['count']
+"""
+temp_sum = loc temp_sum by (counts)
+rename temp_sum by ("counts":"count")
+store temp_sum to ssdb by ssdb0 with sensitive_data
+
+
+
+##########################################################图表数据(根据实际情况修改)####################################################
+#7、接口事件数量月top5
+zts_url = load ckh by ckh with SELECT url,count() as a from api_monitor WHERE toDate(time) > toDate(now())-30 and toDate(time) < toDate(now()) group by url ORDER by a desc LIMIT 5
+rename zts_url as ("a":"接口数量")
+alter zts_url by 接口数量:int
+zts_url = @udf zts_url by udf0.df_set_index with (url)
+store zts_url to ssdb by ssdb0 with zts_url
+
+#5、审计应用数量历史top10
+zts_app = load ckh by ckh with SELECT app,count() as a from api_monitor group by app ORDER BY a DESC LIMIT 10
+rename zts_app as ("a":"应用数量")
+alter zts_app by 应用数量:int
+zts_app = @udf zts_app by udf0.df_set_index with (app)
+store zts_app to ssdb by ssdb0 with zts_app
+
+#3.事件类型统计审计记录
+zts_type_count = load ckh by ckh with SELECT api_type,COUNT(*) as a FROM api_monitor md WHERE api_type is NOT NULL group by api_type
+rename zts_type_count as ("a":"事件类型数量")
+alter zts_type_count by api_type:str
+zts_type_count = @udf zts_type_count by udf0.df_replace with (0,普通)
+zts_type_count = @udf zts_type_count by udf0.df_replace with (1,登录)
+zts_type_count = @udf zts_type_count by udf0.df_replace with (2,敏感数据)
+zts_type_count = @udf zts_type_count by udf0.df_replace with (3,文件上传)
+zts_type_count = @udf zts_type_count by udf0.df_replace with (4,文件下载)
+zts_type_count = @udf zts_type_count by udf0.df_replace with (5,服务接口)
+zts_type_count = @udf zts_type_count by udf0.df_replace with (6,数据库操作)
+zts_type_count = @udf zts_type_count by udf0.df_replace with (7,命令操作)
+alter zts_type_count by 事件类型数量:int
+zts_type_count = @udf zts_type_count by udf0.df_set_index with (api_type)
+store zts_type_count to ssdb by ssdb0 with zts_type_count
+
+#4本月审计情况
+zts_type_distribution = load ckh by ckh with SELECT api_type,COUNT(*) as a FROM api_monitor WHERE toDate(time) > toDate(now())-30 and toDate(time) < toDate(now()) and api_type is not null GROUP BY api_type
+rename zts_type_distribution as ("a":"接口类型数量")
+alter zts_type_distribution by api_type:str
+zts_type_distribution = @udf zts_type_distribution by udf0.df_replace with (0,普通)
+zts_type_distribution = @udf zts_type_distribution by udf0.df_replace with (1,登录)
+zts_type_distribution = @udf zts_type_distribution by udf0.df_replace with (2,敏感数据)
+zts_type_distribution = @udf zts_type_distribution by udf0.df_replace with (3,文件上传)
+zts_type_distribution = @udf zts_type_distribution by udf0.df_replace with (4,文件下载)
+zts_type_distribution = @udf zts_type_distribution by udf0.df_replace with (5,服务接口)
+zts_type_distribution = @udf zts_type_distribution by udf0.df_replace with (6,数据库操作)
+zts_type_distribution = @udf zts_type_distribution by udf0.df_replace with (7,命令操作)
+alter zts_type_distribution by 接口类型数量:int
+zts_type_distribution = @udf zts_type_distribution by udf0.df_set_index with (api_type)
+store zts_type_distribution to ssdb by ssdb0 with zts_type_distribution
+
+################################################################表格数据 (根据实际情况修改)#########################################################
+#1
+zts_month_contrast = load ckh by ckh with SELECT toMonth(time) as time1,uniqCombined(app) as yy,uniqCombined(url) as jk,count() as shijian,uniqCombined(account) as zh,uniqCombined(srcip) as zd from api_monitor WHERE toDate(time) > toDate(now())-30 and toDate(time) < toDate(now()) GROUP BY time1
+if zts_month_contrast.index.size <= 1 with """
+zts_month_contrast2 = load ckh by ckh with SELECT toMonth(time) as time1,uniqCombined(app) as yy ,uniqCombined(url) as jk ,count() as shijian,uniqCombined(account) as zh ,uniqCombined(srcip) as zd from api_monitor WHERE toDate(time) > toDate(now())-60 and toDate(time) < toDate(now())-30 GROUP BY time1
+zts_month_contrast = union (zts_month_contrast,zts_month_contrast2) 
+"""
+if zts_month_contrast.index.size == 1 with """
+	zts_month_contrast = @udf zts_month_contrast by udf0.df_append with (0,0,0,0,0,0)
+	zts_month_contrast = loc zts_month_contrast by (time1,yy,jk,zh,zd,shijian)
+	zts_month_contrast = @udf zts_month_contrast by udf0.df_set with (iloc[0,0]="本月")
+	zts_month_contrast = @udf zts_month_contrast by udf0.df_set with (iloc[1,0]="上月")
+""" else """
+	zts_month_contrast = loc zts_month_contrast by (time1,yy,jk,zh,zd,shijian)
+	zts_month_contrast = @udf zts_month_contrast by udf0.df_set with (iloc[0,0]="上月")
+	zts_month_contrast = @udf zts_month_contrast by udf0.df_set with (iloc[1,0]="本月")
+"""
+rename zts_month_contrast as ("yy":"应用","jk":"接口","shijian":"事件","zh":"账号","zd":"终端")
+zts_month_contrast = loc zts_month_contrast by time1 to index
+zts_month_contrast = @udf zts_month_contrast by udf0.df_T
+zts_month_contrast = loc zts_month_contrast by index to 类型
+#zts_month_contrast2 = add "3月" by 0-zts_month_contrast2["3月"]
+zts_month_contrast = @udf zts_month_contrast by udf0.df_fillna_cols with 类型:0
+zts_month_contrast = @udf zts_month_contrast by udf0.df_fillna_cols with 类型:0
+store zts_month_contrast to ssdb by ssdb0 with zts_contrast2
+
+#2应用标识统计审计记录
+zts_application = load ckh by ckh with SELECT app as yy,uniqCombined(url) as jk,MIN(`time`) as ks,count() as jl FROM api_monitor md group by app ORDER by jk DESC limit 20
+rename zts_application as ("yy":"应用名","jk":"接口数量","ks":"开始审计时间","jl":"审计记录数量")
+zts_application = loc zts_application by index to 序号
+zts_application = add 序号 by ( zts_application["序号"]+1 )
+zts_application = @udf zts_application by udf0.df_fillna_cols with 审计记录数量:0 ,接口数量:0
+store zts_application to ssdb by ssdb0 with zts_application
+
+
+
+#3.事件类型统计审计记录————————报表
+zts_type_report = load ckh by ckh with SELECT content_type as sj,COUNT(*) as jl,uniqCombined(app) as yy FROM api_monitor md WHERE content_type is NOT NULL group by content_type
+rename zts_type_report as ("sj":"事件类型","jl":"审计记录数量","yy":"应用数量")
+zts_type_report = loc zts_type_report by index to 序号
+zts_type_report = add 序号 by ( zts_type_report["序号"]+1 )
+zts_type_report = @udf zts_type_report by udf0.df_fillna_cols with 审计记录数量:0 ,应用数量:0
+store zts_type_report to ssdb by ssdb0 with zts_type_report
+
+
+#4本月审计情况————————报表1
+
+zts_url_report = load ckh by ckh with SELECT app as yy,url as jk,count() as jl FROM api_monitor md WHERE url is not NULL AND toDate(md.time) > toDate(now())-30 and toDate(md.time) < toDate(now()) group by app,url ORDER by jl DESC limit 10
+rename zts_url_report as ("yy":"应用","jk":"接口","jl":"审计记录数量")
+zts_url_report = loc zts_url_report by index to 序号
+zts_url_report = add 序号 by ( zts_url_report["序号"]+1 )
+zts_url_report = @udf zts_url_report by udf0.df_fillna_cols with 审计记录数量:0 
+store zts_url_report to ssdb by ssdb0 with zts_url_report
+
+
+#本月访问次数最多的十个终端
+zts_ip_top = load ckh by ckh with select srcip as zd,uniqCombined(app) as yy,uniqCombined(url) as jk from api_visit_hour where LEFT(toString(time),7)=left(toString(now()),7) group by srcip order by yy desc limit 10
+rename zts_ip_top as ("zd":"终端","yy":"访问应用数","jk":"访问接口数")
+zts_srcip_top = load ckh by ckh with SELECT srcip,count() as jl FROM api_monitor md WHERE srcip is not NULL AND toDate(md.time) > toDate(now())-30 and toDate(md.time) < toDate(now()) group by srcip
+rename zts_srcip_top as ("jl":"审计记录数量")
+
+zts_month_top = join zts_ip_top,zts_srcip_top by 终端,srcip with left
+zts_month_top = loc zts_month_top by index to 序号
+zts_month_top = add 序号 by ( zts_month_top["序号"]+1 )
+zts_month_top = loc zts_month_top by 序号,终端,访问应用数,访问接口数,审计记录数量
+zts_month_top = @udf zts_month_top by udf0.df_fillna_cols with 审计记录数量:0 ,访问应用数:0,访问接口数:0
+alter zts_month_top by 审计记录数量:str
+store zts_month_top to ssdb by ssdb0 with zts_month_top
+
+
+# 阈值告警
+# http = load ckh by ckh with SELECT * FROM api_risk limit 30
+temp = load ckh by ckh with SELECT count(*),srcip,app FROM api_risk group by srcip,app
+# http_table = group http by app,srcip agg app:count
+# http_table = @udf http_table by udf0.df_reset_index
+temp_table= order temp by 'count()' with desc limit 10
+temp_table= rename temp_table as ("srcip":"风险来源",'app':'告警应用','count()':'告警次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by udf0.df_fillna_cols with 告警次数:0  
+store temp_table to ssdb by ssdb0 with risk_list
+
+
+
+# 耗时告警
+# http = load ckh by ckh with SELECT * FROM api_delay limit 30
+temp = load ckh by ckh with SELECT count(*),url,type FROM api_delay group by url,type
+# http_table = group http by app,srcip agg app:count
+# http_table = @udf http_table by udf0.df_reset_index
+temp_table= order temp by 'count()' with desc limit 10
+temp_table= rename temp_table as ("url":"告警接口",'type':'请求类型','count()':'告警次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by udf0.df_fillna_cols with 告警次数:0
+store temp_table to ssdb by ssdb0 with delay_list
+
+
+# 异地访问告警
+# http = load ckh by ckh with SELECT * FROM r_req_alm limit 30
+temp = load ckh by ckh with SELECT count(*),src_ip,url FROM r_req_alm group by src_ip,url
+# http_table = group http by app,srcip agg app:count
+# http_table = @udf http_table by udf0.df_reset_index
+temp_table= order temp by 'count()' with desc limit 10
+temp_table= rename temp_table as ("src_ip":"异地访问IP",'url':'告警接口','count()':'访问次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by udf0.df_fillna_cols with 访问次数:0
+store temp_table to ssdb by ssdb0 with r_req_list
+
+# 请求异常告警
+# http = load ckh by ckh with SELECT * FROM stat_req_alm limit 30
+temp = load ckh by ckh with SELECT count(*),src_ip,url,status FROM stat_req_alm group by src_ip,url,status
+# http_table = group http by app,srcip agg app:count
+# http_table = @udf http_table by udf0.df_reset_index
+temp_table= order temp by 'count()' with desc limit 10
+temp_table= rename temp_table as ("src_ip":"源IP",'url':'告警接口','count()':'访问次数','status':'告警状态')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by udf0.df_fillna_cols with 访问次数:0
+store temp_table to ssdb by ssdb0 with stat_req_list
+
+# API风险告警
+# http = load ckh by ckh with SELECT * FROM risk_api limit 30
+temp = load ckh by ckh with SELECT count(*),url,app FROM risk_api group by url,app
+# http_table = group http by app,srcip agg app:count
+# http_table = @udf http_table by udf0.df_reset_index
+temp_table= order temp by 'count()' with desc limit 10
+temp_table= rename temp_table as ("app":"告警应用",'url':'告警接口','count()':'告警次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by udf0.df_fillna_cols with 告警次数:0
+store temp_table to ssdb by ssdb0 with risk_api_list
+
+# 敏感信息告警
+# http = load ckh by ckh with SELECT * FROM sensitive_data limit 30
+temp = load ckh by ckh with SELECT count(*),srcip,app,url_c FROM sensitive_data group by srcip,app,url_c
+# http_table = group http by app,srcip agg app:count
+# http_table = @udf http_table by udf0.df_reset_index
+temp_table= order temp by 'count()' with desc limit 10
+temp_table= rename temp_table as ("app":"告警应用",'url_c':'告警接口','count()':'告警次数','srcip':'源IP')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by udf0.df_fillna_cols with 告警次数:0
+store temp_table to ssdb by ssdb0 with sensitive_list
+
+
+# dns协议的
+# http = load ckh by ckh with SELECT * FROM api_dns limit 30
+dns = load ckh by ckh with SELECT count(*),dstip,srcip FROM api_dns group by dstip,srcip
+# dns_table = group dns by dstip,srcip agg srcip:count
+# dns_table= @udf dns_table by udf0.df_reset_index
+temp_table = order dns by 'count()' with desc limit 10
+temp_table = rename temp_table as ('dstip':'目的IP',"srcip":"源IP",'count()':'访问次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by  udf0.df_fillna_cols with 访问次数:0
+store temp_table to ssdb by ssdb0 with dns_list
+
+
+# ftp协议的
+# http = load ckh by ckh with SELECT * FROM api_ftp limit 10
+ftp = load ckh by ckh with SELECT count(*),dstip,srcip FROM api_ftp group by dstip,srcip
+#ftp_table = group ftp by dstip,srcip agg srcip:count
+f#tp_table = @udf ftp_table by udf0.df_reset_index
+temp_table = order ftp by 'count()' with desc limit 10
+temp_table = rename temp_table as ('dstip':'目的IP',"srcip":"源IP",'count()':'访问次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by  udf0.df_fillna_cols with 访问次数:0
+store temp_table to ssdb by ssdb0 with ftp_list
+
+
+
+# tftp协议的
+# http = load ckh by ckh with SELECT * FROM api_tftp limit 10
+tftp = load ckh by ckh with SELECT count(*),dstip,srcip FROM api_tftp group by dstip,srcip
+# tftp_table = group tftp by dstip,srcip agg srcip:count
+# tftp_table = @udf tftp_table by udf0.df_reset_index
+temp_table = order tftp by 'count()' with desc limit 10
+temp_table = rename temp_table as ('dstip':'目的IP',"srcip":"源IP",'count()':'访问次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by  udf0.df_fillna_cols with 访问次数:0 
+store temp_table to ssdb by ssdb0 with tftp_list
+
+# smb协议的
+# http = load ckh by ckh with SELECT * FROM api_smb limit 10
+smb = load ckh by ckh with SELECT count(*),dstip,srcip FROM api_smb group by dstip,srcip
+# smb_table = group smb by dstip,srcip agg srcip:count
+# smb_table = @udf smb_table by udf0.df_reset_index
+temp_table = order smb by 'count()' with desc limit 10
+temp_table = rename temp_table as ('dstip':'目的IP',"srcip":"源IP",'count()':'访问次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by  udf0.df_fillna_cols with 访问次数:0
+store temp_table to ssdb by ssdb0 with smb_list
+
+# api_imap协议的
+# http = load ckh by ckh with SELECT * FROM api_imap limit 10
+api_imap = load ckh by ckh with SELECT count(*),dstip,srcip FROM api_imap group by dstip,srcip
+# api_imap_table = group api_imap by dstip,srcip agg srcip:count
+# api_imap_table = @udf api_imap_table by udf0.df_reset_index
+temp_table = order api_imap by 'count()' with desc limit 10
+temp_table = rename temp_table as ('dstip':'目的IP',"srcip":"源IP",'count()':'访问次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by  udf0.df_fillna_cols with 访问次数:0
+store temp_table to ssdb by ssdb0 with api_imap_list
+
+# api_smtp协议的
+# http = load ckh by ckh with SELECT * FROM api_smtp limit 10
+api_smtp = load ckh by ckh with SELECT count(*),dstip,srcip FROM api_smtp group by dstip,srcip
+# api_smtp_table = group api_smtp by dstip,srcip agg srcip:count
+# api_smtp_table = @udf api_smtp_table by udf0.df_reset_index
+temp_table = order api_smtp by 'count()' with desc limit 10
+temp_table = rename temp_table as ('dstip':'目的IP',"srcip":"源IP",'count()':'访问次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by  udf0.df_fillna_cols with 访问次数:0
+store temp_table to ssdb by ssdb0 with api_smtp_list
+
+
+# api_pop3协议的
+# http = load ckh by ckh with SELECT * FROM api_pop3 limit 10
+api_pop3 = load ckh by ckh with SELECT count(*),dstip,srcip FROM api_pop3 group by dstip,srcip
+# api_pop3_table = group api_pop3 by dstip,srcip agg srcip:count
+# api_pop3_table = @udf api_pop3_table by udf0.df_reset_index
+temp_table = order api_pop3 by 'count()' with desc limit 10
+temp_table = rename temp_table as ('dstip':'目的IP',"srcip":"源IP",'count()':'访问次数')
+temp_table = loc temp_table by index to kong
+temp_table = loc temp_table drop kong
+temp_table = add 序号 by (temp_table.index+1)
+temp_table = @udf temp_table by  udf0.df_fillna_cols with 访问次数:0
+store temp_table to ssdb by ssdb0 with api_pop3_list
+
+
+###############################################################################统计报表状态###############################################################################
+today = @sdf sys_now
+today = @sdf sys_str with ($today,[0:10])
+report0 = load ssdb by ssdb0 with zts_audit_report
+report=@udf udf0.new_df with name,time,type
+report = @udf report by udf0.df_append with (@report_name,$today,审计报告)
+report = union report0,report 
+store report to ssdb by ssdb0 with zts_audit_report
+
+
+##############################################################################下面脚本不需要修改##################################################################
+#加载图片数据的key
+data=load ssdb by ssdb0 with @pics_data
+#生成图片
+@udf data by doc.generate_pic with @id
+#生成模板,result表返回的是是否成功生成模板，result表有两列，一列是status，一列是errMessage，status为1代表成功生成模板,为0代表生成模板失败
+result=@udf data by doc.modifiy_doc with (@id,@base,@var_data,@tbs_data,@report_name)
+
+store result to ssdb by ssdb0 with zts:result
+
+#生成在线文档
+html = @udf doc.word2html with @report_name
+
+
+#保存
+b = add status with ('报告生成完毕')
+b = @udf b by CRUD.save_table with (@link,@table)
+assert b by df.index[0] >0  as notice to @report_name 报告生成完毕! with @report_name 报告生成发现错误!
+#页面提示
+assert b by df.index[0] >0  as notice as alert to 报告生成完成! with 报告生成发现错误!
+push b as table
+
+#清理工作区
+clear @FID

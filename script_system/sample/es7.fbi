@@ -1,0 +1,130 @@
+#@file:	 	script/es7.fbi
+#@name: 		中文名称
+#@desc: 		FBI脚本功能简要描述
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2020-03-20T18:48:18.870425
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+#定义
+define es75 with 192.168.1.175:59200
+#看所有索引
+a = load es by es75 with show tables
+b = load es by es75 with select * from auditlogsql*
+d = load es by es75 with get_settings auditlogsql*
+d = load es by es75 with readonly auditlogsql0000
+
+d = load es by es75 with drop table test2
+
+a = load es by es75 with desc test3
+a = load es by es75 with select count(*) from zichan3 group by  src_ip.keyword
+c = load es by es75 with """
+	create table test3 (
+    	field1 long,
+        field2 keyword,
+        field3 date,
+        field4 text,
+    	field5 text,
+        field6 text {'fields': {'keyword': {'type': 'keyword', 'ignore_above': 10}}}
+    ) with 10,0
+"""
+
+i = load es by es75 with 'insert into test(_id=111,field1=12 ,field2=中图,field3=2014-12-21T12:12:12)'
+
+b1 = load es by es7 with select * from auditlogfuc*
+
+c = load es by es7 with select count(*) from auditlogsql*
+c1 = load es by es7 with select count(*) from auditlogfuc* where @timestamp>=2020-03-18
+#分组
+d1 = load es by es7 with select count(*) from auditlogsql* group by sqlCategory
+d2 = load es by es7 with select count(*) from auditlogsql* group by link_username,sqlAction
+#条件，两个字段分组
+d3 =  load es by es7 with select count(*) from auditlogsql* where @timestamp>=2020-03-18  group by link_username,sqlAction
+d4 =  load es by es7 with select count(*) from auditlogsql* where @timestamp>=2020-03-11 and @timestamp <=2020-03-15  group by link_username,sqlAction
+#每日统计
+d5 =  load es by es7 with select count(*) from auditlogsql* group by @timestamp.date_histogram[{interval:1d}]
+#24小时统计
+d6 =  load es by es7 with select count(*) from auditlogsql* where @timestamp=2020-03-18  group by @timestamp.date_histogram[{interval:1h}]
+
+#scan
+s = load es by es7 with scan * from  auditlogsql_20200312
+s2 = load es by es7 with scan colFiters from  auditlogsql* where @timestamp=2020-03-20
+
+
+#构建每日统计，带上空缺的日期
+date = @udf udf0.new_df_daterange with (2020-02-01,2020-03-22,1)
+#每日统计
+d5 =  load es by es7 with select count(*) from auditlogsql* where @timestamp>=2020-02-01 and @timestamp <=2020-03-22 group by @timestamp.date_histogram[{interval:1d}]
+#add的扩展用法
+d5 = add d1 with df["@timestamp_string"].str[0:10]
+d5 = add d2 with df["@timestamp_string"].map(lambda x:x[0:10])
+d5 = add d3 with df.apply(lambda x:x["d1"]+x["d2"],)
+#等同于
+#d5.d1 = str @timestamp_string by [0:10]
+#join
+d8 = join d5,date by d1,start_day with right
+d8 = loc d8 by start_day,count
+d8 = @udf d8 by udf0.df_fillna with 0
+
+#in查询和统计分组
+a = load es by ev_es with select * from  event where dstport in (80,443)
+
+d = load es by ev_es with select * from  event where srcip in (192.168.1.9,192.168.1.188)
+
+#text类型的字段使用in时需要加上keyword
+d,count = load es by es201 with select srcip,collector_ip,timestamp_lo,lrecepttime,eventname from event_2022-06-21 where lrecepttime>=1655776909666 and lrecepttime<=1655863309666 and eventname.keyword in (流数据,DNS流量) limit 100
+
+
+d = load es by ev_es with select * from  event where proto  in (TCP)
+
+d = load es by ev_es with select * from  event where proto=TCP
+
+d = load es by ev_es with select * from  event where event_type  in (netflow)
+
+
+c = load es by ev_es with select * from  event group by srcip order by count desc limit 20
+
+c = load es by ev_es with select * from  event group by srcip
+
+#######################统计函数
+#统计函数 min,max,sum,avg,count,
+
+#ip最早出现的时间和最后出现的时间
+ip =  load es by es201 with select min(lrecepttime)  as time, max(lrecepttime) as time2 from event_2022-06-21 where srcip.keyword in (192.168.1.192) group by srcip.keyword limit 100
+
+#平均值
+data =  load es by es with """
+	select avg(speed) as avg_speed ,min(speed) as min_speed from bb  
+	where UTC between 1404201315 to 1504209315 group by plateColor,wayid,direction
+"""
+	
+
+#############################################优化
+#查看索引的分段文件,越多性能越慢, 可以使用optimize 进行优化
+d = load es by es201 with show segments  
+#查看单个索引的分段文件
+d = load es by es201 with show segments  with rawlog_2022-05-19
+#查看单个索引的分段文件
+d = load es by es201 with show segments  with event_2022-06-15,event_2022-06-14
+
+#对索引进行优化(合并段文件), *号管不管用待验证, 段文件数量减少才是真的成功,每个文件的size变得比较平均
+d = load es by es201 with optimize rawlog_2022-05-19
+#优化多个文件
+d = load es by es201 with optimize event_2022-06-15,event_2022-06-14
+
+#查看字段所占内存
+fielddata  = load es by es201 with show fielddata
+
+#查看分片数量
+d = load es by es201 with show shards
+
+#############################################group by 出错 桶分组数太小TooManyBucketsException 
+#group by 出错 桶分组数太小TooManyBucketsException 
+#解决方法1: 增加ElasticSearch的search.max_buckets限制
+#curl -X PUT "localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d '{"persistent": { "search.max_buckets": 50000 }}'
+#解决方法2:
+#打开配置文件
+#vi config/elasticsearch.yml
+#将下面的复制进去保存，退出容器交互界面，重启es容器
+#search.max_buckets: 200000

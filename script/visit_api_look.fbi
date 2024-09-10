@@ -1,0 +1,12 @@
+#LastModifyDate:　2024-03-14T16:46:35    Author:   zwl
+#LastModifyDate:　2023-08-23T16:59:04.449640    Author:   zwl
+#LastModifyDate:　2023-03-15T15:25:36.146145    Author:   zwl
+#LastModifyDate:　2023-02-08T18:06:13.798932    Author:   zwl
+use @FID
+
+b = load pq by dt_table/visit_api.pq
+b = filter b by _id == @_id
+rename b as ("url":"接口","url_a":"原URL","dstip":"目的IP","srcip":"源IP","account":"账号")
+push b as look
+
+clear @FID

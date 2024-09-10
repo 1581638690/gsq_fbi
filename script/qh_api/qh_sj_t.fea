@@ -1,0 +1,95 @@
+#LastModifyDate:　2023-08-07T17:30:17.725867    Author:   rzc
+#LastModifyDate:　2023-08-07T17:25:43.795146    Author:   rzc
+#LastModifyDate:　2023-06-13T16:43:13.465524    Author:   superFBI
+#LastModifyDate:　2023-05-31T18:08:22.924321    Author:   superFBI
+#LastModifyDate:　2023-05-31T18:04:26.477466    Author:   superFBI
+#LastModifyDate:　2023-05-24T09:43:17.596789    Author:   pjb
+#LastModifyDate:　2023-05-10T10:56:59.474738    Author:   superFBI
+#LastModifyDate:　2023-05-09T17:46:58.839607    Author:   superFBI
+#LastModifyDate:　2023-05-09T17:38:05.340173    Author:   pjb
+#LastModifyDate:　2023-05-09T16:25:58.431288    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:24:31.182311    Author:   superFBI
+#LastModifyDate:　2023-05-09T16:18:40.273553    Author:   superFBI
+#LastModifyDate:　2023-03-14T14:55:30.863634    Author:   rzc
+#LastModifyDate:　2023-03-10T10:16:54.191330    Author:   rzc
+#LastModifyDate:　2023-03-09T15:53:42.244446    Author:   rzc
+#LastModifyDate:　2023-03-09T15:16:26.892708    Author:   rzc
+#LastModifyDate:　2022-11-03T14:52:20.843147    Author:   gsp
+#LastModifyDate:　2022-04-12T14:31:36.438797
+#FBI脚本文件
+#文件名: qh_api/qh_sj_t.fea
+#作者: qiaohan
+use qh_sj_t
+a = load ssdb by ssdb0 with @data_key
+alter a.id as int
+a = add api_status by ('1')
+a = @udf a by udf0.df_set_index with id
+b = @udf a by CRUD.save_table with (@link,@table)
+push b as table
+
+clear qh_sj_t
+#Delete 注释 by rzc on 2023-08-07 17:25:39
+#a = load db by mysql1 with select count(id) from data_api_new where api_status
+#a = eval a by iloc[0,0]
+#
+#bb = load ssdb by ssdb0 with @data_key
+#api_name=loc bb by api_name
+#rename api_name as ("api_name":"name")
+#a=loc bb by (id,app)
+#app_name=loc bb by name
+#name=eval app_name by iloc[0,0]
+#app = loc a by app
+#app1 = eval app by iloc[0,0]
+##Delete 注释 by rzc on 2023-03-09 15:52:16
+#b=load db by mysql1 with select app,app_sum from data_app_new where app_sum is not Null
+#b.app_sum=lambda app_sum by (x:x if '$app1' in x.split(",") else "") 
+#b=filter b by app_sum!=""
+#
+##合并应用
+#if b.index.size >0 with """
+#	app2=eval b by iloc[0,0]
+#	#cc=load db by mysql1 with select name from data_app_new where app='$app2' 
+#	aa=load db by mysql1 with update data_app_new set name='$name' where app='$app2'	
+#	#aa = load db by mysql1 with select name from data_app_new where app='$app2' and name !=''
+#	#assert find_df_have_data('aa',ptree) as break with 请先添加给接口所属应用的应用别名！
+#	alter a.id as int
+#	a = add api_status by ("1")
+#	a=join a,api_name
+#	a = @udf a by udf0.df_set_index with id
+#	b = @udf a by CRUD.save_table with (@link,data_api_new)
+#	push b as table
+#	#开启应用审计 给当前应用开启审计
+#	#Delete 注释 by pjb on 2023-05-24 09:36:29
+##app = load db by mysql1 with select app,id from data_app_new where app='$app1'
+##	app = add app_status by ("1")
+##	app = @udf app by udf0.df_set_index with id
+##	app = @udf app by CRUD.save_table with (@link,data_app_new)
+##	push app as table
+#
+#"""
+##未合并得应用
+#if b.index.size ==0 with """
+#	aa=load db by mysql1 with update data_app_new set name='$name' where app='$app1'
+#	#aa=load db by mysql1 with select name from data_app_new where app='$app1' and name !=''
+#	#assert find_df_have_data('aa',ptree) as break with 请先添加给接口所属应用的应用别名！
+#	#aa=load db by mysql1 with update data_api_new set api_status='0' where api_status='1'
+#	alter a.id as int
+#	a = add api_status by ("1")
+#	a=join a,api_name
+#	a = @udf a by udf0.df_set_index with id
+#	b = @udf a by CRUD.save_table with (@link,data_api_new)
+#	push b as table
+#	#开启应用审计 给当前应用开启审计
+#	#Delete 注释 by pjb on 2023-05-24 09:36:35
+##app = load db by mysql1 with select app,id from data_app_new where app='$app1'
+##	app = add app_status by ("1")
+##	app = @udf app by udf0.df_set_index with id
+##	app = @udf app by CRUD.save_table with (@link,data_app_new)
+##	push app as table
+#
+#"""
+
+
+
+
+clear qh_sj_t

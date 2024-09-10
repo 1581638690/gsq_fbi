@@ -1,0 +1,156 @@
+#LastModifyDate:　2024-08-07T11:29:18    Author:   rzc
+#LastModifyDate:　2024-08-07T11:28:11    Author:   rzc
+#LastModifyDate:　2024-08-07T11:17:53    Author:   rzc
+#LastModifyDate:　2024-08-06T15:52:09    Author:   rzc
+#LastModifyDate:　2024-07-31T16:07:07    Author:   rzc
+#LastModifyDate:　2024-07-31T15:48:42    Author:   rzc
+#LastModifyDate:　2024-07-31T15:44:05    Author:   rzc
+#LastModifyDate:　2024-07-31T15:40:14    Author:   rzc
+#LastModifyDate:　2024-07-31T15:35:25    Author:   rzc
+#LastModifyDate:　2024-05-08T15:05:30    Author:   rzc
+#LastModifyDate:　2024-05-08T14:51:49    Author:   rzc
+
+
+#xlink脚本
+
+#初始化
+init => {
+	stream["meta_name"] = "[CSR]收集流程，根据页面配置"
+	stream["meta_desc"] = "处理redis数据到/tmp/csr_main"
+
+	stream["redis_l"] = load_ssdb_kv("agent")["redis"]
+	try:
+		stream["header"] = load_ssdb_kv("agent")["header"]
+	except:
+		stream["header"] = []
+	#取第一个topic
+	try:
+		stream["topic1"] = load_ssdb_kv("agent")["header"][0]["topic"]
+	except:
+		stream["topic1"] = ""
+	#字典 key-topic:value-destip
+	stream["cfg"] = {}
+	for flag in stream["header"]:
+		stream["cfg"][flag["topic"]] = flag["destip"]
+	stream["topics"] = []
+	stream["pubshm"] = {"shm_name":"events", "size": 2048*2048}
+	for tp in stream["header"]:
+		topic = tp.get("topic")
+		stream["topics"].append(topic)
+	#stream["topics"].pop(0)
+	stream["source"]= {"link":stream["redis_l"],"topic":stream["topic1"],"redis":"list_json","topics":stream["topics"]}
+	#stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+	#stream["st"]["st_20s"]={"times":20,"fun":"print20"}
+	stream["stw"]["stw_cpu"]={"times":10,"fun":"stw_cpu"}
+	stream["stw"]["stw_mem"]={"times":10,"fun":"stw_mem"}
+	stream["stw"]["csr_sum"]={"times":10,"fun":"csr_sum"}
+	stream["stw"]["csr_los"]={"times":10,"fun":"csr_los"}
+	stream["st"]["st_60s"]={"times":20,"fun":"print60"}
+	stream["count_scrip"] = {"csr_type":"csr"}
+	#cpu，内存使用率
+	stream["csr_cpu"] = {}
+	stream["csr_mem"] = {}
+	#总包数、丢失数
+	stream["csr_sum"] = {}
+	stream["csr_los"] = {}
+	stream["uptime"] = {}
+	stream["csr_sums"] = {}
+	stream["csr_loss"] = {}
+	stream["urls"] = []
+	stream["http_c"]=0
+}
+
+
+#事件处理函数
+events => {
+	k = iso_to_timestamp(o["timestamp"])
+	if o.get("event_type") == "stats":
+		printf("o",o)
+		#cpu、内存使用率
+		if o.get("basic"):
+			#printf(stream["cfg"][topic],o)
+			stream["csr_cpu"][stream["cfg"][topic]] = float(o.get("basic").get("os_cpu",0))
+			stream["csr_mem"][stream["cfg"][topic]] = float(o.get("basic").get("os_mem",0))
+			push_stw("stw_cpu",k,stream["csr_cpu"])
+			push_stw("stw_mem",k,stream["csr_mem"])
+		#总包数，丢失数
+		if o.get("stats") and o.get("stats").get("uptime") != 0:
+			if o.get("stats").get("capture"):
+				uptime = o.get("stats").get("uptime")
+				packets = o.get("stats").get("capture").get("kernel_packets",0)
+				if o.get("stats").get("capture").get("kernel_drops") != 0:
+					printf("kernel_drops",o)
+				drops = o.get("stats").get("capture").get("kernel_drops",0)
+				#计算当前时间的总、丢包
+				if stream["uptime"].get(stream["cfg"][topic]) and stream["csr_sum"].get(stream["cfg"][topic]) and stream["csr_los"].get(stream["cfg"][topic]):
+					time_s = uptime - stream["uptime"][stream["cfg"][topic]]
+					packet_s = packets - stream["csr_sum"][stream["cfg"][topic]]
+					drop_s = drops - stream["csr_los"][stream["cfg"][topic]]
+					stream["csr_sums"][stream["cfg"][topic]] = int(packet_s/time_s)
+					stream["csr_loss"][stream["cfg"][topic]] = int(drop_s/time_s)
+					push_stw("csr_sum",k,stream["csr_sums"])
+					push_stw("csr_los",k,stream["csr_loss"])
+				stream["uptime"][stream["cfg"][topic]] = uptime
+				stream["csr_sum"][stream["cfg"][topic]] = packets
+				stream["csr_los"][stream["cfg"][topic]] = drops
+	# 计算事件数
+	if stream["cfg"][topic] in stream["count_scrip"]:
+		stream["count_scrip"][stream["cfg"][topic]] += 1
+	else:
+		stream["count_scrip"][stream["cfg"][topic]] = 1
+	#修改dest_ip
+	if o.get("dest_ip") == '127.0.0.1':
+		o["dest_ip"] = stream["cfg"][topic]
+	if o.get("http"):
+		url = o.get("http").get("url")
+		#stream["urls"]["url"] =[]
+		if o.get("http").get("hostname") == "59.202.68.95":
+			stream["urls"].append(url)
+		
+			printf("urls",stream["urls"])
+			stream["http_c"] += 1
+		if o.get("http").get("hostname") == "localhost" or o.get("http").get("hostname") == '127.0.0.1':
+			o.get("http")["hostname"] = stream["cfg"][topic]
+		
+		
+		if url:
+			#to_redis_n("yuan_http",o,8)
+			to_unix_udp(o,"/tmp/yuans_http")
+	to_unix_udp_n(o,"/tmp/csr_main",9)
+}
+
+print10 => {
+	printf("http总数","%s==sum==%d"%(st,stream["http_c"]))
+	
+	
+}
+print60 =>{
+	stream["count_scrip"]["k"] =  now_timestamp()
+	pub_shm_one(stream["count_scrip"],"events")
+	stream["count_scrip"] = {"csr_type":"csr"}
+
+}
+#系统定时函数
+stw_cpu => stw{
+	store df to redis by redis0 push csr_cpu_events:10s
+	drop df
+}
+stw_mem => stw{
+	store df to redis by redis0 push csr_mem_events:10s
+	drop df
+}
+csr_sum => stw{
+	store df to redis by redis0 push csr_sum_events:10s
+	drop df
+}
+csr_los => stw{
+	store df to redis by redis0 push csr_los_events:10s
+	drop df
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+
+}

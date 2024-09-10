@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.ML</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.ML</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/ML.py">/opt/openfbi/fbi-bin/udf/ML.py</a></td></tr></table>
+    <p><span class="code">#/bin/python<br>
+#&nbsp;-*-&nbsp;coding:&nbsp;utf-8&nbsp;-*-</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="gc.html">gc</a><br>
+<a href="hashlib.html">hashlib</a><br>
+<a href="json.html">json</a><br>
+<a href="logging.html">logging</a><br>
+</td><td class="multicolumn"><a href="math.html">math</a><br>
+<a href="numpy.html">numpy</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="pymysql.html">pymysql</a><br>
+</td><td class="multicolumn"><a href="random.html">random</a><br>
+<a href="re.html">re</a><br>
+<a href="redis.html">redis</a><br>
+<a href="sys.html">sys</a><br>
+</td><td class="multicolumn"><a href="threading.html">threading</a><br>
+<a href="time.html">time</a><br>
+<a href="ujson.html">ujson</a><br>
+<a href="uuid.html">uuid</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-DTR"><strong>DTR</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：dtr(决策树回归),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20161214<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-GBDTR"><strong>GBDTR</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-gbdtBoost">gbdtBoost</a>(迭代决策树GBDTR回归),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-LR"><strong>LR</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-LR">LR</a>(线性回归),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20161214<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-RFR"><strong>RFR</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：&nbsp;<a href="#-RFR">RFR</a>(随机森林RFR回归),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20161221<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-SVR"><strong>SVR</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：svm向量机（回归）,训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，svm参数(p)<br>
+#返回：&nbsp;svm模型</span></dd></dl>
+ <dl><dt><a name="-ac"><strong>ac</strong></a>(df, p='')</dt><dd><span class="code">#函数：ac&nbsp;层次聚类<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-acc_score"><strong>acc_score</strong></a>(dfx, dfy)</dt><dd><span class="code">#函数：acc_score<br>
+#author:&nbsp;jf<br>
+#date:&nbsp;20171205<br>
+#参数：真实标签数据(dfx)，预测数据(dfy)<br>
+#返回：结果(dfz)<br>
+准确率的计算</span></dd></dl>
+ <dl><dt><a name="-adaBoost"><strong>adaBoost</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-adaBoost">adaBoost</a>(boost弱分类迭代算法),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-ap"><strong>ap</strong></a>(df, p='')</dt><dd><span class="code">#函数：ap&nbsp;传播聚类<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-apri"><strong>apri</strong></a>(df, p='')</dt><dd><span class="code">#函数：apriori&nbsp;关联规则分析<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160705<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-brich"><strong>brich</strong></a>(df, p='')</dt><dd><span class="code">#函数：brich&nbsp;综合层次聚类<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-dbscan"><strong>dbscan</strong></a>(df, p='')</dt><dd><span class="code">#函数：DBSCAN&nbsp;密度聚类<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-dpt"><strong>dpt</strong></a>(df, p='')</dt><dd><span class="code">#函数：dpt&nbsp;离散点检测<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160819<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-dt"><strong>dt</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-dt">dt</a>(决策树),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-dt2dot"><strong>dt2dot</strong></a>(clf, df, p='')</dt><dd><span class="code">#函数：<a href="#-dt">dt</a>(决策树)模型，图形输出<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;df<br>
+#返回：&nbsp;dfz</span></dd></dl>
+ <dl><dt><a name="-f1_score"><strong>f1_score</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：f1_score<br>
+#author:&nbsp;jf<br>
+#date:&nbsp;20171205<br>
+#参数：真实标签数据(dfx)，预测数据(dfy),参数(labels=None,&nbsp;pos_label=1,&nbsp;average=’binary’,&nbsp;sample_weight=None)<br>
+#返回：&nbsp;结果(dfz)<br>
+f1计算</span></dd></dl>
+ <dl><dt><a name="-fp_growth"><strong>fp_growth</strong></a>(df, p='')</dt><dd><span class="code">#函数：fp_growth<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20161119<br>
+#参数：&nbsp;数据(df)，参数(列名，次数)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-gbdt"><strong>gbdt</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-gbdtBoost">gbdtBoost</a>(迭代决策树GBDT),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-gbdtBoost"><strong>gbdtBoost</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-gbdtBoost">gbdtBoost</a>(迭代决策树GBRT),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-gbdt_fw"><strong>gbdt_fw</strong></a>(clf, df, p='')</dt><dd><span class="code">#函数：gbdt的维度的权重<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20170111<br>
+#参数：&nbsp;模型(p)<br>
+#返回：&nbsp;维度(dfz)</span></dd></dl>
+ <dl><dt><a name="-gbm"><strong>gbm</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-gbm">gbm</a>(梯度下降树模型),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-gnb"><strong>gnb</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-gnb">gnb</a>(朴素贝叶斯),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;gnb模型</span></dd></dl>
+ <dl><dt><a name="-ica"><strong>ica</strong></a>(df, p='')</dt><dd><span class="code">#独立主成份分析,直接降维,add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161224</span></dd></dl>
+ <dl><dt><a name="-ica_cmpts"><strong>ica_cmpts</strong></a>(df, p='')</dt><dd><span class="code">#独立主成份分析,返回各个特征向量,add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161224</span></dd></dl>
+ <dl><dt><a name="-kmeans"><strong>kmeans</strong></a>(df, p='')</dt><dd><span class="code">#函数：kmeans&nbsp;聚类<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-knn"><strong>knn</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-knn">knn</a>(k-最近邻),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;knn模型</span></dd></dl>
+ <dl><dt><a name="-lda"><strong>lda</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-lda">lda</a>(线性判别分析),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-lle"><strong>lle</strong></a>(df, p='')</dt><dd><span class="code">#lle降维，二维可视化</span></dd></dl>
+ <dl><dt><a name="-load_A"><strong>load_A</strong></a>(df, p='data')</dt><dd><span class="code">#函数：装载sklearn自带的学习数据(load_iris)<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;无意义(df)，参数(p)&nbsp;data/target<br>
+#返回：&nbsp;指定的数据</span></dd></dl>
+ <dl><dt><a name="-load_B"><strong>load_B</strong></a>(df, p='data')</dt><dd><span class="code">#函数：装载sklearn自带的学习数据(load_boston,波斯顿房价)<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;无意义(df)，参数(p)&nbsp;data/target<br>
+#返回：&nbsp;指定的数据</span></dd></dl>
+ <dl><dt><a name="-load_model"><strong>load_model</strong></a>(df, p='')</dt><dd><span class="code">#函数：load装载模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160923<br>
+#参数：&nbsp;df,参数(模型文件名)<br>
+#返回：&nbsp;dfz</span></dd></dl>
+ <dl><dt><a name="-lr"><strong>lr</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-lr">lr</a>(逻辑回归),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-mds"><strong>mds</strong></a>(df, p='')</dt><dd><span class="code">#函数：mds多维降维<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160705<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-means"><strong>means</strong></a>(df, p='')</dt><dd><span class="code">#函数：means&nbsp;均值漂移聚类<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-mlpc"><strong>mlpc</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-mlpc">mlpc</a>(神经网络),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;神经网络模型</span></dd></dl>
+ <dl><dt><a name="-pca"><strong>pca</strong></a>(df, p='')</dt><dd><span class="code">#主成份分析,直接降维</span></dd></dl>
+ <dl><dt><a name="-pca_cmpts"><strong>pca_cmpts</strong></a>(df, p='')</dt><dd><span class="code">#主成份分析,返回各个特征向量</span></dd></dl>
+ <dl><dt><a name="-pca_ratio"><strong>pca_ratio</strong></a>(df, p='')</dt><dd><span class="code">#主成份分析,返回各个特征向量百分比</span></dd></dl>
+ <dl><dt><a name="-precision_score"><strong>precision_score</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：precision_score<br>
+#author:&nbsp;jf<br>
+#date:&nbsp;20171205<br>
+#参数：真实标签数据(dfx)，预测数据(dfy),参数(labels=None,&nbsp;pos_label=1,&nbsp;average='binary',&nbsp;sample_weight=None)<br>
+#返回：&nbsp;结果(dfz)<br>
+精度计算</span></dd></dl>
+ <dl><dt><a name="-predict"><strong>predict</strong></a>(clf, df, p='')</dt><dd><span class="code">#函数：根据模型进行预测<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;预测数据(df)，模型(p)<br>
+#返回：&nbsp;预测结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-predict2"><strong>predict2</strong></a>(clf, df, p='')</dt><dd><span class="code">#函数：根据模型进行预测<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20170114<br>
+#参数：&nbsp;预测数据(df)，模型(p)<br>
+#返回：&nbsp;预测结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-predict_proba"><strong>predict_proba</strong></a>(clf, df, p='')</dt><dd><span class="code">#函数：根据模型进行预测,包含概率，不是所有的算法都有<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20170111<br>
+#参数：&nbsp;预测数据(df)<br>
+#返回：&nbsp;预测结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-predict_proba2"><strong>predict_proba2</strong></a>(clf, df, p='')</dt><dd><span class="code">#函数：根据模型进行预测,包含概率，不是所有的算法都有<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20170111<br>
+#参数：&nbsp;预测数据(df)<br>
+#返回：&nbsp;预测结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-qda"><strong>qda</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：<a href="#-qda">qda</a>(二次方判别分析),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-recall_score"><strong>recall_score</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：recall_score<br>
+#author:&nbsp;jf<br>
+#date:&nbsp;20171205<br>
+#参数：真实标签数据(dfx)，预测数据(dfy),参数()<br>
+#返回：结果(dfz)<br>
+召回率的计算</span></dd></dl>
+ <dl><dt><a name="-rf"><strong>rf</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：&nbsp;<a href="#-rf">rf</a>(随机森林分类),训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20161221<br>
+#参数：&nbsp;源数据，目标数据，参数(p)<br>
+#返回：&nbsp;模型</span></dd></dl>
+ <dl><dt><a name="-rmse_score"><strong>rmse_score</strong></a>(dfx, dfy)</dt><dd><span class="code">#函数：rmse_score<br>
+#author:&nbsp;jf<br>
+#date:&nbsp;20171205<br>
+#参数：真实标签数据(dfx)，预测数据(dfy)<br>
+#返回：结果(dfz)<br>
+计算均方根误差(Mean&nbsp;Squared&nbsp;Error,MSE)，这个指标是针对回归问题来说的</span></dd></dl>
+ <dl><dt><a name="-roc_score"><strong>roc_score</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：roc_score<br>
+#author:&nbsp;jf<br>
+#date:&nbsp;20171205<br>
+#参数：真实标签数据(dfx)，预测数据(dfy),参数(average='macro',&nbsp;sample_weight=None)<br>
+#返回：结果(dfz)<br>
+计算ROC曲线下面的面积，它也被称为AUC或AUROC</span></dd></dl>
+ <dl><dt><a name="-save_model"><strong>save_model</strong></a>(clf, p='')</dt><dd><span class="code">#函数：save保存模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160923<br>
+#参数：&nbsp;(模型<br>
+#返回：&nbsp;dfz（模型文件名）</span></dd></dl>
+ <dl><dt><a name="-sc"><strong>sc</strong></a>(df, p='')</dt><dd><span class="code">#函数：sc&nbsp;谱聚类<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;数据(df)，模型(p)<br>
+#返回：&nbsp;结果(dfz)</span></dd></dl>
+ <dl><dt><a name="-score"><strong>score</strong></a>(clf, dfx, dfy, p='')</dt><dd><span class="code">#函数：对模型进行打分<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160920<br>
+#参数：&nbsp;源数据(dfx)，目标数据(dfy)，模型（p）<br>
+#返回：&nbsp;分数（dfz）</span></dd></dl>
+ <dl><dt><a name="-score2"><strong>score2</strong></a>(clf, dfx, dfy, p='')</dt><dd><span class="code">#函数：对模型进行打分<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160920<br>
+#参数：&nbsp;源数据(dfx)，目标数据(dfy)，模型（p）<br>
+#返回：&nbsp;分数（dfz）</span></dd></dl>
+ <dl><dt><a name="-svd"><strong>svd</strong></a>(df, p='')</dt><dd><span class="code">#SVD分解,直接降维</span></dd></dl>
+ <dl><dt><a name="-svd_cmpts"><strong>svd_cmpts</strong></a>(df, p='')</dt><dd><span class="code">#SVD分解,返回各个特征向量</span></dd></dl>
+ <dl><dt><a name="-svd_ratio"><strong>svd_ratio</strong></a>(df, p='')</dt><dd><span class="code">#svd分解,返回各个特征向量百分比</span></dd></dl>
+ <dl><dt><a name="-svm"><strong>svm</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：svm向量机（分类）,训练数据，构建模型<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20160630<br>
+#参数：&nbsp;源数据，目标数据，svm参数(p)<br>
+#返回：&nbsp;svm模型</span></dd></dl>
+ <dl><dt><a name="-tsne"><strong>tsne</strong></a>(df, p='')</dt><dd><span class="code">#tsne降维，二维可视化</span></dd></dl>
+ <dl><dt><a name="-tts"><strong>tts</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">#函数：训练测试集的划分<br>
+#author:&nbsp;gjw<br>
+#date:&nbsp;20170111<br>
+#参数：&nbsp;dfx(特征),dfy(标记),p(测试占比,随机因子,工作区)<br>
+#返回：&nbsp;result(包含4个x0,x1,y0,y1)</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>CK</strong> = 'IamFBI@2035'<br>
+<strong>Gpushs</strong> = {}<br>
+<strong>LCR</strong> = {}<br>
+<strong>NaN</strong> = nan<br>
+<strong>STT</strong> = 'System:diaodu:now'<br>
+<strong>TCache</strong> = {}<br>
+<strong>Tasks_Q</strong> = []<br>
+<strong>config</strong> = {'autorun': False, 'kv_eng': 'ssdb', 'logging': False, 'password': '4d7d4f6ef5d627f43a65d9b4b2ccc875', 'redis_host': '127.0.0.1', 'redis_password': '4d7d4f6ef5d627f43a65d9b4b2ccc875', 'redis_port': 6379, 'ssdb_host': '127.0.0.1', 'ssdb_port': 8888, 'timer': False, ...}<br>
+<strong>f</strong> = &lt;_io.TextIOWrapper name='/opt/openfbi/conf/config' mode='r' encoding='UTF-8'&gt;<br>
+<strong>fbi_global</strong> = &lt;avenger.fglobals.FbiGlobal object&gt;<br>
+<strong>fh</strong> = &lt;RotatingFileHandler /opt/openfbi/fbi-bin/logs/fbi_server.log (NOTSET)&gt;<br>
+<strong>formatter</strong> = &lt;logging.Formatter object&gt;<br>
+<strong>global_pools</strong> = {}<br>
+<strong>global_tasks</strong> = {}<br>
+<strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>root_logger</strong> = &lt;Logger fbi-server (INFO)&gt;<br>
+<strong>run_task</strong> = {}</td></tr></table>
+</body></html>

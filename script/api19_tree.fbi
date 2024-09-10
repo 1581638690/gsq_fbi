@@ -1,0 +1,179 @@
+#LastModifyDate:　2024-03-08T15:25:21    Author:   zwl
+#LastModifyDate:　2024-01-16T17:31:05    Author:   zwl
+#LastModifyDate:　2023-09-20T17:29:45.851180    Author:   zwl
+#LastModifyDate:　2023-09-12T09:56:43.917490    Author:   zwl
+#LastModifyDate:　2023-08-01T14:09:50.604282    Author:   zwl
+#LastModifyDate:　2023-07-31T10:32:43.667766    Author:   zwl
+#LastModifyDate:　2023-07-12T16:50:58.817691    Author:   zwl
+#LastModifyDate:　2023-07-07T15:05:29.700248    Author:   zwl
+#LastModifyDate:　2023-07-06T10:20:47.680379    Author:   zwl
+#LastModifyDate:　2023-06-26T18:52:25.618920    Author:   zwl
+#LastModifyDate:　2023-06-19T18:00:30.627944    Author:   zwl
+
+use @FID
+
+
+api19_risk = load db by mysql1 with select id as _id,api,api_name,app,app_name,dest_ip,dest_port,method,length,first_time,last_time,state,type from api19_risk order by last_time desc
+alter api19_risk by _id:int,api:str,api_name:str,app:str,app_name:str,dest_ip:str,dest_port:int,method:str,length:int,first_time:str,last_time:str,state:str,type:str
+api19_risk = @udf api19_risk by udf0.df_fillna_cols with api_name:'',app:'',app_name:'',dest_ip:'',dest_port:0,method:'',length:0,first_time:'',last_time:'',state:'',type:''
+api19_risk = filter api19_risk by type != ''
+###   树   ######################################更新
+type2 = load db by mysql1 with select distinct type2 as tree_name from api19_type 
+alter type2 by tree_name:str
+type2 = add tre_level by 0
+type2 = add parent_id by 0
+type1 = load db by mysql1 with select type,type1 as tree_name,type2,level from api19_type
+alter type1 by type:str,tree_name:str,type2:str,level:str
+type_num = loc api19_risk by type
+type_num = group type_num by type agg type:count
+type_num = @udf type_num by udf0.df_reset_index
+rename type_num as ('type_count':'tree_num')
+#type_num = load db by mysql1 with select type,count(*) as tree_num from api19_risk group by type
+type1 = join type1,type_num by type,type with left
+type1 = @udf type1 by udf0.df_fillna_cols with tree_num:0
+type1 = add tre_level by 1
+type1 = add parent_id by ("a1")
+tt = group type1 by type2 agg tree_num:sum
+tt = loc tt by index to tree_name
+##############################################################################加风险等级
+#alter type1.tree_num as int
+#alter type1.tree_num as str
+#type1 = add tree_num by type1["tree_num"]+'  ['+type1["level"]+']'
+##############################################################################
+type1 = loc type1 by tree_name,tre_level,parent_id,type2,tree_num,level
+type2 = join type2,tt by tree_name,tree_name with left
+rename type2 as ('tree_num_sum':'tree_num')
+type111 = union type2,type1
+type111 = loc type111 by index to aa
+type111 = loc type111 by drop aa
+type111 = loc type111 by index to id
+type111.id = lambda id by (x:x+1)
+type_for = filter type111 by tre_level == 0
+type_for = loc type_for by id,tree_name,tre_level,parent_id,tree_num,level
+type = @udf udf0.new_df with id,tree_name,tre_level,parent_id,tree_num,level
+foreach type_for run """
+type_1 = filter type111 by type2 == '@tree_name'
+type_1 = @udf type_1 by udf0.df_replace with (a1,@id)
+type_1 = loc type_1 by id,tree_name,tre_level,parent_id,tree_num,level
+type = union type,type_1
+""" with (id = $1,tree_name = $2)
+type = union type_for,type
+#type = loc type by id,tree_name,tre_level,parent_id,tree_num,level
+type = @udf type by udf0.df_fillna_cols with level:''
+type.tree_color = lambda level by (x:x)
+type.tree_color = lambda tree_color by (x:'#E83131' if x == '高' else x)
+type.tree_color = lambda tree_color by (x:'#F66B36' if x == '中' else x)
+type.tree_color = lambda tree_color by (x:'#F6D343' if x == '低' else x)
+rename type as ('level':'tree_grade')
+alter type as tree_num:int
+type = loc type by id,parent_id,tre_level,tree_name,tree_num,tree_grade,tree_color
+store type to ssdb by ssdb0 with API_1_data
+
+
+
+#####动态表格____________________________________________________________树状图--动态表格
+api_type = load db by mysql1 with select type,type1 from api19_type
+alter api_type by type:str,type1:str
+foreach api_type run """
+	
+	tt = filter api19_risk by type == '@type'
+	#tt = filter api19_risk by type == 'API19-1-1'
+	tt = order tt by last_time with desc limit 10000
+	#alter tt.first_time.last_time as str
+	#保存为pkl文件
+	#store tt to pkl by dt_table/api19_risk_@type1.pkl
+	tt = loc tt by _id,api,app,dest_ip,dest_port,method,last_time,state,type
+	#重命名
+	rename tt as ('api':'接口','api_name':'接口名','app':'应用','app_name':'应用名','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','length':'返回数据最大数据量','first_time':'首次发现时间','last_time':'最新监测时间','state':'弱点状态','type':'弱点类型','more':'详情')
+	tt = loc tt by _id,接口,应用,部署IP,部署端口,请求类型,最新监测时间,弱点状态
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,api19_risk_@type1,-,-
+	#保存Q
+	store tt to ssdb by ssdb0 with api19_risk_@type1 as Q
+	
+""" with (type=$1,type1=$2)
+
+#data,count =load ssdb by ssdb0 query qrange,api19_risk_数据接口无认证,0,10
+#data = loc data by __index to index
+
+######################弱点应用################弱点应用#############弱点应用############弱点应用 #############弱点应用################弱点应用##############弱点应用###############弱点应用##################
+##应用的接口数量
+api_num = load db by mysql1 with select app,count(*)  as api_num from data_api_new where merge_state != 1 group by app
+alter api_num by app:str,api_num:int
+###应用的弱点接口数量
+risk_num = group api19_risk by app agg api:count
+risk_num = loc risk_num by index to app
+###应用的弱点类型分布
+lel = load db by mysql1 with select type1 as type,level from api19_type
+alter lel by type:str,level:str
+type = loc api_type by type to index 
+rename type as ('type1':'value')
+rr = loc api19_risk by app,type
+rr = group rr by app,type agg type:count
+alter rr by type_count:int
+rr = @udf rr by udf0.df_reset_index
+rr = @udf rr,type by SP.tag2dict with type
+rr = join rr,lel by type,type with left
+rr = order rr by type_count with desc
+fx1 = loc rr by app,type
+alter rr by type_count:str,level:str
+rr = add type_count by df['type'] +" ["+ df['level'] + "] " +"("+ df['type_count'] + ")"
+rr.type_count = lambda type_count by (x: x+' ,')
+rr = group rr by app agg type_count:sum
+rr = @udf rr by udf0.df_reset_index 
+rr.type_count_sum = lambda type_count_sum by (x:x[:-1])
+rename rr as ('type_count_sum':'type_num')
+##应用的弱点状态分布
+ss = loc api19_risk by app,state
+ss = group ss by app,state agg state:count
+alter ss by state_count:int
+ss = @udf ss by udf0.df_reset_index
+ss = order ss by state_count with desc
+alter ss by state_count:str
+ss = add state_count by  df['state'] +"("+ df['state_count'] + ")"
+ss.state_count = lambda state_count by (x: x+' ,')
+ss = group ss by app agg state_count:sum
+ss = @udf ss by udf0.df_reset_index 
+ss.state_count_sum = lambda state_count_sum by (x:x[:-1])
+rename ss as ('state_count_sum':'state_num')
+###服务器IP
+dd = loc api19_risk by app,dest_ip
+dd = distinct dd by app,dest_ip
+dd.dest_ip = lambda dest_ip by (x:x+' ,')
+dd = group dd by app agg dest_ip:sum
+dd = @udf dd by udf0.df_reset_index
+dd.dest_ip_sum = lambda dest_ip_sum by (x:x[:-1])
+##弱点应用
+risk = loc api19_risk by app,app_name
+risk = join risk,dd by app,app with left
+risk = join risk,api_num by app,app with left
+risk = join risk,risk_num by app,app with left
+risk = join risk,ss by app,app with left
+risk = join risk,rr by app,app with left
+###过滤被合并的应用
+app = load db by mysql1 with select app from data_app_new where merge_state != 1
+risk = join app,risk by app,app with right
+###去重
+risk = distinct risk by app,dest_ip_sum,api_num,api_count,state_num,type_num
+risk = loc risk by index to _id
+risk._id = lambda _id by (x:x+1)
+risk = @udf risk by udf0.df_fillna_cols with app:'',app_name:'',dest_ip_sum:'',api_num:0,api_count:0,state_num:'',type_num:''
+risk = filter risk by app != ''
+risk = order risk by api_count with desc limit 50000
+store risk to pq by dt_table/app_risk.pq
+risk = loc risk by _id,app,app_name,api_num,api_count,state_num,type_num
+#重命名
+rename risk as ('app':'应用','app_name':'应用名','dest_ip_sum':'服务器IP','api_num':'接口总数','api_count':'接口弱点量','state_num':'弱点状态分布','type_num':'弱点类型分布')
+#清空Q
+b = load ssdb by ssdb0 query qclear,app_risk,-,-
+#保存Q
+store risk to ssdb by ssdb0 with app_risk as Q
+
+
+#aa = load pkl by dt_table/app_risk_1.pkl
+#aa1 = filter aa by index < 1000 and index > 500
+#@udf aa1 by CRUD.save_table with (mysql1,api19_risk)
+#api19_risk = load db by mysql1 with select count(*) from api19_risk 
+
+
+clear @FID

@@ -1,0 +1,44 @@
+#LastModifyDate:　2023-05-30T16:21:20.465086    Author:   superFBI
+#LastModifyDate:　2022-11-21T18:35:54.082712    Author:   hs
+#LastModifyDate:　2022-11-21T18:31:58.148411    Author:   hs
+#LastModifyDate:　2022-10-29T14:20:42.932417    Author:   qh
+#LastModifyDate:　2022-10-28T22:45:57.445048    Author:   admin
+#LastModifyDate:　2022-10-28T19:37:06.630057    Author:   admin
+#LastModifyDate:　2022-10-28T11:59:33.703941    Author:   admin
+
+#初始化
+init => {
+	stream["ip"] = load_ssdb_kv("qh_send")["kafka_ip"]
+	stream["port"] = load_ssdb_kv("qh_send")["kafka_port"]
+	stream["topic"] = load_ssdb_kv("qh_send")["kafka_topic"]
+	stream["sends"] = load_ssdb_kv("qh_send")["sends"]
+	ipp = stream["ip"] + ":" + stream["port"]
+	stream["source"]= {"link":"127.0.0.1:9092","topic":"api_send","group":"test1028","start-0":True}
+	stream["kfk"]={"link":ipp,"topic":stream["topic"],"key":""}
+}
+
+
+#事件处理函数
+events => {
+	to_kfk(o)
+
+}
+
+
+
+#系统定时函数
+
+
+#自定义批处理函数，使用FBI语句块, 可以在系统定时函数中调用
+#使用push_arrays_to_df函数生成df,在语句块中使用
+#如: push_arrays_to_df(table,"flow")
+save => fbi {
+	#content_lenth int类型  
+
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+}

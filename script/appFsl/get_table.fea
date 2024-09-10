@@ -1,0 +1,27 @@
+#LastModifyDate:　2022-10-27T19:05:06.341485    Author:   gsp
+#LastModifyDate:　2022-10-21T17:44:52.126817    Author:   gsp
+#LastModifyDate:　2022-10-21T14:08:24.887546    Author:   gsp
+#FEA脚本文件
+
+#获取记录
+#@id  记录ID
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#根据id加载对象
+b = @udf SH.network_cards2
+alter b.address as str
+b.address = str address by (replace('[',''))
+b.address = str address by (replace(']',''))
+b.address = str address by (replace("'",""))
+b = filter b by name == ('@id')
+
+
+assert find_df('b',ptree) as  alert with 数据加载失败！
+
+push b as table
+#清除工作区
+clear @FID

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.SSDB</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.SSDB</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/SSDB.py">/opt/openfbi/fbi-bin/udf/SSDB.py</a></td></tr></table>
+    <p><span class="code">#&nbsp;/bin/python<br>
+#&nbsp;-*-&nbsp;coding:&nbsp;utf-8&nbsp;-*-</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="datetime.html">datetime</a><br>
+<a href="glob.html">glob</a><br>
+<a href="json.html">json</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td class="multicolumn"><a href="os.html">os</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="re.html">re</a><br>
+<a href="shutil.html">shutil</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+<a href="tarfile.html">tarfile</a><br>
+<a href="time.html">time</a><br>
+<a href="urllib.html">urllib</a><br>
+</td><td class="multicolumn"><a href="zipfile.html">zipfile</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-build_privileges"><strong>build_privileges</strong></a>(df, p='am:')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180814<br>
+@函数：build_privileges,生成小程序的权限<br>
+@参数：前缀名<br>
+@描述：生成小程序的权限<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-copy_dirs"><strong>copy_dirs</strong></a>(src, dst)</dt></dl>
+ <dl><dt><a name="-db_conn"><strong>db_conn</strong></a>(server='127.0.0.1', port=8888)</dt></dl>
+ <dl><dt><a name="-dbd2dbd2"><strong>dbd2dbd2</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180428<br>
+@函数：静态面板升级到动态面板<br>
+@参数：无<br>
+@描述：<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-dbd2new"><strong>dbd2new</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170821<br>
+@函数：导出FEA3配置所需要的数据<br>
+@参数：无<br>
+@描述：导出FEA3配置所需要的数据<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-dbsize"><strong>dbsize</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180426<br>
+@函数：返回当前数据的数据大小<br>
+@参数：<br>
+@描述：<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-deep_search"><strong>deep_search</strong></a>(searched, fea_scripts, key, conn)</dt></dl>
+ <dl><dt><a name="-delete_key"><strong>delete_key</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;2022-0915<br>
+@函数：永久删除一个key<br>
+@参数：p为key<br>
+@描述：<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-delete_three_chart"><strong>delete_three_chart</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200531<br>
+@函数：delete_three_chart<br>
+@参数：文件名<br>
+@描述：删除第三方插件<br>
+aa&nbsp;=&nbsp;@udf&nbsp;SSDB.delete_three_chart&nbsp;with&nbsp;t01<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-drop_keys"><strong>drop_keys</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180426<br>
+@函数：删除一批keys<br>
+@参数：start_key,end_key<br>
+@描述：<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-dump_FEAStyle"><strong>dump_FEAStyle</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170821<br>
+@函数：dump_FEAStyle,导出FEAStyle相关的key,做成压缩包<br>
+@参数：文件名前缀名<br>
+@描述：dump_FEAStyle,导出FEAStyle相关的key,做成压缩包<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-dump_key"><strong>dump_key</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180508<br>
+@函数：dump_key,根据前缀导出符合要求的数据<br>
+@参数：前缀名<br>
+@描述：dump_key,导出单个key<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-dump_keys"><strong>dump_keys</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170821<br>
+@函数：dump_keys,根据前缀导出符合要求的数据<br>
+@参数：前缀名<br>
+@描述：dump_keys,根据前缀导出符合要求的数据<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-dump_keys2"><strong>dump_keys2</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180508<br>
+@函数：dump_keys2,根据DF表的内容导出key<br>
+@参数：导出的结果文件名，自动加.db<br>
+@描述：dump_keys2,导出单个key<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-dump_script"><strong>dump_script</strong></a>(df, p='1')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170821<br>
+@函数：dump_FEAStyle,导出FEAStyle相关的key,做成压缩包<br>
+@参数：文件名&nbsp;前缀名<br>
+@描述：dump_FEAStyle,导出FEAStyle相关的key,做成压缩包<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-dump_tpmap"><strong>dump_tpmap</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20201122<br>
+@函数：dump_tpmap<br>
+@参数:&nbsp;key<br>
+@描述：导出拓扑图中所有数据<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;SSDB.dump_tpmap&nbsp;with&nbsp;p</span></dd></dl>
+ <dl><dt><a name="-get"><strong>get</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20201022<br>
+@函数：get<br>
+@参数：key<br>
+@描述：ssdb&nbsp;get<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-hclear"><strong>hclear</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;2020/08/19<br>
+@函数：del_hkey<br>
+@参数:&nbsp;key<br>
+@描述：清空　ssdb&nbsp;hashmap<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;hclear&nbsp;with&nbsp;p</span></dd></dl>
+ <dl><dt><a name="-imp_keys"><strong>imp_keys</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170821<br>
+@函数：导入json文件中配置的数据到ssdb<br>
+@参数：json文件名<br>
+@描述：导入json文件中配置的数据到ssdb<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-imp_three_chart"><strong>imp_three_chart</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;yyy<br>
+@date:&nbsp;20200508<br>
+@函数：imp_three_chart,添加第三方插件<br>
+@参数：文件名<br>
+@描述：添加第三方插件<br>
+aa&nbsp;=&nbsp;@udf&nbsp;SSDB.imp_three_chart.fea&nbsp;with&nbsp;(chart_id,&nbsp;filename)<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-imp_tmpl"><strong>imp_tmpl</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180623<br>
+@函数：imp_tmpl,导入模板<br>
+@参数：文件名<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-info"><strong>info</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-load_file"><strong>load_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170821<br>
+@函数：导入json文件中配置的数据到ssdb<br>
+@参数：json文件名<br>
+@描述：导入json文件中配置的数据到ssdb<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-load_json"><strong>load_json</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20200721<br>
+@函数：导入json文件到key里面<br>
+@参数：json文件名,key名(可选)<br>
+@描述：导入json文件到指定的SSDB中<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-load_tpmap"><strong>load_tpmap</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20201122<br>
+@函数：load_tpmap<br>
+@参数：zip路径<br>
+@描述：导入拓扑图<br>
+aa&nbsp;=&nbsp;@udf&nbsp;SSDB.load_tpmap&nbsp;with&nbsp;p<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-myencode_json"><strong>myencode_json</strong></a>(filename, value)</dt></dl>
+ <dl><dt><a name="-recover_keys"><strong>recover_keys</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180426<br>
+@函数：恢复需要的keys<br>
+@参数：start_key,end_key<br>
+@描述：恢复被drop_keys函数删除的keys<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-save_json"><strong>save_json</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20200721<br>
+@函数：将key导出到json文件<br>
+@参数：key名，json文件名<br>
+@描述：将key导出到json文件<br>
+@返回：</span></dd></dl>
+ <dl><dt><a name="-scan_keys"><strong>scan_keys</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180426<br>
+@函数：查询一段key<br>
+@参数：start_key,end_key<br>
+@描述：只返回key,没有数据，比较快<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-set_keys"><strong>set_keys</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20201022<br>
+@函数：set<br>
+@参数：key,value<br>
+@描述：ssdb&nbsp;set<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-split_df_to_ssdb"><strong>split_df_to_ssdb</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20170827<br>
+@函数：将df表的内容拆分保存到ssdb<br>
+@参数：要保存的key名，每页的size,保存的时间<br>
+@描述：导入json文件中配置的数据到ssdb<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-update_FEAStyle_to_ssdb"><strong>update_FEAStyle_to_ssdb</strong></a>(filepath)</dt></dl>
+ <dl><dt><a name="-update_html"><strong>update_html</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20180607<br>
+@函数：update_html,更新前台页面<br>
+@参数：文件名，前缀名<br>
+@描述：可以整体或局部更细前台代码<br>
+run&nbsp;update_ui.fea&nbsp;with&nbsp;(@file=maple5218-FEA4-UI-master.zip,@dir=FEA4-UI)<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-update_three_FEAStyle"><strong>update_three_FEAStyle</strong></a>(df)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200530<br>
+@函数：update_three_FEAStyle<br>
+@参数：文件名<br>
+@描述：更新第三方插件style文件<br>
+aa&nbsp;=&nbsp;@udf&nbsp;SSDB.update_three_FEAStyle&nbsp;with&nbsp;filename<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-update_three_chart"><strong>update_three_chart</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20200508<br>
+@函数：update_three_chart,更新第三方插件<br>
+@参数：文件名<br>
+@描述：更新第三方插件<br>
+aa&nbsp;=&nbsp;@udf&nbsp;SSDB.update_three_chart<br>
+@返回：df表</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>fbi_global</strong> = &lt;avenger.fglobals.FbiGlobal object&gt;<br>
+<strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>nan</strong> = nan</td></tr></table>
+</body></html>

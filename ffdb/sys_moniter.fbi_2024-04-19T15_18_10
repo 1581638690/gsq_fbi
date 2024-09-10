@@ -1,0 +1,69 @@
+#LastModifyDate:　2023-07-28T11:50:00.178772    Author:   superFBI
+#LastModifyDate:　2023-05-22T15:13:36.300055    Author:   pjb
+#LastModifyDate:　2023-05-15T14:54:32.126019    Author:   pjb
+#LastModifyDate:　2023-04-18T16:59:26.893480    Author:   rzc
+#LastModifyDate:　2023-04-18T16:58:05.197121    Author:   rzc
+#LastModifyDate:　2023-04-06T11:53:05.014957    Author:   pjb
+#LastModifyDate:　2023-04-01T09:46:55.366920    Author:   pjb
+#LastModifyDate:　2023-04-01T09:23:44.132808    Author:   pjb
+#LastModifyDate:　2023-03-28T14:53:35.028379    Author:   pjb
+#LastModifyDate:　2023-03-24T16:42:03.549007    Author:   pjb
+#LastModifyDate:　2023-02-13T13:47:50.972177    Author:   pjb
+#LastModifyDate:　2023-02-08T18:12:16.021120    Author:   gjw
+#LastModifyDate:　2023-02-02T18:39:35.228811    Author:   pjb
+#LastModifyDate:　2022-12-29T15:48:09.283113    Author:   pjb
+#LastModifyDate:　2022-12-29T10:00:48.688936    Author:   gjw
+#LastModifyDate:　2022-12-29T09:42:29.981223    Author:   gjw
+#LastModifyDate:　2022-11-22T10:14:12.617104    Author:   gjw
+#LastModifyDate:　2022-11-20T14:13:44.249924    Author:   gjw
+#LastModifyDate:　2022-11-20T14:08:24.914122    Author:   gjw
+
+#系统基本信息
+c = @udf PS.sys_baseinfo
+c = loc c by name to index
+c = @udf c by udf0.df_T
+store c to ssdb with sysinfo
+
+
+#监控资产队列
+a = @udf ZNSM.calculate_logger_count  with zichan
+a = limit a by -10,
+a = loc a by create,lines,errs
+a = loc a by create to index
+rename a as {"lines":"发送","err":"错误数"}
+store a to ssdb with znsm:view:events
+
+#监控日志进程
+#Delete 注释 by pjb on 2023-05-15 14:53:49
+#p = @udf PS.proc_name_or_arg with  /opt/openfbi/fbi-bin/addones/json_out.pyc
+#
+#if p.index.size ==0 with """
+#	assert True as notice with 日志发送引擎异常,没有启动![已修复]
+#	#s = @udf FBI.local_cmd with /opt/openfbi/fbi-bin/kill_pname.sh znsm/eve
+#	s = @udf FBI.local_cmd with /opt/fbi-base/bin/python /opt/openfbi/fbi-bin/addones/json_out.pyc files=/data/znsm/eve* kfk=127.0.0.1:9092 topic=zichan -D
+#"""
+
+
+#监控流量引擎
+#Delete 注释 by gjw on 2022-11-22 10:17:01
+p = @udf PS.proc_name with ZNSM-V1
+assert p by df.index.size !=0 as notice with 流量引擎异常,没有启动!
+#assert p by df.loc[8,"value"] <10  as notice with 流量引擎负载大,内存使用超过10G!
+#
+##kafka监控
+#Delete 注释 by pjb on 2023-02-02 16:14:02
+#Delete 注释 by superFBI on 2023-07-28 11:49:49
+#p = @udf PS.proc_name_or_arg with java
+#if p.index.size == 0 with """
+#	assert False as notice  with  kafka异常,没有启动![已修复]
+#	s = @udf FBI.local_cmd with /opt/kafka3.3.1/kafka_stop.sh
+#	s = @udf FBI.local_cmd with /opt/kafka3.3.1/kafka_start.sh
+#	#s = @udf FBI.local_cmd with /opt/kafka3.3.1/kafka_start.sh
+#"""
+
+##redis内存监控
+p = @udf PS.proc_name_or_arg with /opt/openfbi/bin/redis-server 127.0.0.1:6379
+p = filter p by name == '内存(G)'
+p = eval p by (iloc[0,1])
+assert $p<=30 as notice  with redis内存空间大于30G
+assert $p<=40 as notice  with redis内存空间大于40G,影响系统运行,请尽快处理

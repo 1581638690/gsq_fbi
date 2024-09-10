@@ -1,0 +1,193 @@
+#LastModifyDate:　2024-03-28T17:31:25    Author:   pjb
+#LastModifyDate:　2024-03-22T16:31:05    Author:   pjb
+#LastModifyDate:　2024-03-22T16:26:41    Author:   pjb
+#LastModifyDate:　2024-03-22T16:24:30    Author:   pjb
+#LastModifyDate:　2024-03-14T11:37:57    Author:   pjb
+#LastModifyDate:　2024-03-05T17:38:03    Author:   pjb
+#LastModifyDate:　2024-03-05T11:03:09    Author:   pjb
+#LastModifyDate:　2023-11-21T15:58:51.523977    Author:   superFBI
+
+use @FID
+
+run sen_label_tree.fbi
+#新增一层类型
+df = @udf udf0.new_df with (ID,tree_name,parent_id,tree_url)
+df = @udf df by udf0.df_append with (全部,全部,0,modeling:dbms_user&ifQuery)
+#dbms_type = load ckh by ckh with select distinct db_type ID,db_type tree_name from dbms
+dbms_type = load db by mysql1 with select distinct db_type ID,db_type tree_name from dbms_user
+dbms_type = add parent_id by ("全部")
+dbms_type.tree_url = lambda tree_name by x: "modeling:dbms_user&@db_type=" + x +"&ifQuery"
+
+#第一层账号
+dbms_obj = load db by mysql1 with select distinct dbms_obj ID,dbms_obj tree_name,db_type parent_id from dbms_user
+dbms_obj.tree_url = lambda tree_name by x: "modeling:dbms_user&@dbms_obj=" + x +"&ifQuery"
+#第二层账号的sql
+dbms_sql = load db by mysql1 with select distinct dbms_obj parent_id,user tree_name from dbms_user where user != ''
+dbms_sql = add ID by dbms_sql.index +1
+dbms_sql = @udf dbms_sql by udf0.df_row_lambda with x: "modeling:dbms_sql&@user=" + x["tree_name"] +"&@dbms_obj=" + x["parent_id"] +"&ifQuery"
+rename dbms_sql as ("lambda1":"tree_url")
+tree = union dbms_type,dbms_obj,dbms_sql,df
+alter tree.ID as str
+alter tree.parent_id as str
+tree = @udf tree by udf0.df_reset_index
+tree = loc tree drop index
+store tree to ssdb by ssdb0 with dd:data_dbms_obj_tree
+
+# 数据库类型字典
+db_type = load db by mysql1 with select distinct db_type from dbms_obj
+db_type = @udf db_type by udf0.df_set_index with db_type
+db_type = add db_type by db_type.index
+store db_type to ssdb by ssdb0 with dd:db_type
+# 文件信息
+# 第一层协议类型
+fileinfo_proto = load db by mysql1 with select distinct app_proto ID,app_proto tree_name from fileinfo
+fileinfo_proto = add parent_id by 0
+fileinfo_proto.tree_url = lambda tree_name by x: "modeling:fileinfo&@app_proto=" + x +"&ifQuery"
+# 第二层文件类型
+fileinfo_type = load db by mysql1 with select distinct type ID,type tree_name,app_proto parent_id from fileinfo
+fileinfo_type = @udf fileinfo_type by udf0.df_row_lambda with x: "modeling:fileinfo&@app_proto=" + x["parent_id"] +"&@type=" + x["tree_name"] +"&ifQuery"
+rename fileinfo_type as ("lambda1":"tree_url")
+# 第三层distip
+fileinfo_distip = load db by mysql1 with select distinct type parent_id,dstip tree_name from fileinfo
+fileinfo_distip = add ID by fileinfo_distip.index +1
+fileinfo_distip = @udf fileinfo_distip by udf0.df_row_lambda with x: "modeling:fileinfo&@dstip=" + x["tree_name"] +"&@type=" + x["parent_id"] +"&ifQuery"
+rename fileinfo_distip as ("lambda1":"tree_url")
+tree = union fileinfo_proto,fileinfo_type,fileinfo_distip
+alter tree.ID as str
+alter tree.parent_id as str
+store tree to ssdb by ssdb0 with dd:data_fileinfo_tree
+# 敏感信息树
+#api = load db by mysql1 with select 
+# 1
+run qh_json.fbi
+sen_class = load ssdb by ssdb0 with dd:reqs_label1
+rename sen_class as ("class":"ID")
+sen_class = add tree_name by sen_class.ID
+sen_class = @udf sen_class by udf0.df_zero_index
+sen_class = add parent_id by sen_class.index
+sen_class = loc sen_class drop data
+sen_class = distinct sen_class by ID
+alter sen_class.parent_id as str
+sen_class.tree_url = lambda tree_name by x: "modeling:sen_class&@obj=" + x +"&ifQuery"
+#sen_label = load ssdb by ssdb0 with dd:reqs_label
+sen_label = load ssdb by ssdb0 with dd:reqs_label1
+sen_label = add ID by sen_label.data
+sen_label = add tree_name by sen_label.data
+#sen_label = @udf sen_label by udf0.df_zero_index
+#sen_label = add parent_id by sen_label.index
+rename sen_label as ("class":"parent_id")
+sen_label = loc sen_label drop data,class
+alter sen_label.parent_id as str
+sen_label.tree_url = lambda tree_name by x: "modeling:sen_obj&@sen_key=" + x +"&ifQuery"
+#sen_label = union sen_class,sen_label
+sen_type = load db by mysql1 with select CONCAT(sen_key,type) ID,type tree_name,sen_key parent_id from sen_type
+sen_type = @udf sen_type by udf0.df_row_lambda with x: "modeling:sen_type&@sen_key=" + x["parent_id"] +"&@type="+ x["tree_name"] +"&ifQuery"
+rename sen_type as ("lambda1":"tree_url")
+sen_label = union sen_label,sen_type
+# 2app
+#label_app = load db by mysql1 with select distinct sen_key parent_id,dstip tree_name from sen_api_tree
+#label_app = loc sen_type by ID
+#rename label_app as ("ID":"parent_id")
+label_app = load db by mysql1 with select sen_key tree_name,count(id) ID,CONCAT(sen_key, type) parent_id,type,sen_key from sen_app_tree group by sen_key,parent_id,type,sen_key
+#label_app = join a,label_app by parent_id,parent_id
+label_app = @udf label_app by udf0.df_fillna with 0
+alter label_app by type:str,sen_key:str,ID:str
+label_app = add ID by ("应用(" + label_app.ID +')')
+label_app = add tree_name by label_app.ID
+label_app = add ID by label_app.ID + label_app.parent_id
+label_app = @udf label_app by udf0.df_row_lambda with x: "modeling:app_sen_tree&@sen_key=" + x["sen_key"] +"&@type="+ x["type"] +"&ifQuery"
+label_app = loc label_app drop sen_key,type
+rename label_app as ("lambda1":"tree_url")
+sen_label = union sen_label,label_app
+# 2api
+#label_api = loc sen_type by ID
+#rename label_api as ("ID":"parent_id")
+label_api = load db by mysql1 with select sen_key tree_name,count(id) ID,CONCAT(sen_key, type) parent_id,type,sen_key from sen_api_tree group by sen_key,parent_id,type,sen_key
+#label_api = join label_api,a by parent_id,parent_id
+label_api = @udf label_api by udf0.df_fillna with 0
+alter label_api by type:str,sen_key:str,ID:str
+label_api = add ID by ("接口(" + label_api.ID +')')
+label_api = add tree_name by label_api.ID
+label_api = add ID by label_api.ID + label_api.parent_id
+label_api = @udf label_api by udf0.df_row_lambda with x: "modeling:api_sen_tree&@sen_key=" + x["sen_key"] +"&@type="+ x["type"] +"&ifQuery"
+label_api = loc label_api drop sen_key,type
+rename label_api as ("lambda1":"tree_url")
+sen_label = union sen_label,label_api
+# 2account
+#label_acc = loc sen_type by ID
+#rename label_acc as ("ID":"parent_id")
+label_acc = load db by mysql1 with select sen_key tree_name,count(id) ID,CONCAT(sen_key, type) parent_id,type,sen_key from sen_acc_tree group by sen_key,parent_id,type,sen_key
+#label_acc = join label_acc,a by parent_id,parent_id
+label_acc = @udf label_acc by udf0.df_fillna with 0
+alter label_acc by type:str,sen_key:str,ID:str
+label_acc = add ID by ("应用账号(" + label_acc.ID +')')
+label_acc = add tree_name by label_acc.ID
+label_acc = add ID by label_acc.ID + label_acc.parent_id
+label_acc = @udf label_acc by udf0.df_row_lambda with x: "modeling:acc_sen_tree&@sen_key=" + x["sen_key"] +"&@type="+ x["type"] +"&ifQuery"
+label_acc = loc label_acc drop sen_key,type
+rename label_acc as ("lambda1":"tree_url")
+sen_label = union sen_label,label_acc
+# 2终端
+#label_src = loc sen_type by ID
+#rename label_src as ("ID":"parent_id")
+label_src = load db by mysql1 with select sen_key tree_name,count(id) ID,CONCAT(sen_key, type) parent_id,type,sen_key from sen_src_tree group by sen_key,parent_id,type,sen_key
+#label_src = join label_src,a by parent_id,parent_id
+label_src = @udf label_src by udf0.df_fillna with 0
+alter label_src by type:str,sen_key:str,ID:str
+label_src = add ID by ("终端(" + label_src.ID +')')
+label_src = add tree_name by label_src.ID
+label_src = add ID by label_src.ID + label_src.parent_id
+label_src = @udf label_src by udf0.df_row_lambda with x: "modeling:src_sen_tree&@sen_key=" + x["sen_key"] +"&@type="+ x["type"] +"&ifQuery"
+rename label_src as ("lambda1":"tree_url")
+sen_label = union sen_label,label_src
+# 2dbms
+#label_dbms = loc sen_type by ID
+#rename label_dbms as ("ID":"parent_id")
+label_dbms = load db by mysql1 with select sen_key tree_name,count(id) ID,CONCAT(sen_key, type) parent_id,type,sen_key from sen_dbms_tree group by sen_key,parent_id,type,sen_key
+#label_dbms = join label_dbms,a by parent_id,parent_id
+label_dbms = @udf label_dbms by udf0.df_fillna with 0
+alter label_dbms by type:str,sen_key:str,ID:str
+label_dbms = add ID by ("数据库对象(" + label_dbms.ID +')')
+label_dbms = add tree_name by label_dbms.ID
+label_dbms = add ID by label_dbms.ID + label_dbms.parent_id
+label_dbms = @udf label_dbms by udf0.df_row_lambda with x: "modeling:dbms_sen_tree&@sen_key=" + x["sen_key"] +"&@type="+ x["type"] +"&ifQuery"
+label_dbms = loc label_dbms drop sen_key,type
+rename label_dbms as ("lambda1":"tree_url")
+sen_label = union sen_label,label_dbms
+# 2dbmsuser
+#label_dbuser = loc sen_type by ID
+#rename label_dbuser as ("ID":"parent_id")
+label_dbuser = load db by mysql1 with select sen_key tree_name,count(id) ID,CONCAT(sen_key, type) parent_id,type,sen_key from sen_dbuser_tree group by sen_key,parent_id,type,sen_key
+#label_dbuser = join label_dbuser,a by parent_id,parent_id
+label_dbuser = @udf label_dbuser by udf0.df_fillna with 0
+alter label_dbuser by type:str,sen_key:str,ID:str
+label_dbuser = add ID by ("数据库账号(" + label_dbuser.ID +')')
+label_dbuser = add tree_name by label_dbuser.ID
+label_dbuser = add ID by label_dbuser.ID + label_dbuser.parent_id
+label_dbuser = @udf label_dbuser by udf0.df_row_lambda with x: "modeling:dbuser_sen_tree&@sen_key=" + x["sen_key"] +"&@type="+ x["type"] +"&ifQuery"
+label_dbuser = loc label_dbuser drop sen_key,type
+rename label_dbuser as ("lambda1":"tree_url")
+sen_label = union sen_label,label_dbuser
+# 2dbmsuser
+#label_file = loc sen_type by ID
+#rename label_file as ("ID":"parent_id")
+label_file = load db by mysql1 with select sen_key tree_name,count(id) ID,CONCAT(sen_key, type) parent_id,type,sen_key from sen_file_tree group by sen_key,parent_id,type,sen_key
+#label_file = join label_file,a by parent_id,parent_id
+label_file = @udf label_file by udf0.df_fillna with 0
+alter label_file by type:str,sen_key:str,ID:str
+label_file = add ID by ("文件对象(" + label_file.ID +')')
+label_file = add tree_name by label_file.ID
+label_file = add ID by label_file.ID + label_file.parent_id
+label_file = @udf label_file by udf0.df_row_lambda with x: "modeling:file_sen_tree&@sen_key=" + x["sen_key"] +"&@type="+ x["type"] +"&ifQuery"
+label_file = loc label_file drop sen_key,type
+rename label_file as ("lambda1":"tree_url")
+sen_label = union sen_label,label_file,sen_class
+sen_label = distinct sen_label by parent_id,ID
+
+store sen_label to ssdb by ssdb0 with dd:data_label_tree
+
+#a = load db by mysql1 with truncate table sen_api_tree
+
+
+
+clear @FID

@@ -1,0 +1,11 @@
+#FBI脚本文件
+#文件名: pot_local_fire_add.fbi
+#作者: ls
+use @FID
+
+prot = @sdf sys_lambda with (@prot,x:"tcp" if x=="" else x)
+data_df = @udf  ssh_iptables.add_iptables_input with @target;$prot;@port;@source
+
+data_df1= @udf ssh_iptables.get_iptables_input 
+assert find_df('data_df1',ptree) as altert to 新增规则成功 with 新增规则失败！
+clear @FID

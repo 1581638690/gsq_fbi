@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>图形窗口</title>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/jquery-ui-custom.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/ui.jqgrid.css" />   
+    <link rel="stylesheet" type="text/css" href="libs/bootstrap/css/bootstrap.min.css" />
+
+    <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js"></script> 
+    <script type="text/javascript" src="/static/js/jquery.jUploader-1.0.min.js" ></script>
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.1.custom.min.js"></script> 
+	<script type="text/javascript" src="libs/bootstrap/js/bootstrap.min.js"></script>
+    
+  
+    <script type="text/javascript">
+      $(document).ready(function() {
+		 //上传csv
+         $.jUploader({
+
+			button: 'upcsv', // 这里设置按钮id
+			action: '/putfile2?portal=1', // 这里设置上传处理接口，这个加了参数test_cancel=1来测试取消
+			cancelable: true, // 可取消上传
+			//allowedExtensions: ['csv', 'txt', 'data'], // 只允许上传
+			messages: {
+			upload: '上传门户1图片',
+			cancel: '取消上传',
+			emptyFile: "{file} 为空，请选择一个文件.",
+			invalidExtension: "{file} 后缀名不合法. 只有 {extensions} 是允许的.",
+			onLeave: "文件正在上传，如果你现在离开，上传将会被取消。"
+			},
+			onComplete: function (fileName, response) {
+
+				// response是json对象，格式可以按自己的意愿来定义，例子为： { success: true, fileUrl:'' }
+				if (response.success==-1) {			
+					alert(response.error);
+				}else
+				{
+					init_files();
+				}
+			}
+		  });
+		  
+		  //上传fea
+         $.jUploader({
+
+			button: 'upfea', // 这里设置按钮id
+			action: '/putfile4?filetype=data&subdir=a/', // 这里设置上传处理接口，这个加了参数test_cancel=1来测试取消
+			cancelable: true, // 可取消上传
+			//allowedExtensions: ['fea'], // 只允许上传
+			messages: {
+			upload: '上传fea',
+			cancel: '取消上传',
+			emptyFile: "{file} 为空，请选择一个文件.",
+			invalidExtension: "{file} 后缀名不合法. 只有 {extensions} 是允许的.",
+			onLeave: "文件正在上传，如果你现在离开，上传将会被取消。"
+			},
+			onComplete: function (fileName, response) {
+
+				// response是json对象，格式可以按自己的意愿来定义，例子为： { success: true, fileUrl:'' }
+				if (response.success==-1) {			
+					alert(response.error);
+				}else
+				{
+					init_files();
+				}
+			}
+		  });
+		  //上传udf
+         $.jUploader({
+
+			button: 'upudf', // 这里设置按钮id
+			action: '/putfile?filetype=udf', // 这里设置上传处理接口，这个加了参数test_cancel=1来测试取消
+			cancelable: true, // 可取消上传
+			allowedExtensions: ['py','pyc'], // 只允许上传
+			messages: {
+			upload: '上传udf',
+			cancel: '取消上传',
+			emptyFile: "{file} 为空，请选择一个文件.",
+			invalidExtension: "{file} 后缀名不合法. 只有 {extensions} 是允许的.",
+			onLeave: "文件正在上传，如果你现在离开，上传将会被取消。"
+			},
+			onComplete: function (fileName, response) {
+
+				// response是json对象，格式可以按自己的意愿来定义，例子为： { success: true, fileUrl:'' }
+				if (response.success==-1) {			
+					alert(response.error);
+				}else
+				{
+					init_files();
+				}
+				
+			}
+		  });
+		
+		function init_files(){
+		  // 显示 csv
+		  $.ajax({
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/list_data",           
+                 success: function(response) {
+						$("#csvs").text("");
+						var result = JSON.parse(response);
+                        for(i in result.data){
+							$("#csvs").append("<li><a href='/workspace/"+result.data[i]+"'>"+result.data[i]+"</a></li>");
+						}
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+          // 显示 fea
+		  $.ajax({
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/list_fbi",           
+                 success: function(response) {
+						$("#feas").text("");
+						var result = JSON.parse(response);
+                        for(i in result.data){
+							var id = result.data[i].replace(".","_");
+							$("#feas").append("<li><a href='/fbi_id/"+id+"' target='_blank'>"
+							+result.data[i]+"</a></li>");
+						
+						}
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+          }//end funciton init_files()
+          
+          
+          init_files();        
+		$("#refeash").click(function(){
+			init_files();
+		});
+        
+      });
+    </script>
+    <style>
+		#hhr {
+			margin:10px;
+			width:95%;
+			color:green;
+			border:1px solid;
+			border-radius:10px;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+		}
+		#upcsv,#upudf,#upfea {
+			margin : 5px 50px 15px 5px;
+			width: 150px;
+			float: left;
+			
+		}
+		#csvs,#feas{
+			margin : 10px 50px 10px 5px;
+			width: 400px;
+			height: 500px;
+			color:green;
+			border:1px solid;
+			border-radius:10px;
+			OVERFLOW-y:auto;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+			float: left;
+		}
+		.t{
+			margin : 0px;
+		}
+		li{
+			margin : 5px;
+			list-style-type:none;
+		}
+    </style>
+  </head>
+  <body>
+    <div id="win2" width="100%">
+		<div style="height:30px;width:100%;" align="center">
+		<div id="upcsv" class="btn btn-success"><span></span></div><!-- 里的span必须保留，用来放文字的 -->
+		<div id="upfea" class="btn btn-success"><span></span></div>
+		<div id="upudf" class="btn btn-success"><span></span></div>
+		<div id="refeash" class="btn btn-success"><span>刷新</span></div>
+		</div>
+		<div id="hhr"></div>
+		<div style="width:100%; height:400px; clear:both;">
+		<div id="csvs"></div>
+		<div id="feas"></div>
+		</div>
+	</div>
+	<div><xmp><a>xxxxx</a></xmp></div>
+</body> 
+</html>
+
+

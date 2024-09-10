@@ -1,0 +1,13 @@
+#FBI脚本文件
+#update_passwd.fbi
+
+#构建唯一工作区，处理并发
+use @FID
+
+#修改密码
+a=@udf udfA.up_passwd with (@name,@passwd)
+
+store a to ssdb by ssdb0 with @name:up_passwd:@FPS as 600
+
+#清除工作区
+clear @FID

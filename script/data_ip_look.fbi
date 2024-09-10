@@ -1,0 +1,12 @@
+#LastModifyDate:　2024-01-18T10:38:36    Author:   zwl
+#LastModifyDate:　2023-08-23T17:17:49.662074    Author:   zwl
+#LastModifyDate:　2023-03-15T15:17:37.450474    Author:   zwl
+#LastModifyDate:　2023-03-07T15:16:43.202939    Author:   zwl
+use @FID
+
+b = load pq by dt_table/data_ip_new.pq
+b = filter b by _id == @_id
+rename b as ('srcip':'终端IP','visit_num':'访问次数','visit_flow':'访问流量(M)','app_num':'访问应用数量','api_num':'访问接口数量','account_num':'访问账号数量','region':'地域','type':'终端类型','active':'活跃状态')
+push b as look
+
+clear @FID

@@ -1,0 +1,18 @@
+#LastModifyDate:　2023-03-15T17:40:29.197062    Author:   superFBI
+#LastModifyDate:　2023-02-28T15:09:09.559081    Author:   qh
+#LastModifyDate:　2023-02-07T09:50:30.390349    Author:   qh
+#LastModifyDate:　2023-02-02T11:02:09.498384    Author:   qh
+#LastModifyDate:　2023-01-31T16:41:25.251346    Author:   qh
+#LastModifyDate:　2023-01-31T15:44:48.430196    Author:   qh
+#syslog远程控制
+a = load ssdb by ssdb0 with qh_send as json
+jaas a by a["syslog_o"]="@st"
+store a to ssdb with qh_send
+if @st == 0 with """
+	a = @udf FBI.x_finder3_stop2 with api_2syslog
+"""
+if @st == 1 with """
+	a = @udf FBI.x_finder3_stop2 with api_2syslog
+	a = @udf FBI.x_finder3_start2 with api_2syslog
+	push a as result
+"""

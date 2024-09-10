@@ -1,0 +1,100 @@
+#FBI脚本文件
+#文件名: load_db.fbi
+#作者: admin
+
+#sqltie 
+b = load sqlite by zx1129-1.db query SELECT name FROM sqlite_master 
+b2 =  load sqlite by zx1129-1.db with 执行案件信息
+
+#mysql
+define my as mysql+mysqlconnector://yy:a123456@127.0.0.1:3306/yy
+ss = load db by my with show tables;
+
+#mysql2
+#mysql+pymysql://<username>:<password>@<host>/<dbname>[?<options>]
+define my2 as mysql+pymysql://test:dcap123@192.168.1.116:3306/test
+ss = load db by my2 with show tables;
+ss = load db by my2 with select count(*) from zxaj;
+store b2 to db by my2 with zxaj
+
+#pg
+define pg as postgresql+pg8000://postgres:postgres@192.168.1.132/postgres
+ss = load db by pg with select * from pg_tables where schemaname = 'public';
+store data to db by pg with tcpflow
+
+#pg2
+define pg2 as postgresql+psycopg2://postgres:postgre22s@192.168.1.132/postgres
+define pg211 as postgresql+psycopg2://postgres:@192.168.1.132/postgres
+
+
+ss = load db by pg211 with select * from pg_tables where schemaname = 'public';
+#默认用的就是psycopg2驱动
+define pg3 as postgresql://postgres:postgres@192.168.1.132/postgres
+ss = load db by pg3 with select * from pg_tables where schemaname = 'public';
+store ss to db by pg3 with tt
+
+#postgres的元数据信息,表的注释信息
+sd = load db by pg3 with """ 
+SELECT   tablename,obj_description(relfilenode,'pg_class')  FROM   pg_tables  a, pg_class b
+WHERE   
+a.tablename = b.relname
+ORDER   BY   a.tablename;
+"""
+
+#postgres的元数据信息,表的字段信息
+sl = load db by pg3 with """ 
+SELECT col_description(a.attrelid,a.attnum) as comment,format_type(a.atttypid,a.atttypmod) as type,a.attname as name, a.attnotnull as notnull
+FROM pg_class as c,pg_attribute as a
+where c.relname = 'tcpflow' and a.attrelid = c.oid and a.attnum>0
+"""
+
+
+#ms
+define ms as mssql+pymssql://SA:Fhcs2019@192.168.1.132/test?charset=utf8
+#database
+ss2 = load db by ms with select * from sysdatabases
+#table
+st2 = load db by ms with SELECT * FROM SysObjects where xtype='U'
+#列信息
+st2 = load db by ms with SELECT * FROM SysColumns WHERE id=Object_Id('db')
+#存储
+store data to db by ms with tcpflow
+
+#oracle sys SID
+define o131 as oracle://sys:123456@192.168.1.131:1521/orcl?mode=SYSDBA&events=true
+ss2 = load db by o131 with select * from user_tables
+
+#SERVICENAME
+define o18s as oracle://test:test@192.168.1.131:1521/?service_name=XEPDB1
+sss = load db by o18s with select * from user_tables
+sss = load db by o18s with select * from user_tab_columns
+
+data = load db by ms with select count(*) from db
+s = @udf ZFile.list_dir with fmtcsv-db
+store s to db by pg2  with files
+
+
+#db2数据库的操作方式
+define db2 as db2+ibm_db://db2inst1:fhcs2019@192.168.1.133/mydata
+#所有的schemata
+ss = load db by db2 with select * from sysibm.sysschemata
+
+#得到数据库所有表及其信息
+ss = load db by db2 with select * from syscat.tables 
+
+#某个schema
+ss = load db by db2 with select * from syscat.tables where tabschema='FIRST'
+
+#字段
+ss = load db by db2 with """
+SELECT
+    *
+FROM
+    SYSCAT.COLUMNS AS C
+where 
+	c.TABNAME =  'PERSONS'
+    and c.TABSCHEMA = 'FIRST' 
+"""
+
+
+

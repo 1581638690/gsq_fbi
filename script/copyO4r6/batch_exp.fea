@@ -1,0 +1,28 @@
+# 文件名: crud-batch_exp.fea
+
+#@file:	 	script/crud/batch_exp.fea
+#@name: 	文件的中文名称
+#@desc: 	批量导出脚本
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2019-4-10T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+
+use @FID
+#页面使用|分割,替换为,
+v = @sdf sys_str with (@ids,replace("|",","))
+
+ids1 = @sdf sys_eval with (@ids=="")
+#如果ids为空,导出全部数据,不为空,导出选中条数
+
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table)")
+
+#a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table where id in ($v))")
+a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table where id in ($v))")
+
+store datas to csv by @file_name
+
+clear @FID

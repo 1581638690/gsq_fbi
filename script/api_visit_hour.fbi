@@ -1,0 +1,36 @@
+#LastModifyDate:　2023-11-16T18:57:19.085792    Author:   zwl
+#LastModifyDate:　2023-09-05T11:12:52.802142    Author:   zwl
+#LastModifyDate:　2023-09-04T19:02:22.673155    Author:   zwl
+#LastModifyDate:　2023-08-29T18:35:49.279961    Author:   zwl
+#LastModifyDate:　2023-08-02T10:12:00.149698    Author:   zwl
+#LastModifyDate:　2023-07-31T09:55:38.444648    Author:   zwl
+#LastModifyDate:　2023-07-27T10:41:25.030004    Author:   zwl
+#LastModifyDate:　2023-07-25T12:00:46.648154    Author:   zwl0
+#LastModifyDate:　2023-07-22T15:47:27.772682    Author:   zwl
+#LastModifyDate:　2023-07-17T16:54:22.012836    Author:   zwl
+#LastModifyDate:　2023-07-14T17:43:41.277318    Author:   zwl
+#LastModifyDate:　2023-07-12T09:59:52.401556    Author:   zwl
+#FBI脚本文件
+#文件名: api_visit_hour.fbi
+#作者: zwl
+use @FID
+
+##清空文件
+#s = @udf FBI.local_cmd with sudo rm -rf /data/workspace/xlink/hx
+
+###获取api_visit_min.fbi 存储的pkl:xlink/api_visit_hx_hour
+a = @udf ZFile.list_dir with xlink/hx
+a.name = lambda filename by (x:x.split("/"))
+a = @udf a by udf0.df_l2cs with name
+a = loc a by filename,n102
+rename a as ('n102':'name')
+hh = group a by name agg name:count
+hh = @udf hh by udf0.df_reset_index
+
+foreach hh run """
+	b = @udf ZFile.list_dir with xlink/hx/@file
+	##分小时处理数据
+	run hour_visit.fbi 
+""" with (file = $1)
+
+clear @FID

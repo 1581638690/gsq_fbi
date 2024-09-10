@@ -1,0 +1,11 @@
+#FBI脚本文件
+#文件名: pot_user_mmxg/update.fea
+#作者: superFBI
+use @FID
+
+pd = @sdf sys_eval with ('@passwd_1'=='@passwd_2')
+assert $pd == True as altert to 修改成功 with 请确保两次密码输入一致!
+
+if_run = @sdf sys_if_run with ($pd, "df = @udf udfA.up_passwd with (@name,@passwd_1)")
+
+clear @FID

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.FBI</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.FBI</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/FBI.py">/opt/openfbi/fbi-bin/udf/FBI.py</a></td></tr></table>
+    <p><span class="code">FBI的一些高级功能，如和SSDB集群相关的,ES集群，FileBeat等<br>
+author&nbsp;:&nbsp;GJW<br>
+date:&nbsp;202001015</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="lxml.etree.html">lxml.etree</a><br>
+<a href="json.html">json</a><br>
+<a href="math.html">math</a><br>
+</td><td class="multicolumn"><a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+<a href="paramiko.html">paramiko</a><br>
+</td><td class="multicolumn"><a href="pandas.html">pandas</a><br>
+<a href="psutil.html">psutil</a><br>
+<a href="random.html">random</a><br>
+</td><td class="multicolumn"><a href="re.html">re</a><br>
+<a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-build_patterns"><strong>build_patterns</strong></a>(fname)</dt></dl>
+ <dl><dt><a name="-build_suricata_alert"><strong>build_suricata_alert</strong></a>(df, p='')</dt><dd><span class="code">#生成suricata的告警规则文件</span></dd></dl>
+ <dl><dt><a name="-clear_shm"><strong>clear_shm</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;2022-1130清除shm</span></dd></dl>
+ <dl><dt><a name="-db_conn"><strong>db_conn</strong></a>(server='127.0.0.1', port=8888)</dt></dl>
+ <dl><dt><a name="-df2json"><strong>df2json</strong></a>(df, p='split')</dt><dd><span class="code">df对象转换成json对象<br>
+参数:<br>
+records<br>
+index<br>
+split&nbsp;(默认)</span></dd></dl>
+ <dl><dt><a name="-eb_manager"><strong>eb_manager</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200113<br>
+@函数：eb_manager<br>
+@参数：<br>
+start&nbsp;or&nbsp;stop<br>
+@描述：<br>
+启动ES和Filebeat<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-es_config"><strong>es_config</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200327<br>
+@函数：es_config<br>
+@参数：<br>
+ip,nodename,nodeip1,nodeip2,....<br>
+@描述：<br>
+设置es的配置文件<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-ev_delete"><strong>ev_delete</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20211018&nbsp;删除一个事件模型</span></dd></dl>
+ <dl><dt><a name="-ev_disable"><strong>ev_disable</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20210419&nbsp;禁止一个事件模型</span></dd></dl>
+ <dl><dt><a name="-ev_enable"><strong>ev_enable</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20210419&nbsp;启动一个事件模型</span></dd></dl>
+ <dl><dt><a name="-evs_info_1000"><strong>evs_info_1000</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20211015&nbsp;事件模型的运行信息</span></dd></dl>
+ <dl><dt><a name="-evs_status_1000"><strong>evs_status_1000</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20210419&nbsp;事件模型是否启用的状态信息，根据df表的index来匹配</span></dd></dl>
+ <dl><dt><a name="-filebeat_config_ip"><strong>filebeat_config_ip</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200327<br>
+@函数：filebeat_config<br>
+@参数：<br>
+es_ip<br>
+@描述：<br>
+设置es的地址<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-find_stream_name_pid"><strong>find_stream_name_pid</strong></a>(name)</dt><dd><span class="code">#根据name去获取xlink进程ID</span></dd></dl>
+ <dl><dt><a name="-get_status"><strong>get_status</strong></a>(df, p='')</dt><dd><span class="code">#获取fbi的监控信息</span></dd></dl>
+ <dl><dt><a name="-json2df"><strong>json2df</strong></a>(Json, p='')</dt><dd><span class="code">json对象转换成DF表<br>
+参数:&nbsp;无</span></dd></dl>
+ <dl><dt><a name="-json_df"><strong>json_df</strong></a>(df)</dt></dl>
+ <dl><dt><a name="-lg_patterns_to_ssdb"><strong>lg_patterns_to_ssdb</strong></a>(df, p='')</dt><dd><span class="code">#模式到字典</span></dd></dl>
+ <dl><dt><a name="-lg_start"><strong>lg_start</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-lg_stop"><strong>lg_stop</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-local_cmd"><strong>local_cmd</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-local_cmd2"><strong>local_cmd2</strong></a>(df, p='')</dt><dd><span class="code">#快速执行</span></dd></dl>
+ <dl><dt><a name="-sleep"><strong>sleep</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-ssdb_info"><strong>ssdb_info</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-ssdb_master"><strong>ssdb_master</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200113<br>
+@函数：ssdb_master,<br>
+@参数：<br>
+conf,db_workspace,ip,port<br>
+@描述：<br>
+启动一个设置一个ssdb的主从实例<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-ssdb_slaver"><strong>ssdb_slaver</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200113<br>
+@函数：ssdb_slaver,<br>
+@参数：<br>
+conf,db_workspace,ip,port,server_id,master_ip,master_port<br>
+@描述：<br>
+启动一个设置一个ssdb的主从实例<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-ssdb_start"><strong>ssdb_start</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200113<br>
+@函数：ssdb_start,<br>
+@参数：<br>
+conf<br>
+@描述：<br>
+启动一个设置一个ssdb的主从实例<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-ssdb_stop"><strong>ssdb_stop</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200113<br>
+@函数：ssdb_stop,<br>
+@参数：<br>
+conf<br>
+@描述：<br>
+启动一个设置一个ssdb的主从实例<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-ssh_cmd"><strong>ssh_cmd</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200113<br>
+@函数：ssdb_stop,<br>
+@参数：<br>
+user@host:port,passwd,cmd<br>
+@描述：<br>
+通过远程的ssh执行一个命令<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-to_json"><strong>to_json</strong></a>(df)</dt></dl>
+ <dl><dt><a name="-update_data"><strong>update_data</strong></a>(df, p='/opt/openfbi/mPig/html/plot/')</dt><dd><span class="code">#modify&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20200525</span></dd></dl>
+ <dl><dt><a name="-update_scheme"><strong>update_scheme</strong></a>(df, p='/opt/openfbi/mPig/html/scheme/')</dt><dd><span class="code">#更新方案</span></dd></dl>
+ <dl><dt><a name="-x_finder3_debug"><strong>x_finder3_debug</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-x_finder3_list"><strong>x_finder3_list</strong></a>(df, p='')</dt><dd><span class="code">#查看启动的xlink服务</span></dd></dl>
+ <dl><dt><a name="-x_finder3_start"><strong>x_finder3_start</strong></a>(df, p='')</dt><dd><span class="code">#启动</span></dd></dl>
+ <dl><dt><a name="-x_finder3_start2"><strong>x_finder3_start2</strong></a>(df, p='')</dt><dd><span class="code">#快速启动</span></dd></dl>
+ <dl><dt><a name="-x_finder3_stop"><strong>x_finder3_stop</strong></a>(df, p='')</dt><dd><span class="code">#停止</span></dd></dl>
+ <dl><dt><a name="-x_finder3_stop2"><strong>x_finder3_stop2</strong></a>(df, p='')</dt><dd><span class="code">#终止</span></dd></dl>
+ <dl><dt><a name="-x_finder3k_start"><strong>x_finder3k_start</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-x_xlinks"><strong>x_xlinks</strong></a>(df, p='')</dt><dd><span class="code">#查看xlink所有的任务</span></dd></dl>
+ <dl><dt><a name="-xlink_clear_pkl"><strong>xlink_clear_pkl</strong></a>(df, p='')</dt><dd><span class="code">#清除xlink下的pkl文件</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>es_config_string</strong> = '<span class="repr">\n</span># ======================== Elasticsearch Config...dices:<span class="repr">\n</span>#<span class="repr">\n</span>#action.destructive_requires_name: true<span class="repr">\n</span>'<br>
+<strong>fbi_global</strong> = &lt;avenger.fglobals.FbiGlobal object&gt;<br>
+<strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>nan</strong> = nan<br>
+<strong>ssdb_master_config</strong> = '<span class="repr">\n</span># ssdb-server config for slave<span class="repr">\n</span># MUST indent by...mpaction_speed: 1000<span class="repr">\n\t</span># yes|no<span class="repr">\n\t</span>compression: yes<span class="repr">\n</span>'<br>
+<strong>ssdb_slaver_config</strong> = '<span class="repr">\n</span># ssdb-server config for slave<span class="repr">\n</span># MUST indent by...mpaction_speed: 1000<span class="repr">\n\t</span># yes|no<span class="repr">\n\t</span>compression: yes<span class="repr">\n</span>'</td></tr></table>
+</body></html>

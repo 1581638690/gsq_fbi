@@ -1,0 +1,30 @@
+#FBI脚本文件
+#文件名: sample/dump.fbi
+#作者: admin
+
+#导入ssdb的数据
+d = @udf  SSDB.imp_keys with dd.db
+
+#导出ssdb的数据
+
+a = @udf udf0.new_df with key
+a = @udf a by udf0.df_append with am:am_5:smpHubfMaY6
+a = @udf a by udf0.df_append with dd:future
+a = @udf a by udf0.df_append with dd2:future
+a = @udf a by udf0.df_append with dd:Yes_or_No
+a = @udf a by udf0.df_append with dd2:Yes_or_No
+a = @udf a by udf0.df_append with dashboard6:vapzit92OM
+a = @udf a by udf0.df_append with am:am_16:smp7zWDlM
+a = @udf a by udf0.df_append with am:am_16:smpxh
+a = @udf a by udf0.df_append with modeling:ResourceM
+a = @udf a by udf0.df_append with modeling:RoleM
+#用户管理
+a = @udf a by udf0.df_append with am:am_7:smpaVom
+c = @udf a by SSDB.dump_keys2 with dd1
+
+
+#导出用户
+a = @udf udf0.new_df with name
+a = @udf a by udf0.df_append with admin
+a = @udf a by udf0.df_append with pot
+a = @udf a by udfA.dump_users with user

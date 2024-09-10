@@ -1,0 +1,119 @@
+#LastModifyDate:　2024-06-17T15:02:03    Author:   rzc
+#LastModifyDate:　2024-06-17T15:01:07    Author:   rzc
+#LastModifyDate:　2024-06-17T14:55:09    Author:   rzc
+#LastModifyDate:　2024-06-17T14:14:30    Author:   rzc
+#LastModifyDate:　2024-06-17T10:28:36    Author:   rzc
+#LastModifyDate:　2024-06-17T10:27:58    Author:   rzc
+#xlink脚本
+#file: aopera_monitoring.xlk
+#name: 操作行为日志监控
+#描述： 根据用户操作行为进行日志监控行为
+#创建时间: 2024-06-17T10:21:51.601653
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with aopera_monitoring
+
+#停止
+#a = @udf FBI.x_finder3_stop with aopera_monitoring
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:aopera_monitoring,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::aopera_monitoring
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "操作行为日志监控"
+	stream["meta_desc"] = "根据用户操作行为进行日志监控行为"
+	stream["source"]= {"unix_udp":"/tmp/monitor_opera"}
+	
+	stream["stw"]["stw_mon"]={"times":10,"fun":"stw_mon"}
+	#stream["stw"]["stw_http"]={"times":60,"fun":"http"}
+	#stream["st"]["st_10s"]={"times":10,"fun":"print10"}
+
+	
+	
+	#创建ckh的pool
+	pools["ckh"] = []
+	
+}
+
+
+#事件处理函数
+events => {
+	printf("oo",o)
+	# mon = {}
+	timestamp = o.get("time")
+	k = iso_to_timestamp(timestamp)
+	datetime_str = datetime.strptime(timestamp,"%Y-%m-%dT%H:%M:%S:%f%z")
+	
+	# 提取年月日
+	date_part = datetime_str.date()
+	date_str = date_part.strftime("%Y-%m-%d")
+	# 提取时分
+	time_part = datetime_str.time()
+	time_srt = time_part.strftime("%H-%M")
+	
+	appName = o.get("app_name")
+	userName = o.get("account")
+	interface =o.get("name")
+	type = o.get("action")
+	mon = {"time":time_str,"year":date_str,"type":type,"userName":userName,"appName":appName,"interface":interface}
+	push_stw("stw_mon",k,mon)
+}
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+	stream["count-10"] = 0
+	
+	
+}
+
+#窗口函数，使用FBI的原语
+stw_mon => stw{
+	apps = loc df by appName
+	app_distinct = distinct apps by appName
+	users = loc a by userName
+	user_distinct = distinct users by userName
+	
+	# 对appName进行去重，循环存储 appName
+	foreach app_distinct run """
+		tt = filter df by appName == '@app'
+		store tt to redis by redis0 push log:app:@app:user:全部
+	""" with (app = $1)
+	
+	# 对userName进行去重，循环存储userName进行
+	foreach user_distinct run """
+		tt = filter user by userName == '@user'
+		store tt to redis by redis0 push log:app:全部:user:@user
+	""" with (user = $1)
+	store df to redis by redis0 push log:app:全部:user:全部
+	drop df
+}
+
+
+#base64字符串的解码,处理被截断的情况
+base64_decode =>(x){
+	try:
+		a =  base64.b64decode(x).decode("utf-8")
+	except Exception as e:
+		a = base64.b64decode(x)[0:e.start].decode("utf-8")
+	return a
+}
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+}

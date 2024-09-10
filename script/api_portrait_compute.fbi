@@ -1,0 +1,127 @@
+#LastModifyDate:　2024-01-18T17:57:47    Author:   superFBI
+#LastModifyDate:　2023-12-21T10:01:26.866737    Author:   superFBI
+#LastModifyDate:　2023-11-02T16:04:56.967463    Author:   superFBI
+#LastModifyDate:　2023-09-27T17:42:56.631057    Author:   superFBI
+#LastModifyDate:　2023-09-21T16:55:18.113859    Author:   superFBI
+#LastModifyDate:　2023-08-23T17:16:04.869303    Author:   zwl
+#LastModifyDate:　2023-07-17T14:31:43.485970    Author:   zwl
+#LastModifyDate:　2023-05-26T14:00:35.854236    Author:   zwl
+#LastModifyDate:　2023-05-12T13:51:55.825762    Author:   zwl
+#LastModifyDate:　2023-05-12T11:34:21.553664    Author:   zwl
+#LastModifyDate:　2023-05-11T18:14:44.203358    Author:   zwl
+use @FID
+## 更新接口类型(查出接口类型为0的，然后在查出这些为0接口最新审计的接口类型)
+url_type=load db by mysql1 with select url from data_api_new where api_type=0
+#查询出这些接口类型的最新审计的信息
+new_data=load ckh by ckh with select urld,api_type,max(time) as latest_date from api_monitor where api_type!='0' group by urld,api_type
+#将从ckh查询到的数据其中不为0的都转变为当前的接口类型
+join_data=join url_type,new_data by url,urld with left
+#更新
+#data_False=@udf join_data by udf0.df_isna with api_type
+
+join_data2=filter join_data by (api_type not null)
+#删除列
+store_data=loc join_data2 drop (urld,latest_date)
+#修改列类型
+alter store_data by api_type:int
+#更新数据
+store_data = @udf store_data by CRUD.save_table with (mysql1,data_api_new)
+
+drop url_type
+drop new_data
+drop join_data
+drop join_data2
+
+
+#对接口合并5个一合并删除子接口
+apilist11 = load db by mysql1 with  (select id,url,api,ltten_url from data_api_new where data_type not in ("JS","CSS","资源文件"))
+#筛选出{p1}或{p2} 且url不等于ltten_url的数据
+filter_df=@udf apilist11 by handi_merge.ApiMerging
+#查出的数据进行删除
+delete_df= @udf filter_df by udf0.df_set_index with id
+@udf delete_df by CRUD.delete_mobject_mtable with (mysql1,data_api_new)
+
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with api_portrait_compute
+##判断key是否为空，若为空，取api_visit_hour的最小值
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_visit_hour
+#aa = load ckh by ckh with select min(time) as time from api_visit_hour
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(time) as time from api_visit_hour
+time2 = eval aa by iloc[0,0]
+store aa to ssdb by ssdb0 with api_portrait_compute
+
+#从访问表中 统计接口的基本信息
+#apilist1 = load db by mysql1 with  (select id,url from data_api_new)
+#查询MySQL
+
+#Delete 注释 by superFBI on 2023-09-27 17:42:49
+#apilist1=loc apilist11 by (id,url)
+##子接口展示
+#url_merge=load ckh by ckh with select url,y_url from merge_urls group by url,y_url
+##去重
+#api =join apilist1,url_merge by url,url
+#urlsum=loc api by url,y_url
+##apilist1=limit apilist1 by 20
+##a=@udf apilist1 by udf0.df_json with jso
+#res=@udf urlsum by handi_merge.dispose
+#res=@udf res by udf0.df_reset_index
+#rename res as ("y_url":"auto_merge")
+#res=join api,res by url,url
+#res=distinct res by url
+#res.auto_merge=lambda auto_merge by x:x.split(";|")
+#alter res.auto_merge as str
+##res.auto_merge=lambda auto_merge by x:x.replace("[","").replace("]","")
+#res=loc res drop y_url
+##获取的数据进行存储
+#res1 = @udf res by udf0.df_set_index with id
+#res1 = @udf res1 by CRUD.save_table with (mysql1,data_api_new)
+
+
+
+
+
+#1、接口访问数量
+url_visits_num = load ckh by ckh with select url ,sum(visit_num) as visits_num1 from api_visit_hour where time >= '$time1' and time < '$time2' group by url
+#2、接口部署IP数量
+url_dstip_num = load ckh by ckh with select a.url, count(a.url) as dstip_num from (select url,dstip from api_visit_hour  group by url,dstip ) a group by a.url
+url_api = join url_visits_num,url_dstip_num by url,url
+drop url_visits_num
+drop url_dstip_num
+#3、访问账号数量
+url_account_num = load ckh by ckh with select a.url, count(a.url) as account_num from (select url,account from api_visit_hour where account is not null and account != '' group by url,account ) a group by a.url
+url_api = join url_api,url_account_num by url,url with outer
+drop url_account_num
+#4、访问终端数量
+url_srcip_num = load ckh by ckh with select a.url, count(a.url) as srcip_num from (select url,srcip from api_visit_hour group by url,srcip ) a group by a.url
+url_api = join url_api,url_srcip_num by url,url
+drop url_srcip_num
+#5、访问流量
+url_visits_flow = load ckh by ckh with select url, sum(visit_flow) as visits_flow1 from api_visit_hour where time >= '$time1' and time < '$time2' group by url
+url_api = join url_api,url_visits_flow by url,url
+drop url_visits_flow
+#6、最后活跃时间
+url_lasttime = load ckh by ckh with select url, MAX(`time`) as last_time from api_visit_hour group by url
+alter url_lasttime by last_time:str
+url_api = join url_api,url_lasttime by url,url
+drop url_lasttime
+url_api = @udf url_api by udf0.df_fillna_cols with visits_num1:0,dstip_num:0,account_num:0,srcip_num:0,visits_flow1:0,url:0
+#连接
+####累加历史数据
+#apilist1 = load db by mysql1 with  (select id,url,visits_flow as visits_flow2,srcip_num as srcip_num2,account_num as account_num2,dstip_num as dstip_num2,visits_num as visits_num2 from data_api_new)
+apilist1 = load db by mysql1 with  (select id,url,visits_num as visits_num2,visits_flow as visits_flow2 from data_api_new)
+apilist1 = @udf apilist1 by udf0.df_fillna_cols with visits_num2:0,visits_flow2:0
+apilist1 = join apilist1,url_api by url,url
+apilist1 = add visits_num by df["visits_num1"]+df["visits_num2"]
+apilist1 = add visits_flow by df["visits_flow1"]+df["visits_flow2"]
+apilist1 = loc apilist1 by id,url,visits_flow,visits_num,dstip_num,srcip_num,account_num,last_time
+drop url_api
+#获取的数据进行存储
+apilist = @udf apilist1 by udf0.df_set_index with id
+alter apilist.last_time as str
+apilist = @udf apilist by CRUD.save_table with (mysql1,data_api_new)
+
+clear @FID

@@ -1,0 +1,24 @@
+#FBI脚本文件
+
+#建表语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+#@zh  表名中文注释
+use @FID
+
+df_table=load ssdb by ssdb0 with @data_key
+
+b=@udf CRUD.is_exist_table with (@link,@table)
+assert find_df('b',ptree) as altert with 数据库查询失败！
+
+is_exist= eval b by (iloc[0,0])
+
+#表不存在,则创建
+d = if not $is_exist with """
+    aa= @udf df_table by CRUD.create_table with (@link,@table,@zh)
+    assert find_df('aa',ptree) as alert to  表创建成功! with 表创建失败!
+"""
+
+push b as table
+clear @FID

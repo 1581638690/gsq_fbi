@@ -1,0 +1,9 @@
+#FBI脚本文件
+
+#远程检查节点信息
+#@id为节点名称
+run system/check_node.fbi@@id
+
+push app as app
+push copyright as copyright
+push info as info

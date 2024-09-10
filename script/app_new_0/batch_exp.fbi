@@ -1,0 +1,61 @@
+#LastModifyDate:　2023-08-23T17:14:29.770891    Author:   zwl
+#LastModifyDate:　2023-03-17T15:30:36.294615    Author:   pjb
+#LastModifyDate:　2023-02-17T14:00:05.527807    Author:   pjb
+#LastModifyDate:　2023-02-16T18:24:19.823118    Author:   pjb
+#LastModifyDate:　2023-02-16T18:21:29.851180    Author:   pjb
+#LastModifyDate:　2023-02-16T18:11:11.668081    Author:   pjb
+# 文件名: crud-batch_exp.fbi
+
+#@file:	 	script/crud/batch_exp.fbi
+#@name: 	文件的中文名称
+#@desc: 	批量导出脚本
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2019-4-10T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+
+use @FID
+#页面使用|分割,替换为,
+v = @sdf sys_str with (@ids,replace("|",","))
+
+ids1 = @sdf sys_eval with (@ids=="")
+#如果ids为空,导出全部数据,不为空,导出选中条数
+
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table)")
+#a = @sdf sys_if_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table)")
+
+#modify by gjw on 2021-1130
+cc = if $ids1 with """
+	#获取表单中的条件信息
+	datas = @udf udf0.new_df with id
+	a = load ssdb by ssdb0 with @data_key
+	#保存
+	datas,c = @udf a by CRUD.query_table with (@link,@table,app_type = 0)
+"""
+a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_mysql_sql with (@link,select * from @table where id in ($v))")
+#a = @sdf sys_unif_run with ($ids1,"datas =@udf CRUD.load_s3_sql with (@link,select * from @table where id in ($v))")
+datas = loc datas drop (gmt_create,gmt_modified,creator,owner,res_label,req_label)
+datas.sensitive_label = lambda sensitive_label by x:"敏感" if x =='1' else "非敏感"
+datas.app_status = lambda app_status by x:"已审计" if x =='1' else "未审计"
+datas.app_type = lambda app_type by x:"内部应用" if x ==1 else "外部应用"
+
+sx = load ssdb by ssdb0 with dd:app_sx
+sx  = add id by sx.index
+rename sx as ("sysname":"关联应用")
+datas = join datas,sx by sx,id with left
+datas = loc datas drop id,sx
+active = load ssdb by ssdb0 with dd:api_active
+active  = add id by active.index
+rename active as ("value":"活跃状态")
+datas = alter datas.active as str
+datas = join datas,active by active,id with left
+datas = loc datas drop id_x,id_y,active,id
+
+rename datas as ("app":"应用IP/域名","app_title":"标题","name":"应用名称","first_time":"首次发现时间","server":"服务器信息","visits_num":"访问数量","visits_flow":"访问流量","monitor_flow":"审计访问数量","api_num":"接口数量","imp_api_num":"审计接口数量","srcip_num":"访问IP数量","account_num":"访问账号数量","sensitive_label":"敏感标签","dstip_num":"部署数量","dstip":"目的IP","dstport":"目的端口","sj_num":"审计访问数量","last_time":"最后修改时间","app_status":"审计状态","scope":"应用标签","app_type":"应用类型","app_sum":"子应用","app_merges":"合并应用名","merge_state":"合并状态")
+
+store datas to csv by @file_name
+
+clear @FID

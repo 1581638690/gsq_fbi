@@ -1,0 +1,68 @@
+#LastModifyDate:　2024-03-18T15:45:54    Author:   pjb
+#LastModifyDate:　2024-03-04T10:30:59    Author:   pjb
+#LastModifyDate:　2023-03-17T15:01:38.738179    Author:   pjb
+#LastModifyDate:　2023-03-14T11:49:40.473484    Author:   pjb
+#LastModifyDate:　2023-03-14T11:38:35.826729    Author:   rzc
+#LastModifyDate:　2023-03-09T18:47:41.177209    Author:   pjb
+#LastModifyDate:　2023-03-08T16:08:38.303633    Author:   pjb
+#LastModifyDate:　2022-11-23T18:03:52.716145    Author:   zwl
+#LastModifyDate:　2022-10-28T11:30:37.114455    Author:   gsp
+#LastModifyDate:　2022-10-22T17:07:05.845075    Author:   gsp
+#LastModifyDate:　2022-10-21T11:36:56.471439    Author:   gsp
+use @FID
+#wd_xlk = @udf udf0.new_df with ( s,value )
+#wd_xlk = @udf wd_xlk by udf0.df_append with ( true,是 )
+#wd_xlk = @udf wd_xlk by udf0.df_append with ( false,否 )
+#wd_xlk = loc wd_xlk by s to index
+#store wd_xlk to ssdb by ssdb0 with dd:YorN
+# app域内外
+c0 = @udf RS.load_mysql_sql with (mysql1,select id,dstip ip from data_app_new where dstip !='')
+ynw = @udf c0 by ip24.repeat  with ip
+ynw.app_type = lambda yn by (x:1 if x==1 else 0)
+
+c0 = loc ynw by id,ip,app_type
+c0 = loc c0 by id to index
+rename c0 as ('ip':'dstip')
+c0 = @udf c0 by CRUD.save_table with mysql1,data_app_new
+ynw = loc ynw by drop app_type,yn,wd
+store ynw to ssdb by ssdb0 with data_app_ynw
+#api域内外
+c0 = @udf RS.load_mysql_sql with (mysql1,select id,dstip ip from data_api_new where dstip !='')
+ynw = @udf c0 by ip24.repeat  with ip
+ynw.api_yuw = lambda yn by (x:1 if x==1 else 0)
+
+c0 = loc ynw by id,api_yuw
+c0 = loc c0 by id to index
+rename c0 as ('ip':'dstip')
+c0 = @udf c0 by CRUD.save_table with mysql1,data_api_new
+#file_server
+c0 = @udf RS.load_mysql_sql with (mysql1,select id,dstip ip from data_file_server where dstip !='')
+ynw = @udf c0 by ip24.repeat  with ip
+ynw.file_yuw = lambda yn by (x:1 if x==1 else 0)
+
+c0 = loc ynw by id,file_yuw
+c0 = loc c0 by id to index
+c0 = @udf c0 by CRUD.save_table with mysql1,data_file_server
+
+api= @udf RS.load_mysql_sql with (mysql1,select a.id,b.app_type from data_api_new a join data_app_new b where a.app=b.name)
+api = loc api by id to index
+aa = eval api by index.size
+if $aa != 0 with "api = @udf api by CRUD.save_table with mysql1,data_api_new"
+
+pp = @udf RS.load_mysql_sql with (mysql1,select id,srcip ip from data_ip_new )
+pp = @udf pp by LBS.regionDatx with ip
+pp = add country by pp.country+pp.city
+pp = loc pp by id,ip,country
+rename pp as ('country':'region')
+ynwip = @udf pp by ip24.net_area1 with ip
+ynwip.yn = lambda yn by (x:'域内' if x==1 else '域外')
+pp = join pp,ynwip by ip,ip with left
+pp = loc pp by id,ip,region,yn
+pp = @udf pp by udf0.df_row_lambda with (x: x[2] if x[2]!="局域网" else x[3] )
+pp = loc pp drop region,yn
+pp = loc pp by id to index
+rename pp as ('ip':'srcip','lambda1':'region')
+pp = @udf pp by CRUD.save_table with mysql1,data_ip_new
+ynwip = loc ynwip by drop yn,wd
+store ynwip to ssdb by ssdb0 with data_ip_ynw
+clear @FID

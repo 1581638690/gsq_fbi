@@ -1,0 +1,240 @@
+#LastModifyDate:　2024-03-08T15:10:23    Author:   zwl
+#LastModifyDate:　2024-01-23T16:33:25    Author:   zwl
+#LastModifyDate:　2024-01-20T15:25:26    Author:   zwl
+#LastModifyDate:　2024-01-16T14:42:19    Author:   zwl
+#LastModifyDate:　2023-11-06T18:15:07.886108    Author:   zwl
+#LastModifyDate:　2023-08-23T17:07:27.121668    Author:   zwl
+#LastModifyDate:　2023-08-01T17:02:44.547117    Author:   zwl
+#LastModifyDate:　2023-07-25T16:22:32.035851    Author:   zwl
+#LastModifyDate:　2023-07-24T18:45:14.331325    Author:   zwl
+#LastModifyDate:　2023-06-13T14:06:13.388242    Author:   zwl
+#LastModifyDate:　2023-06-05T14:44:35.513948    Author:   zwl
+#FBI脚本文件
+#文件名: qh_api_1.fbi
+#作者: qiaohan
+
+use @FID
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_hx limit 1
+assert find_df_have_data('ccc',ptree) as exit with 数据库未连接 或者 无数据更新！
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with api_hx1
+##判断key是否为空，若为空，api_hx
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_hx
+#aa = load ckh by ckh with select min(time) as time from api_hx
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(time) as time from api_hx
+time2 = eval aa by iloc[0,0]
+store aa to ssdb by ssdb0 with api_hx1
+
+#月时间
+month1 = @sdf sys_now with -1m
+month = @sdf format_now with ($month1,"%Y-%m-%dT00:00:00")
+month1 = @sdf format_now with ($month1,"%Y-%m-%d")
+month2 = @sdf sys_now 
+month2 = @sdf format_now with ($month2,"%Y-%m-%d")
+time_date = @udf udf0.new_df_timerange with ($month1,$month2,1D)
+time_date = loc time_date by end_time 
+time_date.end_time = lambda end_time by (x:x[5:10])
+time_date = loc time_date by end_time to index
+
+##近24小时
+day = @sdf sys_now with -1d
+day2 = @sdf sys_now 
+day1 = @sdf format_now with ($day,"%Y-%m-%d %H:00:00")
+day2 = @sdf format_now with ($day2,"%Y-%m-%d %H:00:00")
+j_hour = @udf udf0.new_df_timerange with ($day1,$day2,1H)
+j_hour.times = lambda end_time by (x:x[0:13])
+j_hour = loc j_hour by times
+
+
+## 取与接口管理 同一个表的数据
+apilist1 = load db by mysql1 with select id,url,risk_level,risk_label_value,auto_merge from data_api_new where merge_state != 1 and portrait_status = 1
+apilist1 = @udf apilist1 by udf0.df_fillna_cols with risk_level:0,risk_label_value:'',auto_merge:''
+alter apilist1 by url:str,risk_level:int,risk_label_value:str,auto_merge:str
+apilist1 = loc apilist1 by id,url,risk_level,risk_label_value,auto_merge
+#bbb = filter apilist1 by url == 'http://www.gigablast.com/images/partners/{dst}'
+###月流量数据
+mon_ll = load ckh by ckh with select url,SUBSTRING(toString(time),6,5) as times,sum(visit_num) as time_count,sum(visit_flow) as llk from api_hx where time > '$month' group by url,times 
+alter mon_ll by url:str,times:str,time_count:int,llk:int
+mon_ll.llk = lambda llk by (x:round(x/1024,2))
+mon_ll = order mon_ll by times with asc
+##清单
+visit_url = loc apilist1 by url,auto_merge
+visit_url = @udf visit_url by udf0.df_fillna_cols with auto_merge:''
+aa = filter visit_url by auto_merge != ''
+visit_dstip = load ckh by ckh with select url,dstip,sum(visit_num) as dstip_num from api_hx where time >= '$time1' and time < '$time2' group by url,dstip
+alter visit_dstip by url:str,dstip:str,dstip_num:int
+visit_srcip = load ckh by ckh with select url,srcip,sum(visit_num) as srcip_num from api_hx where time >= '$time1' and time < '$time2' group by url,srcip
+alter visit_srcip by url:str,srcip:str,srcip_num:int
+visit_account = load ckh by ckh with select url,account,sum(visit_num) as account_num from api_hx where time >= '$time1' and time < '$time2'and account != '' and account != '未知' group by url,account
+alter visit_account by url:str,account:str,account_num:int
+##敏感信息
+zts_apilist1 = loc apilist1 by id,url
+#sensitive_data = load ckh by ckh with select distinct url_c,app,srcip,account,sens,key from sensitive_data
+sensitive_data = load pq by sensitive/sens_data.pq
+alter sensitive_data by app:str,url:str,src_ip:str,account:str,key:str,num:int
+sensitive_data = join zts_apilist1,sensitive_data by url,url with left
+sensitive_data = @udf sensitive_data by udf0.df_fillna_cols with app:'',src_ip:'',account:'',type:'',key:'',num:0 
+###24小时平均访问趋势
+api_24 = load ckh by ckh with select url,SUBSTRING(toString(time),1,13) as times,sum(visit_num) as count from api_hx where time > '$day1' group by url,times
+alter api_24 by url:str,times:str,count:int
+
+
+
+foreach apilist1 run """
+
+	###24小时平均访问次数   -----------------------------------------------------------------------------
+	api24 = filter api_24 by (url == """@url""")
+	#api24 = filter api_24 by (url == 'http://www.mattheaton.com/')
+	api24 = join j_hour,api24 by times,times with left
+	api24 = @udf api24 by udf0.df_fillna_cols with times:'',count:0
+	api24.times = lambda times by (x:x[11:])
+	api24.times = lambda times by (x:x+'时')
+	api24 = loc api24 by times to index 
+	api24 = loc api24 by count
+	rename api24 as ('count':'每小时访问数量')
+	store api24 to ssdb by ssdb0 with z:@id:time_24
+	#########API风险----   -----------------------------------------------------------------------------
+	t = filter apilist1 by (url == """@url""")
+	#t = filter apilist1 by url == "http://www.ujiaoshou.com/xtjc/{dst}"
+	i = loc t by (risk_level,risk_label_value)
+	i.risk_level = str risk_level by ( replace('0','低风险'))
+	i.risk_level = str risk_level by ( replace('1','中风险'))
+	i.risk_level = str risk_level by ( replace('2','高风险'))
+	i = @udf i by VL.set_col_width with (100,350)
+	i = @udf i by VL.set_col_color with (#f00,#f00)
+	rename i as ("risk_level":"风险等级","risk_label_value":"风险内容")
+	store i to ssdb with z:@id:risklll
+	drop i
+	#月访问数量和流量 http://192.168.1.196:9999/run_blockp   -----------------------------------------------------------------------------
+	v1 = filter mon_ll by (url == """@url""") 
+	v1 = filter mon_ll by (url == 'http://www.mattheaton.com/') 
+	v1 = loc v1 by times,time_count,llk
+	v1 = loc v1 by times to index
+	ss = join v1,time_date by index,index with right
+	ss = loc ss by (time_count,llk)
+	ss = @udf ss by udf0.df_fillna_cols with time_count:0,llk:0
+	ss_mean = loc ss by time_count,llk
+	ss_mean = add ss by 1
+	ss_mean = group ss_mean by ss agg time_count:mean,llk:mean
+	time_count_mean = eval ss_mean by iloc[0,0]
+	if $time_count_mean > 10000 with ss.time_count = lambda time_count by (x:round(x/10000,2))
+	if $time_count_mean > 10000 with rename ss by ("time_count":"访问数量(万)")
+	if $time_count_mean <= 10000 with rename ss by ("time_count":"访问数量")
+	llk_mean = eval ss_mean by iloc[0,1]
+	if $llk_mean > 1024 with ss.llk = lambda llk by (x:round(x/1024,2))
+	if $llk_mean > 1024 with rename ss by ("llk":"流量(M)")
+	if $llk_mean <= 1024 with rename ss by ("llk":"流量(k)")
+	store ss to ssdb with z:@id:timeh
+	#IP清单   -----------------------------------------------------------------------------
+	ipls = filter visit_dstip by (url == """@url""")
+	ipls_ll = load pq by dt_table/api_visit_dstip1_@id.pq
+	ipls = union ipls,ipls_ll
+	ipls = group ipls by url,dstip agg dstip_num:sum
+	ipls = @udf ipls by udf0.df_reset_index
+	rename ipls as ('dstip_num_sum':'dstip_num')
+	##  动态表格
+	visit_dstip1 = loc ipls by url,dstip,dstip_num
+	visit_dstip1 = order visit_dstip1 by dstip_num with desc limit 1000
+	#保存为pq文件
+	store visit_dstip1 to pq by dt_table/api_visit_dstip1_@id.pq
+	##清单
+	ipls = loc ipls by dstip,dstip_num
+	ipls = order ipls by dstip_num with desc limit 10
+	rename ipls by ("dstip":"部署服务器IP",'dstip_num':'访问数量')
+	store ipls to ssdb with z:@id:ipls
+	#访问账号清单   -----------------------------------------------------------------------------
+	accountls = filter visit_account by (url == """@url""")
+	accountls_ll = load pq by dt_table/api_visit_account1_@id.pq
+	accountls = union accountls,accountls_ll
+	accountls = group accountls by url,account agg account_num:sum
+	accountls = @udf accountls by udf0.df_reset_index
+	rename accountls as ('account_num_sum':'account_num')
+	##动态表格
+	visit_account1 = loc accountls by url,account,account_num
+	visit_account1 = order visit_account1 by account_num with desc limit 1000
+	#保存为pq文件
+	store visit_account1 to pq by dt_table/api_visit_account1_@id.pq
+	#重命名
+	rename visit_account1 as ("url":"接口","account":"账号","account_num":"访问数量")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,api_visit_account1_@id,-,-
+	#保存Q
+	store visit_account1 to ssdb by ssdb0 with api_visit_account1_@id as Q
+	drop visit_account1
+	##清单
+	accountls = loc accountls by account,account_num
+	accountls = order accountls by account_num with desc limit 10
+	rename accountls by ("account":"访问账号",'account_num':'访问数量')
+	store accountls to ssdb with z:@id:accountls
+	#访问终端清单   -----------------------------------------------------------------------------
+	srcipls = filter visit_srcip by (url == """@url""")
+	srcipls_ll = load pq by dt_table/api_visit_srcip1_@id.pq
+	srcipls = union srcipls,srcipls_ll
+	srcipls = group srcipls by url,srcip agg srcip_num:sum
+	srcipls = @udf srcipls by udf0.df_reset_index
+	rename srcipls as ('srcip_num_sum':'srcip_num')
+	##动态表格
+	visit_srcip1 = loc srcipls by url,srcip,srcip_num
+	visit_srcip1 = order visit_srcip1 by srcip_num with desc limit 1000
+	#保存为pq文件
+	store visit_srcip1 to pq by dt_table/api_visit_srcip1_@id.pq
+	#重命名
+	rename visit_srcip1 as ("url":"接口","srcip":"访问终端","srcip_num":"访问数量")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,api_visit_srcip1_@id,-,-
+	#保存Q
+	store visit_srcip1 to ssdb by ssdb0 with api_visit_srcip1_@id as Q
+	drop visit_srcip1
+	## 清单
+	srcipls = loc srcipls by srcip,srcip_num
+	srcipls = order srcipls by srcip_num with desc limit 10
+	rename srcipls by ("srcip":"访问终端",'srcip_num':'访问数量')
+	store srcipls to ssdb with z:@id:srcipls
+	#原接口   -----------------------------------------------------------------------------
+	url_a = filter visit_url by (url == """@url""")
+	#url_a = filter visit_url by (url == """http://100.78.26.82/ebus/00000000000_nw_dzfpfwpt/SJCS_FPJF_ZJ_MRJK""")
+	url_a.auto_merge = lambda auto_merge by (x:x[1:-1])
+	url_a.auto_merge = lambda auto_merge by (x:x.split(", "))
+	url_a = @udf url_a by udf0.df_l2cs with auto_merge
+	url_a = @udf url_a by udf0.df_reset_index
+	url_a = loc url_a by drop url,index,auto_merge
+	url_a = @udf url_a by udf0.df_T
+	rename url_a as (0:'url')
+	url_a.url = lambda url by (x:x[1:-1])
+	rename url_a by ("url":"原接口")
+	url_a = filter url_a by 原接口 != ''
+	store url_a to ssdb with z:@id:url_a
+	##敏感信息   -----------------------------------------------------------------------------
+	zts = filter sensitive_data by (url == """@url""")
+	#zts = filter sensitive_data by (url == """http://100.78.76.36/ebus/00000000000_nw_dzfpfwpt/yp/{p1}/v1/{p2}""")
+	zts = filter zts by app != ''
+	zts1 = loc zts by app,src_ip,account,type,key
+	zts1 = order zts1 by key with desc limit 500
+	zts1 = filter zts1 by key != ''
+	rename zts1 by ('key':'敏感类型','type':'标签','app':'应用','src_ip':'终端','account':'账号')
+	store zts1 to ssdb by ssdb0 with zts:@id:sens
+	######################敏感信息1111111111111111111111111111敏感信息1111111111111111111111111111敏感信息1111111111111111111111111111敏感信息1111111111111111111111111111
+	zts2 = loc zts by id,url,app,src_ip,account,type,key
+	rename zts2 as ('id':'_id') 
+	zts2 = filter zts2 by key != ''
+	zts2 = order zts2 by _id with desc limit 1000
+	##保存为pq文件
+	store zts2 to pq by dt_table/api_zts_@id.pq
+	##重命名
+	rename zts2 as ('url':'接口','key':'敏感类型','type':'标签','app':'应用','src_ip':'终端','account':'账号')
+	##清空Q
+	b = load ssdb by ssdb0 query qclear,api_zts_@id,-,-
+	##保存Q
+	store zts2 to ssdb by ssdb0 with api_zts_@id as Q
+	drop zts2
+	######################敏感信息1111111111111111111111111111敏感信息1111111111111111111111111111敏感信息1111111111111111111111111111敏感信息1111111111111111111111111111
+""" with (url=$2,id=$1)
+
+
+clear @FID

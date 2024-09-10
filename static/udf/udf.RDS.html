@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.RDS</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.RDS</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/RDS.py">/opt/openfbi/fbi-bin/udf/RDS.py</a></td></tr></table>
+    <p><span class="code">redis相关操作函数库</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="json.html">json</a><br>
+</td><td class="multicolumn"><a href="pandas.html">pandas</a><br>
+</td><td class="multicolumn"><a href="redis.html">redis</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor index-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
+    
+<tr><td class="decor index-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl>
+<dt class="heading-text"><a href="builtins.html#object">builtins.object</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="udf.RDS.html#Redis_">Redis_</a>
+</dt></dl>
+</dd>
+</dl>
+ <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Redis_">class <strong>Redis_</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Redis_">Redis_</a>(link)<br>
+&nbsp;<br>
+<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="Redis_-__init__"><strong>__init__</strong></a>(self, link)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Redis_-lpop"><strong>lpop</strong></a>(self, name)</dt></dl>
+
+<dl><dt><a name="Redis_-lpush"><strong>lpush</strong></a>(self, name, *value)</dt></dl>
+
+<dl><dt><a name="Redis_-ltrim"><strong>ltrim</strong></a>(self, name, start, end)</dt></dl>
+
+<dl><dt><a name="Redis_-publish"><strong>publish</strong></a>(self, name, value)</dt></dl>
+
+<dl><dt><a name="Redis_-rpop"><strong>rpop</strong></a>(self, name)</dt></dl>
+
+<dl><dt><a name="Redis_-rpush"><strong>rpush</strong></a>(self, name, *value)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</span></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-load"><strong>load</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：load<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称,数据量)<br>
+@描述：向redis列表左右端批量提取数据<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;RDS.load&nbsp;with&nbsp;redis212,name_of_list,100</span></dd></dl>
+ <dl><dt><a name="-lpop"><strong>lpop</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：lpop<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称)<br>
+@描述：从redis列表左端取数据<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;RDS.lpop&nbsp;with&nbsp;redis212,name_of_list</span></dd></dl>
+ <dl><dt><a name="-lpush"><strong>lpush</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：lpush<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称,value)<br>
+@描述：向redis列表左端推送数据<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;RDS.lpush&nbsp;with&nbsp;redis212,name_of_list,111</span></dd></dl>
+ <dl><dt><a name="-lpush_df"><strong>lpush_df</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：lpush_df<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称)<br>
+@描述：向redis列表左端推送数据(数据从df表中提取)<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;RDS.lpush_df&nbsp;with&nbsp;redis212,name_of_list</span></dd></dl>
+ <dl><dt><a name="-ltrim"><strong>ltrim</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：ltrim<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称,起点,终点)<br>
+@描述：从指定起点终点截取redis列表中数据<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;RDS.ltrim&nbsp;with&nbsp;redis212,name_of_list,1,5</span></dd></dl>
+ <dl><dt><a name="-publish_df"><strong>publish_df</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：publish_df<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称)<br>
+@描述：消息发布<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;RDS.publish_df&nbsp;with&nbsp;redis212,name_of_list</span></dd></dl>
+ <dl><dt><a name="-remove"><strong>remove</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：remove<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称)<br>
+@描述：清空redis列表中数据(即删除该列表)<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;RDS.remove&nbsp;with&nbsp;redis212,name_of_list</span></dd></dl>
+ <dl><dt><a name="-rpop"><strong>rpop</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：rpop<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称)<br>
+@描述：从redis列表右端取数据<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;RDS.rpop&nbsp;with&nbsp;redis212,name_of_list</span></dd></dl>
+ <dl><dt><a name="-rpush"><strong>rpush</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：rpush<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称,value)<br>
+@描述：向redis列表右端推送数据<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;RDS.rpush&nbsp;with&nbsp;redis212,name_of_list,111</span></dd></dl>
+ <dl><dt><a name="-rpush_df"><strong>rpush_df</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：rpush_df<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称)<br>
+@描述：向redis列表右端推送数据(数据从df表中提取)<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;RDS.rpush_df&nbsp;with&nbsp;redis212,name_of_list</span></dd></dl>
+ <dl><dt><a name="-store"><strong>store</strong></a>(df, p)</dt><dd><span class="code">@author：&nbsp;yy<br>
+@date:&nbsp;20200826<br>
+@函数：store<br>
+@参数：df表,&nbsp;p&nbsp;-&gt;&nbsp;(redis链接名,列表名称)<br>
+@描述：向redis列表左端批量推送数据(数据从df表中提取)<br>
+@返回：df表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;RDS.store&nbsp;with&nbsp;redis212,name_of_list</span></dd></dl>
+</td></tr></table>
+</body></html>

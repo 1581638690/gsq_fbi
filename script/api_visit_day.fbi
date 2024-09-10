@@ -1,0 +1,72 @@
+#LastModifyDate:　2024-01-18T14:25:02    Author:   zwl
+#LastModifyDate:　2023-07-27T09:55:30.548480    Author:   zwl
+#LastModifyDate:　2023-07-22T15:44:28.052231    Author:   zwl
+#LastModifyDate:　2023-07-12T14:35:27.972717    Author:   zwl
+#LastModifyDate:　2023-07-03T09:42:53.884656    Author:   zwl
+#LastModifyDate:　2023-06-10T09:58:55.305643    Author:   zwl
+#LastModifyDate:　2023-06-07T09:57:14.501303    Author:   zwl
+#LastModifyDate:　2023-06-05T14:49:24.388601    Author:   zwl
+#LastModifyDate:　2023-06-01T10:10:34.816201    Author:   zwl
+#LastModifyDate:　2023-05-31T17:41:05.705060    Author:   zwl
+#LastModifyDate:　2023-05-29T14:03:08.742544    Author:   zwl
+#FBI脚本文件
+#文件名: api_visit_day.fbi
+#作者: zwl
+use @FID
+
+#bb = @udf ZFile.rm_file with xlink/api_visit_hx_day/hx_day_$k1.pkl
+#bb = @udf ZFile.rm_file with xlink/api_visit_hx_day/hx_day_$k2.pkl
+
+###加载数据
+a = @udf ZFile.list_dir with xlink/api_visit_hx_day
+##清空文件
+#s = @udf FBI.local_cmd with sudo rm -rf /data/workspace/xlink/api_visit_hx_hour
+a.k = lambda filename by (x:x[30:-4])
+a = filter a by k != '$k1' or k != '$k2'
+a.k1 = lambda k by (x:time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(int(x))))
+a.k1 = lambda k1 by (x:x[:-9])
+###获取k值，数据存储到xlink/api_visit_hx_day/hx_day_$k.pkl
+a = order a by k with desc
+k1 = eval a by iloc[0,1]
+a = loc a by filename
+
+##新建hour
+day = @udf udf0.new_df
+
+foreach a run """
+	##取出已处理的数据
+	day_1 = load pq by @name
+	day = union day,day_1
+	##删除已经处理过的数据
+	bb = @udf ZFile.rm_file with @name
+""" with (name=$1)
+
+drop day_1
+##减少数据量：进一步进行group by
+day = group day by app,url,srcip,dstip,account agg visit_num:sum,visit_flow:sum,time:max
+day = @udf day by udf0.df_reset_index
+rename day as ('visit_num_sum':'visit_num','visit_flow_sum':'visit_flow','time_max':'time')
+day = order day by visit_num with desc 
+
+num = eval day by index.size
+##判断超过400000的值取和
+if $num > 400000 with """
+	num1 = @sdf sys_eval with (($num-400000)*-1)
+	day1 = limit day by 400000
+	day2 = limit day by $num1,
+	day2 = add hh by 1
+	day2 = group day2 by hh agg  visit_num:sum,visit_flow:sum,time:max
+	visit_num = eval day2 by iloc[0,0]
+	visit_flow = eval day2 by iloc[0,1]
+	time = eval day2 by iloc[0,2]
+	day = @udf day1 by udf0.df_append with (sum2,sum2,sum2,sum2,sum2,$visit_num,$visit_flow,$time)
+"""
+
+alter day by visit_num:int,visit_flow:int,time:datetime64
+##存入ckh
+store day to ckh by ckh with api_visit_day
+
+
+
+
+clear @FID

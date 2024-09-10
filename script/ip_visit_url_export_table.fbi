@@ -1,0 +1,29 @@
+#LastModifyDate:　2024-01-20T15:29:06    Author:   zwl
+#LastModifyDate:　2023-07-07T17:31:14.112607    Author:   zwl
+#LastModifyDate:　2023-03-23T10:04:14.030674    Author:   zwl
+#LastModifyDate:　2023-03-21T14:18:39.062230    Author:   zwl
+#LastModifyDate:　2023-03-18T17:22:40.307543    Author:   zwl
+#LastModifyDate:　2023-03-15T15:23:01.961693    Author:   zwl
+#LastModifyDate:　2023-03-07T10:46:32.342329    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/ip_visit_url1_@srcip.pq
+datas = @udf datas by udf0.df_fillna_cols with srcip:'',url:'',url:0,flow:0,value:''
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+""" 
+rename datas as ("srcip":"终端IP","url":"接口","url_num":"访问数量","flow":"访问流量(k)","value":"接口类型")
+store datas to csv by 终端画像接口清单_@srcip_$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 终端画像接口清单_@srcip_$day.csv
+push name as file_name
+
+clear @FID

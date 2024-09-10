@@ -1,0 +1,163 @@
+#LastModifyDate:　2024-05-22T14:31:42    Author:   rzc
+#LastModifyDate:　2024-05-22T14:17:43    Author:   rzc
+#LastModifyDate:　2024-05-21T17:34:28    Author:   rzc
+#LastModifyDate:　2024-05-21T16:35:55    Author:   rzc
+#LastModifyDate:　2024-05-21T16:26:20    Author:   rzc
+#LastModifyDate:　2024-05-21T16:01:21    Author:   rzc
+#LastModifyDate:　2024-05-21T15:35:17    Author:   rzc
+#LastModifyDate:　2024-05-20T16:53:24    Author:   rzc
+#LastModifyDate:　2024-05-20T15:10:27    Author:   rzc
+#LastModifyDate:　2024-05-20T10:40:45    Author:   rzc
+#LastModifyDate:　2024-05-20T10:29:04    Author:   rzc
+init => {
+	stream["meta_name"] = "对API接口数据进行分析"
+	stream["meta_desc"] = "分析API接口数据，账户做了什么操作行为"
+	stream["source"]= {"unix_udp":"/tmp/operation_events_new"}
+	
+
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+	stream["st"]["st_30f"]={"times":30,"fun":"print30"}
+	stream["st"]["st_10f"]={"times":10,"fun":"print10"}
+	#chk的链接
+	stream["CKH"] = CKH_Client(host="127.0.0.1",port=19000,user="default",password="client")
+	
+	#创建ckh的pool
+	pool["event_model"] = []
+
+	stream["con_rules"] = load_model_data("newevent")
+}
+
+
+#事件处理函数
+events => {
+	stream["count"]+=1
+	ify_result = read_model_identify(stream["con_rules"],o)
+	printf("ifys",ify_result)
+	status_msg = ""
+	action_name = "访问"
+	# 获取当前接口的名称 如果没有，就按照现在的，如果存在就进行覆盖
+	url_name=o.get("name","")
+	# 现在已知存在操作 和返回结果两种行为了，默认
+	ret_res = {}
+	event = {}
+	if ify_result and isinstance(ify_result,dict):
+		# 获取当前接口的名称 如果没有，就按照现在的，如果存在就进行覆盖
+		label_info_dict = ify_result.get("label_info",{})
+		label_name = label_info_dict.get("name","")
+		if url_name =="" and label_name:
+			url_name = label_name
+		else:
+			url_name = url_name 
+		action_name = label_info_dict.get("操作事件","")
+		
+		data_event = ify_result.get("data",{}) # 存在操作事件
+		printf("datas",data_event)
+		if data_event:
+			# 获取事件信息,做一个列表 对事件信息进行处理
+			
+			for http_pos,action_name_value in data_event.items():
+				for action,name_value in action_name_value.items():
+					
+					for name,value in name_value.items():
+						value_lst=[]
+						if action == "操作":
+							# 判断值是否存在与标签之中，若存在则将值写成标签值得内容
+							for v in value:
+								if v == True:
+									v ="true"
+								elif v ==False:
+									v="false"
+								if isinstance(v,list) or isinstance(v,dict):
+									value_lst.append(v)
+									continue
+									
+								# 循环值信息，如果值 存在与标签信息中
+								if v in label_info_dict:#如果值存在于字典之中，那么这个字典中的值是列表，就需要将数据取出来
+									label_value = label_info_dict.get(v,"") # 获取到标签的值
+									if label_value:
+										value_lst.append(label_value)
+								else:
+										# 如果不存在的话 就存入新的值
+									value_lst.append(v)
+							if value_lst:
+								value_lst = remove_duplicates(value_lst)
+								event.setdefault(name,value_lst)
+							
+						elif action == "返回结果":
+							if name == "执行状态":
+								# 获取到执行结果
+								value_res = value[0]
+								if value_res ==  "true" or True:
+									status_msg = "请求成功"
+								elif value_res == "false" or False:
+									status_msg = "请求失败"
+								else:
+									status_msg = value_res
+							else:
+								for v in value:
+									if v == True:
+										v ="true"
+									elif v ==False:
+										v="false"
+									if isinstance(v,list) or isinstance(v,dict):
+										value_lst.append(v)
+										continue
+									if v in label_info_dict:#如果值存在于字典之中，那么这个字典中的值是列表，就需要将数据取出来
+										label_value = label_info_dict[v]
+										if label_value:
+											value_lst.append(label_value)
+									else:
+											# 如果不存在的话 就存入新的值
+										value_lst.append(v)
+								if value_lst:
+									value_lst = remove_duplicates(value_lst)
+									ret_res.setdefault(name,value_lst)
+								
+								
+						
+	event = ujson.dumps(event,ensure_ascii=False)
+	ret_res= ujson.dumps(ret_res,ensure_ascii=False)
+		
+		# 需要进行 存储数据信息
+		
+		
+	if url_name!="":
+		event_dic = {"url":o.get("url"),"time":iso_to_datetime(o["time"]),"cookie":o.get("cookie"),"flow_id":o.get("flow_id",""),"app":o.get("app"),"account":o.get("account"),"name":url_name,"parameter":o.get("parameter"),"app_name":o.get("app_name"),"id":o.get("id"),"dstip":o.get("dstip"),"user_info": o.get("user_info"),"event":event,"request_body":o.get("request_body",""),"response_body":o.get("response_body",""),"res":ret_res,"action":action_name,"status_msg":status_msg}
+		#printf("event_dic",event_dic)
+		if "e_operas" not in stream:
+			stream["e_operas"] =list(event_dic.keys())
+		to_pool("event_model",list(event_dic.values()))
+			
+}
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+	
+}
+print30 => {
+	stream["con_rules"] = load_model_data("newevent")
+	if "e_operas" in stream:
+		store_ckh2(pool["event_model"],"event_monitor_new",stream["e_operas"])
+	
+}
+remove_duplicates(mixed_array):
+	
+	result=[]
+	for item in mixed_array:
+		if item not in result:
+			result.append(item)
+	return result
+		
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	#from model_information import *
+	from intell_analy_new import *
+}

@@ -1,0 +1,27 @@
+#LastModifyDate:　2024-01-18T10:36:13    Author:   zwl
+#LastModifyDate:　2023-08-23T17:19:42.488025    Author:   zwl
+#LastModifyDate:　2023-07-07T17:28:55.091943    Author:   zwl
+#LastModifyDate:　2023-03-15T15:17:06.895504    Author:   zwl
+#LastModifyDate:　2023-03-07T14:59:23.805950    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/data_api_new.pq
+datas = @udf datas by udf0.df_fillna_cols with visits_num:0,visits_flow:0,srcip_num:0,dstip_num:0,account_num:0,api_type:0,active:0
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+"""
+rename datas as ('url':'接口','visits_num':'访问数量','visits_flow':'访问流量(M)','srcip_num':'访问终端数量','dstip_num':'部署数量','account_num':'访问账号数量','api_type':'接口类型','data_type':'资源类型','active':'活跃状态','sensitive_label':'敏感类型')
+store datas to csv by 接口$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 接口$day.csv
+push name as file_name
+
+clear @FID

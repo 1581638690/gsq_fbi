@@ -1,0 +1,297 @@
+#LastModifyDate:　2024-01-18T14:54:34    Author:   zwl
+#LastModifyDate:　2023-08-01T16:46:09.039550    Author:   zwl
+#LastModifyDate:　2023-07-25T15:31:30.171613    Author:   zwl
+#LastModifyDate:　2023-06-14T15:30:49.651958    Author:   zwl
+#LastModifyDate:　2023-06-08T10:23:26.371718    Author:   zwl
+#LastModifyDate:　2023-05-31T14:20:36.381342    Author:   zwl
+#LastModifyDate:　2023-05-20T15:44:24.709890    Author:   zwl
+#LastModifyDate:　2023-03-21T11:38:24.967450    Author:   zwl
+#LastModifyDate:　2023-01-10T15:07:48.331149    Author:   zwl
+#LastModifyDate:　2023-01-06T10:49:29.348895    Author:   pjb
+
+use @FID
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_httpdata limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+##弱点事件数量
+api19_risk = load db by mysql1 with select app,type,state from api19_risk
+alter api19_risk by app:str,type:str,state:str
+a_num = eval api19_risk by index.size
+api_num = @udf udf0.new_df with r_num
+api_num = @udf api_num by udf0.df_append with $a_num
+alter api_num.r_num as int
+#访问阈值告警
+api_risk = load ckh by ckh with select count(*) as r_num,'访问阈值告警' as aa from api_risk
+alter api_risk by r_num:int,aa:str
+#访问耗时告警
+api_delay = load ckh by ckh with select count(*) as r_num,'访问耗时告警' as aa from api_delay
+alter api_delay by r_num:int,aa:str
+#异地访问告警
+r_req_alm = load ckh by ckh with select count(*) as r_num,'异地访问告警' as aa from r_req_alm
+alter r_req_alm by r_num:int,aa:str
+#请求异常告警
+stat_req_alm = load ckh by ckh with select count(*) as r_num,'请求异常告警' as aa from stat_req_alm
+alter stat_req_alm by r_num:int,aa:str
+#境外访问告警
+api_abroad = load ckh by ckh with select count(*) as r_num,'境外访问告警' as aa from api_abroad
+alter api_abroad by r_num:int,aa:str
+#敏感数据告警
+sensitive_data_alarm = load ckh by ckh with select count(*) as r_num,'敏感数据告警' as aa from sensitive_data_alarm
+alter sensitive_data_alarm by r_num:int,aa:str
+#文件敏感信息告警
+datafilter_alarm = load ckh by ckh with select count(*) as r_num,'文件敏感信息告警' as aa from datafilter_alarm
+alter datafilter_alarm by r_num:int,aa:str
+##告警事件总数
+event_num = union (api_risk,api_delay,r_req_alm,stat_req_alm,api_abroad,sensitive_data_alarm,datafilter_alarm)
+event_num = group event_num by index agg r_num:sum
+rename event_num by ('r_num_sum':'r_num')
+
+#el = union (api_risk,api_delay,r_req_alm,stat_req_alm,api_abroad,sensitive_data_alarm,datafilter_alarm)
+
+##弱点状态分布--------------------------------------------------
+state = group api19_risk by state agg state:count
+rename state as ('state_count':'状态数量')
+store state to ssdb by ssdb0 with state:pie
+
+
+##总风险
+tal_num = union (api_num,event_num)
+tal_num = group tal_num by index agg r_num:sum
+tal_num1 = loc tal_num by r_num_sum
+aa_num = eval tal_num by iloc[0,0]
+if $aa_num > 100000 with tal_num.r_num_sum = lambda r_num_sum by (x:round(x/10000,2))
+if $aa_num > 100000 with rename tal_num by ("r_num_sum":"总风险数量(万)")
+if $aa_num <= 100000 with rename tal_num by ("r_num_sum":"总风险数量")
+tal_num = add tips by ("弱点事件总数和告警事件总数之和")
+store tal_num to ssdb by ssdb0 with tl:num
+#弱点接口数量
+api_num1 = loc api_num by r_num
+aa_num = eval api_num by iloc[0,0]
+if $aa_num > 100000 with api_num.r_num = lambda r_num by (x:round(x/10000,2))
+if $aa_num > 100000 with rename api_num by ("r_num":"弱点接口数量(万)")
+if $aa_num <= 100000 with rename api_num by ("r_num":"弱点接口数量")
+api_num = add 参数 by ('参数可遍历')
+store api_num to ssdb by ssdb0 with ru:num
+#告警事件数量
+event_num1 = loc event_num by r_num
+aa_num = eval event_num by iloc[0,0]
+if $aa_num > 100000 with event_num.r_num = lambda r_num by (x:round(x/10000,2))
+if $aa_num > 100000 with rename event_num by ("r_num":"告警事件数量(万)")
+if $aa_num <= 100000 with rename event_num by ("r_num":"告警事件数量")
+store event_num to ssdb by ssdb0 with re:num
+#弱点应用数量
+app_num = group api19_risk by app agg app:count
+a_num = eval app_num by index.size
+app_num = @udf udf0.new_df with r_num
+app_num = @udf app_num by udf0.df_append with $a_num
+rename app_num by ("r_num":"弱点应用数量")
+app_num = @udf app_num by udf0.df_append with 存在弱点的应用数量
+store app_num to ssdb by ssdb0 with rp:num
+
+#今日弱点接口    信息块
+day = @sdf sys_now 
+day = @sdf format_now with ($day,"%Y-%m-%d")
+risk_t = load db by mysql1 with select count(*) as 今日弱点接口数量 from api19_risk where left(last_time,10) = '$day'
+alter risk_t by 今日弱点接口数量:int
+store risk_t to ssdb by ssdb0 with tr:num
+
+###告警类型数量---------------------------------------------------------------------------------
+type = union (api_risk,api_delay,r_req_alm,stat_req_alm,api_abroad,sensitive_data_alarm,datafilter_alarm)
+type = filter type by r_num != 0
+num = eval type by index.size
+u_tp = @udf udf0.new_df with (t_num)
+u_tp = @udf u_tp by udf0.df_append with ($num)
+rename u_tp by ("t_num":"告警类型数量")
+u_tp = @udf u_tp by udf0.df_append with 告警模型存在事件的类型数量
+store u_tp to ssdb by ssdb0 with rt:num
+
+####首页---合并信息块##############首页######################首页###########首页##########################首页#############首页#############开始
+##总风险
+rename tal_num1 as ('r_num_sum':'value')
+aa_num = eval tal_num1 by iloc[0,0]
+if $aa_num > 100000 with tal_num1.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with tal_num1 = add name by ('总风险数量(万)')
+if $aa_num <= 100000 with tal_num1 = add name by ('总风险数量')
+tal_num1 = add icon by ('F206')
+tal_num1 = add details by ('')
+#弱点接口数量
+rename api_num1 as ('r_num':'value')
+aa_num = eval api_num1 by iloc[0,0]
+if $aa_num > 100000 with api_num1.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with api_num1 = add name by ('弱点接口数量(万)')
+if $aa_num <= 100000 with api_num1 = add name by ('弱点接口数量')
+api_num1 = add icon by ('F309')
+api_num1 = add details by ('')
+#弱点应用数量
+app_num = filter app_num by index == 0
+rename app_num as ('弱点应用数量':'value')
+app_num = add name by ('弱点应用数量')
+app_num = add icon by ('F145')
+app_num = add details by ('存在弱点的应用数量')
+#告警事件数量
+rename event_num1 by ('r_num':'value')
+aa_num = eval event_num1 by iloc[0,0]
+if $aa_num > 100000 with event_num1.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with event_num1 = add name by ('告警事件数量(万)')
+if $aa_num <= 100000 with event_num1 = add name by ('告警事件数量')
+event_num1 = add icon by ('F156')
+event_num1 = add details by ('')
+##安全事件数
+ttt = load ckh by ckh with select count(*) as value from api_modsecurity
+alter ttt by value:int
+aa_num = eval ttt by iloc[0,0]
+if $aa_num > 100000 with ttt.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with ttt = add name by ('安全事件数(万)')
+if $aa_num <= 100000 with ttt = add name by ('安全事件数')
+ttt = add icon by ('F291')
+ttt = add details by ('http访问监测到的攻击行为')
+#数据泄露场景分析
+api_model = load ckh by ckh with select count(*) as value from api_model 
+alter api_model by value:int
+aa_num = eval api_model by iloc[0,0]
+if $aa_num > 100000 with api_model.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with api_model = add name by ('数据泄露场景(万)')
+if $aa_num <= 100000 with api_model = add name by ('数据泄露场景分析')
+api_model = add icon by ('F306')
+api_model = add details by ('')
+#####合并
+hb = union tal_num1,api_num1,app_num,event_num1,ttt,api_model
+hb = loc hb by name,value,icon,details
+hb = add pageid by ('dashboard7:lhq_view_risk_one','dashboard7:A7L6vpWaa','dashboard7:A7L6vpWaa','','qes:api_modsecurity','qes:api_model')
+hb = add 参数 by ('','@type=参数可遍历','@type=参数可遍历','','','')
+store hb to ssdb by ssdb0 with hb:num
+####首页---合并信息块###############首页################首页##############首页########首页##########################首页#########首页###########结束
+
+###风险模型分布-----------------------------------------------------------------------------------------
+fxmx = union (api_risk,api_delay,r_req_alm,stat_req_alm,api_abroad,sensitive_data_alarm,datafilter_alarm)
+fxmx = order fxmx by r_num with asc
+fxmx.详情 = lambda aa by (x:x)
+#fxmx = filter fxmx by ss > 0
+rename fxmx by ("r_num":"风险模型")
+fxmx = loc fxmx by aa to index
+store fxmx to ssdb by ssdb0 with fx:pie
+##首页
+#fxmx = loc fxmx by 风险模型
+#store fxmx to ssdb by ssdb0 with fx1:pie
+
+####弱点大类类型分布-------------------------------------------------------------------------------
+api19_tt = load db by mysql1 with select b.type2,count(api) as num from api19_risk a left join api19_type b on a.type = b.type group by b.type2 order by num
+alter api19_tt by type2:str,num:int
+api19_tt = filter api19_tt by num != 0
+api19_tt.详情 = lambda type2 by (x:x)
+api19_tt = loc api19_tt by type2 to index
+rename api19_tt as ('num':'数量')
+store api19_tt to ssdb by ssdb0 with tt:pie
+##首页
+#api19_tt1 = loc api19_tt by 数量
+#store api19_tt1 to ssdb by ssdb0 with tt1:pie
+
+####弱点小类类型分布-------------------------------------------------------------------------------
+risk = group api19_risk by type agg type:count
+api19_type = load ssdb by ssdb0 with dd:api19_risk_type
+risk = join risk,api19_type by index,index
+risk = loc risk by index to aa
+risk = add bb by risk["aa"]+':'+risk["value"]
+#risk.详情 = lambda bb by (x:x)
+#risk = loc risk by bb to index
+risk = loc risk by bb,type_count
+risk = order risk by type_count with desc limit 5
+#risk = order risk by type_count with asc
+rename risk as ('bb':'弱点类型','type_count':'弱点类型数量')
+store risk to ssdb by ssdb0 with ai:pie
+
+###近24小时告警分布
+hour1 = @sdf sys_now with -1d
+hour2 = @sdf sys_now 
+hour1 = @sdf format_now with ($hour1,"%Y-%m-%d %H:00:00")
+hour2 = @sdf format_now with ($hour2,"%Y-%m-%d %H:00:00")
+hour = @udf udf0.new_df_timerange with ($hour1,$hour2,1H)
+hour = loc hour by end_time 
+hour.end_time = lambda end_time by (x:x[11:13]) 
+rename hour as ('end_time':'hour')
+hour3 = @sdf sys_now with -23h
+hour3 = @sdf format_now with ($hour3,"%Y-%m-%d %H:00:00")
+# 阈值告警
+n_en = load ckh by ckh with select substring(toString(first_time),12,2) as hour ,count(risk_label) as r_num1 from api_risk where first_time >= '$hour3' group by hour
+alter n_en by hour:str,r_num1:int
+# 访问耗时告警
+delay = load ckh by ckh with select substring(toString(time),12,2) as hour ,count(*) as r_num2 from api_delay where time >= '$hour3' group by hour
+alter delay by hour:str,r_num2:int
+# 异地访问告警
+r_req = load ckh by ckh with select substring(toString(timestamp),12,2) as hour ,count(*) as r_num3 from r_req_alm where timestamp >= '$hour3' group by hour
+alter r_req by hour:str,r_num3:int
+# 请求异常告警
+stat = load ckh by ckh with select substring(toString(timestamp),12,2) as hour ,count(*) as r_num4 from stat_req_alm where timestamp >= '$hour3' group by hour
+alter stat by hour:str,r_num4:int
+# 敏感数据告警
+sensitive = load ckh by ckh with select substring(toString(time),12,2) as hour ,count(*) as r_num5 from sensitive_data_alarm where time >= '$hour3' group by hour
+alter sensitive by hour:str,r_num5:int
+# 境外访问告警
+abroad = load ckh by ckh with select substring(toString(timestamp),12,2) as hour ,count(*) as r_num6 from api_abroad where timestamp >= '$hour3' group by hour
+alter abroad by hour:str,r_num6:int
+# 文件敏感信息告警
+datafilter = load ckh by ckh with select substring(toString(timestamp),12,2) as hour ,count(*) as r_num7 from datafilter_alarm where timestamp >= '$hour3' group by hour
+alter datafilter by hour:str,r_num7:int
+risk_24 = join hour,n_en by hour,hour with left
+risk_24 = join risk_24,delay by hour,hour with left
+risk_24 = join risk_24,r_req by hour,hour with left
+risk_24 = join risk_24,stat by hour,hour with left
+risk_24 = join risk_24,sensitive by hour,hour with left
+risk_24 = join risk_24,abroad by hour,hour with left
+risk_24 = join risk_24,datafilter by hour,hour with left
+risk_24 = @udf risk_24 by udf0.df_fillna_cols with r_num1:0,r_num2:0,r_num3:0,r_num4:0,r_num5:0,r_num6:0,r_num7:0
+risk_24.hour = lambda hour by (x:x+'时')
+risk_24 = add 总风险 by risk_24['r_num1']+risk_24['r_num2']+risk_24['r_num3']+risk_24['r_num4']+risk_24['r_num5']+risk_24['r_num6']+risk_24['r_num7']
+risk_24 = loc risk_24 by hour to index
+rename risk_24 as ('r_num1':'访问阈值告警','r_num2':'访问耗时告警','r_num3':'异地访问告警','r_num4':'请求异常告警','r_num5':'敏感数据告警','r_num6':'境外访问告警','r_num7':'文件敏感信息告警')
+store risk_24 to ssdb by ssdb0 with r_24:pie
+
+###弱点近24小时发现接口分布----------------------------------------------------------------------
+api19_risk = load db by mysql1 with select left(last_time,13) as hour,count(*) as num from api19_risk where last_time >= '$hour3' group by hour
+alter api19_risk by hour:str,num:int
+api19_risk.hour = lambda hour by (x:x[11:13])
+api19_risk = join hour,api19_risk by hour,hour with left
+api19_risk = @udf api19_risk by udf0.df_fillna_cols with num:0
+api19_risk.hour = lambda hour by (x:x+'时')
+api19_risk = loc api19_risk by hour to index
+rename api19_risk as ('num':'发现接口数量')
+store api19_risk to ssdb by ssdb0 with r_24:risk
+
+###安全事件类型分布-----------------------------------------------------------------------
+api_mod = load ckh by ckh with select class,count(*) as num from api_modsecurity where class != '' group by class 
+alter api_mod by class:str,num:int
+api_mod = order api_mod by num with asc
+rename api_mod as ('num':'安全事件数量')
+api_mod.详情 = lambda class by (x:x)
+api_mod = loc api_mod by class to index
+store api_mod to ssdb by ssdb0 with api:api_mod
+
+####数据泄露场景分析----------------------------------------------------
+api_model = load ckh by ckh with select type,count(*) as num from api_model group by type
+alter api_model by type:str,num:int
+type = load ssdb by ssdb0 with dd:model_type
+type = loc type by index to type
+api_model = join type,api_model by type,type with left
+api_model = @udf api_model by udf0.df_fillna_cols with num:0
+api_model = order api_model by num with desc
+rename api_model as ('type':'详情','num':'事件数')
+api_model = loc api_model by value to index
+api_model = loc api_model by 事件数,详情
+store api_model to ssdb by ssdb0 with api:api_model
+
+## 今日新增弱点-----------------------------------------------------------
+## 获取当天的时间
+#the_day = @sdf sys_now
+#the_day = @sdf sys_str with $the_day,split(' ')[0]
+#new_risk = load db by mysql1 with select api,type from api19_risk where first_time like '$the_day%%' order by first_time desc limit 100
+##new_risk = @udf new_risk by udf0.df_set_index with api
+#new_risk.参数 = lambda  api by x:x 
+#new_risk = @udf new_risk by VL.set_col_width with (410,100,0)
+#rename new_risk as ("api":"弱点接口","type":"类型")
+#store new_risk to ssdb by ssdb0 with the_day:new_risk
+
+
+
+clear @FID

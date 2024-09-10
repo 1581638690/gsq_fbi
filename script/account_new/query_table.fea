@@ -1,0 +1,25 @@
+#LastModifyDate:　2024-01-15T10:26:42    Author:   pjb
+#LastModifyDate:　2023-06-12T11:33:15.915464    Author:   zwl
+#LastModifyDate:　2023-06-12T11:32:28.707468    Author:   zwl
+#FEA脚本文件
+
+#保存语句
+#@data_key  条件信息
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单中的条件信息
+a = load ssdb by ssdb0 with @data_key
+
+#保存
+b,c = @udf a by CRUD.query_mtable with (@link,@table)
+b.btn_show = lambda portrait_status by (x: '1,1,1,0,1' if x == 0  else '1,1,0,1,1')
+assert find_df('b',ptree) as  alert with 数据查询失败！
+
+push b as table
+push c as count
+#清除工作区
+clear @FID

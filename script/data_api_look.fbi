@@ -1,0 +1,12 @@
+#LastModifyDate:　2024-01-17T17:58:48    Author:   zwl
+#LastModifyDate:　2023-08-23T17:21:55.660463    Author:   zwl
+#LastModifyDate:　2023-03-15T15:17:18.686441    Author:   zwl
+#LastModifyDate:　2023-03-07T14:59:18.413387    Author:   zwl
+use @FID
+
+b = load pq by dt_table/data_api_new.pq
+b = filter b by _id == @_id
+rename b as ('url':'接口','visits_num':'访问数量','visits_flow':'访问流量(M)','srcip_num':'访问终端数量','dstip_num':'部署数量','account_num':'访问账号数量','api_type':'接口类型','data_type':'资源类型','active':'活跃状态','sensitive_label':'敏感类型')
+push b as look
+
+clear @FID

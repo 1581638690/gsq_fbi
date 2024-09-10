@@ -1,0 +1,9 @@
+#FBI脚本文件
+#文件名: logger_server_cfg.fbi
+#作者: superFBI
+
+#装载配置文件
+
+a = load ssdb with znsm:logger:config
+
+push a as table

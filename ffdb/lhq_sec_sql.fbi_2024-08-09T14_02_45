@@ -1,0 +1,40 @@
+#LastModifyDate:　2023-08-23T17:15:45.761256    Author:   zwl
+#LastModifyDate:　2023-07-31T16:12:45.324999    Author:   pjb
+#LastModifyDate:　2023-07-03T10:20:26.479490    Author:   rzc
+#LastModifyDate:　2023-07-03T10:04:45.375194    Author:   rzc
+#LastModifyDate:　2023-06-30T18:00:30.739606    Author:   superFBI
+#LastModifyDate:　2023-06-09T10:17:52.791526    Author:   superFBI
+#LastModifyDate:　2023-06-01T14:35:11.836046    Author:   rzc
+#LastModifyDate:　2023-05-31T18:57:49.221885    Author:   superFBI
+#LastModifyDate:　2023-05-19T15:05:40.272432    Author:   superFBI
+#LastModifyDate:　2023-04-14T16:44:04.585732    Author:   rzc
+#LastModifyDate:　2022-11-04T11:10:46.083045    Author:   gsp
+#LastModifyDate:　2022-06-14T18:35:41.060855    Author:   liuhouqi
+
+
+#账号数量
+use @FID
+#df=load db by mysql1 with select * from api_data.data_api_new where api_type is null limit 200
+api =  @udf RS.load_mysql_sql with (mysql1,select url,risk_level,api_type,name,data_type from data_api_new where api_status = 1)
+df=@udf api by mondic.mon_dic_api
+#dd=filter api by api_type =="Null"
+#df2 = @udf api by udf0.df_fillna 
+#dd=filter api by api_type ==""
+#Delete 注释 by liuhouqi on 2022-06-14 16:51:43
+#store api to ssdb by ssdb0 with name as H
+#j = @udf api by FBI.df2json
+##返回Json对象
+#j3 = jaas j by j["data"]
+#a=@udf SSDB.hclear with api_js
+#store api to ssdb by ssdb0 with api_js as H
+
+app = @udf RS.load_mysql_sql with (mysql1,select app,name from data_app_new where app_status = 1 or name !="")
+df1=@udf app by mondic.mon_dic_app
+#以索引为key进行存储
+#a=@udf SSDB.hclear with app_js
+#store app to ssdb by ssdb0 with app_js as H
+#取出name中的所有对象为DF表
+#df = load ssdb by ssdb0 with FF:user2=>*
+
+clear @FID
+

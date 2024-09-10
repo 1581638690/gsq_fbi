@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.SSDB2</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.SSDB2</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/SSDB2.py">/opt/openfbi/fbi-bin/udf/SSDB2.py</a></td></tr></table>
+    <p><span class="code">#&nbsp;coding=utf-8</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="json.html">json</a><br>
+<a href="os.html">os</a><br>
+</td><td class="multicolumn"><a href="pandas.html">pandas</a><br>
+<a href="re.html">re</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+</td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-boardKeyFromFea"><strong>boardKeyFromFea</strong></a>(df)</dt><dd><span class="code">@date&nbsp;:&nbsp;2018/01/04<br>
+@author&nbsp;:&nbsp;zqh<br>
+@function&nbsp;:&nbsp;boardKeyFromFea<br>
+@des&nbsp;:&nbsp;从fea中获取ssdb中的面板key<br>
+@return&nbsp;:&nbsp;file&nbsp;:&nbsp;脚本文件,name&nbsp;:&nbsp;中文名称,author&nbsp;:&nbsp;脚本作者,version&nbsp;:&nbsp;脚本版本,&nbsp;date&nbsp;:&nbsp;脚本创建日期<br>
+params&nbsp;:&nbsp;脚本运行参数,example&nbsp;:&nbsp;脚本运行示例,key&nbsp;:&nbsp;存储的key,desc&nbsp;:&nbsp;描述,feaName:fea脚本名称,file:fea文件</span></dd></dl>
+ <dl><dt><a name="-db_conn"><strong>db_conn</strong></a>(server='127.0.0.1', port=8888)</dt></dl>
+ <dl><dt><a name="-del_item_dd_key"><strong>del_item_dd_key</strong></a>(df, p=None)</dt><dd><span class="code">@日期&nbsp;:&nbsp;2018/11/21<br>
+@作者:&nbsp;yyy<br>
+@函数&nbsp;:&nbsp;del_item_dd_key<br>
+@描述&nbsp;:&nbsp;删除key中的一个item<br>
+@返回&nbsp;:&nbsp;删除item后的key的信息<br>
+@参数&nbsp;:<br>
+@示例:</span></dd></dl>
+ <dl><dt><a name="-del_option"><strong>del_option</strong></a>(df, p=None)</dt><dd><span class="code">@日期&nbsp;:&nbsp;2018/11/26<br>
+@作者:&nbsp;yyy<br>
+@函数&nbsp;:&nbsp;del_option<br>
+@描述&nbsp;:&nbsp;删除当前用户的user_option的key<br>
+@返回值&nbsp;:<br>
+@参数&nbsp;:<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;SSDB2.del_option</span></dd></dl>
+ <dl><dt><a name="-getBoardKey"><strong>getBoardKey</strong></a>(df)</dt><dd><span class="code">@date&nbsp;:&nbsp;2018/01/03<br>
+@author&nbsp;:&nbsp;zqh<br>
+@function&nbsp;:&nbsp;getDashboardKey<br>
+@des&nbsp;:&nbsp;获取ssdb中动态面板与静态面板key<br>
+@return&nbsp;:&nbsp;boardId&nbsp;:&nbsp;面板Id,key&nbsp;:&nbsp;面板插件key,title&nbsp;:&nbsp;面板标题,type&nbsp;:&nbsp;面板类型,&nbsp;editor&nbsp;:&nbsp;面板作者</span></dd></dl>
+ <dl><dt><a name="-getCrudKey"><strong>getCrudKey</strong></a>(df)</dt><dd><span class="code">@date&nbsp;:&nbsp;2018/01/08<br>
+@author&nbsp;:&nbsp;zqh<br>
+@function&nbsp;:&nbsp;getCrudKey<br>
+@des&nbsp;:&nbsp;从ssdb中获取交互面板crud相关数据<br>
+@return&nbsp;:&nbsp;title&nbsp;:&nbsp;面板标题,editor&nbsp;:&nbsp;面板编辑者,fea&nbsp;:&nbsp;fea脚本名称,dd:dd,fps&nbsp;:&nbsp;fps</span></dd></dl>
+ <dl><dt><a name="-get_datas"><strong>get_datas</strong></a>(df, p=None)</dt><dd><span class="code">@日期&nbsp;:&nbsp;2018/11/27<br>
+@作者:&nbsp;yyy<br>
+@函数&nbsp;:&nbsp;get_datas<br>
+@描述&nbsp;:&nbsp;取df表中除了固定列的值，其他列的值转换成datas<br>
+@返回值&nbsp;:<br>
+@参数&nbsp;:a&nbsp;=&nbsp;@udf&nbsp;df&nbsp;by&nbsp;SSDB2.get_datas</span></dd></dl>
+ <dl><dt><a name="-scan_ssdb_db"><strong>scan_ssdb_db</strong></a>(df, p=None)</dt><dd><span class="code">@日期&nbsp;:&nbsp;2018/11/19<br>
+@作者:&nbsp;yyy<br>
+@函数:&nbsp;scan_ssdb_db<br>
+@描述&nbsp;:&nbsp;从fea中获取ssdb中的字典key,以dd开头<br>
+@返回:<br>
+@参数&nbsp;:<br>
+@示例：a&nbsp;=&nbsp;@udf&nbsp;df&nbsp;by&nbsp;SSDB2.scan_ssdb_db</span></dd></dl>
+ <dl><dt><a name="-scan_user_option"><strong>scan_user_option</strong></a>(df, p=None)</dt><dd><span class="code">@日期&nbsp;:&nbsp;2018/11/27<br>
+@作者:&nbsp;yyy<br>
+@函数&nbsp;:&nbsp;scan_user_option<br>
+@描述&nbsp;:&nbsp;从fea中获取ssdb中的user_option<br>
+@返回&nbsp;:<br>
+@参数&nbsp;:<br>
+@示例:a&nbsp;=&nbsp;@udf&nbsp;df&nbsp;by&nbsp;SSDB2.scan_user_option</span></dd></dl>
+ <dl><dt><a name="-set_to_dd_key"><strong>set_to_dd_key</strong></a>(df, p=None)</dt><dd><span class="code">@日期&nbsp;:&nbsp;2018/11/21<br>
+@作者:&nbsp;yyy<br>
+@函数&nbsp;:&nbsp;set_to_dd_key<br>
+@描述&nbsp;:&nbsp;将返回的一条记录，插入到原有key中，<br>
+@返回&nbsp;:&nbsp;插入记录后的所有记录,如果list中有对应的值，先删掉，再增加，没有的话直接增加<br>
+@参数&nbsp;:</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>fbi_global</strong> = &lt;avenger.fglobals.FbiGlobal object&gt;<br>
+<strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;</td></tr></table>
+</body></html>

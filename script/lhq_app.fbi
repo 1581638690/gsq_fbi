@@ -1,0 +1,307 @@
+#LastModifyDate:　2024-03-19T11:50:33    Author:   zwl
+#LastModifyDate:　2024-03-08T15:28:50    Author:   zwl
+#LastModifyDate:　2024-01-18T11:16:01    Author:   zwl
+#LastModifyDate:　2024-01-16T14:00:19    Author:   zwl
+#LastModifyDate:　2023-10-19T15:23:05.414013    Author:   zwl
+#LastModifyDate:　2023-09-13T10:20:47.242063    Author:   zwl
+#LastModifyDate:　2023-08-29T18:22:07.192434    Author:   zwl
+#LastModifyDate:　2023-08-23T16:54:03.690912    Author:   zwl
+#LastModifyDate:　2023-08-18T17:12:38.577484    Author:   zwl
+#LastModifyDate:　2023-08-14T18:17:15.728321    Author:   zwl
+#LastModifyDate:　2023-07-17T10:51:46.641404    Author:   zwl
+
+
+
+#FBI脚本文件
+#文件名: lhq_app.fbi
+#作者: test
+#应用概览
+use @FID
+
+############################################################################################################
+data_app_new = load db by mysql1 with select app,app_type,sx,sensitive_label from data_app_new where merge_state != 1
+alter data_app_new by app:str,app_type:int,sx:int,sensitive_label:str
+#应用数
+app_count = @udf udf0.new_df with (name,value,icon,pageid,参数)
+app_num = eval data_app_new by index.size
+app_count = @udf app_count by udf0.df_append with (应用总数,$app_num,F147,modeling:app_new,)
+local_app = filter data_app_new by app_type == 1
+local_app = eval local_app by index.size
+app_count = @udf app_count by udf0.df_append with (内部应用数量,$local_app,F147,modeling:app_new_1,@app_type=1)
+internet_app = filter data_app_new by app_type == 0
+internet_app = eval internet_app by index.size
+app_count = @udf app_count by udf0.df_append with (外部应用数量,$internet_app,F147,modeling:app_new_0,@app_type=0)
+##已纳管
+yy = filter data_app_new by sx != 0 
+yy_num = eval yy by index.size
+if $yy_num == 0 with yy = @udf yy by udf0.df_append with (,,,)
+yy = loc yy by sx
+yy = distinct yy by sx
+yy = add aa by 1
+alter yy.sx as str
+yy.sx = lambda sx by (x:x+',')
+yy = group yy by aa agg sx:sum
+yy.sx_sum = lambda sx_sum by (x:x[:-1])
+sx_num = eval yy by iloc[0,0]
+app_count = @udf app_count by udf0.df_append with (已纳管应用数量,$yy_num,F143,modeling:app_new,@sx=)
+app_count.参数 = lambda 参数 by (x:x+'$sx_num' if x == '@sx=' else x)
+##未纳管
+ww = filter data_app_new by sx == 0 
+ww_num = eval ww by index.size
+app_count = @udf app_count by udf0.df_append with (未纳管应用数量,$ww_num,F144,modeling:app_new,@sx=0)
+#敏感信息的应用数量
+alter data_app_new.sensitive_label as int
+sensitive_app = group data_app_new by sensitive_label agg sensitive_label:count
+sensitive_app1 = filter sensitive_app by index == 3
+##防止无数据，显示为空，构建敏感表值为0
+aa_num = eval sensitive_app1 by index.size
+if $aa_num == 0 with sensitive_app1 = @udf sensitive_app1 by udf0.df_append with 0
+##敏感应用数量
+sensitive_app1 = eval sensitive_app1 by iloc[0,0]
+app_count = @udf app_count by udf0.df_append with (高敏感应用数量,$sensitive_app1,F245,modeling:app_new,@sensitive_label=3)
+##非敏感应用数量
+#unsensitive_app = filter sensitive_app1 by sensitive_label == '0'
+#unsensitive_app = eval unsensitive_app by iloc[0,1]
+#app_count = @udf app_count by udf0.df_append with (非敏感应用数量,$unsensitive_app,F245,)
+store app_count to ssdb by ssdb0 with app:count
+
+#大屏(应用总数)
+app_count = @udf udf0.new_df with num
+app_num = eval data_app_new by index.size
+app_count = @udf app_count by udf0.df_append with $app_num
+store app_count to ssdb by ssdb0 with app1:count
+
+
+############################################################################################################
+data_app_new = load db by mysql1 with select app,visits_num,visits_flow,api_num,account_num,srcip_num,dstip_num,app_type,name,sx,id from data_app_new where merge_state != 1
+data_app_new = @udf data_app_new by udf0.df_fillna_cols with visits_num:0,visits_flow:0,api_num:0,account_num:0,srcip_num:0,dstip_num:0,app_type:0,name:''
+alter data_app_new by visits_num:int,visits_flow:int,api_num:int,account_num:int,srcip_num:int,dstip_num:int,app_type:int,name:str,sx:str
+app_sx = load ssdb by ssdb0 with dd:app_sx
+app_sx = loc app_sx by index to sx
+alter app_sx.sx as str
+app_sx = loc app_sx by sx to index 
+rename app_sx as ('sysname':'value')
+data_app_new = @udf data_app_new,app_sx by SP.tag2dict with sx
+##过滤空应用
+data_app_new = @udf data_app_new by udf0.df_fillna_cols with app:''
+data_app_new = filter data_app_new by app != ''
+###更多  -- 动态表格-----------------------------------------------动态表格
+#保存为pkl文件
+data_app_new1 = loc data_app_new by id,app,name,sx,visits_num,visits_flow,api_num,srcip_num,account_num,dstip_num,app_type
+data_app_new1 = filter data_app_new1 by app_type == 1
+rename data_app_new1 as ('id':'_id')
+alter data_app_new1.app_type as str
+data_app_new1.app_type = str app_type by (replace('1','内部'))
+data_app_new1.app_type = str app_type by (replace('0','外部'))
+data_app_new1.visits_flow = lambda visits_flow by (x:round(x/1048576,2))
+data_app_new11 = order data_app_new1 by visits_num with desc limit 1000
+store data_app_new11 to pq by dt_table/data_app_new.pq
+
+rename data_app_new1 as ('app':'应用IP/域名','name':'应用名称','sx':'关联应用','visits_num':'访问数量','visits_flow':'访问流量(M)','api_num':'接口数量','srcip_num':'访问IP数量','account_num':'访问账号数量','dstip_num':'部署数量','app_type':'应用类型')
+b = load ssdb by ssdb0 query qclear,data_app_new_1,-,-
+data_app_new11 = order data_app_new1 by 访问数量 with desc limit 1000
+store data_app_new11 to ssdb with data_app_new_1 as Q
+b = load ssdb by ssdb0 query qclear,data_app_new_2,-,-
+data_app_new11 = order data_app_new1 by 访问流量(M) with desc limit 1000
+store data_app_new11 to ssdb with data_app_new_2 as Q
+b = load ssdb by ssdb0 query qclear,data_app_new_3,-,-
+data_app_new11 = order data_app_new1 by 接口数量 with desc limit 1000
+store data_app_new11 to ssdb with data_app_new_3 as Q
+b = load ssdb by ssdb0 query qclear,data_app_new_4,-,-
+data_app_new11 = order data_app_new1 by 访问IP数量 with desc limit 1000
+store data_app_new11 to ssdb with data_app_new_4 as Q
+b = load ssdb by ssdb0 query qclear,data_app_new_5,-,-
+data_app_new11 = order data_app_new1 by 访问账号数量 with desc limit 1000
+store data_app_new11 to ssdb with data_app_new_5 as Q
+b = load ssdb by ssdb0 query qclear,data_app_new_6,-,-
+data_app_new11 = order data_app_new1 by 部署数量 with desc limit 1000
+store data_app_new11 to ssdb with data_app_new_6 as Q
+drop data_app_new1
+drop data_app_new11
+###更多  -- 动态表格-----------------------------------------------动态表
+data_app_new = loc data_app_new by app,visits_num,visits_flow,api_num,account_num,srcip_num,dstip_num,app_type,name,sx
+#app_sx = load ssdb by ssdb0 with dd:app_sx
+#app_sx = loc app_sx by index to sx
+#alter app_sx.sx as str
+#app_sx = loc app_sx by sx to index 
+#rename app_sx as ('sysname':'value')
+#alter data_app_new.sx as str
+#data_app_new = @udf data_app_new,app_sx by SP.tag2dict with sx
+data_app_new = @udf data_app_new by udf0.df_replace with (无,)
+data_app_new = @udf data_app_new by udf0.df_row_lambda with (x: x[8] if x[8] != '' else x[9] )
+data_app_new = @udf data_app_new by udf0.df_row_lambda with (x: x[10] if x[10] != '' else x[0] )
+data_app_new = loc data_app_new by app,visits_num,visits_flow,api_num,account_num,srcip_num,dstip_num,app_type,lambda1
+rename data_app_new as ('lambda1':'name')
+
+
+#访问最多的top10内部应用--------------------------------------------------------
+app_type_1 = filter data_app_new by app_type == 1
+app_join_order = loc app_type_1 by app,visits_num,name
+app_join_order = order app_join_order by visits_num limit 5
+app_1 = loc app_join_order by app
+num = eval app_join_order by index.size
+if $num != 0 with aa_num = eval app_join_order by iloc[$num-1,1]
+if $num == 0 with aa_num = eval app_join_order by index.size
+if $num != 0 and $aa_num >= 10000 with app_join_order.visits_num = lambda visits_num by (x:round(x/10000,2))
+alter app_join_order.visits_num as int
+alter app_join_order.visits_num as str
+if $aa_num >= 10000 with app_join_order.visits_num = lambda visits_num by (x:x+'(万次)')
+if $aa_num < 10000 with app_join_order.visits_num = lambda visits_num by (x:x+'(次)')
+rename app_join_order by ('name':'局域网应用','app':'参数',"visits_num":"应用访问数量")
+app_join_order = loc app_join_order by 局域网应用,应用访问数量,参数
+store app_join_order to ssdb by ssdb0 with visit_app:top10
+
+#流量最多的top10应用-----------------------------------------------------------------
+app_flow_join = loc app_type_1 by app,visits_flow,name
+app_flow_join1 = order app_flow_join by visits_flow limit 10
+app_flow_join = order app_flow_join by visits_flow limit 5
+app_2 = loc app_flow_join by app
+app_flow_join = order app_flow_join by visits_flow with desc
+app_flow_join.访问流量(M) = lambda visits_flow by (x:round(x/1024/1024,2))
+app_flow_join = filter app_flow_join by visits_flow != 0
+app_flow_join = loc app_flow_join by drop visits_flow
+alter app_flow_join.访问流量(M) as str
+app_flow_join.访问流量(M) = lambda 访问流量(M) by (x:x+'(M)')
+app_flow_join = loc app_flow_join by name,访问流量(M),app
+rename app_flow_join as ('name':'局域网应用','app':'参数')
+store app_flow_join to ssdb by ssdb0 with flow_app:top10
+
+##大屏展示
+app_flow_join1 = loc app_flow_join1 by drop name
+app_flow_join1 = order app_flow_join1 by visits_flow with asc
+app_flow_join1.visits_flow = lambda visits_flow by (x:round(x/1024/1024,2))
+app_flow_join1.详情 = lambda app by (x:x)
+app_flow_join1 = loc app_flow_join1 by app to index 
+rename app_flow_join1 by ("visits_flow":"访问流量(M)")
+store app_flow_join1 to ssdb by ssdb0 with flow_app1:top10
+
+
+#接口数量最多的top10 应用
+visit_join = loc app_type_1 by name,api_num,app
+visit_join_limit = order visit_join by api_num limit 5
+visit_join_limit = filter visit_join_limit by api_num != 0
+app_3 = loc visit_join_limit by app
+#visit_join_limit = order visit_join_limit by api_num with asc 
+#visit_join_limit.详情 = lambda app by (x:x)
+visit_join_limit = loc visit_join_limit by name to index
+rename visit_join_limit by ("app":"参数","api_num":"接口数量")
+store visit_join_limit to ssdb by ssdb0 with max_api_app:top10
+
+
+#访问IP最多的应用
+vi_srcip_join = loc app_type_1 by name,srcip_num,app
+vi_srcip_group = order vi_srcip_join by srcip_num limit 5
+vi_srcip_group = filter vi_srcip_group by srcip_num != 0
+app_4 = loc vi_srcip_group by app
+rename vi_srcip_group by ("app":"参数","srcip_num":"访问IP数量")
+store vi_srcip_group to ssdb by ssdb0 with max_srcip:top10
+
+#部署服务器的应用top10(客户端)
+visit_join = loc app_type_1 by name,dstip_num,app
+visit_top10_ip = order visit_join by dstip_num limit 5
+visit_top10_ip = filter visit_top10_ip by dstip_num != 0
+app_5 = loc visit_top10_ip by app
+visit_top10_ip = order visit_top10_ip by dstip_num with desc
+#isit_top10_ip = loc visit_top10_ip by app to index
+rename visit_top10_ip by ('name':'局域网应用','app':'参数','dstip_num':'部署数量')
+store visit_top10_ip to ssdb by ssdb0 with max_ip_app:top10
+
+
+#账号最多的应用top10
+visit_account = loc app_type_1 by name,account_num,app
+visit_account = order visit_account by account_num limit 5
+visit_account = filter visit_account by account_num != 0
+app_6 = loc visit_account by app
+#visit_account = order visit_account by account_num with asc
+#visit_account.详情 = lambda app by (x:x)
+max_a_app = loc visit_account by name to index
+rename max_a_app by ('name':'局域网应用访问账号Top10',"app":"参数","account_num":"账号数量")
+store max_a_app to ssdb by ssdb0 with max_a_app:top10
+
+#数据类型标签
+#api_l = load ckh by ckh with select count(app) as "标签数量" ,key from sensitive_data where key != 'null' and key != '' group by key
+api_l = load pq by sensitive/sens_data.pq
+alter api_l by app:str,url:str,src_ip:str,account:str,key:str,num:int
+api_l = group api_l by key agg num:sum
+api_l = @udf api_l by udf0.df_reset_index
+rename api_l as ('num_sum':'标签数量')
+##大屏
+api_l_1 = loc api_l by 标签数量,key
+api_l_1 = order api_l_1 by 标签数量 limit 10
+api_l_1.详情 = lambda key by (x:x)
+api_l_1.key = lambda key by (x:x.replace("纳税人名称或公司名称","纳税人名称"))
+api_l_1.key = lambda key by (x:x.replace("纳税人识别号或社会统一信用代码","纳税人识别号"))
+aa = order api_l_1 by 标签数量 with asc limit 1
+aa = eval aa by iloc[0,0]
+if $aa > 10000 with api_l_1.标签数量 = lambda 标签数量 by (x:round(x/10000,2))
+if $aa > 10000 with rename api_l_1 as ("标签数量":"标签数量(万)")
+if $aa <= 10000 with rename api_l_1 as ("标签数量":"标签数量")
+api_l_1 = loc api_l_1 by key to index
+store api_l_1 to ssdb by ssdb0 with label:pie
+#标签总和：
+api_l.key = str key by (slice(0,4))
+api_l = loc api_l by key to index
+label_num = eval api_l by (iloc[:,0].sum())
+app_label = @udf udf0.new_df with (标签数量)
+app_label = @udf app_label by udf0.df_append with ($label_num)
+store app_label to ssdb by ssdb0 with app_label:num
+
+#应用网段分布
+app_label_group = @udf udf0.new_df with 网段数量
+app_label = @udf RS.load_mysql_sql with (mysql1,select distinct app from data_api_new where app != '')
+alter app_label by app:str
+wd = loc data_app_new by app
+app_label = join wd,app_label by app,app with left
+app_label.app = lambda app by (x:x.split(":"))
+app_label = @udf app_label by udf0.df_l2cs with app
+app_label = loc app_label by n100
+rename app_label as ('n100':'app')
+app_label.n = str app by (slice(-1,))
+app_label = filter app_label by n == '0' or n == '1' or n == '2' or n == '3' or n == '4' or n == '5' or n == '6' or n == '7' or n == '8' or n == '9'
+app_label.app = str app by (findall('(.*\.)'))
+alter app_label.app as str
+app_label = filter app_label by app != '[]'
+app_label.app = lambda app by (x:x[2:-2])
+app_label.app = lambda app by (x:x+"*")
+app_label_group = group app_label by app agg app:count
+app_label_group = order app_label_group by app_count limit 10
+rename app_label_group by ("app_count":"网段数量")
+store app_label_group to ssdb by ssdb0 with app_label:trend
+
+
+
+#服务类型 
+n = load ssdb by ssdb0 with setting as json
+sn = jaas n by n['setting']['fbi_num']['server_num'] as sdf
+sn = @sdf sys_eval with (int($sn)-0)
+app_server = @udf RS.load_mysql_sql with (mysql1,select server,count(server) as a from data_app_new where server !='' group by server order by a desc limit $sn)
+alter app_server by server:str,a:int
+rename app_server by ("a":"服务类型数量","server":"服务类型")
+app_server.详情 = lambda 服务类型 by (x:x)
+app_server = loc app_server by 服务类型 to index
+store app_server to ssdb by ssdb0 with app_server:trend
+
+
+#######应用概览  --> 下钻画像
+app = union app_1,app_2,app_3,app_4,app_5,app_6
+app = distinct app by app
+store app to ssdb by ssdb0 with gl_app
+####吧概览界面的应用    开启画像状态
+aa = load db by mysql1 with select id,app from data_app_new where portrait_status = 0
+alter aa by id:int,app:str
+app = join aa,app by app,app with left
+app = @udf app by udf0.df_fillna_cols with id:0
+app = filter app by id != 0
+if app.index.size > 0 with """
+	alter app.id as int
+	app = add portrait_status by (1)
+	bbb = @sdf sys_now
+	app = add portrait_time by ('$bbb')
+	app = @udf app by udf0.df_set_index with id
+	b = @udf app by CRUD.save_table with (mysql1,data_app_new)
+	app = loc app by index to id
+
+"""
+
+
+clear @FID

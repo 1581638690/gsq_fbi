@@ -1,0 +1,35 @@
+#LastModifyDate:　2023-11-16T18:57:55.965326    Author:   zwl
+#LastModifyDate:　2023-09-06T10:10:36.051945    Author:   zwl
+#LastModifyDate:　2023-09-05T15:18:41.948976    Author:   zwl
+#LastModifyDate:　2023-08-02T10:11:50.990795    Author:   zwl
+#LastModifyDate:　2023-07-31T09:57:20.850624    Author:   zwl
+#LastModifyDate:　2023-07-25T13:31:26.531839    Author:   zwl
+#LastModifyDate:　2023-07-22T14:23:43.127338    Author:   zwl
+#LastModifyDate:　2023-07-17T16:55:10.434212    Author:   zwl
+#LastModifyDate:　2023-07-14T17:57:58.134809    Author:   zwl
+#LastModifyDate:　2023-07-12T09:58:26.690766    Author:   zwl
+#FBI脚本文件
+#文件名: api_monitor_hour.fbi
+#作者: zwl
+use @FID
+
+##清空文件
+#s = @udf FBI.local_cmd with sudo rm -rf /data/workspace/xlink/monitor/itor
+
+###获取api_visit_min.fbi 存储的pkl:xlink/monitor
+a = @udf ZFile.list_dir with xlink/monitor
+a.name = lambda filename by (x:x.split("/"))
+a = @udf a by udf0.df_l2cs with name
+a = loc a by filename,n102
+rename a as ('n102':'name')
+hh = group a by name agg name:count
+hh = @udf hh by udf0.df_reset_index
+
+foreach hh run """
+	b = @udf ZFile.list_dir with xlink/monitor/@file
+	##分小时处理数据
+	run hour_monitor.fbi 
+""" with (file = $1)
+
+
+clear @FID

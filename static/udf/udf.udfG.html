@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.udfG</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.udfG</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/udfG.py">/opt/openfbi/fbi-bin/udf/udfG.py</a></td></tr></table>
+    <p><span class="code">#/bin/python<br>
+#&nbsp;-*-&nbsp;coding:&nbsp;utf-8&nbsp;-*-</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="lxml.etree.html">lxml.etree</a><br>
+<a href="hashlib.html">hashlib</a><br>
+<a href="json.html">json</a><br>
+</td><td class="multicolumn"><a href="math.html">math</a><br>
+<a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+</td><td class="multicolumn"><a href="pandas.html">pandas</a><br>
+<a href="random.html">random</a><br>
+<a href="re.html">re</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-copyright"><strong>copyright</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-df_c2df"><strong>df_c2df</strong></a>(df, p='')</dt><dd><span class="code">#哑变量和虚拟变量的处理</span></dd></dl>
+ <dl><dt><a name="-df_group2_df"><strong>df_group2_df</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161227<br>
+#根据二列进行group后，将多行转换成一行多列<br>
+#被df_group_mxn替代</span></dd></dl>
+ <dl><dt><a name="-df_group_df1"><strong>df_group_df1</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161227<br>
+#根据一列进行group后，将多行转换成一行一列</span></dd></dl>
+ <dl><dt><a name="-df_group_mx1"><strong>df_group_mx1</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-df_group_mxn"><strong>df_group_mxn</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-df_group_top_n"><strong>df_group_top_n</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-df_loc_df"><strong>df_loc_df</strong></a>(df1, df2, p='')</dt><dd><span class="code">#根据DF2的索引选择df1的列</span></dd></dl>
+ <dl><dt><a name="-df_n2df"><strong>df_n2df</strong></a>(df, p='')</dt><dd><span class="code">#add&nbsp;by&nbsp;gjw&nbsp;on&nbsp;20161217<br>
+#将一列的n行转化新的DF表m列,p=(列名，m),用于JD的价格</span></dd></dl>
+ <dl><dt><a name="-df_unloc_df"><strong>df_unloc_df</strong></a>(df1, df2, p='')</dt><dd><span class="code">#根据DF2的索引删除df1的列</span></dd></dl>
+ <dl><dt><a name="-gen_AK2"><strong>gen_AK2</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-gen_AK3"><strong>gen_AK3</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-hash_str"><strong>hash_str</strong></a>(x)</dt></dl>
+ <dl><dt><a name="-load_excel"><strong>load_excel</strong></a>(df, p='')</dt><dd><span class="code">加载excel文件或sheet<br>
+生成df，同时生成合并单元格的信息和行高、列高信息</span></dd></dl>
+ <dl><dt><a name="-load_json_records"><strong>load_json_records</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@函数：load_json_file,<br>
+@参数：<br>
+file_name<br>
+@描述：<br>
+装载json格式的记录文件,&nbsp;即一行一个json，没有采用[]做标记的文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-store_excel"><strong>store_excel</strong></a>(df, merged_cells, dd, p='')</dt><dd><span class="code">生成excel文件，根据df和合并单元格的信息和行高、列高信息</span></dd></dl>
+ <dl><dt><a name="-store_json"><strong>store_json</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161007<br>
+@函数：store_json,<br>
+@参数：<br>
+file_name<br>
+@描述：<br>
+存储json文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-word2pdf"><strong>word2pdf</strong></a>(df, p='')</dt></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>nan</strong> = nan</td></tr></table>
+</body></html>

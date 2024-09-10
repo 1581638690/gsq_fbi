@@ -1,0 +1,266 @@
+#LastModifyDate:　2024-03-08T15:22:31    Author:   zwl
+#LastModifyDate:　2024-01-20T16:02:29    Author:   zwl
+#LastModifyDate:　2024-01-20T15:45:11    Author:   zwl
+#LastModifyDate:　2023-08-01T17:02:29.549518    Author:   zwl
+#LastModifyDate:　2023-07-25T16:23:02.095305    Author:   zwl
+#LastModifyDate:　2023-07-22T15:24:50.434549    Author:   zwl
+#LastModifyDate:　2023-07-21T18:08:43.653485    Author:   zwl
+#LastModifyDate:　2023-06-13T14:16:25.667866    Author:   zwl
+#LastModifyDate:　2023-06-07T13:53:40.607082    Author:   zwl
+#LastModifyDate:　2023-06-05T14:41:45.345347    Author:   zwl
+#LastModifyDate:　2023-05-04T16:13:42.559433    Author:   zwl
+#FBI脚本文件
+#文件名: qh_account_1.fbi
+#作者: qiaohan
+use @FID
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_hx limit 1
+assert find_df_have_data('ccc',ptree) as exit with 数据库未连接 或者 无数据更新！
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with account_hx
+##判断key是否为空，若为空，api_hx
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_hx
+#aa = load ckh by ckh with select min(time) as time from api_hx
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(time) as time from api_hx
+time2 = eval aa by iloc[0,0]
+store aa to ssdb by ssdb0 with account_hx
+
+
+#月时间
+month1 = @sdf sys_now with -1m
+month = @sdf format_now with ($month1,"%Y-%m-%dT00:00:00")
+month1 = @sdf format_now with ($month1,"%Y-%m-%d")
+month2 = @sdf sys_now 
+month2 = @sdf format_now with ($month2,"%Y-%m-%d")
+time_date = @udf udf0.new_df_timerange with ($month1,$month2,1D)
+time_date = loc time_date by end_time 
+time_date.end_time = lambda end_time by (x:x[5:10])
+time_date = loc time_date by end_time to index
+
+#周热力图
+day = @sdf sys_now with -1w
+week = @sdf format_now with ($day,"%Y-%m-%dT00:00:00")
+day1 = @sdf sys_now with -6d
+week1 = @sdf format_now with ($day1,"%Y-%m-%d 00:00:00")
+day2 = @sdf sys_now
+week2 = @sdf format_now with ($day2,"%Y-%m-%d %H:00:00")
+time_d = @udf udf0.new_df_timerange with ($week1,$week2,1H)
+time_d.times = lambda start_time by (x:x[5:10])
+time_d.time2 = lambda start_time by (x:x[11:13])
+time_d = loc time_d by times,time2
+
+##近24小时
+day = @sdf sys_now with -1d
+day2 = @sdf sys_now 
+day1 = @sdf format_now with ($day,"%Y-%m-%d %H:00:00")
+day2 = @sdf format_now with ($day2,"%Y-%m-%d %H:00:00")
+j_hour = @udf udf0.new_df_timerange with ($day1,$day2,1H)
+j_hour.times = lambda end_time by (x:x[0:13])
+j_hour = loc j_hour by times
+
+##取与账号管理 同一个表的数据
+accountlist1 = load db by mysql1 with select account from data_account_new where portrait_status = 1
+alter accountlist1 by account:str
+###月流量数据
+mon_ll = load ckh by ckh with select account,SUBSTRING(toString(time),6,5) as times,sum(visit_num) as time_count,sum(visit_flow) as llk from api_hx where time > '$month' and account != '' and account != '未知' group by account,times 
+alter mon_ll by account:str,times:str,time_count:int,llk:int
+mon_ll.llk = lambda llk by (x:round(x/1024,2))
+##清单数据
+visit_url = load ckh by ckh with select account,url,sum(visit_num) as url_num,sum(visit_flow) as flow from api_hx where time >= '$time1' and time < '$time2' and account != '' and account != '未知' group by account,url
+alter visit_url by account:str,url:str,url_num:int,flow:int
+visit_dstip = load ckh by ckh with select account,dstip,sum(visit_num) as dstip_num from api_hx where time >= '$time1' and time < '$time2' and account != '' and account != '未知' group by account,dstip
+alter visit_dstip by account:str,dstip:str,dstip_num:int
+visit_app = load ckh by ckh with select account,app,sum(visit_num) as app_num from api_hx where time >= '$time1' and time < '$time2' and account != '' and account != '未知' group by account,app
+alter visit_app by account:str,app:str,app_num:int
+visit_srcip = load ckh by ckh with select account,srcip,sum(visit_num) as srcip_num from api_hx where time >= '$time1' and time < '$time2' and account != '' and account != '未知' group by account,srcip
+alter visit_srcip by account:str,srcip:str,srcip_num:int
+data_api_new = load db by mysql1 with select distinct url,api_type from data_api_new
+data_api_new = @udf data_api_new by udf0.df_fillna_cols with url:'',api_type:0
+alter data_api_new by url:str,api_type:int
+alter data_api_new by api_type:str
+api_type = load ssdb with dd:API-api_type
+api_type = @udf data_api_new,api_type by SP.tag2dict with api_type
+api_type.api_type = lambda api_type by (x:x+',')
+api_type = group api_type by url agg api_type:sum
+api_type = loc api_type by index to url
+api_type.api_type = lambda api_type_sum by (x:x[:-1])
+visit_url = join visit_url,api_type by url,url with left
+rename visit_url as ('api_type':'value')
+visit_url = loc visit_url by account,url,url_num,flow,value
+visit_url = @udf visit_url by udf0.df_fillna_cols with account:'',url:'',url_num:0,flow:0,value:''
+drop data_api_new
+drop api_type
+###周热力图
+week_ll = load ckh by ckh with select account,SUBSTRING(toString(time),6,8) as times,sum(visit_num) as time_count from api_hx where time >'$week' and account != '' and account != '未知' group by account,times
+alter week_ll by account:str,times:str,time_count:int
+##近24小时平均访问次数
+account_24 = load ckh by ckh with select account,SUBSTRING(toString(time),1,13) as times,sum(visit_num) as count from api_hx where time > '$day1' and account != '' and account != '未知' group by account,times
+alter account_24 by account:str,times:str,count:int
+
+foreach accountlist1 run """
+	#24小时平均访问次数--------------------------------------------------------------------------------
+	account24 = filter account_24 by account == '@account' 
+	#account24 = filter account_24 by account == '0' 
+	account24 = join j_hour,account24 by times,times with left
+	account24 = @udf account24 by udf0.df_fillna_cols with count:0
+	account24.times = lambda times by (x:x[11:])
+	account24.times = lambda times by (x:x+'时')
+	account24 = loc account24 by times to index 
+	account24 = loc account24 by count
+	rename account24 as ('count':'每小时访问次数')
+	store account24 to ssdb by ssdb0 with z:@account:time_24
+	##月流量趋势-----------------------------------------------------------------------------
+	v1 = filter mon_ll by account == '@account'
+	v1 = loc v1 by times to index
+	ss = join v1,time_date by index,index with right
+	ss = loc ss by (time_count,llk)
+	ss = @udf ss by udf0.df_fillna_cols with time_count:0,llk:0
+	ss_mean = loc ss by time_count,llk
+	ss_mean = add ss by 1
+	ss_mean = group ss_mean by ss agg time_count:mean,llk:mean
+	time_count_mean = eval ss_mean by iloc[0,0]
+	if $time_count_mean > 10000 with ss.time_count = lambda time_count by (x:round(x/10000,2))
+	if $time_count_mean > 10000 with rename ss by ("time_count":"访问数量(万)")
+	if $time_count_mean <= 10000 with rename ss by ("time_count":"访问数量")
+	llk_mean = eval ss_mean by iloc[0,1]
+	if $llk_mean <= 1024 with ss.llk = lambda llk by (x:x)
+	if 1024 < $llk_mean <= 1048576  with ss.llk = lambda llk by (x:round(x/1024,2))
+	if $llk_mean > 1048576 with ss.llk = lambda llk by (x:round(x/1048576,2))
+	if $llk_mean <= 1024 with rename ss by ("llk":"流量(B)")
+	if 1024 < $llk_mean <= 1048576  with rename ss by ("llk":"流量(k)")
+	if $llk_mean > 1048576 with rename ss by ("llk":"流量(M)")
+	store ss to ssdb with acc:@account:timeh
+	#应用IP清单 admin   -------------------------------------------------------------------------------
+	ipls = filter visit_dstip by account == '@account'
+	ipls_ll = load pq by dt_table/account_visit_dstip1_@account.pq
+	ipls = union ipls,ipls_ll
+	ipls = group ipls by account,dstip agg dstip_num:sum
+	ipls = @udf ipls by udf0.df_reset_index
+	rename ipls as ('dstip_num_sum':'dstip_num')
+	ipls1 = distinct ipls by dstip with first
+	## 动态表格
+	visit_dstip1 = loc ipls1 by account,dstip,dstip_num
+	visit_dstip1 = order visit_dstip1 by dstip_num with desc limit 1000
+	#保存为pq文件
+	store visit_dstip1 to pq by dt_table/account_visit_dstip1_@account.pq
+	#重命名
+	rename visit_dstip1 as ("account":"账号","dstip":"目的IP","dstip_num":"访问数量")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,account_visit_dstip1_@account,-,-
+	#保存Q
+	store visit_dstip1 to ssdb by ssdb0 with account_visit_dstip1_@account as Q
+	drop visit_dstip1
+	ipls = loc ipls by dstip,dstip_num
+	ipls = order ipls by dstip_num with desc limit 10
+	rename ipls by ("dstip":"访问应用IP",'dstip_num':'访问数量')
+	store ipls to ssdb with acc:@account:ipls
+	#终端IP清单  -------------------------------------------------------------------------------
+	srcipls = filter visit_srcip by account == '@account'
+	srcipls_ll = load pq by dt_table/account_visit_srcip1_@account.pq
+	srcipls = union srcipls,srcipls_ll
+	srcipls = group srcipls by account,srcip agg srcip_num:sum
+	srcipls = @udf srcipls by udf0.df_reset_index
+	rename srcipls as ('srcip_num_sum':'srcip_num')
+	srcipls1 = distinct srcipls by srcip with first
+	##数量
+	srcip_count = @udf srcipls1 by udf0.df_count
+	srcip_count = add index by ("终端使用数量")
+	srcip_count = loc srcip_count by index to index
+	store srcip_count to ssdb with acc:@account:srcip_count
+	## 动态表格
+	visit_srcip1 = loc srcipls by account,srcip,srcip_num
+	visit_srcip1 = order visit_srcip1 by srcip_num with desc limit 1000
+	#保存为pq文件
+	store visit_srcip1 to pq by dt_table/account_visit_srcip1_@account.pq
+	#重命名
+	rename visit_srcip1 as ("account":"账号","srcip":"源IP","srcip_num":"访问数量")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,account_visit_srcip1_@account,-,-
+	#保存Q
+	store visit_srcip1 to ssdb by ssdb0 with account_visit_srcip1_@account as Q
+	drop visit_srcip1
+	srcipls = loc srcipls by srcip,srcip_num
+	srcipls = order srcipls by srcip_num with desc limit 10
+	rename srcipls by ("srcip":"终端IP",'srcip_num':'访问数量')
+	store srcipls to ssdb with acc:@account:srcipls
+	#访问应用清单  -------------------------------------------------------------------------------
+	appls = filter visit_app by account == '@account'
+	appls_ll = load pq by dt_table/account_visit_app1_@account.pq
+	appls = union appls,appls_ll
+	appls = group appls by account,app agg app_num:sum
+	appls = @udf appls by udf0.df_reset_index
+	rename appls as ('app_num_sum':'app_num')
+	appls1 = distinct appls by app with first
+	###数量
+	appls_count = @udf appls1 by udf0.df_count
+	appls_count = add index by ("访问应用数量")
+	appls_count = loc appls_count by index to index
+	store appls_count to ssdb with acc:@account:appls_count
+	## 动态表格
+	visit_app1 = loc appls by account,app,app_num
+	visit_app1 = order visit_app1 by app_num with desc limit 1000
+	#保存为pq文件
+	store visit_app1 to pq by dt_table/account_visit_app1_@account.pq
+	#重命名
+	rename visit_app1 as ("account":"账号","app":"应用IP/域名","app_num":"访问数量")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,account_visit_app1_@account,-,-
+	#保存Q
+	store visit_app1 to ssdb by ssdb0 with account_visit_app1_@account as Q
+	drop visit_app1
+	appls = loc appls by app,app_num
+	appls = order appls by app_num with desc limit 10
+	rename appls by ("app":"访问应用",'app_num':'访问数量')
+	store appls to ssdb with acc:@account:appls
+	#访问接口清单--------------------------------------------------------------------------------
+	urlls = filter visit_url by account == '@account'
+	urlls_ll = load pq by dt_table/account_visit_url1_@account.pq
+	urlls = union urlls,urlls_ll
+	urlls = group urlls by account,url,value agg url_num:sum,flow:sum
+	urlls = @udf urlls by udf0.df_reset_index
+	rename urlls as ('url_num_sum':'url_num','flow_sum':'flow')
+	#urlls = filter visit_url by account == 'Stuartcraw'
+	## 动态表格
+	urlls.flow = lambda flow by (x:round(x/1024,2))
+	visit_url1 = loc urlls by account,url,url_num,flow,value
+	visit_url1 = order visit_url1 by url_num with desc limit 1000
+	#保存为pq文件
+	store visit_url1 to pq by dt_table/account_visit_url1_@account.pq
+	#重命名
+	rename visit_url1 as ("account":"账号","url":"访问接口","url_num":"访问次数","flow":"访问流量(k)","value":"接口类型")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,account_visit_url1_@account,-,-
+	#保存Q
+	store visit_url1 to ssdb by ssdb0 with account_visit_url1_@account as Q
+	drop visit_url1
+	urlls = loc urlls by url,url_num,flow,value
+	urlls = order urlls by url_num with desc limit 10
+	urlls = @udf urlls by udf0.df_fillna_cols with url:'',url_num:0,flow:0,value:''
+	alter urlls by flow:str
+	rename urlls by ("url":"访问接口","url_num":"访问次数","flow":"访问流量(k)","value":"接口类型")
+	urlls = @udf urlls by VL.set_col_width with (850,180,180,190)
+	urlls = @udf urlls by VL.set_col_color with (#000,#000,#000,#000)
+	store urlls to ssdb with acc:@account:urlls
+	#周热力图  admin  --------------------------------------------------------------------------------------------------
+	v2 = filter week_ll by account == '@account'
+	#v2 = filter week_ll by account == '68640161'
+	v2 = loc v2 by times,time_count
+	v2 = add time2 by v2["times"]
+	v2.time2 = str time2 by (slice(6,8))
+	v2.times = str times by (slice(0,5))
+	vv = join v2,time_d by [times,time2],[times,time2] with outer
+	vv = @udf vv by udf0.df_fillna_cols with time_count:0
+	vv = group vv by (times,time2) agg time_count:sum
+	vv = @udf vv by udf0.df_unstack with time_count_sum
+	vv = @udf vv by udf0.df_fillna with 0
+	vv = @udf vv by udf0.df_sort_index
+	store vv to ssdb with accountweek:@account
+
+""" with (account=$1)
+
+clear @FID

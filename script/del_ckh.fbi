@@ -1,0 +1,19 @@
+#LastModifyDate:　2024-03-08T16:52:38    Author:   pjb
+#LastModifyDate:　2023-10-27T10:37:23.437605    Author:   pjb
+#LastModifyDate:　2023-10-08T10:48:26.582878    Author:   superFBI
+#LastModifyDate:　2023-07-17T17:55:08.974023    Author:   pjb
+#LastModifyDate:　2023-07-17T11:32:26.917789    Author:   superFBI
+#LastModifyDate:　2023-07-17T11:22:48.992201    Author:   superFBI
+#LastModifyDate:　2023-07-13T15:02:21.831814    Author:   pjb
+#LastModifyDate:　2023-07-12T15:24:45.034257    Author:   pjb
+use @FID
+
+od= @sdf sys_now
+od= @sdf format_now with ($od,"%H")
+od = @sdf sys_lambda with ($od, x:x[-1] if x[0] == '0' else x)
+if 0<=$od<=6 with """
+	run lhq_de_flow.fbi
+	#run fileinfo_dels.fbi
+"""
+
+clear @FID

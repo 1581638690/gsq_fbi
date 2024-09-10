@@ -1,0 +1,13 @@
+#LastModifyDate:　2024-01-16T11:21:30    Author:   zwl
+#LastModifyDate:　2023-08-23T17:17:21.905315    Author:   zwl
+#LastModifyDate:　2023-03-15T15:04:07.389759    Author:   zwl
+#LastModifyDate:　2023-02-07T09:54:01.448762    Author:   zwl
+use @FID
+
+b = load pq by sensitive/sensitive_ip.pq
+alter v by srcip:str,url_count:int,app_count:int,account:int,sensitive_count:int,s_num_sum:str
+b = filter b by _id == @_id
+rename b as ("srcip":"终端","url_count":"接口数量","app_count":"应用数量","account_count":"账号数量","sensitive_count":"敏感数据数量","s_num_sum":"敏感数据分类数量")
+push b as look
+
+clear @FID

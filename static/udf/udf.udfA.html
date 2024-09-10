@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.udfA</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.udfA</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/udfA.py">/opt/openfbi/fbi-bin/udf/udfA.py</a></td></tr></table>
+    <p><span class="code">udfA.py<br>
+udf的高级函数<br>
+#=========================</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="base64.html">base64</a><br>
+<a href="gc.html">gc</a><br>
+<a href="hashlib.html">hashlib</a><br>
+<a href="importlib.html">importlib</a><br>
+<a href="json.html">json</a><br>
+<a href="logging.html">logging</a><br>
+</td><td class="multicolumn"><a href="math.html">math</a><br>
+<a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="pymysql.html">pymysql</a><br>
+<a href="random.html">random</a><br>
+</td><td class="multicolumn"><a href="re.html">re</a><br>
+<a href="redis.html">redis</a><br>
+<a href="shutil.html">shutil</a><br>
+<a href="signal.html">signal</a><br>
+<a href="sys.html">sys</a><br>
+<a href="threading.html">threading</a><br>
+</td><td class="multicolumn"><a href="time.html">time</a><br>
+<a href="traceback.html">traceback</a><br>
+<a href="ujson.html">ujson</a><br>
+<a href="uuid.html">uuid</a><br>
+<a href="zipfile.html">zipfile</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-a2b_hex"><strong>a2b_hex</strong></a>(hexstr, /)</dt><dd><span class="code">Binary&nbsp;data&nbsp;of&nbsp;hexadecimal&nbsp;representation.<br>
+&nbsp;<br>
+hexstr&nbsp;must&nbsp;contain&nbsp;an&nbsp;even&nbsp;number&nbsp;of&nbsp;hex&nbsp;digits&nbsp;(upper&nbsp;or&nbsp;lower&nbsp;case).<br>
+This&nbsp;function&nbsp;is&nbsp;also&nbsp;available&nbsp;as&nbsp;"unhexlify()".</span></dd></dl>
+ <dl><dt><a name="-add_option"><strong>add_option</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-b2a_hex"><strong>b2a_hex</strong></a>(...)</dt><dd><span class="code">Hexadecimal&nbsp;representation&nbsp;of&nbsp;binary&nbsp;data.<br>
+&nbsp;<br>
+&nbsp;&nbsp;sep<br>
+&nbsp;&nbsp;&nbsp;&nbsp;An&nbsp;optional&nbsp;single&nbsp;character&nbsp;or&nbsp;byte&nbsp;to&nbsp;separate&nbsp;hex&nbsp;bytes.<br>
+&nbsp;&nbsp;bytes_per_sep<br>
+&nbsp;&nbsp;&nbsp;&nbsp;How&nbsp;many&nbsp;bytes&nbsp;between&nbsp;separators.&nbsp;&nbsp;Positive&nbsp;values&nbsp;count&nbsp;from&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;right,&nbsp;negative&nbsp;values&nbsp;count&nbsp;from&nbsp;the&nbsp;left.<br>
+&nbsp;<br>
+The&nbsp;return&nbsp;value&nbsp;is&nbsp;a&nbsp;bytes&nbsp;object.&nbsp;&nbsp;This&nbsp;function&nbsp;is&nbsp;also<br>
+available&nbsp;as&nbsp;"hexlify()".<br>
+&nbsp;<br>
+Example:<br>
+&gt;&gt;&gt;&nbsp;binascii.<a href="#-b2a_hex">b2a_hex</a>(b'\xb9\x01\xef')<br>
+b'b901ef'<br>
+&gt;&gt;&gt;&nbsp;binascii.hexlify(b'\xb9\x01\xef',&nbsp;':')<br>
+b'b9:01:ef'<br>
+&gt;&gt;&gt;&nbsp;binascii.<a href="#-b2a_hex">b2a_hex</a>(b'\xb9\x01\xef',&nbsp;b'_',&nbsp;2)<br>
+b'b9_01ef'</span></dd></dl>
+ <dl><dt><a name="-drop_users"><strong>drop_users</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-dump_app"><strong>dump_app</strong></a>(df, p='')</dt><dd><span class="code">@author:gjw<br>
+@date:&nbsp;2020/07/29<br>
+@函数：dump_app<br>
+@参数:&nbsp;key,&nbsp;应用的key,&nbsp;形如：&nbsp;use:xxx<br>
+@描述：导出应用内所有数据<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;udfA.dump_app&nbsp;with&nbsp;use:xxx,1.0.3</span></dd></dl>
+ <dl><dt><a name="-dump_nav"><strong>dump_nav</strong></a>(df, p='')</dt><dd><span class="code">@author:gjw<br>
+@date:&nbsp;2021/11/30<br>
+@函数：dump_nav<br>
+@参数:&nbsp;key,&nbsp;导航的key,&nbsp;形如：&nbsp;nav:xxx<br>
+@描述：导出导航所包含的所有模块<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;SSDB.dump_nav&nbsp;with&nbsp;nav:xxx</span></dd></dl>
+ <dl><dt><a name="-dump_nav_no_data"><strong>dump_nav_no_data</strong></a>(df, p='')</dt><dd><span class="code">@author:gjw<br>
+@date:&nbsp;2022-0207<br>
+@函数：dump_nav_no_data<br>
+@参数:&nbsp;key,&nbsp;导航的key,&nbsp;形如：&nbsp;nav:xxx<br>
+@描述：导出导航所包含的所有模块,不包含模块所要的数据<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;SSDB.dump_nav_no_data&nbsp;with&nbsp;nav:xxx</span></dd></dl>
+ <dl><dt><a name="-dump_users"><strong>dump_users</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-get_datas"><strong>get_datas</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-get_eng"><strong>get_eng</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-get_user"><strong>get_user</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-get_userinfo"><strong>get_userinfo</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-get_users"><strong>get_users</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-get_vbs"><strong>get_vbs</strong></a>(df, p='')</dt><dd><span class="code">@author:gjw<br>
+@date:&nbsp;2022/03/07<br>
+@函数：get_vbs<br>
+@参数:&nbsp;key,&nbsp;应用的key,&nbsp;形如：&nbsp;xxx<br>
+@描述：获取应用的版本和build时间<br>
+@返回：DF表<br>
+@示例：c&nbsp;=&nbsp;@udf&nbsp;udfA.get_vbs&nbsp;with&nbsp;DCAP_new</span></dd></dl>
+ <dl><dt><a name="-get_vbs_all"><strong>get_vbs_all</strong></a>(df, p='')</dt><dd><span class="code">@author:gjw<br>
+@date:&nbsp;2022/03/08<br>
+@函数：get_vbs_all<br>
+@参数:&nbsp;key,&nbsp;应用的key,&nbsp;形如：&nbsp;xxx<br>
+@描述：获取应用的版本和build时间<br>
+@返回：DF表<br>
+@示例：c&nbsp;=&nbsp;@udf&nbsp;udfA.get_vbs_all</span></dd></dl>
+ <dl><dt><a name="-imp_users"><strong>imp_users</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-left_join_fill"><strong>left_join_fill</strong></a>(df1, df2, p='')</dt></dl>
+ <dl><dt><a name="-load_app"><strong>load_app</strong></a>(df, p='')</dt><dd><span class="code">@author:&nbsp;gjw<br>
+@函数：load_app<br>
+@参数:&nbsp;文件名<br>
+@描述：导入应用程序所有数据<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;scan.load_app&nbsp;with&nbsp;p</span></dd></dl>
+ <dl><dt><a name="-merge_col_without_empty"><strong>merge_col_without_empty</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-pack_app"><strong>pack_app</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-reset_passwd"><strong>reset_passwd</strong></a>(df, p=None)</dt></dl>
+ <dl><dt><a name="-row_numbers_unempty"><strong>row_numbers_unempty</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-split_by_custom"><strong>split_by_custom</strong></a>(df, p=None)</dt></dl>
+ <dl><dt><a name="-ssdb_conn"><strong>ssdb_conn</strong></a>(server='127.0.0.1', port=8888)</dt></dl>
+ <dl><dt><a name="-up_passwd"><strong>up_passwd</strong></a>(df, p=None)</dt></dl>
+ <dl><dt><a name="-up_passwd_by_df"><strong>up_passwd_by_df</strong></a>(df, p=None)</dt></dl>
+ <dl><dt><a name="-update_passwd"><strong>update_passwd</strong></a>(name, passwd)</dt></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>CK</strong> = 'IamFBI@2035'<br>
+<strong>GFEASP</strong> = {}<br>
+<strong>Gpushs</strong> = {}<br>
+<strong>LCR</strong> = {}<br>
+<strong>NaN</strong> = nan<br>
+<strong>STT</strong> = 'System:diaodu:now'<br>
+<strong>TCache</strong> = {}<br>
+<strong>Tasks_Q</strong> = []<br>
+<strong>config</strong> = {'autorun': False, 'kv_eng': 'ssdb', 'logging': False, 'password': '4d7d4f6ef5d627f43a65d9b4b2ccc875', 'redis_host': '127.0.0.1', 'redis_password': '4d7d4f6ef5d627f43a65d9b4b2ccc875', 'redis_port': 6379, 'ssdb_host': '127.0.0.1', 'ssdb_port': 8888, 'timer': False, ...}<br>
+<strong>errors</strong> = {1: '秒应该在0到59之间', 2: '分应该在0到59之间', 3: '时应该在0到23之间', 4: '日应该在1到31之间', 5: '月应该在1到12之间', 6: '周应该在1到7之间'}<br>
+<strong>f</strong> = &lt;_io.TextIOWrapper name='/opt/openfbi/conf/config' mode='r' encoding='UTF-8'&gt;<br>
+<strong>fbi_global</strong> = &lt;avenger.fglobals.FbiGlobal object&gt;<br>
+<strong>fh</strong> = &lt;RotatingFileHandler /opt/openfbi/fbi-bin/logs/fbi_server.log (NOTSET)&gt;<br>
+<strong>formatter</strong> = &lt;logging.Formatter object&gt;<br>
+<strong>global_pools</strong> = {}<br>
+<strong>global_tasks</strong> = {}<br>
+<strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>root_logger</strong> = &lt;Logger fbi-server (INFO)&gt;<br>
+<strong>run_task</strong> = {}<br>
+<strong>timer_num_rules</strong> = {1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, ...], 2: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, ...], 3: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, ...], 4: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...], 5: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 6: [1, 2, 3, 4, 5, 6, 7]}</td></tr></table>
+</body></html>

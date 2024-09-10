@@ -1,0 +1,26 @@
+#LastModifyDate:　2023-08-01T13:55:50.999590    Author:   zwl
+#LastModifyDate:　2023-07-07T14:42:46.637085    Author:   zwl
+#LastModifyDate:　2023-05-12T13:45:02.730183    Author:   superFBI
+#LastModifyDate:　2023-05-12T10:37:23.318397    Author:   superFBI
+#LastModifyDate:　2023-05-11T16:09:14.472273    Author:   zwl
+#LastModifyDate:　2023-05-10T15:21:32.237476    Author:   zwl
+#LastModifyDate:　2023-05-04T18:58:26.200158    Author:   zwl
+#LastModifyDate:　2023-03-15T15:10:04.050833    Author:   zwl
+#LastModifyDate:　2023-03-13T18:26:30.574186    Author:   zwl
+use @FID
+
+#b = load pkl by dt_table/api19_risk_@type.pkl
+b = load db by mysql1 with select a.id as _id,a.api,a.api_name,a.app,a.app_name,a.dest_ip,a.dest_port,a.method,a.length,a.first_time,a.last_time,a.state,b.type1,a.more from api19_risk a join api19_type b on a.type = b.type where b.type1 = '@type' and a.id = '@_id' order by a.last_time desc
+#b = filter b by _id == @_id
+b = loc b by drop _id
+
+#aa = loc b by request_body,response_body
+#aa1 = eval aa by iloc[0,0]
+#if '$aa1' == '{}' with b = loc b drop request_body
+#aa2 = eval aa by iloc[0,1]
+#if '$aa2' == '{}' with b = loc b drop response_body
+
+rename b as ('api':'接口','api_name':'接口名','app':'应用','app_name':'应用名','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','length':'返回数据最大数据量','first_time':'首次发现时间','last_time':'最新监测时间','state':'弱点状态','type1':'弱点类型','more':'详情')
+push b as look
+
+clear @FID

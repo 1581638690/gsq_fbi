@@ -1,0 +1,43 @@
+#LastModifyDate:　2024-01-16T17:41:20    Author:   zwl
+#LastModifyDate:　2023-07-06T10:17:36.748247    Author:   zwl
+#LastModifyDate:　2023-07-05T18:40:19.623432    Author:   zwl
+#LastModifyDate:　2023-06-15T17:14:01.688607    Author:   zwl
+use @FID
+
+ss = load ssdb by ssdb0 with @datakey
+
+
+a = load pq by dt_table/app_risk.pq
+a = loc a by index to __index
+
+
+##判断是否进行   搜索--------------------------------------------
+ppp = load ssdb by ssdb0 with @filterKey
+ppp = filter ppp by app != ''
+ppp_num = eval ppp by index.size
+ppp_num = @sdf sys_eval with $ppp_num != 0
+#全文检索
+q = @sdf sys_if_run with ($ppp_num, "app = eval ppp by iloc[0,0]")
+q = @sdf sys_if_run with ($ppp_num, "a = filter a with $app")
+##接口
+#q = @sdf sys_if_run with ($ppp_num, "a = filter a by app == '$app'")
+
+
+##判断是否进行   筛选--------------------------------------------
+sss_num = eval ss by index.size 
+sss_num = @sdf sys_eval with $sss_num != 0
+q = @sdf sys_if_run with ($sss_num, "ss1 = eval ss by iloc[0,0]")
+q = @sdf sys_if_run with ($sss_num, "a = filter a by $ss1")
+
+
+b = loc a by _id,app,app_name,api_num,api_count,level,state_num,type_num
+count = eval b by index.size
+c = @udf udf0.new_df with count
+c = @udf c by udf0.df_append with $count
+b = limit b by 1000
+rename b as ('app':'应用','app_name':'应用名','dest_ip_sum':'服务器IP','api_num':'接口总数','api_count':'接口弱点量','state_num':'弱点状态分布','type_num':'弱点类型分布')
+
+push b as table
+push c as count
+
+clear @FID

@@ -1,0 +1,85 @@
+#LastModifyDate:　2023-01-13T10:34:42.149863    Author:   pjb
+#LastModifyDate:　2023-01-13T09:52:45.717376    Author:   qh
+#LastModifyDate:　2022-12-08T16:02:43.454706    Author:   qh
+#LastModifyDate:　2022-11-21T17:31:46.043662    Author:   qh
+#LastModifyDate:　2022-11-21T16:40:16.916379    Author:   qh
+#LastModifyDate:　2022-11-07T15:17:58.786828    Author:   qh
+#LastModifyDate:　2022-11-02T14:59:25.157681    Author:   qh
+#LastModifyDate:　2022-11-01T17:39:32.685132    Author:   qh
+#LastModifyDate:　2022-11-01T17:12:27.376373    Author:   qh
+#LastModifyDate:　2022-11-01T17:10:03.263688    Author:   qh
+#LastModifyDate:　2022-11-01T17:08:32.044176    Author:   qh
+#LastModifyDate:　2022-11-01T16:42:17.762527    Author:   qh
+#LastModifyDate:　2022-10-29T11:57:36.936845    Author:   admin
+#日志外发保存
+use @FID
+zz = load ssdb by ssdb0 with qh_send as json
+syslog = jaas zz by zz["syslog_o"] as sdf
+kafka = jaas zz by zz["kafka_o"] as sdf
+SDK = jaas zz by zz["SDK"] as sdf
+
+if $SDK == "1" with """
+	SDK_IP = jaas zz by zz["SDK_IP"] as sdf
+	SDK_port = jaas zz by zz["SDK_port"] as sdf
+	SDK_ip_or_id = jaas zz by zz["SDK_ip_or_id"] as sdf
+	SOC_ip = jaas zz by zz["SOC_ip"] as sdf
+	SOC_port = jaas zz by zz["SOC_port"] as sdf
+	SDK_IP= @sdf sys_str with ($SDK_IP,[1:-1])
+	SDK_port= @sdf sys_str with ($SDK_port,[1:-1])
+	SDK_ip_or_id= @sdf sys_str with ($SDK_ip_or_id,[1:-1])
+	SOC_ip = @sdf sys_str with ($SOC_ip,[1:-1])
+	SOC_port = @sdf sys_str with ($SOC_port,[1:-1])
+	df1 = @udf udf0.new_df
+	df1 = add a by 1
+	df1 = @udf df1 by udf0.df_append with ($SDK_ip_or_id)
+	assert df1 by df.iloc[0,0] != "" as alert with SDK认证IP或ID不能为空
+	df1 = @udf df1 by udf0.df_append with ($SDK_IP)
+	assert df1 by df.iloc[1,0] != "" as alert with SDKIP不能为空
+	df1 = @udf df1 by udf0.df_append with ($SDK_port)
+	assert df1 by df.iloc[2,0] != "" as alert with SDK端口不能为空
+	df1 = @udf df1 by udf0.df_append with ($SOC_ip)
+	assert df1 by df.iloc[3,0] != "" as alert with SOC平台IP不能为空
+	df1 = @udf df1 by udf0.df_append with ($SDK_port)
+	assert df1 by df.iloc[4,0] != "" as alert with SOC平台端口不能为空
+	assert not_have_error() as exit with 已退出
+	run qh_sdk.fbi
+"""
+if $syslog == "0" with """
+	a = @udf FBI.x_finder3_stop2 with api_2syslog
+"""
+if $kafka == "0" with """
+	a = @udf FBI.x_finder3_stop2 with api_2kafka
+"""
+if $syslog == "1" with """
+	sip = jaas zz by zz["syslog_ip"] as sdf
+	sport = jaas zz by zz["syslog_port"] as sdf
+	sip = @sdf sys_str with ($sip,[1:-1])
+	sport= @sdf sys_str with ($sport,[1:-1])
+	df1 = @udf udf0.new_df
+	df1 = add a by 1
+	df1 = @udf df1 by udf0.df_append with ($sip)
+	assert df1 by df.iloc[0,0] != "" as alert with syslogIP不能为空
+	df1 = @udf df1 by udf0.df_append with ($sport)
+	assert df1 by df.iloc[1,0] != "" as alert with syslog端口不能为空
+	assert not_have_error() as exit with 已退出
+	a = @udf FBI.x_finder3_stop2 with api_2syslog
+	a = @udf FBI.x_finder3_start with api_2syslog
+"""
+if $kafka == "1" with """
+	kip = jaas zz by zz["kafka_ip"] as sdf
+	kport = jaas zz by zz["kafka_port"] as sdf
+	kip = @sdf sys_str with ($kip,[1:-1])
+	kport= @sdf sys_str with ($kport,[1:-1])
+	df1 = @udf udf0.new_df
+	df1 = add a by 1
+	df1 = @udf df1 by udf0.df_append with ($kip)
+	assert df1 by df.iloc[0,0] != "" as alert with kafkaIP不能为空
+	df1 = @udf df1 by udf0.df_append with ($kport)
+	assert df1 by df.iloc[1,0] != "" as alert with kafka端口不能为空
+	assert not_have_error() as exit with 已退出
+	a = @udf FBI.x_finder3_stop2 with api_2kafka
+	a = @udf FBI.x_finder3_start with api_2kafka
+"""
+
+
+clear @FID

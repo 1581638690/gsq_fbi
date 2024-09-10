@@ -1,0 +1,60 @@
+#LastModifyDate:　2024-03-14T16:44:33    Author:   zwl
+#LastModifyDate:　2024-03-14T16:25:23    Author:   zwl
+#LastModifyDate:　2023-10-09T16:23:51.448473    Author:   zwl
+#LastModifyDate:　2023-10-08T16:17:48.498885    Author:   zwl
+
+####  清除 定时器  图谱
+cleartimer 图谱
+
+##删除 /data/mkd.db 文件
+a = @udf FBI.local_cmd with sudo rm -rf /data/mkd.db/
+
+##杀死图谱进程
+#a = @udf FBI.local_cmd with sudo /home/zhds/pjb/alds/bin/init_mkd.sh
+a = @udf FBI.local_cmd with sudo /home/zhds/alds/bin/init_mkd.sh
+
+#初始化一个知识图谱
+a = @udf GL.init_mkd
+
+#启动一个http实例
+ret = @udf GL.start_http_mkd
+
+aa = @udf udf0.new_df with time
+#time1 = @sdf sys_now with -1d
+#aa = @udf aa by udf0.df_append with $time1
+store aa to ssdb by ssdb0 with link_agent
+
+############################全链路数据图谱
+link_data = load ckh by ckh with truncate link_data
+##接口名称对应
+bb = @udf ZFile.rm_file with link/url_name.pq
+###节点信息
+bb = @udf ZFile.rm_file with link/link_type.pq
+###  http关系（终端--》接口） 关联账号
+bb = @udf ZFile.rm_file with link/link_http_acc.pq
+###  http关系(终端--》应用) 关联账号
+bb = @udf ZFile.rm_file with link/link_http1_acc.pq
+###  sql关系  关联数据库账号
+bb = @udf ZFile.rm_file with link/link_sql_user.pq
+###出度入度计算数量
+bb = @udf ZFile.rm_file with link/S_O_count.pq
+
+aa = @udf udf0.new_df with time
+store aa to ssdb by ssdb0 with link_xff
+###################   xff - 终端图谱
+link_xff = load ckh by ckh with truncate link_xff
+###节点信息
+bb = @udf ZFile.rm_file with link/ip_type.pq
+###出度入度计算数量
+bb = @udf ZFile.rm_file with link/S_O_xff_count.pq
+
+###################   资产测绘图谱
+ldgz = load ckh by ckh with truncate ldgz
+mkd = load ckh by ckh with truncate mkd
+###节点信息
+bb = @udf ZFile.rm_file with link/ldgz_type.pq
+### 运行图谱
+run ldgz/zc_gx_pic_other.fbi
+
+
+settimer 图谱 by "0 */10 * * * *" run tupu.fbi 

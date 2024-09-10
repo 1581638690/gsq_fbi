@@ -1,0 +1,11 @@
+#LastModifyDate:　2022-11-28T15:05:04.540424    Author:   zwl
+#LastModifyDate:　2022-11-10T17:08:15.836039    Author:   zwl
+use @FID
+
+api19_risk = load db by mysql1 with select api,api_name,app,app_name,dest_ip,dest_port,method,length,first_time,last_time,state,type,more from api19_risk where id = '@_id'
+rename api19_risk as ('api':'接口','api_name':'接口名','app':'应用','app_name':'应用名','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','length':'返回数据最大数据量','first_time':'首次发现时间','last_time':'最新监测时间','state':'弱点状态','type':'弱点类型','more':'详情')
+push api19_risk as api19_risk_xq
+
+
+
+clear @FID

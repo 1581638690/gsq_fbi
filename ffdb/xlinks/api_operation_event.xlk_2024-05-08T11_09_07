@@ -1,0 +1,121 @@
+#LastModifyDate:　2024-05-08T11:09:07    Author:   rzc
+#LastModifyDate:　2024-05-08T11:05:57    Author:   rzc
+#LastModifyDate:　2024-05-08T10:40:35    Author:   rzc
+#LastModifyDate:　2024-05-07T16:52:28    Author:   rzc
+#LastModifyDate:　2024-05-06T16:50:27    Author:   rzc
+#LastModifyDate:　2024-05-06T16:38:27    Author:   rzc
+#LastModifyDate:　2024-05-06T16:27:26    Author:   rzc
+#LastModifyDate:　2024-05-06T16:01:19    Author:   rzc
+#LastModifyDate:　2024-04-30T14:54:20    Author:   rzc
+#LastModifyDate:　2024-04-30T13:11:28    Author:   superFBI
+#LastModifyDate:　2024-04-30T11:19:38    Author:   superFBI
+#xlink脚本
+#file: api_operation_event.xlk
+#name: 对API接口数据进行分析
+#描述： 分析API接口数据，账户做了什么操作行为
+#创建时间: 2024-04-29T16:12:39.400971
+
+#查看流计算服务
+#a = @udf FBI.x_finder3_list
+
+#启动
+#a = @udf FBI.x_finder3_start with api_operation_event
+
+#停止
+#a = @udf FBI.x_finder3_stop with api_operation_event
+
+#查询错误日志
+#a = load ssdb by ssdb0 query qrange,X_log:api_operation_event,0,1000
+
+#查看xlink内部信息, 每５秒更新
+#在对象查看器里输入　printf::api_operation_event
+
+#断点调试
+#debug_on(1)
+
+
+#初始化
+init => {
+	stream["meta_name"] = "对API接口数据进行分析"
+	stream["meta_desc"] = "分析API接口数据，账户做了什么操作行为"
+	stream["source"]= {"unix_udp":"/tmp/operation_events"}
+	
+
+	#自定义的统计变量
+	stream["count"] = 0
+	stream["count-10"] = 0
+	stream["st"]["st_30f"]={"times":30,"fun":"print30"}
+	stream["st"]["st_10f"]={"times":10,"fun":"print10"}
+	#chk的链接
+	stream["CKH"] = CKH_Client(host="127.0.0.1",port=19000,user="default",password="client")
+	
+	#创建ckh的pool
+	pool["event_model"] = []
+
+	stream["con_rules"] = load_model_data("gsqevent")
+}
+
+
+#事件处理函数
+events => {
+	stream["count"]+=1
+	ify_result = read_model_identify(stream["con_rules"],o)
+	if o.get("url") =="http://10.18.80.25:8215/dataasset/api/core/finddatasource/queryBySql":
+		printf("fiy",ify_result)
+	event = {}
+	# 获取当前接口的名称 如果没有，就按照现在的，如果存在就进行覆盖
+	url_name=o.get("name","")
+	if ify_result and isinstance(ify_result,dict):
+		# 获取当前接口的名称 如果没有，就按照现在的，如果存在就进行覆盖
+		label_name = ify_result.get("label_info",{}).get("name","")
+		if url_name =="" and label_name:
+			url_name = label_name[0]
+		else:
+			url_name = url_name 
+		data_event = ify_result.get("data",{}) # 存在操作事件
+		
+		if data_event:
+			# 获取事件信息,做一个列表 对事件信息进行处理
+			
+			# {"parameters":{"搜索账户"：["人大"]}}
+			for http_pos,operations in data_event.items():
+				# 循环一下数据
+				for title,intell_data in operations.items():
+					if "返回" in title:
+						titles = title.split("-")[1]
+						event.setdefault("返回结果",{}).setdefault(titles,list(set(intell_data)))
+					else:
+						event.setdefault("操作",{}).setdefault(title,list(set(intell_data)))
+		
+		# 需要进行 存储数据信息
+		
+		
+	if url_name!="":
+		event_dic = {"url":o.get("url"),"time":iso_to_datetime(o["time"]),"cookie":o.get("cookie"),"flow_id":o.get("flow_id",""),"app":o.get("app"),"account":o.get("account"),"name":url_name,"parameter":o.get("parameter"),"app_name":o.get("app_name"),"id":o.get("id"),"dstip":o.get("dstip"),"user_info": o.get("user_info"),"event":ujson.dumps(event,ensure_ascii=False),"request_body":o.get("request_body",""),"response_body":o.get("response_body","")}
+		if "e_opera" not in stream:
+			stream["e_opera"] =list(event_dic.keys())
+		to_pool("event_model",list(event_dic.values()))
+			#to_pool("event_model",event_dic)
+}
+
+#系统定时函数
+print10 => {
+	printf("总数","%s==sum==%d"%(st,stream["count"]))
+	printf("10秒统计数","%s==10===%d"%(st,stream["count-10"]))
+	
+}
+print30 => {
+	stream["con_rules"] = load_model_data("gsqevent")
+	if "e_opera" in stream:
+		store_ckh2(pool["event_model"],"event_monitor",stream["e_opera"])
+	#store_ckh(pool["event_model"],"event_monitor")
+}
+
+
+#需要额外引入的包
+imports =>{
+	import sys
+	import gc
+	import base64
+	from intell_analy_new import *
+}

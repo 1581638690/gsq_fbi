@@ -1,0 +1,28 @@
+
+# 文件名: user_man--delete_users.fbi
+
+#@file:	 	script/user_man/delete_users.fbi
+#@name: 		文件的中文名称
+#@desc: 		批量删除用户
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2020-3-20T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+
+use @FID
+
+users1 = @sdf sys_define with @users
+df1 = @udf udf0.new_df with (name)
+df2 = @udf df1 by udf0.df_append with ($users1)
+df2.name=str name by (split("|"))
+df3 = @udf df2 by udf0.df_l2df with name
+df3 = @udf df3 by udf0.df_set_index with (Seq)
+#批量删除sqlit3中
+dd1=@udf df3 by udfA.drop_users
+#批量删除ssdb中
+dd2=@udf df3 by SSDB2.del_option
+#批量删除mysql中
+dd3 = @udf df3 by CRUD.batch_delete_users with (@link,@table)
+#清除工作区
+clear @FID

@@ -1,0 +1,32 @@
+#LastModifyDate:　2024-01-20T14:48:04    Author:   zwl
+#LastModifyDate:　2023-08-23T17:02:16.899393    Author:   zwl
+#LastModifyDate:　2023-07-07T16:42:34.389197    Author:   zwl
+#LastModifyDate:　2023-03-23T10:02:16.152812    Author:   zwl
+#LastModifyDate:　2023-03-21T14:13:27.888722    Author:   zwl
+#LastModifyDate:　2023-03-15T15:20:01.196504    Author:   zwl
+#LastModifyDate:　2023-03-07T10:48:16.802639    Author:   zwl
+#LastModifyDate:　2023-02-15T11:07:31.359606    Author:   zwl
+#LastModifyDate:　2023-02-15T10:06:47.989741    Author:   zwl
+#LastModifyDate:　2023-02-08T13:43:44.610606    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/app_visit_account1_@app.pq
+datas = @udf datas by udf0.df_fillna_cols with app:'',account:'',account_num:0
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+""" 
+rename datas as ("app":"应用IP/域名","account":"账号","account_num":"访问数量")
+store datas to csv by 应用画像账号清单_@app_$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 应用画像账号清单_@app_$day.csv
+push name as file_name
+
+clear @FID

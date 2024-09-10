@@ -1,0 +1,30 @@
+#LastModifyDate:　2023-05-25T16:13:58.633796    Author:   rzc
+#LastModifyDate:　2023-05-25T16:12:55.282003    Author:   rzc
+#LastModifyDate:　2023-03-10T16:13:30.462360    Author:   rzc
+#LastModifyDate:　2023-03-08T11:27:08.478108    Author:   rzc
+#LastModifyDate:　2023-03-02T11:34:18.222330    Author:   rzc
+#LastModifyDate:　2023-02-28T17:28:57.198752    Author:   rzc
+#FBI脚本文件
+#文件名: apidst/init.fbi
+#作者: rzc
+use @FID
+
+a = load ssdb by ssdb0 with @data_key
+assert a by df.index.size>1 as break with 至少要选中两个接口进行合并
+#index=loc a by app
+#c = distinct index by app with drop
+#assert c by df.index.size==0 as break with 请选择相同应用下的接口
+api_status=loc a by api_status
+df=distinct api_status by api_status
+assert df by df.index.size==1 as break with 审计状态不同
+a=loc a by url
+urls=@udf a by udf0.df_T
+urls=@udf urls by udf0.df_cs2l
+rename urls as ("s0":"url")
+
+store urls to ssdb by ssdb0 with apidst_tab:@FPS as 600
+
+#在页面展示数据
+push urls as table 
+#清除工作区
+clear @FID

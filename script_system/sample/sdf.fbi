@@ -1,0 +1,33 @@
+#FBI脚本文件
+#文件名: sdf.fbi
+#作者: admin
+
+#1定义和比较
+a = @sdf sys_define by "5"
+b = @sdf sys_define by 1
+#True
+c = @sdf sys_eval by $b==1
+#False
+c1 = @sdf sys_eval by $a>10
+
+#2字符串比较
+d = @sdf sys_define by "中"
+#False
+c2 = @sdf sys_eval by "$d"==1
+#True
+c3 = @sdf sys_eval with '$d'=="中"
+#True 
+c4 = @sdf sys_eval with ("$d"=="中")
+#False
+c5 = @sdf sys_eval with '$d'!="中"
+#error
+c6 = @sdf sys_eval with "$d"!="中"
+
+#3 取DF的值
+df = @udf udf0.new_df with id,name
+df = @udf df by udf0.df_append with 10,中国
+v = eval df by iloc[0,0]
+v1 = eval df by iloc[0,1]
+v2 = eval df by get_value(0,"name")
+v3 = eval df by loc[0,"name"]
+

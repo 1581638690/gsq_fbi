@@ -1,0 +1,14 @@
+#FBI脚本文件
+#文件名: sample/SSDB.fbi
+#作者: admin
+
+define ssdb_master as @mip:@mport
+define ssdb_my as @host:@port
+
+#新建SSDB实例(slaver)
+s = @udf FBI.ssdb_slaver with s.conf,@data,@host,@port,@id,@mip,@mport
+t1 = @udf FBI.ssdb_stop with s.conf
+t = @udf FBI.ssdb_start with s.conf
+i = @udf FBI.ssdb_info with s.conf
+store i to  ssdb by ssdb_master with SSDB:@id
+push i

@@ -1,0 +1,35 @@
+#LastModifyDate:　2023-12-01T14:52:38.089682    Author:   superFBI
+#LastModifyDate:　2023-01-06T09:59:08.261062    Author:   pjb
+#LastModifyDate:　2022-12-19T15:48:26.869603    Author:   pjb
+use @FID
+# 关联应用
+dd = load db by mysql1 with select id,sysname from app_sx
+dd = @udf dd by udf0.df_append with (0,无)
+alter dd.id as int
+dd = order dd by id with asc
+dd = loc dd by id to index
+store dd to ssdb by ssdb0 with dd:app_sx
+# 对象标签
+dd = load db by mysql1 with select type from api_label_library
+dd = add id by dd.type
+dd = @udf dd by udf0.df_append with (无,无)
+dd = @udf dd by udf0.df_set_index with id
+store dd to ssdb by ssdb0 with dd:api_label_library
+dd = load db by mysql1 with select type from app_label_library
+dd = add id by dd.type
+dd = @udf dd by udf0.df_append with (无,无)
+dd = @udf dd by udf0.df_set_index with id
+store dd to ssdb by ssdb0 with dd:app_label_library
+dd = load db by mysql1 with select type from ip_label_library
+dd = add id by dd.type
+dd = @udf dd by udf0.df_append with (无,无)
+dd = @udf dd by udf0.df_set_index with id
+store dd to ssdb by ssdb0 with dd:ip_label_library
+dd = load db by mysql1 with select type from account_label_library
+dd = add id by dd.type
+dd = @udf dd by udf0.df_append with (无,无)
+dd = @udf dd by udf0.df_set_index with id
+store dd to ssdb by ssdb0 with dd:account_label_library
+
+
+clear @FID

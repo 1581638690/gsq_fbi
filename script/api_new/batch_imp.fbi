@@ -1,0 +1,70 @@
+#LastModifyDate:　2023-09-27T18:44:18.231500    Author:   superFBI
+#LastModifyDate:　2023-08-23T16:57:02.680323    Author:   zwl
+#LastModifyDate:　2023-03-17T16:28:39.205965    Author:   pjb
+# 文件名: crud-batch_imp.fbi
+
+#@file:	 	script/crud/batch_imp.fbi
+#@name: 	文件的中文名称
+#@desc: 	批量导入脚本
+#@author: 	admin
+#@version: 	v1.0
+#@date: 		2019-4-10T14:56:04.644956
+#@params:	参数样例 @x1=参数1 ,@x2=参数2 , .....
+#=========================begin=========================================
+#@file_name导入文件名
+use @FID
+#加载csv文件
+datas = load csv by @file_name
+#index列设置为0,为新增  ,"接口类型":"api_type","风险等级":"risk_level","":"","":""
+datas = loc datas drop 请求数据标签,返回数据标签
+rename datas as ("接口":"url","uri":"api","协议版本":"protocol","首次发现时间":"first_time","接口名":"name","应用名":"app","请求类型":"method","资源类型":"data_type","风险标签":"risk_label","访问数量":"visits_num","访问IP数量":"srcip_num","访问流量":"visits_flow","敏感标签":"sensitive_label","部署数量":"dstip_num","目的IP":"dstip","目的端口":"dstport","最后修改时间":"last_time","审计状态":"api_status","接口标签":"scope","应用类型":"app_type","访问账号数量":"account_num","合并接口名":"url_merges","子接口":"url_sum","合并状态":"merge_state","参数":"parameter","风险标签.1":"risk_label_value")
+datas.sensitive_label = lambda sensitive_label by x:"1" if x =='敏感' else "0"
+datas.api_status = lambda api_status by x:"1" if x =='已审计' else "0"
+datas.app_type = lambda app_type by x:1 if x =="内部应用" else 0
+
+api_type = load ssdb by ssdb0 with dd:API-api_type
+api_type  = add id by api_type.index
+rename api_type as ("value":"接口类型")
+datas = join datas,api_type by 接口类型,接口类型 with left
+datas = loc datas drop 接口类型
+rename datas as ("id":"api_type")
+
+risk_level = load ssdb by ssdb0 with dd:API-risk_level
+risk_level  = add id by risk_level.index
+rename risk_level as ("value":"风险等级")
+datas = join datas,risk_level by 风险等级,风险等级 with left
+datas = loc datas drop 风险等级
+rename datas as ("id":"risk_level")
+
+active = load ssdb by ssdb0 with dd:api_active
+active  = add id by active.index
+rename active as ("value":"活跃状态")
+datas = join datas,active by 活跃状态,活跃状态 with left
+datas = loc datas drop 活跃状态
+rename datas as ("id":"active")
+
+auth_type = load ssdb by ssdb0 with dd:API-auth_type
+auth_type  = add id by auth_type.index
+rename auth_type as ("value":"接口认证类型")
+datas = join datas,auth_type by 接口认证类型,接口认证类型 with left
+datas = loc datas drop 接口认证类型
+rename datas as ("id":"auth_type")
+alter datas.name as str
+alter datas.risk_label as str
+alter datas.risk_label_value as str
+alter datas.scope as str
+alter datas.url_merges as str
+alter datas.url_sum as str
+alter datas.auto_merge as str
+alter datas.portrait_time as str
+alter datas.app_merges as str
+datas = @udf datas by udf0.df_fillna with ""
+datas = @udf datas by udf0.df_zero_index 
+#保存数据到业务库中
+datas = @udf datas by CRUD.save_object_mtable with (@link,@table)
+#保存到s3
+#datas = @udf datas by CRUD.save_object_stable with (@link,@table)
+
+assert not_have_error() as alert to 导入成功 with 导入失败
+push datas as table
+clear @FID

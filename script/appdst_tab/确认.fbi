@@ -1,0 +1,86 @@
+#LastModifyDate:　2023-12-01T14:31:12.164854    Author:   superFBI
+#LastModifyDate:　2023-11-29T15:21:09.549294    Author:   pjb
+#LastModifyDate:　2023-11-29T15:19:12.476485    Author:   pjb
+#LastModifyDate:　2023-11-29T15:14:58.604094    Author:   pjb
+#LastModifyDate:　2023-11-29T15:14:12.908684    Author:   pjb
+#FBI脚本文件
+#文件名: appdst_tab/确定.fbi
+#作者: superFBI
+use @FID
+a = load ssdb by ssdb0 with @data_key
+assert a by len(df.iloc[0,1].split(","))>=2 as break with 请选中对应应用再进行修改!
+apps_sum = eval a by (iloc[0,2])
+assert '$apps_sum' != "" as break with 应用不能为空！
+qq = load db by mysql1 with select app from data_app_new where app='$apps_sum'
+assert qq by df.index.size <=0 as break with 应用已存在！
+app_n = eval a by (iloc[0,1])
+apps = @sdf sys_eval with ('$app_n'.split(','))
+apps = @sdf sys_eval with (str($apps)[1:-1])
+#更新应用
+app_all = load db by mysql1 with select id,merge_state,visits_num,visits_flow,sj_num,monitor_flow,api_num,imp_api_num,srcip_num,account_num,dstip_num,sensitive_label,app_type,app_status,active from data_app_new where app in ($apps) 
+qq = filter app_all by merge_state != 0
+qq = filter qq by merge_state != 3
+assert qq by df.index.size <= 0 as break with 存在已合并的应用！
+#更新接口应用
+api_ap = load db by mysql1 with select id,app app_merges from data_api_new where app in ($apps)
+api_ap = add app by ('$apps_sum')
+api_ap = @udf api_ap by udf0.df_set_index with id
+@udf api_ap by CRUD.save_table with (mysql1,data_api_new)
+#app_all = loc app_all by app,app_merges
+app_all = loc app_all by id,merge_state,visits_num,visits_flow,sj_num,monitor_flow,api_num,imp_api_num,srcip_num,account_num,dstip_num,sensitive_label,app_type,app_status,active
+app = loc app_all by id,merge_state
+app = add merge_state by 1
+app = add app_merges by ('$apps_sum')
+app = @udf app by udf0.df_set_index with id
+@udf app by CRUD.save_table with (mysql1,data_app_new)
+app2 = loc app_all by visits_num,visits_flow,sj_num,monitor_flow,api_num,imp_api_num,srcip_num,account_num,dstip_num,sensitive_label,app_type,app_status,active
+app2 = add app_merges by ('$apps_sum')
+#app2 = add app by ('$apps_sum')
+alter app2.active as str
+alter app2.app_type as str
+alter app2.app_status as str
+alter app2.sensitive_label as str
+app2 = @udf app2 by udf0.df_fillna with ''
+app2.visits_flow = lambda visits_flow by x: 0 if x =='' else x
+app2.sj_num = lambda sj_num by x: 0 if x =='' else x
+app2.monitor_flow = lambda monitor_flow by x: 0 if x =='' else x
+app2.imp_api_num = lambda imp_api_num by x: 0 if x =='' else x
+app2.dstip_num = lambda dstip_num by x: 0 if x =='' else x
+alter app2.visits_flow as int
+alter app2.sj_num as int
+alter app2.monitor_flow as int
+alter app2.imp_api_num as int
+alter app2.dstip_num as int
+app2 = group app2 by app_merges agg visits_num:sum,visits_flow:sum,sj_num:sum,monitor_flow:sum,api_num:sum,imp_api_num:sum,srcip_num:sum,account_num:sum,dstip_num:sum,sensitive_label:sum,app_type:sum,app_status:sum,active:sum
+app2 = @udf app2 by udf0.df_reset_index
+rename app2 by ("visits_num_sum":"visits_num","visits_flow_sum":"visits_flow","sj_num_sum":"sj_num","monitor_flow_sum":"monitor_flow","api_num_sum":"api_num","imp_api_num_sum":"imp_api_num","srcip_num_sum":"srcip_num","account_num_sum":"account_num","dstip_num_sum":"dstip_num","sensitive_label_sum":"sensitive_label","app_type_sum":"app_type","app_status_sum":"app_status","active_sum":"active")
+app2 = add merge_state by 2
+app2.sensitive_label = lambda sensitive_label by x:'3' if "3" in x  else x
+app2.sensitive_label = lambda sensitive_label by x:'2' if "2" in x  else x
+app2.sensitive_label = lambda sensitive_label by x:'1' if "1" in x  else x
+app2.sensitive_label = lambda sensitive_label by x:'0' if "0" in x  else x
+app2.app_type = lambda app_type by x:1 if "1" in x  else 0
+app2 = add app_status by ("0")
+app2.active = lambda active by x:'3'
+alter app2.active as int
+alter app2.app_status as str
+alter app2.sensitive_label as str
+app2 = add app_sum by ('$app_n')
+app2 = add first_time by str(datetime.now())
+app2 = add last_time by str(datetime.now())
+app2 = add app by ('$apps_sum')
+app_merges = load db by mysql1 with select id,app from data_app_new where app = '$apps_sum' and merge_state = 2
+app2 = join app2,app_merges by app,app with left
+app2 = @udf app2 by udf0.df_fillna with 0
+app2 = @udf app2 by udf0.df_set_index with id
+@udf app2 by CRUD.save_table with (mysql1,data_app_new)
+# 添加ssdb
+app =  @udf RS.load_mysql_sql with (mysql1,select app,app_sum from data_app_new where merge_state = 2)
+app = @udf app by udf0.df_set_index with app
+app = add app by (app.index)
+a=@udf SSDB.hclear with app_merge
+store app to ssdb by ssdb0 with app_merge as H
+
+push app2 as table
+
+clear @FID

@@ -1,0 +1,9 @@
+#LastModifyDate:　2024-08-07T14:31:54    Author:   rzc
+df=load db by mysql1 with select id,app,url from data_api_new where app = "10.18.80.25:8215"
+store df to pkl by aa.pkl
+df.app2 = lambda app by x:x.replace("10.18.80.25","59.202.68.95")
+df.url2 = lambda url by x:x.replace("10.18.80.25","59.202.68.95")
+df = loc df drop (url,app)
+rename df as ("url2":"url","app2":"app")
+df = @udf df by udf0.df_set_index with id
+aa = @udf df by CRUD.save_table with (mysql1,data_api_new)

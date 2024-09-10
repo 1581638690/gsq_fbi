@@ -1,0 +1,399 @@
+#LastModifyDate:　2024-02-29T14:57:31    Author:   zwl
+#LastModifyDate:　2024-02-29T14:14:39    Author:   zwl
+#LastModifyDate:　2024-01-17T15:23:53    Author:   zwl
+#LastModifyDate:　2024-01-16T19:01:52    Author:   zwl
+#LastModifyDate:　2024-01-10T14:27:35    Author:   zwl
+#LastModifyDate:　2023-10-18T17:27:18.666472    Author:   zwl
+#LastModifyDate:　2023-10-07T11:11:50.170578    Author:   zwl
+#LastModifyDate:　2023-09-12T10:53:38.609370    Author:   zwl
+#LastModifyDate:　2023-09-06T10:33:25.426309    Author:   zwl
+#LastModifyDate:　2023-09-05T18:58:15.098425    Author:   zwl
+#LastModifyDate:　2023-08-01T16:44:05.372836    Author:   zwl
+#FBI脚本文件
+#文件名: zts_Audit_overview.fbi
+#作者: zhangtianshun
+#时间 2020-04-13
+#数据看板-审计概览
+
+use @FID
+
+
+#4、周审计趋势图-------------------------------------------------------------------------------
+zts_audit_overview = load ckh by ckh with SELECT substring(toString(time),6,5) as time1,uniqCombined(app) as tp,uniqCombined(url) as tu,uniqCombined(account) as ta,uniqCombined(srcip) as ts from api_monitor_hour where time >= toDate(today()-6) group by time1 
+alter zts_audit_overview by time1:str,tp:int,tu:int,ta:int,ts:int
+zts_audit_overview = order zts_audit_overview by time1 with asc
+zts_audit_overview = @udf zts_audit_overview by udf0.df_fillna_cols with tp:0,tu:0,ta:0,ts:0
+rename zts_audit_overview by ("tp":"应用数量","tu":"接口数量","ta":"账户数量","ts":"终端数量")
+zts_audit_overview = loc zts_audit_overview by time1 to index
+store zts_audit_overview to ssdb with Audit:zts_audit_overview
+
+
+#5、审计应用数量历史top10-------------------------------------------------------------------------------
+#z_month = @sdf sys_now with (-1 month)
+#zt = @sdf format_now with ($z_month,"%Y-%m-%dT00:00:00")
+zts_app_top = load ckh by ckh with SELECT app,sum(visit_num) as cp from api_monitor_hour where time >= toDate(today()-30) and app != 'sum1' group by app
+alter zts_app_top by app:str,cp:int
+zts_app_top = order zts_app_top by cp with desc limit 10 
+rename zts_app_top by ("cp":"应用数量")
+store zts_app_top to ssdb with Audit:zts_app_top
+
+#6、本月审计接口类型分布-------------------------------------------------------------------------------
+#接口类型分布  普通(默认):0;登录:1;含有敏感数据接口:2;文件上传:3;文件下载:4;服务接口:5;数据库操作:6;
+#zts_type_distribution = load ckh by ckh with select api_type,count(*) as n_type from api_monitor where time >= toDate(today()-30) group by api_type
+#rename zts_type_distribution by ("n_type":"接口类型数量")
+#alter zts_type_distribution.api_type as str
+#type = load ssdb by ssdb0 with dd:API-api_type
+#zts_type_distribution = @udf zts_type_distribution,type by SP.tag2dict with api_type
+#zts_type_distribution.详情 = lambda api_type by (x:x)
+#zts_type_distribution = loc zts_type_distribution by api_type to index
+#store zts_type_distribution to ssdb with Audit:zts_type_distribution
+
+
+#7、接口事件数量月top10-------------------------------------------------------------------------------
+zts_url_top = load ckh by ckh with SELECT url,sum(visit_num) as n_url from api_monitor_hour where time >= toDate(today()-30) and url != 'sum1' group by url 
+alter zts_url_top by url:str,n_url:int
+zts_url_top = order zts_url_top by n_url with desc LIMIT 10
+rename zts_url_top by ("n_url":"接口数量")
+store zts_url_top to ssdb with Audit:zts_url_top
+
+#8、审计终端数量本月top5-------------------------------------------------------------------------------
+zts_srcip_top = load ckh by ckh with SELECT srcip,sum(visit_num) as n_sc from api_monitor_hour WHERE time >= toDate(today()-30) and srcip != 'sum1' group by srcip
+alter zts_srcip_top by srcip:str,n_sc:int
+zts_srcip_top = order zts_srcip_top by n_sc with desc LIMIT 10
+rename zts_srcip_top by ("n_sc":"终端数量")
+store zts_srcip_top to ssdb with Audit:zts_srcip_top
+
+
+#9、本月审计数量与上月审计数量对比-------------------------------------------------------------------------------
+zts_month_contrast = load ckh by ckh with SELECT substring(toString(time),6,2) as time1,uniqCombined(app) as n_ap,uniqCombined(url) as n_ur,count() as n_cc,uniqCombined(account) as n_ac,uniqCombined(srcip) as n_sr from api_monitor_hour WHERE time >= toDate(today()-60) GROUP BY time1
+alter zts_month_contrast by time1:str,n_ap:int,n_ur:int,n_cc:int,n_ac:int,n_sr:int
+zts_month_contrast.time1 = lambda time1 by (x:x+'月')
+zts_month_contrast = loc zts_month_contrast by time1 to index
+rename zts_month_contrast by ("n_ap":"应用数量","n_ur":"接口数量","n_ac":"账户数量","n_sr":"终端数量","n_cc":"事件数量")
+zts_month_contrast2 = @udf zts_month_contrast by udf0.df_T
+store zts_month_contrast2 to ssdb with Audit:zts_month_contrast2
+
+####合并协议##############################协议审计############协议审计##########################协议审计##############################协议审计##################协议审计######################
+##  dns协议数(合并)
+dns1 = load ckh by ckh with select COUNT(*) AS num from api_dns
+alter dns1 by num:int
+dns = loc dns1 by num
+rename dns by ("num":"value")
+aa_num = eval dns by iloc[0,0]
+if $aa_num > 100000 with dns.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with dns = add name by ('DNS协议总数(万)')
+if $aa_num <= 100000 with dns = add name by ('DNS协议总数')
+dns = add icon by ('F137')
+dns = add details by ('')
+dns = add pageid by ('qes:api_dns')
+####3文件信息总数(合并)
+fileinfo1 = load ckh by ckh with select COUNT(*) AS num from api_fileinfo
+alter fileinfo1 by num:int
+fileinfo = loc fileinfo1 by num
+rename fileinfo by ("num":"value")
+aa_num = eval fileinfo by iloc[0,0]
+if $aa_num > 100000 with fileinfo.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with fileinfo = add name by ('文件信息总数(万)')
+if $aa_num <= 100000 with fileinfo = add name by ('文件信息总数')
+fileinfo = add icon by ('F362')
+fileinfo = add details by ('')
+fileinfo = add pageid by ('qes:api_fileinfo')
+#Pop3邮件协议
+api_pop31 = load ckh by ckh with select count(*) as num from api_pop3
+alter api_pop31 by num:int
+api_pop3 = loc api_pop31 by num
+rename api_pop3 by ("num":"value")
+aa_num = eval api_pop3 by iloc[0,0]
+if $aa_num > 100000 with api_pop3.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with api_pop3 = add name by ('Pop3邮件协议(万)')
+if $aa_num <= 100000 with api_pop3 = add name by ('Pop3邮件协议')
+api_pop3 = add icon by ('F139')
+api_pop3 = add details by ('')
+api_pop3 = add pageid by ('qes:api_pop3')
+#Imap邮件协议
+api_imap1 = load ckh by ckh with select count(*) as num from api_imap
+alter api_imap1 by num:int
+api_imap = loc api_imap1 by num
+rename api_imap by ("num":"value")
+aa_num = eval api_imap by iloc[0,0]
+if $aa_num > 100000 with api_imap.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with api_imap = add name by ('Imap邮件协议(万)')
+if $aa_num <= 100000 with api_imap = add name by ('Imap邮件协议')
+api_imap = add icon by ('F161')
+api_imap = add details by ('')
+api_imap = add pageid by ('qes:api_imap')
+#Smtp邮件协议
+api_smtp1 = load ckh by ckh with select count(*) as num from api_smtp
+alter api_smtp1 by num:int
+api_smtp = loc api_smtp1 by num
+rename api_smtp by ("num":"value")
+aa_num = eval api_smtp by iloc[0,0]
+if $aa_num > 100000 with api_smtp.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with api_smtp = add name by ('Smtp邮件协议(万)')
+if $aa_num <= 100000 with api_smtp = add name by ('Smtp邮件协议')
+api_smtp = add icon by ('F160')
+api_smtp = add details by ('')
+api_smtp = add pageid by ('qes:api_smtp')
+#Windows共享
+api_smb1 = load ckh by ckh with select count(*) as num from api_smb
+alter api_smb1 by num:int
+api_smb = loc api_smb1 by num
+rename api_smb by ("num":"value")
+aa_num = eval api_smb by iloc[0,0]
+if $aa_num > 100000 with api_smb.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with api_smb = add name by ('Windows共享(万)')
+if $aa_num <= 100000 with api_smb = add name by ('Windows共享')
+api_smb = add icon by ('F141')
+api_smb = add details by ('')
+api_smb = add pageid by ('qes:api_smb')
+#FTP文件传输
+api_ftp1 = load ckh by ckh with select count(*) as num from api_ftp
+alter api_ftp1 by num:int
+api_ftp = loc api_ftp1 by num
+rename api_ftp by ("num":"value")
+aa_num = eval api_ftp by iloc[0,0]
+if $aa_num > 100000 with api_ftp.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with api_ftp = add name by ('FTP文件传输(万)')
+if $aa_num <= 100000 with api_ftp = add name by ('FTP文件传输')
+api_ftp = add icon by ('F184')
+api_ftp = add details by ('')
+api_ftp = add pageid by ('qes:api_ftp')
+#Tftp文件传输
+api_tftp1 = load ckh by ckh with select count(*) as num from api_tftp
+alter api_tftp1 by num:int
+api_tftp = loc api_tftp1 by num
+rename api_tftp by ("num":"value")
+aa_num = eval api_tftp by iloc[0,0]
+if $aa_num > 100000 with api_tftp.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with api_tftp = add name by ('Tftp文件传输(万)')
+if $aa_num <= 100000 with api_tftp = add name by ('Tftp文件传输')
+api_tftp = add icon by ('F181')
+api_tftp = add details by ('')
+api_tftp = add pageid by ('qes:api_tftp')
+####合并协议####################################################################-------------------------------------------------
+xy = union dns,fileinfo,api_pop3,api_imap,api_smtp,api_smb,api_ftp,api_tftp
+xy = loc xy by name,value,icon,details,pageid
+store xy to ssdb by ssdb0 with Audit:Audit
+####合并协议####################################################################--------------------------------------------------
+
+###今日协议审计-------------------------------------------------------------------
+dns = load ckh by ckh with select count(*) as num from api_dns where timestamp >= toDate(today())
+alter dns by num:int
+dns = add name by ('DNS协议')
+pop3 = load ckh by ckh with select count(*) as num from api_pop3 where timestamp >= toDate(today()) 
+alter pop3 by num:int
+pop3 = add name by ('Pop3邮件协议')
+imap = load ckh by ckh with select count(*) as num from api_imap where timestamp >= toDate(today()) 
+alter imap by num:int
+imap = add name by ('Imap邮件协议')
+smtp = load ckh by ckh with select count(*) as num from api_smtp where timestamp >= toDate(today()) 
+alter smtp by num:int
+smtp = add name by ('Smtp邮件协议')
+smb = load ckh by ckh with select count(*) as num from api_smb where timestamp >= toDate(today()) 
+alter smb by num:int
+smb = add name by ('Windows共享')
+ftp = load ckh by ckh with select count(*) as num from api_ftp where timestamp >= toDate(today())
+alter ftp by num:int
+ftp = add name by ('Ftp文件传输')
+tftp = load ckh by ckh with select count(*) as num from api_tftp where timestamp >= toDate(today()) 
+alter tftp by num:int
+tftp = add name by ('Tftp文件传输')
+fileinfo = load ckh by ckh with select count(*) as num from api_fileinfo where timestamp >= toDate(today()) 
+alter fileinfo by num:int
+fileinfo = add name by ('文件信息')
+j_xyxx = union dns,ppop3,imap,smtp,smb,ftp,tftp,fileinfo
+j_xyxx = loc j_xyxx by name to index
+store j_xyxx to ssdb by ssdb0 with xieyi:j_data
+
+###柱状图：审计概览 》 应用协议审计-------------------------------------------------------
+day = @sdf sys_now with -1d
+now = @sdf sys_now 
+day = @sdf format_now with ($day,"%Y-%m-%d %H:00:00")
+now = @sdf format_now with ($now,"%Y-%m-%d %H:00:00")
+j_hour = @udf udf0.new_df_timerange with ($day,$now,1H)
+j_hour.hour = lambda end_time by (x:x[11:13])
+j_hour = loc j_hour by hour
+dns = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as num from api_dns where timestamp >= toDate(today()) group by hour
+alter dns by hour:str,num:int
+rename dns as ('num':'DNS协议')
+pop3 = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as num from api_pop3 where timestamp >= toDate(today()) group by hour
+alter pop3 by hour:str,num:int
+rename pop3 as ('num':'Pop3邮件协议')
+imap = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as num from api_imap where timestamp >= toDate(today()) group by hour
+alter imap by hour:str,num:int
+rename imap as ('num':'Imap邮件协议')
+smtp = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as num from api_smtp where timestamp >= toDate(today()) group by hour
+alter smtp by hour:str,num:int
+rename smtp as ('num':'Smtp邮件协议')
+smb = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as num from api_smb where timestamp >= toDate(today()) group by hour
+alter smb by hour:str,num:int
+rename smb as ('num':'Windows共享')
+ftp = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as num from api_ftp where timestamp >= toDate(today()) group by hour
+alter ftp by hour:str,num:int
+rename ftp as ('num':'Ftp文件传输')
+tftp = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as num from api_tftp where timestamp >= toDate(today()) group by hour
+alter tftp by hour:str,num:int
+rename tftp as ('num':'Tftp文件传输')
+fileinfo = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,count(*) as num from api_fileinfo where timestamp >= toDate(today()) group by hour
+alter fileinfo by hour:str,num:int
+rename fileinfo as ('num':'文件信息')
+xyxx = join j_hour,dns by hour,hour with left
+xyxx = join xyxx,pop3 by hour,hour with left
+xyxx = join xyxx,imap by hour,hour with left
+xyxx = join xyxx,smtp by hour,hour with left
+xyxx = join xyxx,smb by hour,hour with left
+xyxx = join xyxx,ftp by hour,hour with left
+xyxx = join xyxx,tftp by hour,hour with left
+xyxx = join xyxx,fileinfo by hour,hour with left
+xyxx = @udf xyxx by udf0.df_fillna_cols with DNS协议:0,Pop3邮件协议:0,Imap邮件协议:0,Smtp邮件协议:0,Windows共享:0,Ftp文件传输:0,Tftp文件传输:0,文件信息:0
+alter xyxx by hour:str,DNS协议:int,Pop3邮件协议:int,Imap邮件协议:int,Smtp邮件协议:int,Windows共享:int,Ftp文件传输:int,Tftp文件传输:int,文件信息:int
+xyxx.hour = lambda hour by (x:x+'时')
+xyxx = loc xyxx by hour to index
+store xyxx to ssdb by ssdb0 with xieyi:data
+
+####今日DNS协议
+t_dns = load ckh by ckh with select rrname,count(*) as num from api_dns where timestamp >= toDate(today()) and rrname != '' group by rrname 
+alter t_dns by rrname:str,num:int
+t_dns = order t_dns by num with desc limit 10 
+t_dns.详情 = lambda rrname by (x:x)
+t_dns = loc t_dns by rrname to index
+store t_dns to ssdb by ssdb0 with dns:t_dns
+
+####今日FTP文件传输
+t_ftp = load ckh by ckh with select srcip,count(*) as num from api_ftp where timestamp >= toDate(today()) group by srcip
+alter t_ftp by srcip:str,num:int
+t_ftp = order t_ftp by num with desc limit 5
+t_ftp.详情 = lambda srcip by (x:x)
+t_ftp = loc t_ftp by srcip to index
+store t_ftp to ssdb by ssdb0 with ftp:t_ftp
+
+###今日文件信息
+t_file = load ckh by ckh with select app_proto as name,count(*) as num from api_fileinfo where timestamp >= toDate(today()) group by name 
+alter t_file by name:str,num:int
+t_file = order t_file by num with desc 
+store t_file to ssdb by ssdb0 with file:t_file
+
+
+
+##合并信息块##############################################################首页############首页################首页#################首页###########################################################
+zts_num = load db by mysql1 with select count(name) as app_num,sum(ysjjk) as url_num,sum(sjfw) as sj_num,sum(xsjjk) as app1_num from audit_statistics 
+zts_num = @udf zts_num by udf0.df_fillna_cols with app_num:0,url_num:0,sj_num:0,app1_num:0
+alter zts_num by app_num:int,url_num:int,sj_num:int,app1_num:int
+
+#1、审计应用数-------------------------------------------------------------------------------
+##审计应用数(合并)
+zts_app_num = loc zts_num by app_num
+zts_app_num = add details by ('审计应用的总数')
+rename zts_app_num by ("app_num":"value")
+zts_app_num = add name by ('审计应用数')
+zts_app_num = add icon by ('F396')
+
+#2、审计接口数-------------------------------------------------------------------------------
+#zts_url_num = load db by mysql1 with select sum(ysjjk) as url_num from audit_statistics
+##审计接口数（合并）
+zts_url_num = loc zts_num by url_num
+rename zts_url_num by ("url_num":"value")
+aa_num = eval zts_url_num by iloc[0,0]
+if $aa_num > 100000 with zts_url_num.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with zts_url_num = add name by ('已审计接口数(万)')
+if $aa_num <= 100000 with zts_url_num = add name by ('已审计接口数')
+zts_url_num = add details by ('应用审计的已审计接口总数')
+zts_url_num = add icon by ('F307')
+
+#3、审计事件数-------------------------------------------------------------------------------
+#zts_account_num = load db by mysql1 with select sum(sjfw) as sj_num from audit_statistics
+##审计事件数（合并）
+zts_account_num = loc zts_num by sj_num
+rename zts_account_num by ("sj_num":"value")
+aa_num = eval zts_account_num by iloc[0,0]
+if $aa_num > 100000 with zts_account_num.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with zts_account_num = add name by ('审计事件数(万)')
+if $aa_num <= 100000 with zts_account_num = add name by ('审计事件数')
+zts_account_num = add details by ('所有接口审计产生的事件总数')
+zts_account_num = add icon by ('F441')
+
+##信息块： 审计概览 》 接口总数=-----------------------------------------------------------------
+#jks = load db by mysql1 with select sum(xsjjk) as app1_num from audit_statistics
+##审计概览 》 接口总数（合并）
+jks = loc zts_num by app1_num
+rename jks by ("app1_num":"value")
+aa_num = eval jks by iloc[0,0]
+if $aa_num > 100000 with jks.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with jks = add name by ('审计接口数(万)')
+if $aa_num <= 100000 with jks = add name by ('审计接口数')
+jks = add details by ('审计应用包含的接口总数')
+jks = add icon by ('F306')
+
+###今日审计事件数-------------------------------------------------------------------------
+j_jks = load ckh by ckh with select sum(visit_num) as value from api_monitor_hour where time > toDate(today())
+alter j_jks by value:int
+##审计概览 》 今日审计事件（合并）
+aa_num = eval j_jks by iloc[0,0]
+if $aa_num > 100000 with j_jks.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with j_jks = add name by ('今日审计事件数(万)')
+if $aa_num <= 100000 with j_jks = add name by ('今日审计事件数')
+j_jks = add details by ('今日接口审计产生的事件数')
+j_jks = add icon by ('F010')
+
+##其他协议事件数------------------------------------------------------
+xy1 = union dns1,fileinfo1,api_pop31,api_imap1,api_smtp1,api_smb1,api_ftp1,api_tftp1
+xy1 = add aa by 1
+xy1 = group xy1 by aa agg num:sum
+rename xy1 as ('num_sum':'value')
+aa_num = eval xy1 by iloc[0,0]
+if $aa_num > 100000 with xy1.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with xy1 = add name by ('其他协议事件数(万)')
+if $aa_num <= 100000 with xy1 = add name by ('其他协议事件数')
+xy1 = add details by ('包含DNS协议、文件信息、Pop3邮件协议、Imap邮件协议、Smtp邮件协议、Windows共享、FTP文件传输、Tftp文件传输的协议事件数')
+xy1 = add icon by ('F156')
+
+##合并信息块##############################################################
+Audit = union zts_app_num,jks,zts_url_num,zts_account_num,j_jks,xy1
+Audit = loc Audit by name,value,icon,details
+Audit = add pageid by ('modeling:zts_audit_statistics','','modeling:api_new','','','dashboard7:ATmH9OW')
+Audit = add 参数 by ('','','@api_status=1','','','')
+store Audit to ssdb by ssdb0 with Audit:trend
+###合并信息块##############################################################
+
+###柱状图：审计概览 》 近24小时接口审计--------------------------------------------------------首页
+day = @sdf sys_now with -1d
+now = @sdf sys_now 
+day = @sdf format_now with ($day,"%Y-%m-%d %H:00:00")
+now = @sdf format_now with ($now,"%Y-%m-%d %H:00:00")
+j_hour = @udf udf0.new_df_timerange with ($day,$now,1H)
+j_hour.hour = lambda end_time by (x:x[0:13])
+j_hour = loc j_hour by hour
+moni = load ckh by ckh with select substring(toString(time),1,13) as hour,sum(visit_num) as num from api_monitor_hour where time >= toDate(today()-1) group by hour
+alter moni by hour:str,num:int
+moni = group moni by hour agg num:sum
+moni = loc moni by index to hour
+xyxx = join j_hour,moni by hour,hour with left
+xyxx = @udf xyxx by udf0.df_fillna_cols with num_sum:0
+xyxx.num_sum = lambda num_sum by (x:round(x/10000,2))
+rename xyxx as ('num_sum':'接口审计(万)')
+xyxx.hour = lambda hour by (x:x[11:]+'时')
+xyxx = loc xyxx by hour to index
+store xyxx to ssdb by ssdb0 with jk:data
+
+###折线图：审计概览 》 24小时事件数分布--------------------------------------------------------首页
+#24小时
+day1 = @sdf sys_now with -30d
+day1 = @sdf format_now with ($day1,"%Y-%m-%d 00:00:00")
+day2 = @sdf sys_now 
+day2 = @sdf format_now with ($day2,"%Y-%m-%d 00:00:00")
+day = @udf udf0.new_df_timerange with ($day1,$day2,1D)
+day.day = lambda end_time by (x:x[5:10])
+day = loc day by day
+##24小时事件数
+api_moni = load ckh by ckh with select substring(toString(time),6,5) as day,sum(visit_num) as sj from api_monitor_hour where time >= toDate(today()-30) group by day
+alter api_moni by day:str,sj:int
+api_moni = join day,api_moni by day,day with left
+api_moni = loc api_moni by day,sj
+api_moni = loc api_moni by day to index
+api_moni = @udf api_moni by udf0.df_fillna_cols with sj:0
+api_moni.sj = lambda sj by (x:round(x/10000,2))
+rename api_moni by ('sj':'接口审计事件数(万)')
+store api_moni to ssdb by ssdb0 with shijian:data
+
+
+clear @FID

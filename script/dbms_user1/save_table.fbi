@@ -1,0 +1,25 @@
+#LastModifyDate:　2023-11-18T17:33:15.612378    Author:   sgy
+#FBI脚本文件
+
+#保存语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+a= loc a by user,db_type,dbms_obj,sensitive_label,first_time,last_time
+#保存
+b = @udf a by CRUD.save_table with (@link,@table)
+assert find_df('b',ptree) as  alert  to 保存成功！ with 保存失败！
+
+#返回结果
+#id = eval b by index[0]
+#b = @udf CRUD.get_object_table with (@link,@table,$id)
+
+push b as table
+#清除工作区
+clear @FID

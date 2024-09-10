@@ -1,0 +1,22 @@
+#LastModifyDate:　2024-03-14T16:53:41    Author:   zwl
+#LastModifyDate:　2023-12-06T17:33:37.975415    Author:   zwl
+#LastModifyDate:　2023-10-26T17:14:55.141172    Author:   zwl
+#LastModifyDate:　2023-10-25T19:00:43.557180    Author:   zwl
+#FBI脚本文件
+#文件名: link_data_clear.fbi
+#作者: zwl
+use @FID
+
+##关系
+edge = load pq by link/link_edge_open.pq
+push edge as edges
+
+##节点
+node = load pq by link/link_node_open.pq
+push node as nodes
+
+###  清空  pq 文件
+bb = @udf ZFile.rm_file with link/link_edge_open.pq
+bb = @udf ZFile.rm_file with link/link_node_open.pq
+
+clear @FID

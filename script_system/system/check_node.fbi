@@ -1,0 +1,13 @@
+#FBI脚本文件
+#文件名: system/check_node.fbi
+#作者: superFBI
+
+#检查信息
+
+c = @udf udfG.copyright
+d = @udf FBI.get_status
+a = @udf udfA.get_vbs_all 
+
+push a as app
+push c as copyright
+push d as info

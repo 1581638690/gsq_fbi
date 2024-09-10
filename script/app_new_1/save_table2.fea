@@ -1,0 +1,109 @@
+#LastModifyDate:　2023-06-16T17:40:28.369110    Author:   rzc
+#LastModifyDate:　2023-06-16T17:37:28.462297    Author:   rzc
+#LastModifyDate:　2023-06-15T17:39:46.669908    Author:   pjb
+#LastModifyDate:　2023-05-31T18:20:41.193148    Author:   superFBI
+#LastModifyDate:　2023-05-31T18:15:24.800538    Author:   superFBI
+#LastModifyDate:　2023-05-31T18:11:47.663300    Author:   superFBI
+#LastModifyDate:　2023-05-24T13:31:53.533588    Author:   pjb
+#LastModifyDate:　2023-05-24T11:56:32.129000    Author:   pjb
+#LastModifyDate:　2023-05-24T11:09:05.283630    Author:   pjb
+#LastModifyDate:　2023-05-24T10:59:20.837049    Author:   pjb
+#LastModifyDate:　2023-05-24T10:53:15.360310    Author:   pjb
+#LastModifyDate:　2022-12-28T15:58:24.026473    Author:   pjb
+#LastModifyDate:　2022-12-28T15:57:04.684055    Author:   pjb
+#LastModifyDate:　2022-12-17T09:55:07.334630    Author:   pjb
+#LastModifyDate:　2022-10-21T15:11:58.032818    Author:   gsp
+#LastModifyDate:　2022-10-21T15:07:12.457643    Author:   gsp
+#LastModifyDate:　2022-03-14T19:20:45.860214
+#FEA脚本文件
+
+#保存语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+
+b = loc a by name,sx,scope,app_status
+
+#开启关闭审计
+ss = eval b by iloc[0,3]
+a = loc a by app,name,id
+a = add id by a.index
+apps=loc a by app
+#更新弱点表应用名称
+apps=eval apps by iloc[0,0]
+api_risk=load db by mysql1 with  select id,app,app_name from api19_risk where app="$apps"
+api_risk=join api_risk,a by app,app with right
+#删除 id app_name
+api_risk=loc api_risk drop id_y,app_name
+rename api_risk as {"name":"app_name"}
+rename api_risk as {"id_x":"id"}
+api_risk=@udf api_risk by udf0.df_set_index with id
+api_risk = @udf api_risk by CRUD.save_table with (@link,api19_risk)
+
+if $ss == 1 with """
+	aaa = load db by mysql1 with select count(id) from data_api_new where api_status
+	aaa = eval aaa by iloc[0,0]
+	b = @udf b by CRUD.save_table with (@link,@table)
+	#返回结果
+	store b to ssdb by ssdb0 with @table:query:@FPS as 600
+	push b as table
+	app = loc a by app
+	app1 = eval app by iloc[0,0]
+	alter a.id as int
+	a = add app_status by ("1")
+	a = @udf a by udf0.df_set_index with id
+	@udf a by CRUD.save_table with (@link,@table)
+	# 合并应用处理合并
+	app = load db by mysql1 with select app,id from data_app_new where app_merges='$app1' and merge_state =1
+	app = add app_status by ("1")
+	app = @udf app by udf0.df_set_index with id
+	app = @udf app by CRUD.save_table with (@link,@table)
+	# 合并应用接口开启审计
+	api = @udf RS.load_mysql_sql with (mysql1,select i.id,i.api_status,i.app from data_app_new p left join data_api_new i on p.app=i.app  where p.app_merges='$app1' and p.merge_state =1 )
+	api = add api_status by ("1")
+	api = @udf api by udf0.df_set_index with id
+	d = @udf api by CRUD.save_table with (@link,data_api_new)
+	# 正常开启
+	api = @udf RS.load_mysql_sql with (mysql1,select id,api_status from data_api_new where app='$app1' )
+	api = add api_status by ("1")
+	api = @udf api by udf0.df_set_index with id
+	d = @udf api by CRUD.save_table with (@link,data_api_new)
+""" else """
+	app = loc a by app
+	app1 = eval app by iloc[0,0]
+	alter a.id as int
+	a = add app_status by ('0')
+	a = @udf a by udf0.df_set_index with id
+	@udf a by CRUD.save_table with (@link,@table)
+	# 合并应用处理合并
+	app = load db by mysql1 with select app,id from data_app_new where app_merges='$app1' and merge_state =1
+	app = add app_status by ("0")
+	app = @udf app by udf0.df_set_index with id
+	app = @udf app by CRUD.save_table with (@link,@table)
+	# 关闭合并应用接口审计
+	api = @udf RS.load_mysql_sql with (mysql1,select i.id,i.api_status,i.app from data_app_new p left join data_api_new i on p.app=i.app  where p.app_merges='$app1' and p.merge_state =1 )
+	api = add api_status by ("0")
+	api = @udf api by udf0.df_set_index with id
+	d = @udf api by CRUD.save_table with (@link,data_api_new)
+	# 关闭接口审计
+	api = @udf RS.load_mysql_sql with (mysql1,select id,api_status from data_api_new where app = '$app1' )
+	api = add api_status by ("0")
+	api = @udf api by udf0.df_set_index with id
+	d = @udf api by CRUD.save_table with (@link,data_api_new)
+	# 从应用管理删除
+	dd = @udf RS.load_mysql_sql with (mysql1,select id from audit_statistics where name = '$app1' )
+	id = eval dd by iloc[0,0]
+	@udf dd by CRUD.delete_table with (mysql1,audit_statistics,$id)
+	b = @udf b by CRUD.save_table with (@link,@table)
+	#返回结果
+	store b to ssdb by ssdb0 with @table:query:@FPS as 600
+	push b as table
+"""
+#清除工作区
+clear @FID

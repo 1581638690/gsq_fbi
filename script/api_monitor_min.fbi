@@ -1,0 +1,55 @@
+#LastModifyDate:　2023-09-05T15:03:56.037991    Author:   zwl
+#LastModifyDate:　2023-07-17T16:52:07.332914    Author:   zwl
+#LastModifyDate:　2023-07-14T17:57:47.909681    Author:   zwl
+#LastModifyDate:　2023-07-12T09:54:49.214771    Author:   zwl
+#FBI脚本文件
+#文件名: api_monitor_min.fbi
+#作者: zwl
+use @FID
+
+k = @sdf sys_timestamp
+##清空文件
+#s = @udf FBI.local_cmd with sudo rm -rf /data/workspace/xlink/api_visit_hx_min
+
+###获取存储的每分钟的数据名称
+a = @udf ZFile.list_dir with xlink/api_monitor_min
+
+##取出过去保存的历史数据
+hour = @udf udf0.new_df
+foreach a run """
+	##取出数据
+	min_1 = load pkl by @name
+	hour = union hour,min_1
+	##删除已经处理过的数据
+	b = @udf ZFile.rm_file with @name
+""" with (name=$1)
+
+drop min_1
+##减少数据量：进一步进行group by
+alter hour.time as str
+hour.time1 = lambda time by (x:x[11:13])
+alter hour.time as datetime64
+hour = group hour by app,url,srcip,account,time1 agg visit_num:sum,flow:sum,time:max
+hour = @udf hour by udf0.df_reset_index
+rename hour as ('visit_num_sum':'visit_num','flow_sum':'flow','time_max':'time')
+hour = order hour by visit_num with desc 
+tt = group hour by time1 agg time1:count
+tt = @udf tt by udf0.df_reset_index
+
+###数据按时间（小时）分类
+if tt.index.size > 0 with tt1 = eval tt by iloc[0,0]
+if tt.index.size > 0 with hour1 = filter hour by time1 == '$tt1'
+if tt.index.size > 0 with hour1 = loc hour1 drop time1
+if tt.index.size > 0 with store hour1 to pkl by xlink/monitor/hour_$tt1/mon_hour_$k.pkl
+if 2 <= tt.index.size <= 3 with tt2 = eval tt by iloc[1,0]
+if 2 <= tt.index.size <= 3  with hour2 = filter hour by time1 == '$tt2'
+if 2 <= tt.index.size <= 3 with hour2 = loc hour2 drop time1
+if 2 <= tt.index.size <= 3  with store hour2 to pkl by xlink/monitor/hour_$tt2/mon_hour_$k.pkl
+if tt.index.size == 3 with tt3 = eval tt by iloc[2,0]
+if tt.index.size == 3 with hour3 = filter hour by time1 == '$tt3'
+if tt.index.size == 3 with hour3 = loc hour3 drop time1
+if tt.index.size == 3 with store hour3 to pkl by xlink/monitor/hour_$tt3/mon_hour_$k.pkl
+
+
+
+clear @FID

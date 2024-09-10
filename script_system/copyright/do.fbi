@@ -1,0 +1,9 @@
+#FBI脚本文件
+#文件名: copyright/do.fbi
+#作者: admin
+
+
+#激活授权码
+define SN as @SN
+
+assert not_have_error() as alert to 激活成功！ with 激活失败！

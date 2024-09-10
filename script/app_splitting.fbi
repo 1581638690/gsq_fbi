@@ -1,0 +1,53 @@
+#LastModifyDate:　2023-07-04T18:44:06.397111    Author:   pjb
+#LastModifyDate:　2023-07-04T11:56:33.724710    Author:   pjb
+#LastModifyDate:　2023-07-04T11:49:23.998776    Author:   pjb
+#LastModifyDate:　2023-07-04T11:24:08.681453    Author:   pjb
+#LastModifyDate:　2023-06-30T16:03:50.713235    Author:   pjb
+#LastModifyDate:　2023-06-19T18:47:03.362354    Author:   superFBI
+#LastModifyDate:　2023-05-24T10:40:00.245546    Author:   pjb
+#LastModifyDate:　2023-03-14T15:39:25.554575    Author:   pjb
+#LastModifyDate:　2023-03-08T11:35:15.115103    Author:   pjb
+#LastModifyDate:　2023-03-08T11:01:39.157854    Author:   pjb
+#LastModifyDate:　2023-03-07T15:33:04.430610    Author:   pjb
+#LastModifyDate:　2023-03-07T14:25:51.100076    Author:   pjb
+#LastModifyDate:　2023-03-07T11:54:43.986975    Author:   pjb
+#LastModifyDate:　2023-03-06T19:02:37.493998    Author:   superFBI
+#LastModifyDate:　2023-03-06T18:57:43.416993    Author:   superFBI
+#LastModifyDate:　2023-03-06T11:43:04.589895    Author:   superFBI
+#LastModifyDate:　2023-03-06T11:40:28.762238    Author:   superFBI
+#LastModifyDate:　2023-03-06T11:20:31.174039    Author:   superFBI
+#LastModifyDate:　2023-03-06T11:19:15.506584    Author:   superFBI
+#LastModifyDate:　2023-03-06T11:09:07.314043    Author:   superFBI
+#LastModifyDate:　2023-03-06T11:01:44.683925    Author:   superFBI
+use @FID
+a = load ssdb by ssdb0 with @data_key
+a = loc a by app,app_sum
+foreach a run """
+	app = eval a by (iloc[0,0])
+	app = load db by mysql1 with select id,app,merge_state from data_app_new where app ='@app' and merge_state =2
+	assert app by df.index.size >0 as break with 未合并应用不能拆分！
+	# 接口更新
+	api = load db by mysql1 with select id,app_merges app from data_api_new where app = '@app'
+	api = add app_merges by ('')
+	api = @udf api by udf0.df_set_index with id
+	@udf api by CRUD.save_table with (mysql1,data_api_new)
+	# 合并应用删除
+	id = eval app by (iloc[0,0])
+	@udf CRUD.delete_table with (mysql1,data_app_new,$id)
+	# 拆出的应用状态改变 手动拆出来的不会自动合并
+	#app_n = eval a by (iloc[0,1])
+	apps = @sdf sys_eval with ('@app_n'.split(','))
+	apps = @sdf sys_eval with (str($apps)[1:-1])
+	app_all = load db by mysql1 with select id,merge_state from data_app_new where app in ($apps) and merge_state =1
+	app_all = add merge_state by 3
+	app_all = add app_merges by ("")
+	app_all = @udf app_all by udf0.df_set_index with id
+	@udf app_all by CRUD.save_table with (mysql1,data_app_new)
+	# 添加ssdb
+	app =  @udf RS.load_mysql_sql with (mysql1,select app,app_sum from data_app_new where merge_state = 2)
+	app = @udf app by udf0.df_set_index with app
+	app = add app by (app.index)
+	a=@udf SSDB.hclear with app_merge
+	store app to ssdb by ssdb0 with app_merge as H
+"""  with (app=$1,app_n=$2)
+clear @FID

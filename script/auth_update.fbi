@@ -1,0 +1,30 @@
+#LastModifyDate:　2024-03-01T17:53:07    Author:   pjb
+#LastModifyDate:　2023-11-28T15:12:40.657733    Author:   superFBI
+#LastModifyDate:　2023-11-28T15:09:05.902865    Author:   superFBI
+#LastModifyDate:　2023-11-23T14:30:07.620106    Author:   superFBI
+use @FID
+url_type=load db by mysql1 with select id,url,auth_type from data_api_new where auth_type=0
+
+#查询出这些接口类型的最新审计的信息且认证类型为0的
+new_data=load ckh by ckh with select urld,auth_type,max(time) as latest_date from api_monitor where auth_type!=0 group by urld,auth_type
+#将从ckh查询到的数据其中不为0的都转变为当前的接口类型
+join_data=join url_type,new_data by url,urld with left
+#更新
+#data_False=@udf join_data by udf0.df_isna with api_type
+
+join_data2=filter join_data by (urld not null)
+join_data2= @udf join_data2 by udf0.df_set_index with id
+#删除列
+store_data=loc join_data2 drop (urld,latest_date,auth_type_x)
+rename store_data as {"auth_type_y":"auth_type"}
+#修改列类型
+alter store_data.auth_type as int
+#更新数据
+store_data = @udf store_data by CRUD.save_table with (mysql1,data_api_new)
+
+drop url_type
+drop new_data
+drop join_data
+drop join_data2
+
+clear @FID

@@ -1,0 +1,222 @@
+#LastModifyDate:　2024-03-14T16:45:23    Author:   zwl
+#LastModifyDate:　2024-03-08T15:28:06    Author:   zwl
+#LastModifyDate:　2024-01-18T10:40:55    Author:   zwl
+#LastModifyDate:　2023-10-19T16:28:28.154061    Author:   zwl
+#LastModifyDate:　2023-09-13T16:13:39.323631    Author:   zwl
+#LastModifyDate:　2023-08-29T18:24:33.204156    Author:   zwl
+#LastModifyDate:　2023-08-24T18:05:12.986472    Author:   zwl
+#LastModifyDate:　2023-08-23T17:00:47.941046    Author:   zwl
+#LastModifyDate:　2023-07-17T10:51:09.667493    Author:   zwl
+#LastModifyDate:　2023-07-04T18:19:13.172357    Author:   zwl
+#LastModifyDate:　2023-07-04T17:37:14.551427    Author:   zwl
+
+#FBI脚本文件
+#文件名: lhq_api.fbi
+#作者: test
+use @FID
+
+#########################################################################################################################
+data_api_new = load db by mysql1 with select id,url,visits_num,visits_flow,srcip_num,dstip_num,account_num,sensitive_label,risk_level,api_type,data_type,active from data_api_new where merge_state != 1
+data_api_new = @udf data_api_new by udf0.df_fillna_cols with visits_num:0,visits_flow:0,srcip_num:0,dstip_num:0,account_num:0,sensitive_label:0,risk_level:0,api_type:0,data_type:'',active:0
+alter data_api_new by visits_num:int,visits_flow:int,srcip_num:int,dstip_num:int,account_num:int,sensitive_label:int,risk_level:int,api_type:int,data_type:str,active:int
+
+
+###更多  -- 动态表格-----------------------------------------------动态表格
+#保存为pq文件
+data_api_new1 = loc data_api_new by id,url,visits_num,visits_flow,srcip_num,dstip_num,account_num,api_type,active,sensitive_label
+#data_api_new1 = @udf data_api_new1 by udf0.df_fillna
+#data_api_new1.api_type = lambda api_type by (x:x if x != '' else 0)
+#alter data_api_new1.api_type.sensitive_label as int
+data_api_new1 = filter data_api_new1 by sensitive_label != 0
+alter data_api_new1 by active:str,api_type:str,sensitive_label:str
+api_type = load ssdb with dd:API-api_type
+data_api_new1 = @udf data_api_new1,api_type by SP.tag2dict with api_type
+sens = load ssdb with dd:sensitive_label
+data_api_new1 = @udf data_api_new1,sens by SP.tag2dict with sensitive_label
+active = load ssdb with dd:api_active
+data_api_new1 = @udf data_api_new1,active by SP.tag2dict with active
+data_api_new1 = loc data_api_new1 by id,url,visits_num,visits_flow,srcip_num,dstip_num,account_num,api_type,active
+rename data_api_new1 as ('id':'_id')
+data_api_new1.visits_flow = lambda visits_flow by (x:round(x/1048576,2))
+data_api_new11 = order data_api_new1 by visits_num with desc limit 1000
+
+#保存pq
+store data_api_new11 to pq by dt_table/data_api_new.pq
+rename data_api_new1 as ('url':'接口','visits_num':'访问数量','visits_flow':'访问流量(M)','srcip_num':'访问终端数量','dstip_num':'部署数量','account_num':'访问账号数量','api_type':'接口类型','active':'活跃状态','sensitive_label':'敏感类型')
+
+b = load ssdb by ssdb0 query qclear,data_api_new_1,-,-
+data_api_new11 = order data_api_new1 by 访问流量(M) with desc limit 1000
+store data_api_new11 to ssdb with data_api_new_1 as Q
+b = load ssdb by ssdb0 query qclear,data_api_new_2,-,-
+data_api_new11 = order data_api_new1 by 访问账号数量 with desc limit 1000
+store data_api_new11 to ssdb with data_api_new_2 as Q
+b = load ssdb by ssdb0 query qclear,data_api_new_3,-,-
+data_api_new11 = order data_api_new1 by 访问终端数量 with desc limit 1000
+store data_api_new11 to ssdb with data_api_new_3 as Q
+drop data_api_new11
+drop data_api_new1
+##清空Q
+#b = load ssdb by ssdb0 query qclear,data_api_new,-,-
+##保存Q
+#store data_api_new1 to ssdb with data_api_new as Q
+###更多  -- 动态表格-----------------------------------------------动态表格
+
+
+#接口统计各个数量
+api_count = @udf udf0.new_df with (name,value,icon,pageid,参数)
+num = eval data_api_new by index.size
+api_count = @udf api_count by udf0.df_append with (接口数量,$num,F138,modeling:api_new,)
+active_0 = filter data_api_new by active == 0
+num0 = eval active_0 by index.size
+api_count = @udf api_count by udf0.df_append with (活跃接口数量,$num0,F159,modeling:api_new,@active=0)
+active_1 = filter data_api_new by active == 1
+num1 = eval active_1 by index.size
+api_count = @udf api_count by udf0.df_append with (失活接口数量,$num1,F156,modeling:api_new,@active=1)
+active_2 = filter data_api_new by active == 2
+num2 = eval active_2 by index.size
+api_count = @udf api_count by udf0.df_append with (复活接口数量,$num2,F362,modeling:api_new,@active=2)
+active_3 = filter data_api_new by active == 3
+num3 = eval active_3 by index.size
+api_count = @udf api_count by udf0.df_append with (新增接口数量,$num3,F203,modeling:api_new,@active=3)
+alter data_api_new.sensitive_label as int
+sensitive_api = group data_api_new by sensitive_label agg sensitive_label:count
+sensitive_api1 = filter sensitive_api by index == 3
+aa_num = eval sensitive_api1 by index.size
+if $aa_num == 0 with sensitive_api1 = @udf sensitive_api1 by udf0.df_append with 0
+sensitive_api1 = eval sensitive_api1 by iloc[0,0]
+api_count = @udf api_count by udf0.df_append with (高敏感接口数量,$sensitive_api1,F245,modeling:api_new,@sensitive_label=3)
+#upsensitive_api2 = filter sensitive_api by index == '0'
+#aa_num = eval upsensitive_api2 by index.size
+#if $aa_num == 0 with upsensitive_api2 = @udf upsensitive_api2 by udf0.df_append with 0
+#upsensitive_api2 = eval upsensitive_api2 by iloc[0,0]
+#api_count = @udf api_count by udf0.df_append with (非敏感接口数量,$upsensitive_api2,F245,modeling:api_new,@sensitive_label=0)
+store api_count to ssdb by ssdb0 with api:count
+##############################################################################
+#大屏(接口总数)
+api_count = @udf udf0.new_df with num
+api_num = eval data_api_new by index.size
+api_count = @udf api_count by udf0.df_append with $api_num
+store api_count to ssdb by ssdb0 with api1:count
+
+
+#资源类型分布------------------------------------------------------------------------
+#api_data_type = @udf RS.load_mysql_sql with (mysql1,select data_type,count(data_type) as type_num from data_api_new group by data_type order by type_num asc limit 10)
+#api_data_type = loc api_data_type by data_type to index
+api_data_type = group data_api_new by data_type agg data_type:count
+rename api_data_type by ("data_type_count":"类型数量")
+#store api_data_type to ssdb by ssdb0 with api_type:trend
+api_data_type = loc api_data_type by index to 详情
+api_data_type.aa = lambda 详情 by (x:x)
+api_data_type = loc api_data_type by aa to index
+api_data_type = loc api_data_type by 类型数量,详情
+store api_data_type to ssdb by ssdb0 with api_type:trend
+
+#接口类型分布  普通(默认):0;登录:1;含有敏感数据接口:2;文件上传:3;文件下载:4;服务接口:5;数据库操作:6;--------------------------------------
+#api_api_type =  @udf RS.load_mysql_sql with (mysql1,select api_type,count(api_type) as type_num from data_api_new group by api_type order by type_num desc limit 10)
+#data_api_new.api_type = lambda api_type by (x:0 if x == '' else x)
+#alter data_api_new.api_type as int
+api_api_type = group data_api_new by api_type agg api_type:count
+api_api_type = loc api_api_type by index to api_type
+alter api_api_type.api_type as str
+api_type = load ssdb with dd:API-api_type
+api_api_type = @udf api_api_type,api_type by SP.tag2dict with api_type
+api_api_type.详情 = lambda api_type by (x:x)
+api_api_type = loc api_api_type by api_type to index
+rename api_api_type by ("api_type_count":"类型数量")
+store api_api_type to ssdb by ssdb0 with api_type_api:trend
+
+#风险等级分布
+#api_risk_level =  @udf RS.load_mysql_sql with (mysql1,select risk_level,count(risk_level) as risk_num from data_api_new group by risk_level order by risk_level asc limit 10 )
+aa = @udf udf0.new_df with risk_level
+aa = @udf aa by udf0.df_append with 0
+aa = @udf aa by udf0.df_append with 1
+aa = @udf aa by udf0.df_append with 2
+api_risk_level = group data_api_new by risk_level agg risk_level:count
+api_risk_level = loc api_risk_level by index to risk_level
+api_risk_level = join api_risk_level,aa by risk_level,risk_level with right
+api_risk_level = @udf api_risk_level by udf0.df_fillna_cols with risk_level_count:0
+alter api_risk_level by risk_level:str
+level = load ssdb by ssdb0 with dd:API-risk_level
+api_risk_level = @udf api_risk_level,level by SP.tag2dict with risk_level
+api_risk_level.risk_level = lambda risk_level by (x:x+'风险')
+api_risk_level = loc api_risk_level by index to 详情
+api_risk_level = loc api_risk_level by risk_level to index
+rename api_risk_level by ("risk_level_count":"风险接口数量")
+api_risk_level = loc api_risk_level by 风险接口数量,详情
+store api_risk_level to ssdb by ssdb0 with risk_level:pie
+
+
+#敏感接口top10
+sensitive_1 = filter data_api_new by sensitive_label != 0
+#sensitive_data = load ckh by ckh with select url_c as url,key,count(*) as num from sensitive_data where key != '' group by url_c,key
+#sensitive_data = group sensitive_data by url agg key:sum,num:sum
+#sensitive_1 = join sensitive_1,sensitive_data by url,url with left
+sensitive_url = loc sensitive_1 by url,visits_num,id
+sensitive_url = filter sensitive_url by visits_num > 0
+sensitive_url_limit = order sensitive_url by visits_num limit 5
+api_1 = loc sensitive_url_limit by url,id
+sensitive_url_limit = loc sensitive_url_limit by url,visits_num
+rename sensitive_url_limit by ('url':'接口',"visits_num":"接口数量")
+store sensitive_url_limit to ssdb by ssdb0 with sensitive_url:bar
+
+
+#流量最多的敏感接口top10
+api_flow_join = loc sensitive_1 by id,url,visits_flow
+api_flow_join = filter api_flow_join by visits_flow > 0
+api_flow_join.流量(M) = lambda visits_flow by (x:round(x/1048576,2))
+api_flow_join = order api_flow_join by 流量(M) limit 10
+api_2 = loc api_flow_join by id,url
+api_flow_join = loc api_flow_join by drop visits_flow
+rename api_flow_join as ('id':'参数',"url":"敏感接口")
+api_flow_join = loc api_flow_join by 敏感接口,流量(M),参数
+alter api_flow_join by 敏感接口:str,流量(M):str,参数:str
+api_flow_join = @udf api_flow_join by VL.set_col_width with (400,80,10)
+store api_flow_join to ssdb by ssdb0 with api_flow:table
+
+
+#终端最多的敏感接口top10
+dip_app = loc sensitive_1 by url,srcip_num,id
+dip_app = filter dip_app by srcip_num > 0
+ip_app_order = order dip_app by srcip_num limit 10
+api_3 = loc ip_app_order by id,url
+rename ip_app_order as ('id':'参数','url':'敏感接口','srcip_num':'终端数量')
+ip_app_order = loc ip_app_order by 敏感接口,终端数量,参数
+alter ip_app_order by 敏感接口:str,终端数量:str,参数:str
+ip_app_order = @udf ip_app_order by VL.set_col_width with (400,80,0)
+store ip_app_order to ssdb by ssdb0 with ip_app:table
+
+#账号访问最多敏感接口Top10 一个接口 可能有多个账号访问
+api_account = loc sensitive_1 by url,account_num,id
+api_account = filter api_account by account_num > 0
+api_account = order api_account by account_num with desc limit 5
+api_4 = loc api_account by url,id
+rename api_account by ('url':'接口','account_num':'账号数量','id':'参数')
+api_account = loc api_account by 接口,账号数量,参数
+store api_account to ssdb by ssdb0 with api_account:table
+
+
+#######接口概览  --> 下钻画像
+api = union api_1,api_2,api_3,api_4
+api = distinct api by url
+api = loc api by url
+store api to ssdb by ssdb0 with gl_api
+####吧概览界面的接口    开启画像状态
+aa = load db by mysql1 with select id,url from data_api_new where portrait_status = 0
+alter aa by id:int,url:str
+api = join aa,api by url,url with left
+api = @udf api by udf0.df_fillna_cols with id:0
+api = filter api by id != 0
+if api.index.size > 0 with """
+	alter api.id as int
+	api = add portrait_status by (1)
+	bbb = @sdf sys_now
+	api = add portrait_time by ('$bbb')
+	api = @udf api by udf0.df_set_index with id
+	b = @udf api by CRUD.save_table with (mysql1,data_api_new)
+	api = loc api by index to id
+"""
+
+
+clear @FID
+
+

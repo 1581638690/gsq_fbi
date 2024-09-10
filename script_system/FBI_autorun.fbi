@@ -1,0 +1,13 @@
+#FBI脚本文件
+#文件名: FBI_autorun.fbi
+#作者: admin
+
+
+#随引擎启动而执行的脚本，执行时不影响其他引擎启动
+
+#定时监控系统状态
+#settimer sys_stats by "1 * * * * *" run sample/psutil.fbi
+
+
+
+

@@ -1,0 +1,29 @@
+#LastModifyDate:　2024-01-18T11:08:18    Author:   zwl
+#LastModifyDate:　2023-08-23T17:18:18.081001    Author:   zwl
+#LastModifyDate:　2023-07-07T17:29:32.121678    Author:   zwl
+#LastModifyDate:　2023-03-15T15:15:42.782261    Author:   zwl
+#LastModifyDate:　2023-03-07T15:26:54.285280    Author:   zwl
+#LastModifyDate:　2023-02-15T11:10:46.295179    Author:   zwl
+#LastModifyDate:　2023-02-08T13:47:14.504022    Author:   zwl
+use @FID
+
+day = @sdf sys_now
+day = @sdf format_now with ($day,"%Y-%m-%d")
+
+##直接导出全部
+datas = load pq by dt_table/data_account_new.pq
+datas = @udf datas by udf0.df_fillna_cols with active:0,type:'',visit_num:0,visit_flow:0,api_num:0,app_num:0,ip_num:0
+##加载筛选条件  导出筛选过的数据
+ss = load ssdb by ssdb0 with @data_key
+if ss.index.size != 0 with """
+	ss = eval ss by iloc[0,0]
+	datas = filter datas by $ss
+"""
+rename datas as ('account':'账号','visit_num':'访问次数','visit_flow':'访问流量(M)','app_num':'访问应用数量','api_num':'访问接口数量','ip_num':'访问终端数量','dept':'部门','type':'类型','active':'活跃状态')
+store datas to csv by 账号$day.csv
+
+name = @udf udf0.new_df with file_name
+name = @udf name by udf0.df_append with 账号$day.csv
+push name as file_name
+
+clear @FID

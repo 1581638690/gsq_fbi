@@ -1,0 +1,1569 @@
+﻿<!DOCTYPE html>
+<title>FBI在线编辑</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" href="/static/libs/codemirror/codemirror.css">
+<link rel="stylesheet" href="/static/libs/codemirror/elegant.css">
+<link rel="stylesheet" href="/static/libs/codemirror/dialog.css">
+<link rel="stylesheet" href="/static/libs/codemirror/simplescrollbars.css">
+<link rel="stylesheet" type="text/css" media="screen" href="/static/libs/jq-ui/jquery-ui.min.css" />
+
+<link rel="stylesheet" type="text/css" href="/static/libs/jsonFormater-master/jsonFormater.css" />
+
+<link rel="stylesheet" type="text/css" media="screen" href="/static/css/ui.jqgrid.css" />
+
+<link rel="stylesheet" type="text/css" href="/static/libs/bootstrap/css/bootstrap.min.css" />
+
+<script type="text/javascript" src="/static/js/jquery.min.js"></script>   
+<script type="text/javascript" src="/static/libs/jq-ui/jquery-ui.min.js"></script>  
+<script type="text/javascript" src="/static/libs/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script src="/static/libs/codemirror/codemirror.js"></script>
+<script src="/static/libs/codemirror/pig.js"></script>
+<script src="/static/libs/codemirror/active-line.js"></script>
+<script src="/static/libs/codemirror/matchbrackets.js"></script>
+<script src="/static/libs/codemirror/simplescrollbars.js"></script>
+<script src="/static/libs/codemirror/annotatescrollbar.js"></script>
+<script src="/static/libs/codemirror/searchcursor.js"></script>
+<script src="/static/libs/codemirror/match-highlighter.js"></script>
+<script src="/static/libs/codemirror/matchesonscrollbar.js"></script>
+<script src="/static/libs/codemirror/search.js"></script>
+<script src="/static/libs/codemirror/dialog.js"></script>
+<script src="/static/libs/codemirror/jump-to-line.js"></script>
+
+<link rel="stylesheet" type="text/css" href='/static/libs/codemirror/addon/fold/foldgutter.css'/>
+<script src="/static/libs/codemirror/addon/fold/foldcode.js"></script>
+<script src="/static/libs/codemirror/addon/fold/foldgutter.js"></script>
+<script src="/static/libs/codemirror/addon/fold/brace-fold.js"></script>
+<script src="/static/libs/codemirror/addon/fold/xml-fold.js"></script>
+<script src="/static/libs/codemirror/addon/fold/indent-fold.js"></script>
+<script src="/static/libs/codemirror/addon/fold/markdown-fold.js"></script>
+<script src="/static/libs/codemirror/addon/fold/comment-fold.js"></script>
+
+<script src="/static/libs/base64.js"></script>
+<script type="text/javascript" src="/static/libs/i18n/grid.locale-cn.js" ></script>   
+<script type="text/javascript" src="/static/js/jquery.jqGrid.min.js" ></script>
+ <!--demo代码高亮-->
+<script type="text/javascript" src="/static/highlight/highlight.js"></script>
+<script type="text/javascript" src="/static/highlight/languages/pig.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/highlight/styles/magula.css" />
+<script type="text/javascript" src="/static/libs/jsonFormater-master/jsonFormater.js"></script>
+<style>
+	.CodeMirror {border: 1px inset #dee; font-size:16px; line-height : 150%; font-family: Menlo,Monaco,Consolas,"Courier New",monospace;} 
+	.CodeMirror-focused .cm-matchhighlight {
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
+        background-position: bottom;
+        background-repeat: repeat-x;
+      }
+      .cm-matchhighlight {background-color: lightgreen}
+      .CodeMirror-selection-highlight-scrollbar {background-color: green}
+	  .cm-tab {
+         background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=);
+         background-position: right;
+         background-repeat: no-repeat;
+      }
+	#tip {
+		background-color:white;
+	}
+	.rtcoce{
+			margin : 10px;
+	}
+	pre {	
+		padding: 2.5px;	
+	}
+	#tabs2 li .ui-icon-close { float: left; margin : 5px; cursor: pointer; }
+	.tab-content{
+			margin : 2px;
+			padding: 0px;
+	}
+	.ui-widget-header {
+			border: 1px solid #30273a/*{borderColorHeader}*/;
+			background: #cccccc/*{bgColorHeader}*/ url(/static/images/123.png)/*{bgImgUrlHeader}*/ 50%/*{bgHeaderXPos}*/ 50%/*{bgHeaderYPos}*/ repeat-x/*{bgHeaderRepeat}*/ !important;
+			color: #222222/*{fcHeader}*/;
+			font-weight: bold;
+		}
+	.ui-widget-content {
+		border: 1px solid #aaaaaa/*{borderColorContent}*/;
+		border-bottom: 0px;
+		border-radius:5px 5px 0 0;
+		background: #f5f5f5;
+		color: #222222/*{fcContent}*/;
+	}
+	#code_space {
+			margin : 2px 0px 2px 0px;
+			height: 280px;
+			border: 1px  solid;
+			border-radius:5px 5px 0 0;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+			background-color: #f5f5f5;
+			overflow-y: auto;
+			padding: 2px;			
+	}	
+	#o_view {
+			position:absolute; 
+			right:40px; 
+			top:200px; 
+			margin : 2px 0px 2px 0px;			
+			border: 1px  solid;
+			height: auto;
+			border-radius:5px 5px 0 0;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+			background-color: #f5f5f5;
+			overflow-y: auto;
+			padding: 2px;
+			z-index: 10000;
+            width: 540px;
+	}
+	.box ul{
+            width: 1080px; 	
+			height: 80px;		
+            margin: auto;
+        }
+	.box li {
+		list-style: none;		
+		display: block; 
+		float: right;
+		width: 52px;
+		height: 80px;	
+		margin: 5px;
+		background-color: pink;
+		background: url(./images/toools.png) no-repeat;
+	}
+    #view_all table {border:1px solid #999;  border-collapse: collapse;}
+	#view_all th  {word-break: keep-all;white-space:nowrap; border:1px solid #999;}
+    #view_all td {word-break: keep-all;white-space:nowrap; border:1px solid #999;}
+    body {
+    font-size: 14px;
+    }
+	
+</style>
+<body>
+<div id="tabs2">
+	<ul class="ui-tabs-nav">
+		<li><a href="#view_all">调试输出</a></li>
+	</ul>
+	<div id="view_all" style="padding:4px;">
+		<div id="code_space" style="color:#2A2B3B;" >
+			<pre>
+			<code class="fea">#开启2023,遇见更好的FBI</code>
+			</pre>
+		</div>
+	</div>
+</div>
+	
+	<span id="file_name" style="color:red;"></span>&nbsp; 参数: <input id="param"  style="width:800px;"  placeholder="@x=x, @y=y, @z=z"/>
+	
+	<div>
+	<button id="debug_begin">开始</button>
+	<button id="debug_step">单步</button>
+	<button id="debug_foreach"><font color="blue">foreach</font></button>
+	<button id="debug_block">选中</button>
+	<button id="run_code"><b>调试</b></button>	
+	<button id="apcip_code"><font color="green">性能检测</font></button>
+    <button id="save_code"><font color="red">保存</font></button>
+	*
+	<button id="clear_output">清空</button>
+	<button id="find2">查找</button>
+	<button id="replace2">替换</button>
+	<select id="history" style="width:100px;height:30px;"></select>
+	*
+	<button id="stream_start"><font color="blue"><b>流启动</b></font></button>
+	<button id="stream_stop"><font color="red">流停止</font></button>
+	<button id="stream_goon"><font color="green">流更新</font></button>
+	<button id="stream_event">单条执行</button>
+	<button id="stream_break">断点信息</button>
+	<button id="stream_info">stream</button>
+    <button id="load_df">加载流DF</button>    
+	*
+	<button id="dump_table">查看DF</button>
+	<button id="dump_var">查看变量</button>
+	<button id="store_table">存储DF</button>
+	<button id="open_file">打开新脚本</button>	
+	<span id="tip"></span>
+	</div>
+	
+
+	
+<form>
+<textarea id="code" name="code">
+#FBI脚本文件
+</textarea>
+</form>
+
+<div class="modal fade" id="myModal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="width:1400px">
+            <div class="modal-header">               
+                <h4 class="modal-title" id="myModalLabel">运行结果</h4>
+            </div>
+            <div class="modal-body" id="tip2"></div>
+            <div class="modal-footer">               
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!--对象观察器 -->
+<div id="o_view">
+	<div id="view_title">对象观察器</div>
+	<div>
+		<button id="clear_df">清空对象</button>
+		<button id="clear_win2">关闭标签</button>
+		<button id="reload2">刷新</button>
+	</div>	
+	<div>
+		<table id="all_object_view2"></table>
+		<div id="pagersr2"></div>
+	</div>
+	<div>
+	<table id="all_object_view"></table>
+	<div id="pagersr1"></div>
+	</div>
+	
+	
+</div>
+
+<script type="text/javascript">
+	history.pushState(null, null, document.URL);
+	window.addEventListener('popstate', function () {
+		history.pushState(null, null, document.URL);
+	});
+	hljs.initHighlightingOnLoad();
+	
+	//执行命令
+function command(cmd){
+	$.ajax({
+		 type: "get",
+		 async: true,
+		 timeout : 1000*600, //超时时间设置，单位毫秒
+		 url: "/db/abci",
+		 data: {
+			 prmtv:	cmd
+		 },
+		 success: dd,
+		 dataType:"json",
+		 error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+		 }
+	 });
+	return false;
+}
+
+function top_tip(message){
+	$("#code_space").append("<div><span id='new_code' class='fea'>"+message+"</span></div>");
+	var new_code = document.getElementById('new_code');
+	hljs.highlightBlock(new_code, hljs.tabReplace);
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+30);
+}
+
+
+var aa=0; //动态的dump窗口
+function dd(data){
+    $("#debug_step").removeAttr("disabled"); //可以单步调试了
+    //$("#tip").html("");
+    var axx = last_prmtv.replace(/</g,"&lt;");
+    pp = axx;
+    $("#code_space").append("<div><span id='new_code' class='fea'>"+axx+"</span></div>");
+    var new_code = document.getElementById('new_code');
+    hljs.highlightBlock(new_code, hljs.tabReplace);
+    //滚动到最底部
+    $("#code_space").scrollTop($("#code_space")[0].scrollHeight+30);
+    if (data.ret ==0 && data.error==""){
+        if (data.action ==1) {
+            var result = JSON.parse(data.result);
+            var i=1;
+            var sort_type="text";
+            var len = result.columns.length;
+            
+            var config={};
+            if (len <12){
+                config={ datatype: "local", height: 250,rowNum:1000,scroll:false,autowidth:true}; 
+            }else{
+                config={ datatype: "local", height: 250,rowNum:1000,scroll:true,width:len*100}; 
+            }
+            
+            config.colNames=[];
+            config.colModel=[]
+            
+            config.colNames[0] = "Index";
+            if (typeof(result.index[0])=="number")
+            {
+                sort_type="int";
+            }
+            config.colModel[0] = {name:"@@_idx_::weei3739cjdpdcod",index:"index",width:100,sorttype:sort_type};   
+            if ("columns" in result) {
+                for (key in result.columns){
+                    config.colNames[i] = result.columns[key];
+                    sort_type="text";
+                    if (result.data.length >0 && typeof(result.data[0][key])=="number")
+                    {
+                        sort_type="int";
+                    }
+                    if (len==1){
+                        config.colModel[i] = {name:result.columns[key],index:result.columns[key],sorttype:sort_type,width:600};
+                    }
+                    else if (len <12){
+                        config.colModel[i] = {name:result.columns[key],index:result.columns[key],sorttype:sort_type};
+                    }
+                    else{
+                        config.colModel[i] = {name:result.columns[key],index:result.columns[key],sorttype:sort_type,width:100};
+                    }
+                    i++;
+                }
+            }else{ //not a df
+                config.colNames[i] = result.name;
+                config.colModel[i] = {name:result.name,index:result.name,width:600};
+                i++;
+            }
+            //config.colNames[i] = "@";
+            //config.colModel[i] = {name:"",index:"",width:20};		
+            var li ="<li><a href='#tabs2-"+aa+"'>"+data.name+"</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>"
+            
+            tabs2.find( ".ui-tabs-nav" ).append( li );
+            tabs2.append( "<div id='tabs2-" + aa + "' style='padding:1px;'><table id='df_"+aa+"'></table></div>" );
+            
+            //modify by gjw on 20180831 处理xss攻击
+            var result2=[];
+            for(var i=0;i<result.data.length;i++){
+                var rawdata={};
+                rawdata["@@_idx_::weei3739cjdpdcod"] = "<xmp>"+result.index[i]+"</xmp>";
+                for (key in result.columns){
+                    if (result.data[i][result.columns[key]] instanceof Object ||result.data[i][result.columns[key]] instanceof Array){
+                        rawdata[result.columns[key]] = "<xmp>"+JSON.stringify(result.data[i][result.columns[key]])+"</xmp>";
+                    }else{
+                        rawdata[result.columns[key]] = "<xmp>"+result.data[i][result.columns[key]]+"</xmp>";
+                    }
+                }
+                result2.push(rawdata);
+            }
+            config.data = result2;
+            jQuery("#df_"+aa).jqGrid(config); 
+            tabs2.tabs( "refresh" );
+            var b = tabs2.find( "li" ).length;
+            console.info(b);
+            tabs2.tabs( "option", "active", b-1 );
+            /* 暂时先去掉
+            $('div.split-pane').on("dividerdragend",function(e,p){
+                if ($(e.target).is('.fixed-right')){
+                    for (var i=0;i<aa;i++){
+                        jQuery("#df_"+i).jqGrid('setGridWidth',p.lastComponentSize,true);
+                    }
+                }
+                //jQuery("#df_"+aa).jqGrid('setGridHeight',height);					
+            });
+            */
+            //add by 
+            aa +=1;
+        }else if (data.action==2){ // plot
+            //add by gjw on 20200206 tabs图表
+            var li ="<li><a href='#tabs2-"+aa+"'>"+data.name+"</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>"
+            
+            tabs2.find( ".ui-tabs-nav" ).append( li );
+            var p = '<div id="Firefoxapp'+aa+' width="100%" style="height:480px;">'
+                +'<iframe id="pview'+aa+'" src="'+data.result+'" width="100%" height="100%" style="border: 0px;" frameborder="0"></iframe>'
+                +'</div>';
+            tabs2.append( "<div id='tabs2-" + aa + "' style='padding:1px;'>"+p+"</div>" );
+            
+            tabs2.tabs( "refresh" );
+            var b = tabs2.find( "li" ).length;
+            tabs2.tabs( "option", "active", b-1 );
+            aa +=1;
+        }else{
+            presult = data.result;
+            //add by gjw on 20180622 启动伴随计算
+            flow_processor(last_prmtv2);
+        }
+    }else{ //出错的语句
+        jQuery("#code_space").append("<div style='color:red;'>"+data.error+"</div>");
+    }//endif
+    //滚动到最底部
+    $("#code_space").scrollTop($("#code_space")[0].scrollHeight+30);
+}//end function dd 
+		
+
+
+//add by gjw on 2023-1208 指令计算，目前只有一个t
+function flow_processor2(p){
+	jQuery("#code_space").append("<div style='color:red;' data-tip='info'>----------------------------------------------------------------------------------------------------------------------------</div>");
+	if (p=="t"){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>任务运行情况(show tasks):</div>");
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"show tasks2"
+                 },
+                 success: fp_show_tasks,
+                 dataType:"json"
+        });
+	}
+}
+
+		
+var presult=""; // 原语执行后的结果
+//伴随计算，直接反馈df表的简要信息，add by gjw on 20180622
+function flow_processor(p){
+	//如果是run原语
+	var a = p.indexOf("run");
+	var b = p.indexOf("cluster");
+	var c = p.indexOf("foreach");
+	if (a==0 ||b==0 ||c==0){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>当前任务: <br> <b>"+pp+"</b></div>");
+			var TI = presult[0]["TI"];
+			var ST = presult[0]["ST"];
+			$.ajax({ 
+					 type: "get",
+					 async: true,
+					 timeout : 1000*600, //超时时间设置，单位毫秒
+					 url: "/db/abci",
+					 data: {
+						 prmtv:	"check task by "+TI+" with "+ST
+					 },
+					 success: fp_check_task,
+					 dataType:"json"
+			});
+		return 0;
+	}
+	//如果是
+	var a = p.indexOf("@sdf");
+	var b = p.indexOf("eval");
+	if (a>0 ||b >0){
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>单值变量(show $):</div>");
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	"show $"
+                 },
+                 success: fp_show_values,
+                 dataType:"json"
+        });	
+		return 0;
+	}
+
+	//是装载DF表的运算
+	var df="";
+	var s = p.indexOf("=");
+	if (s>0){
+		df = p.substr(0,s);
+		if (df.indexOf(",") >0)
+		{
+			//多个df表的情况，只要第一个
+			df = df.substr(0,df.indexOf(","));
+		}else if(df.indexOf(".") >0){
+			//str 和lambda表达式的结果
+			df = df.substr(0,df.indexOf("."));
+		}
+	}else{
+		return 0;
+	}
+	
+		jQuery("#code_space").append("<div style='color:blue;' data-tip='info'>DF表:  <b>"+df+" &nbsp;&nbsp;</b>"
+							+"<button onclick=\"command('dump "+df+"')\">查看数据</button>"
+							+"<button onclick=\"command('dump "+df+" by types')\">查看列</button>"
+							+"<button onclick=\"command('plot "+df+"')\">绘图</button>"
+							+"</div>");
+		//大小Size
+		var dump_size = "dump "+df+" by size";
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	dump_size
+                 },
+                 success: fp_view_size,
+                 dataType:"json"
+        });
+        //数据 5x5
+        var dump_data = "dump "+df+" with 5x15";
+		$.ajax({ 
+                 type: "get",
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	dump_data
+                 },
+                 success: fp_view_datas,
+                 dataType:"json"
+        });
+	}//end function flow_processor
+
+//显示size
+function fp_view_size(data){
+	var result = JSON.parse(data.result);
+	jQuery("#code_space").append("<div style='color:black;' data-tip='info'>大小: "
+		+result.data[0]["rows"]+"行 x "+result.data[0]["cols"]+"列 = "
+		+result.data[0]["size"]+" 单元</div>");
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+
+//显示check task
+function fp_check_task(data){
+	//jQuery("#code_space2").append("<div style='color:blue;' data-tip='info'>"+data.prmtv+"</div>");
+	for(key in data.result){
+		if (key=="error_info"){
+			jQuery("#code_space").append("<div style='color:black;' data-tip='info'><b>"
+			+key+"</b> :"
+			+" </div>");
+			if (data.result["error_info"] !=""){
+				var errors = data.result["error_info"].split("\r");
+				for (i in errors){
+					var j = parseInt(i)+1;
+					jQuery("#code_space").append("<div style='color:black;' data-tip='info'>&nbsp;&nbsp;"
+					+"<b>"+j+"</b>&nbsp;"+errors[i]
+					+" </div>");
+				}
+			}
+		}else{
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'><b>"
+		   +key+"</b> : <br>  &nbsp;&nbsp;"+data.result[key]
+		   +" </div>");
+		}
+	}//end for
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+
+//显示tasks
+function fp_show_tasks(data){
+	var result = JSON.parse(data.result);
+	for(var i=0;i<result.data.length;i++){
+		var content = "<div style='color:black;' data-tip='info'><b>"
+		   +result.data[i]["name"]+"</b> ["+result.data[i]["task_id"]+"]:"
+		for(k in result.data[i]){
+			if (k=="message"){
+				var info = result.data[i][k].replace(/\r/g,"<br>");
+			}else{
+				var info = result.data[i][k];
+			}					
+			content += "<br> [ "+k+" ] = "+info;			
+		}
+		if(result.data[i]["isAlive"]==true){
+			setTimeout(flow_processor2,3000,"t");
+		}	
+		content +="</div><br>";
+		jQuery("#code_space").append(content);
+	}
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+
+//显示5x5的数据
+function fp_view_datas(data){
+	var result = JSON.parse(data.result);
+	//jQuery("#code_space").append("<div style='color:black;' data-tip='info'>数据(5x8): </div>");
+	var tables="<table border='1'>";
+		var tr="<tr>";
+		tr +="<th>Index</th>";
+		for (var k in result.columns){
+			tr +="<th><xmp>"+result.columns[k]+"</xmp></th>";
+		}
+		tables +=tr+"</tr>";
+	for(var i=0;i<result.data.length;i++){
+		var tr="<tr>";
+			tr +="<td>"+result.index[i]+"</td>";
+		for (var k in result.data[i]){
+			if (k=="index"){continue;}
+			if (result.data[i][k] instanceof Object ||result.data[i][k] instanceof Array){
+				tr +="<td><xmp>"+JSON.stringify(result.data[i][k])+"</xmp></td>";
+			}else{
+				tr +="<td><xmp>"+result.data[i][k]+"</xmp></td>";
+			}
+		}
+		tables +=tr+"</tr>";
+	}
+	tables +="</table>";
+	jQuery("#code_space").append(tables);
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//显示单值变量
+function fp_show_values(data){
+	var result = JSON.parse(data.result);
+	for(var i=0;i<result.data.length;i++){
+		jQuery("#code_space").append("<div style='color:black;' data-tip='info'>变量名: "
+		   +result.data[i]["name"]+" = ["+result.data[i]["value"]
+		   +"]  @"+result.data[i]["workspace"]+" </div>");
+	}
+	$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+}
+
+//单步运行
+var last_prmtv = "";
+var last_prmtv2 = "";
+var tabs2 = $( "#tabs2" ).tabs(); //动态tab
+
+function GetRequest() {
+	var theRequest={};
+	var url = location.search; //获取url中"?"符后的字串
+	var a = decodeURI(url);
+	if (a.indexOf("?") != -1) {
+		str = a.substr(1);
+		var strs = str.split("&");
+		for (var i = 0; i < strs.length; i++) {
+			theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+		}
+	}
+	return theRequest;
+}
+$(document).ready(function() {
+		  
+		var req = GetRequest();
+		
+		//确定当前的脚本文件
+		var filename = req.name;		
+
+		filename = filename.replace(/\//g,"--");	
+
+        $("title").text(filename);
+
+		 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+						lineNumbers: true,
+						tabSize: 4,
+						indentUnit: 4,
+						indentWithTabs: true,
+						styleActiveLine: true,
+						matchBrackets: true,
+						lineWrapping: true,
+						mode: "text/x-pig",
+						scrollbarStyle: "simple",
+						highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true},
+						theme: "elegant",
+						foldGutter: {
+							rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.indent,CodeMirror.fold.comment)
+						},
+						gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+						extraKeys: {
+						"Ctrl-S": function(cm){
+							var txt=editor.doc.getValue();
+							var base64 = new Base64();
+							txt = base64.encode(txt);
+							  $.post("/db/put_fbi",{name:filename,data:txt},function(result){
+                                    top_tip(result);
+							  });
+						},// end Ctrl-S
+						"Ctrl-/": function(cm){
+
+							if (editor.doc.getSelection()=="")return;
+							var sele_lines = editor.doc.getSelection();
+							var comment_lines=sele_lines.split("\n");
+							var comment_line = "#Delete 注释 by "+ getCookie("userName")+" on " + (new Date().Format("yyyy-MM-dd hh:mm:ss"))+"\n";
+							for(var i in comment_lines){									
+								comment_line += "#" + comment_lines[i]+"\n";
+							}
+							console.info(comment_line);
+							editor.doc.replaceSelection(comment_line);
+							
+						},// end Ctrl-/
+						"Ctrl-\\": function(cm){
+							
+							if (editor.doc.getSelection()=="")return;
+							var sele_lines = editor.doc.getSelection();
+							var comment_lines=sele_lines.split("\n");
+							var comment_line = "#解除注释 by "+ getCookie("userName")+" on " + (new Date().Format("yyyy-MM-dd hh:mm:ss"))+"\n";
+							for(var i in comment_lines){									
+								comment_line += comment_lines[i].substr(1)+"\n";
+							}
+							console.info(comment_line);
+							editor.doc.replaceSelection(comment_line);
+							
+						},// end Ctrl-\\
+						"Shift-Tab": function(cm){              // 反向缩进   
+							if (cm.somethingSelected()) {
+								cm.indentSelection('subtract');  // 反向缩进
+							}
+						}
+					}
+			});
+		  editor.setSize('auto','650px');
+
+          //add by gjw on 20230714,开启监控
+          command("@udf FBI.x_finder3_debug with "+filename.slice(8,-4)+",38");
+
+		 //获取文件内容，一定要放在editor之后
+		 $.ajax({
+				type: "get",
+				async: false,
+				timeout : 1000*600, //超时时间设置，单位毫秒
+				url: "/db/fbi_script/"+filename,           
+				success: function(response) {
+
+					$("#file_name").append("脚本名称: "+filename);
+					
+					editor.doc.setValue(response);
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+					alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+				}
+		});
+		
+		//选中某一个版本
+		$("#history").change(function(){
+			var o = $(this).children('option:selected').val();
+			$.get("/db/version_fbi",
+			{filename:o},
+			function(data,status){
+				editor.doc.setValue(data);
+			});
+		});
+		  
+		   //查找脚本
+         jQuery("#find2").click(function(){
+			 editor.execCommand("find");
+         });
+          //查找脚本
+         jQuery("#replace2").click(function(){
+			 editor.execCommand("replace");
+         });		
+         
+       
+		//关闭tab
+		tabs2.on( "click", "span.ui-icon-close", function() {
+			var panelId = $( this ).closest( "li" ).remove().attr( "aria-controls" );
+			$( "#" + panelId ).remove();
+			tabs2.tabs( "refresh" );
+		});
+         
+		 //保存代码
+         jQuery("#save_code").click(function(){  
+			
+		  var txt=editor.doc.getValue();
+		  var base64 = new Base64();
+			txt = base64.encode(txt);
+		  $.post("/db/put_fbi",{name:filename,data:txt},function(result){
+				top_tip(result);
+		  });
+			
+         });
+         //返回预览
+         jQuery("#on_preview").click(function(){
+			window.location="/static/fbi_view.html?name="+filename;
+		});
+		
+		var ps= new Map();		
+		$("#param").val(sessionStorage.getItem("cur_ps"));
+		jQuery("#debug_begin").click(function(){  
+			//设置光标在0行0列
+			$( "#tabs2" ).tabs( "option", "active",0); //回到主信息窗
+			$("#debug_step").removeAttr("disabled"); //可以单步调试了
+			jQuery("#code_space").text("");
+			//解析构建好参数
+			var param = $("#param").val().trim();
+			var arr1=param.split(",");
+			ps.clear();
+			ps.set("@FST","2020-1221");
+			ps.set("@FID","debug:"+filename+":"+new Date().Format("yyyy-MM-ddThh:mm:ss"));
+			ps.set("@FTI","112234");
+			ps.set("@FPS","BAIDU");
+			for (var i=0;i<arr1.length;i++){
+				var kv = arr1[i].split("=");
+				if(kv.length <2)continue;
+				//add by gjw on 202200512 两个都为空则去除
+				if (kv[0].trim()=="" && kv[1].trim()=="")continue; 
+				if (kv[0].indexOf("@")==0){
+					ps.set(kv[0].trim(),kv[1].trim());
+				}else{
+					ps.set("@"+kv[0].trim(),kv[1].trim());
+				}
+			}
+			//排序
+			var arrayps = Array.from(ps);
+			arrayps.sort(function(a,b){return b[0].length -a[0].length});
+			ps = new Map(arrayps.map(i => [i[0], i[1]]));
+			console.info(ps);
+			var ps2 ="";
+			
+			ps.forEach(function(value,key){				
+				ps2 += key+"=>"+value+", "
+			});
+
+			if (filename.indexOf(".xlk") <0){
+				$("#code_space").append("<div><span id='new_code' class='fea'>开始调试 参数: "+ps2+"</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+
+				//设置光标在可用原语的那行
+				editor.doc.setCursor(0,0);
+				while(1){
+					var line_ch= editor.doc.getCursor();
+					var line_num = line_ch.line;
+					var text = editor.doc.getLine(line_num);
+					text = text.trim();			
+					if (text.length !=0 && text.indexOf('"""')!=0 && text.indexOf("#")!=0 && text.indexOf("--")!=0){
+						break;
+					}
+					line_num +=1;
+					editor.doc.setCursor(line_num,0);
+				}
+			}
+         });        
+         
+         
+         
+         $("#debug_step").attr({"disabled":true});
+		 //单步调试
+         jQuery("#debug_step").click(function(){
+			$( "#tabs2" ).tabs( "option", "active",0); //回到主信息窗
+			var line_ch= editor.doc.getCursor();
+			var line_num = line_ch.line;
+			var text = editor.doc.getLine(line_num);
+			text = text.trim();
+			if (text.length !=0 && text.indexOf('"""')!=0 && text.indexOf("#")!=0 && text.indexOf("--")!=0){
+				
+				//替换参数
+				ps.forEach(function (value, key, map) {
+					text = text.replace(new RegExp(key,"gm"),value);
+				})
+				
+				if (text.indexOf('if ')>=0 && text.indexOf(' with ')>0 && text.indexOf(' """')>0){
+					last_prmtv = (line_num+1)+": "+text;
+					last_prmtv2 =  text;
+					$.ajax({
+						 type: "get",
+						 async: true,
+						 timeout : 1000*600, //超时时间设置，单位毫秒
+						 url: "/db/abci",
+						 data: {
+							 prmtv:	text
+						 },
+						 success: function(data){
+							if (data.error.indexOf("False: if条件")>0){
+								//跳到该运行的地方运行
+								do {						
+									line_num +=1;
+									//设置光标在下移一行
+									editor.doc.setCursor(line_num,0);
+									//var line_ch= editor.doc.getCursor();
+									//var line_num = line_ch.line;
+									var text = editor.doc.getLine(line_num);
+									text = text.trim();
+								} while(!text.indexOf('"""')==0)
+								line_num +=1;			
+							}
+							dd(data);
+						 },
+						 dataType:"json",
+						 error: function(XMLHttpRequest, textStatus, errorThrown) {
+								alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+						 }
+					 });					
+				}else if (text.indexOf('"""')>0){
+					//add by gjw on 2023-1208 多行语句开始处理
+					var lines=[];								
+					do {
+						lines.push(text);
+						line_num +=1;
+						//设置光标在下移一行
+						editor.doc.setCursor(line_num,0);
+						//var line_ch= editor.doc.getCursor();
+						//var line_num = line_ch.line;
+						var text = editor.doc.getLine(line_num);
+						text = text.trim();
+						//替换参数
+						ps.forEach(function (value, key, map) {
+							text = text.replace(new RegExp(key,"gm"),value);
+						})								
+					} while(!(text.indexOf('"""')==0 && (text.length==3||text.indexOf(" with ") >0)))
+					
+					lines.push(text);
+					
+					var block_text = lines.join("\n");
+					//多行语句运行
+					var base64 = new Base64();
+					var txt = base64.encode(block_text);
+					  $.post("/db/run_block",
+					  {
+						block:txt,
+					  },
+					  function(data,status){
+						if (status=="success"){
+							//运行成功
+							flow_processor2("t");
+							var prmtv = lines;										
+							for (var i=0;i<prmtv.length;i++){
+								//将批量运行的代码放入代码区
+								$("#code_space").append("<div><span id='new_code' class='fea'>=> "+prmtv[i]+"</span></div>");
+								var new_code = document.getElementById('new_code');
+								hljs.highlightBlock(new_code, hljs.tabReplace);
+							}// end for
+							//滚动到最底部
+							$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+						}else{
+							alert("Data: " + data + "\nStatus: " + status);
+						}
+					  });								
+				}else{				
+					//
+					last_prmtv = (line_num+1)+": "+text;
+					last_prmtv2 =  text;
+					$.ajax({
+						 type: "get",
+						 async: true,
+						 timeout : 1000*600, //超时时间设置，单位毫秒
+						 url: "/db/abci",
+						 data: {
+							 prmtv:	text
+						 },
+						 success: dd,
+						 dataType:"json",
+						 error: function(XMLHttpRequest, textStatus, errorThrown) {
+								alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+						 }
+					 });
+				 
+				}				
+			}
+            line_num +=1;
+            //设置光标在下一行
+			editor.doc.setCursor(line_num,0);
+         });
+
+
+         //foreach调试
+		 //foreach调试
+		 var foreach_map={};
+         jQuery("#debug_foreach").click(function(){
+			 $( "#tabs2" ).tabs( "option", "active",0); //回到主信息窗			 
+			  var text = editor.doc.getSelection();
+			  if (text==""){ //next下一个foreach
+				foreach_map.i = foreach_map.i+1;				
+				ps = param_build(foreach_map,ps);
+				if (foreach_map.run.indexOf('.fbi') >0 &&foreach_map.run.indexOf('"""') <0){
+					var run = foreach_map.run;
+					sessionStorage.setItem("cur_ps",foreach_map.param2)
+					var filename = run.replace("/","--");								
+					window.open("/static/online.html?name="+filename);
+
+				}else{
+					editor.doc.setCursor(foreach_map.base_line,0);
+				}
+				var ps2 ="";
+				ps.forEach(function(value,key){				
+					ps2 += key+"=>"+value+", "
+				});				
+				$("#code_space").append("<div><span id='new_code' class='fea'>第"+foreach_map.i+"次循环 with参数:"+ps2+"</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				//滚动到最底部
+				$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+				return 0;
+			  }	
+
+			  //元表
+			  var a = text.indexOf('run');
+			  if (a <0){
+				$("#code_space").append("<div><span id='new_code' class='fea'>未找到foreach原语run关键字</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				return 0;
+			  }
+			  var df = text.slice(8,a);
+			  //with参数
+			  var w = text.lastIndexOf('with');
+			  if (w<0){
+				$("#code_space").append("<div><span id='new_code' class='fea'>未找到foreach原语with关键字</span></div>");
+				var new_code = document.getElementById('new_code');
+				hljs.highlightBlock(new_code, hljs.tabReplace);
+				return 0;
+			  }
+			  //run 语句
+			  var run = text.slice(a+3,w);
+			  run = run.trim();			  
+			  foreach_map.run = run;
+			  
+			  //参数
+			  var param = text.slice(w+5,text.length)
+			  foreach_map.param = param;
+			  $("#code_space").append("<div><span id='new_code' class='fea'>foreach表:"+df+" with关键字:"+param+"</span></div>");
+			  var new_code = document.getElementById('new_code');
+			  hljs.highlightBlock(new_code, hljs.tabReplace);
+			  
+			  foreach_map.i = 0;
+			  //元表数据 
+			   var dump_data = "dump "+df+" by slice";
+				$.ajax({ 
+                 type: "get",
+                 async: false,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci",
+                 data: {
+                     prmtv:	dump_data
+                 },
+                 success: function(data){
+					var result = JSON.parse(data.result);
+					foreach_map.data = result.data;
+					foreach_map.index = result.index;
+				 },
+                 dataType:"json"
+        		});
+			ps = param_build(foreach_map,ps);
+			var ps2 ="";
+			
+			ps.forEach(function(value,key){				
+				ps2 += key+"=>"+value+", "
+			});
+			console.info(ps2);
+			$("#code_space").append("<div><span id='new_code' class='fea'>第"+foreach_map.i+"次循环 with参数: "+ps2+"</span></div>");
+			  var new_code = document.getElementById('new_code');
+			  hljs.highlightBlock(new_code, hljs.tabReplace);
+			
+			//滚动到最底部
+			$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+			
+			//如果是直接运行的脚本
+			if (run.indexOf('.fbi') >0 && run.indexOf('"""') <0){
+				sessionStorage.setItem("cur_ps",foreach_map.param2)
+				var filename = run.replace("/","--");								
+				window.open("/static/online.html?name="+filename);
+			}else{
+				//计算行号位置
+				var line_ch= editor.doc.getCursor();
+				var line_num = line_ch.line;
+				line_num +=1;
+				//设置光标在foreach-待调试行0列
+				editor.doc.setCursor(line_num,0);
+				foreach_map.base_line = line_num;
+			}
+			  
+         });
+
+         //选中运行
+         jQuery("#debug_block").click(function(){
+			 $( "#tabs2" ).tabs( "option", "active",0); //回到主信息窗
+			  if (editor.doc.getSelection()=="")return;
+			  var text = editor.doc.getSelection();
+			
+			  var base64 = new Base64();
+			  var txt = base64.encode(text);
+			  $.post("/db/run_block",
+			  {
+				block:txt,
+			  },
+			  function(data,status){
+				if (status=="success"){
+					var prmtv = text.split("\n");
+					for (var i=0;i<prmtv.length;i++){
+						//将批量运行的代码放入代码区
+						$("#code_space").append("<div><span id='new_code' class='fea'>=> "+prmtv[i]+"</span></div>");
+						var new_code = document.getElementById('new_code');
+						hljs.highlightBlock(new_code, hljs.tabReplace);
+					}// end for
+					//滚动到最底部
+					$("#code_space").scrollTop($("#code_space")[0].scrollHeight+20);
+					flow_processor2("t");
+				}else{
+					alert("Data: " + data + "\nStatus: " + status);
+				}
+			  });
+         });
+         
+         
+         //清空输出
+        jQuery("#clear_output").click(function(){  
+			$("#code_space").text("=======================================");
+         });
+         
+         
+         
+         //流启动
+		jQuery("#stream_start").click(function(){ 
+			command("x_start = @udf FBI.x_finder3_start with "+filename.slice(8,-4));	
+            setTimeout('top_tip("流启动命令发送成功!");' ,2000);
+			setTimeout('command("@udf FBI.x_finder3_debug with "+filename.slice(8,-4)+",38");' ,5000);			
+        });
+        
+        //流终止
+		jQuery("#stream_stop").click(function(){ 
+			command("@udf FBI.x_finder3_stop2 with "+filename.slice(8,-4));
+            setTimeout('top_tip("流停止命令发送成功!");' ,4000);
+        });
+		 
+
+		//流更新
+		jQuery("#stream_goon").click(function(){ 
+				command("@udf FBI.x_finder3_debug with "+filename.slice(8,-4)+",36");
+				top_tip("流更新命令发送成功!");
+				setTimeout('command("@udf FBI.x_finder3_debug with "+filename.slice(8,-4)+",38");' ,1000);	
+        });
+
+		//执行单个事件
+		jQuery("#stream_event").click(function(){ 
+				command("@udf FBI.x_finder3_debug with "+filename.slice(8,-4)+",35");
+				top_tip("流单个事件调试命令发送成功!请稍等...");
+				setTimeout("printf_debug()" ,2000);
+        });
+		
+		 //流断点
+		jQuery("#stream_break").click(function(){ 
+				command("@udf FBI.x_finder3_debug with "+filename.slice(8,-4)+",34");
+				top_tip("流断点调试命令发送成功!");
+				setTimeout("printf_break()" ,2000);
+        });
+
+		//print stream
+		jQuery("#stream_info").click(function(){ 
+				command("@udf FBI.x_finder3_debug with "+filename.slice(8,-4)+",37");
+				top_tip("查看stream命令发送成功!请稍等...");
+				setTimeout("printf_stream()" ,2000);
+        });
+
+        //load df
+		jQuery("#load_df").click(function(){ 
+            var text = editor.doc.getSelection();
+			text = text.trim();
+            last_prmtv = "";
+            if (text.length ==0){
+			    command(" df = load fat by /dev/shm/xlink_df:"+filename.slice(8,-4)+":*.fat");
+            }else{
+                command(" df = load fat by /dev/shm/xlink_df:"+filename.slice(8,-4)+":"+text+".fat");
+            }
+        });
+
+         //存储DF表
+         jQuery("#store_table").click(function(){  
+			var text = editor.doc.getSelection();
+			text = text.trim();
+			if (text.length !=0){
+				command("store "+text +" to fat by "+text+".fat");
+			}
+         });
+
+		 //查看DF表
+        jQuery("#dump_table").click(function(){  
+			var text = editor.doc.getSelection();
+			text = text.trim();
+			if (text.length !=0){
+				command("dump "+text);
+			}
+         });
+        
+          //查看变量
+        jQuery("#dump_var").click(function(){  
+			var text = editor.doc.getSelection();
+			text = text.trim();
+			if (text.length !=0){
+				command("show $ with "+text);
+			}else{
+				command("show $");
+			}
+         });
+         
+        //所有DF
+        jQuery("#show_tables").click(function(){ 
+				command("show tables");
+        });
+        
+        
+         //所有任务
+        jQuery("#show_tasks").click(function(){ 
+				command("show tasks2");
+        });
+
+		 //清空所有
+		jQuery("#clear_df").click(function(){ 
+				command("clear all");
+				reload();
+        });
+		//刷新
+		jQuery("#reload2").click(function(){ 
+				reload();
+        });
+		
+		 //打开新脚本
+        jQuery("#open_file").click(function(){  
+			var text = editor.doc.getSelection();
+			text = text.trim();
+			if (text.length !=0){
+				var filename = text.replace("/","--");				
+				window.open("/static/online.html?name="+filename);
+			}
+         });
+		
+		  //清空窗口
+        jQuery("#clear_win").click(function(){  
+			
+			for(var i=0;i<=aa;i++)
+			{
+				$("[aria-controls='tabs2-"+i+"']").remove();
+				$( "#tabs2-" + i ).remove();
+			}
+			tabs2.tabs( "refresh" );
+			aa=0;
+         });
+
+		 jQuery("#clear_win2").click(function(){  
+			
+			for(var i=0;i<=aa;i++)
+			{
+				$("[aria-controls='tabs2-"+i+"']").remove();
+				$( "#tabs2-" + i ).remove();
+			}
+			tabs2.tabs( "refresh" );
+			aa=0;
+         });
+		
+		var ST="";
+        var TI="";
+		//运行代码
+         jQuery("#run_code").click(function(){ 
+			var run_filename = filename.replace("--","/");
+			var param = $("#param").val().trim();
+			$.ajax({
+                 type: "get",
+                 dataType : 'json',
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abci?prmtv=run "+run_filename+" with ("+param+")",       
+                 success: function(response) { 
+					 console.info(response);
+					 ST = response["result"][0].ST;
+					 TI = response["result"][0].TI;
+					 console.info(ST);
+					 console.info(TI);
+					 top_tip("run "+run_filename+" with ("+param+")");
+					 getStatus();
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+		});//end #run_code click
+
+		//运行代码
+		jQuery("#apcip_code").click(function(){ 
+			var run_filename = filename.replace("--","/");
+			var param = $("#param").val().trim();
+			top_tip("run "+run_filename+" with ("+param+")");
+			$.ajax({
+                 type: "post",
+                 dataType : 'json',
+                 async: true,
+                 timeout : 1000*600, //超时时间设置，单位毫秒
+                 url: "/db/abcip",   
+				 data: {prmtv:"run "+run_filename+" as perf with ("+param+")"},
+                 success: function(response) { 
+					 
+					 console.info(response);
+					 $("#tip2").text("");
+					 for(key in response){
+							if (key=="error_info"){
+								jQuery("#tip2").append("<div style='color:black;' data-tip='info'><b>"
+								+key+"</b> :"
+								+" </div>");
+								var errors = response["error_info"].split("\r");
+								for (i in errors){
+									jQuery("#tip2").append("<div style='color:red;' data-tip='info'>&nbsp;&nbsp;"
+									+errors[i]
+									+" </div>");
+								}										
+							}else if (key=="datas"){
+								/*
+								jQuery("#tip2").append("<div style='color:blue;' data-tip='info'><b>"
+								+key+"</b> :"
+								+" </div>");
+								for (k2 in response[key]){
+									jQuery("#tip2").append("<div style='color:blue;' data-tip='info'>&nbsp;&nbsp;<b>"
+									//+k2+"</b>:&nbsp;"+JSON.stringify(JSON.parse(response[key][k2]))
+									+k2+"</b>:&nbsp;"+response[key][k2]
+									+" </div>");
+								}
+								*/
+								$("#tip2").append("<div>返回结果:</div><div id='JSON'></div>");
+								var options = {
+									dom : '#JSON' //对应容器的css选择器
+								};
+								var jf = new JsonFormater(options); //创建对象
+								jf.doFormat(response[key]); //格式化json//当页面载入时，自动运行以下代码；
+
+							}else if (key=="result"){
+								jQuery("#tip2").append("<div style='color:green;' data-tip='info'><b>"
+								+key+"</b> :"
+								+" </div>");
+								for (k2 in response[key][0]){
+									jQuery("#tip2").append("<div style='color:green;' data-tip='info'>&nbsp;&nbsp;"
+									+k2+"=>"+response[key][0][k2]
+									+" </div>");
+								}
+
+							}else{
+								jQuery("#tip2").append("<div style='color:black;' data-tip='info'><b>"
+									+key+"</b> : <br>  &nbsp;&nbsp;"+response[key]
+									+" </div>");
+							}
+					}//end for
+								
+					$('#myModal').modal('show');
+                 },
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+                 }
+            });
+		});//end #run_code click
+		
+		function getStatus(){
+			$.ajax({
+						 type: "get",
+						 async: true,
+						 dataType : 'json',
+						 timeout : 1000*600, //超时时间设置，单位毫秒
+						 url: "/db/abci?prmtv=check task by "+TI+" with ("+ST+")",             
+						 success: function(response) { 
+							 if (response.result.isAlive==true){
+								setTimeout(getStatus,5000);
+							}else{
+								$("#tip2").text("");
+								for(key in response.result){
+									if (key=="error_info"){
+										jQuery("#tip2").append("<div style='color:black;' data-tip='info'><b>"
+										+key+"</b> :"
+										+" </div>");
+										var errors = response.result["error_info"].split("\r");
+										for (i in errors){
+											jQuery("#tip2").append("<div style='color:red;' data-tip='info'>&nbsp;&nbsp;"
+											+errors[i]
+											+" </div>");
+										}										
+									}else{
+									jQuery("#tip2").append("<div style='color:black;' data-tip='info'><b>"
+									   +key+"</b> : <br>  &nbsp;&nbsp;"+response.result[key]
+									   +" </div>");
+									}
+								}//end for
+								
+								$('#myModal').modal('show');
+							}// end if 
+						 },
+						 error: function(XMLHttpRequest, textStatus, errorThrown) {
+								alert(XMLHttpRequest.status+XMLHttpRequest.readyState+textStatus);
+						 }
+					});
+			
+		
+		};//end function getStatus
+		
+      });
+
+
+var req = GetRequest();
+//确定当前的脚本文件
+var filename = req.name;
+
+if (filename.indexOf(".xlk") >0){
+
+	$( "#view_title" ).html("任务查看器");
+	  var config2={
+			datatype : "local",
+			height: "80%",
+			colNames : [ '序号','名称', '内容'],
+			colModel : [ 
+						{name : 'index',index : 'index',width : 30, editable : true, editoptions : {readonly : false,size : 30}},
+						{name : 'nane',index : 'nane',width : 100, editable : true, editoptions : {readonly : false,size : 30}}, 
+						{name : 'msg',index : 'msg', width : 400, editable : true, editoptions : {readonly : false,size : 30}}					
+					],
+			rowNum : 30,
+			pager : '#pagersr2',		
+			viewrecords : true,
+			caption : "任务观察器"
+	}
+
+	//加载表格
+	jQuery("#all_object_view2").jqGrid(config2);
+}
+	var config1={
+			datatype : "local",
+			height: "80%",
+			colNames : [ '名称', '工作区', '行数','列数',"类型"],
+			colModel : [ 
+						{name : 'name',index : 'name',width : 180, editable : true, editoptions : {readonly : false,size : 20}}, 
+						{name : 'work_space',index : 'work_space',width : 100, editable : true, editoptions : {readonly : false,size : 20}},  
+						{name : 'rows',index : 'rows',width : 100, editable : true,editoptions : {readonly : true,size : 10}},
+						{name : 'cols',index : 'cols',width : 50, editable : true,editoptions : {readonly : true,size : 10}},
+						{name : 'type',index : 'type',width : 100, editable : true,editoptions : {readonly : true,size : 10}} 
+					],
+			rowNum : 30,
+			pager : '#pagersr1',
+			sortname : 'work_space',
+			viewrecords : true,
+			sortorder : "desc",
+			caption : "对象观察器 [单击可查看详细数据]",
+			onSelectRow:function(rowid){   
+				var rowDatas = $("#all_object_view").jqGrid('getRowData', rowid);   
+				var df = rowDatas["name"];
+				command('dump '+df+" as "+rowDatas["work_space"]);
+ 			}
+	}
+	//加载表格
+	jQuery("#all_object_view").jqGrid(config1);
+
+	reload();
+	$( "#o_view" ).draggable();
+
+
+var last_count = 0; //上次的对象个数
+//add by gjw on 2022-0513 增加对象观察器
+function pageInit(data){		
+    var result = JSON.parse(data.result);
+	// add by gjw on 2022-0727 对象观察器少刷新
+	if (result.data.length == last_count && last_count >20){
+		return 0;
+	}else{
+		last_count = result.data.length;
+	}
+    var result2=[];
+	for(var i=0;i<result.data.length;i++){
+		var rawdata={};
+		for (key in result.columns){
+			if (result.columns[key]=="type"){
+				if (result.data[i][result.columns[key]]=="FbiTable"){
+					rawdata[result.columns[key]] = "<font color='blue'>"+result.data[i][result.columns[key]]+"</font>";
+				}else{
+					rawdata[result.columns[key]] = "<font color='green'>"+result.data[i][result.columns[key]]+"</font>";
+				}
+			}else{
+				rawdata[result.columns[key]] = result.data[i][result.columns[key]];
+			}
+		}
+		result2.push(rawdata);
+	}
+	$("#all_object_view").jqGrid('clearGridData');  //清空表格
+	$("#all_object_view").jqGrid('setGridParam',{  // 重新加载数据
+		datatype:'local',
+		data : result2  //  newdata 是符合格式要求的需要重新加载的数据 
+	}).trigger("reloadGrid");	
+		
+}
+
+function printf_stream(){
+	$.ajax({
+	type: "get",
+	async: true,
+	timeout : 1000*600, //超时时间设置，单位毫秒
+	url: "/db/query/ssdb0/sys:stream:"+filename.slice(8,-4),
+	success: show_json,
+	dataType:"json",
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+			
+	}
+	});
+}
+
+
+function printf_debug(){
+	$.ajax({
+		type: "get",
+		async: true,
+		timeout : 1000*600, //超时时间设置，单位毫秒
+		url: "/db/query/ssdb0/sys:debug:"+filename.slice(8,-4),
+		success: show_json,
+		dataType:"json",
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+				
+		}
+	});
+}
+
+function printf_break(){
+		$.ajax({
+			type: "get",
+			async: true,
+			timeout : 1000*600, //超时时间设置，单位毫秒
+			url: "/db/query/ssdb0/sys:break:"+filename.slice(8,-4),
+			success: show_json,
+			dataType:"json",
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+			}
+		});
+}
+
+//add by gjw on 2022-0909 展示json信息
+function show_json(data){
+	$("#tip2").text("");
+	$("#tip2").html("<div id='JSON'></div>");
+	var options = {
+		dom : '#JSON' //对应容器的css选择器
+	};
+	var jf = new JsonFormater(options); //创建对象
+	jf.doFormat(data); //格式化json//当页面载入时，自动运行以下代码；
+	$('#myModal').modal('show');
+}
+
+function pageInit2(result){ 
+    var result2=[];
+	for(var i=0;i<result.data.length;i++){
+		var rawdata={"index":i+1};
+		for (key in result.columns){			
+				rawdata[result.columns[key]] = result.data[i][key];			
+		}
+		result2.push(rawdata);
+	}
+	$("#all_object_view2").jqGrid('clearGridData');  //清空表格
+	$("#all_object_view2").jqGrid('setGridParam',{  // 重新加载数据
+		datatype:'local',
+		data : result2  //  newdata 是符合格式要求的需要重新加载的数据 
+	}).trigger("reloadGrid");	
+		
+}
+
+//reload
+function reload(){
+	if (filename.indexOf(".xlk") >0){
+		var key= filename.slice(8,filename.length-4); 
+		$.ajax({
+				type: "get",
+				async: true,
+				timeout : 1000*600, //超时时间设置，单位毫秒
+				url: "/db/query/ssdb0/printf::"+key,
+				success: pageInit2,
+				dataType:"json",
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+						
+				}
+		});
+	
+	}
+	//对象观察
+	$.ajax({
+			type: "post",
+			async: true,
+			timeout : 1000*600, //超时时间设置，单位毫秒
+			url: "/db/abci",
+			data: {
+				prmtv:	"look all"
+			},
+			success: pageInit,
+			dataType:"json",
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+					
+			}
+	});
+}
+
+//list所有版本
+$.get("/db/history_fbi",
+	{filename:filename},
+	function(data,status){
+		var o="";
+		for (var i=0;i<data.length;i++){
+			var a = data[i].lastIndexOf("_");
+			var version = data[i].slice(a+1,data[i].length);
+			o +="<option value='"+data[i]+"'>"+(i+1)+"&nbsp;&nbsp;"+version+"</option>";
+		}
+		$("#history").append(o);
+
+	},"json");
+
+
+//5秒定时刷新
+setInterval(reload,5000);
+    </script>
+</body>

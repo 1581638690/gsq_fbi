@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.ZFile</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.ZFile</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/ZFile.py">/opt/openfbi/fbi-bin/udf/ZFile.py</a></td></tr></table>
+    <p><span class="code">以Z开头表示是最终的意思<br>
+ZFile&nbsp;只和文件相关的所有操作都在此UDF中,管理的是workspace目录的下的文件<br>
+&nbsp;<br>
+author&nbsp;:&nbsp;GJW<br>
+date&nbsp;:&nbsp;2020-0226</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="datetime.html">datetime</a><br>
+<a href="lxml.etree.html">lxml.etree</a><br>
+<a href="glob.html">glob</a><br>
+<a href="gzip.html">gzip</a><br>
+<a href="hashlib.html">hashlib</a><br>
+<a href="json.html">json</a><br>
+</td><td class="multicolumn"><a href="math.html">math</a><br>
+<a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+<a href="paramiko.html">paramiko</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="queue.html">queue</a><br>
+</td><td class="multicolumn"><a href="random.html">random</a><br>
+<a href="rarfile.html">rarfile</a><br>
+<a href="re.html">re</a><br>
+<a href="requests.html">requests</a><br>
+<a href="shutil.html">shutil</a><br>
+<a href="sys.html">sys</a><br>
+</td><td class="multicolumn"><a href="tarfile.html">tarfile</a><br>
+<a href="threading.html">threading</a><br>
+<a href="time.html">time</a><br>
+<a href="xlrd.html">xlrd</a><br>
+<a href="zipfile.html">zipfile</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-diff"><strong>diff</strong></a>(old, new)</dt><dd><span class="code">#&nbsp;文件比较</span></dd></dl>
+ <dl><dt><a name="-diffdir"><strong>diffdir</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：diffdir<br>
+@参数：q:文件夹1，文件夹2<br>
+@描述：比较两个文件夹<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.diffdir&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-download_xmlist"><strong>download_xmlist</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20200408<br>
+@函数：download_xmlist<br>
+@参数：q:目的文件夹<br>
+@描述：下载xmlist<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.download_xmlist&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-filemd5"><strong>filemd5</strong></a>(fname)</dt><dd><span class="code">#&nbsp;文件md5</span></dd></dl>
+ <dl><dt><a name="-get_xmlist"><strong>get_xmlist</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20200408<br>
+@函数：get_xmlist<br>
+@参数：q:url<br>
+@描述：获取xmlist信息<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.get_xmlist&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-iterdir"><strong>iterdir</strong></a>(files, root, path)</dt><dd><span class="code">#&nbsp;文件夹循环迭代</span></dd></dl>
+ <dl><dt><a name="-list_dir"><strong>list_dir</strong></a>(df, p='')</dt><dd><span class="code">@author&nbsp;wly<br>
+@date&nbsp;20170306<br>
+@函数列出指定文件夹下的所有文件</span></dd></dl>
+ <dl><dt><a name="-list_file"><strong>list_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161007<br>
+@函数：list_file,列出文件<br>
+@参数：<br>
+file_name,文件名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-list_file2"><strong>list_file2</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20200120<br>
+@函数：list_file,列出文件名和文件大小<br>
+@参数：<br>
+file_name,文件名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-load_excel2"><strong>load_excel2</strong></a>(df, p)</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：load_excel2<br>
+@参数：q:文件路径,sheet名称<br>
+@描述：根据excel中的sheet名加载数据<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.load_excel2&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-load_excel3"><strong>load_excel3</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：load_excel3<br>
+@参数：q:文件路径,sheet名称<br>
+@描述：根据excel中的sheet名加载数据(此excel是xml格式)，**注意:&nbsp;该函数具有很大的局限性**<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.load_excel3&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-load_text"><strong>load_text</strong></a>(df, p)</dt><dd><span class="code">@author:jf<br>
+@date:&nbsp;20181101<br>
+@函数：load_text<br>
+@参数：q(文件路径)<br>
+@描述：加载workspace下文本文件<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.load_text&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-mk_dir"><strong>mk_dir</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161212<br>
+@函数：mk_dir,建立数据目录<br>
+@参数：<br>
+path_name,路径名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-mv_file"><strong>mv_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161212<br>
+@函数：rm_file,删除数据文件<br>
+@参数：<br>
+file_name,文件名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-read_csv"><strong>read_csv</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-readlog"><strong>readlog</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：readlog<br>
+@参数：q:文件夹name,log文件名通配符<br>
+@描述：读取文件夹下logs文件内容<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.readlog&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-remote_exec"><strong>remote_exec</strong></a>(df, p)</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：remote_exec<br>
+@参数：q:&nbsp;key(host,username,password),command命令<br>
+@描述：python远程执行shell命令<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.remote_exec&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-rm"><strong>rm</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：rm<br>
+@参数：df表:批量删除的文件<br>
+@描述：删除文件<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;File.rm</span></dd></dl>
+ <dl><dt><a name="-rm_file"><strong>rm_file</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20161007<br>
+@函数：rm_file,删除数据文件<br>
+@参数：<br>
+file_name,文件名<br>
+@描述：<br>
+删除数据文件<br>
+@返回：<br>
+df表,</span></dd></dl>
+ <dl><dt><a name="-scp"><strong>scp</strong></a>(df, p)</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：scp<br>
+@参数：df表(要下载的文件名),q:&nbsp;key(host,username,password,dirpath)<br>
+@描述：python远程下载文件(支持同文件夹下批量下载)<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;File.scp&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-sls"><strong>sls</strong></a>(df, p)</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：sls<br>
+@参数：q:&nbsp;key(host,username,password,dirpath)<br>
+@描述：远程ls命令<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.sls&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-smkdir"><strong>smkdir</strong></a>(df, p)</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：smkdir<br>
+@参数：q:&nbsp;key(host,username,password),文件路径<br>
+@描述：python远程新建文件夹<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.smkdir&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-test_dir"><strong>test_dir</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-tree"><strong>tree</strong></a>(df, p)</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：tree<br>
+@参数：q:路径<br>
+@描述：tree命令<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.tree&nbsp;with&nbsp;p</span></dd></dl>
+ <dl><dt><a name="-un_gz"><strong>un_gz</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;2020-0226<br>
+@函数：un_gz<br>
+@参数：df表<br>
+@描述：gz包解压<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;ZFile.un_gz</span></dd></dl>
+ <dl><dt><a name="-un_rar"><strong>un_rar</strong></a>(df, p='')</dt><dd><span class="code">@author:gjw<br>
+@date:&nbsp;2020-0206<br>
+@函数：unzip<br>
+@参数：df表<br>
+@描述：zip包解压<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;zFile.un_rar</span></dd></dl>
+ <dl><dt><a name="-un_tar"><strong>un_tar</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：untar<br>
+@参数：df表<br>
+@描述：tar包解压<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;File.untar</span></dd></dl>
+ <dl><dt><a name="-un_zip"><strong>un_zip</strong></a>(df, p='')</dt><dd><span class="code">@author:gjw<br>
+@date:&nbsp;2020-0206<br>
+@函数：unzip<br>
+@参数：df表<br>
+@描述：zip包解压<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;zFile.un_zip</span></dd></dl>
+ <dl><dt><a name="-unrar"><strong>unrar</strong></a>(df, p)</dt><dd><span class="code">@author:jf<br>
+@date:&nbsp;20181101<br>
+@函数：unrar<br>
+@参数：q<br>
+@描述：解压rar包<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.unrar&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-untar"><strong>untar</strong></a>(df, p='')</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：untar<br>
+@参数：df表<br>
+@描述：tar包解压<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;File.untar</span></dd></dl>
+ <dl><dt><a name="-unzip"><strong>unzip</strong></a>(df)</dt><dd><span class="code">@author:cj<br>
+@date:&nbsp;20181101<br>
+@函数：unzip<br>
+@参数：df表<br>
+@描述：zip包解压<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;File.unzip</span></dd></dl>
+ <dl><dt><a name="-unzip1"><strong>unzip1</strong></a>(df, p)</dt><dd><span class="code">@author:jf<br>
+@date:&nbsp;20181101<br>
+@函数：unzip1<br>
+@参数：q<br>
+@描述：解压zip包<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.unzip1&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-upload"><strong>upload</strong></a>(df, p)</dt><dd><span class="code">@author:jf<br>
+@date:&nbsp;20181101<br>
+@函数：upload<br>
+@参数：q<br>
+@描述：ftp上传文件<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.upload&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-url_jpg"><strong>url_jpg</strong></a>(df)</dt><dd><span class="code">@author:jf<br>
+@date:&nbsp;20181101<br>
+@函数：url_jpg<br>
+@参数：q<br>
+@描述：url转jpg<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;File.url_jpg&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-url_pdf"><strong>url_pdf</strong></a>(df, p='')</dt><dd><span class="code">@author:jf<br>
+@date:&nbsp;20181101<br>
+@函数：url_pdf<br>
+@参数：q<br>
+@描述：url转pdf<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;File.url_pdf&nbsp;with&nbsp;q</span></dd></dl>
+ <dl><dt><a name="-zip"><strong>zip</strong></a>(df, p='')</dt><dd><span class="code">@author:jf<br>
+@date:&nbsp;20181101<br>
+@函数：zip<br>
+@参数：q<br>
+@描述：压缩zip包<br>
+@返回：DF表<br>
+@示例：a=@udf&nbsp;df&nbsp;by&nbsp;File.zip&nbsp;with&nbsp;q</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>logger</strong> = &lt;Logger fbi-eng (ERROR)&gt;<br>
+<strong>nan</strong> = nan</td></tr></table>
+</body></html>

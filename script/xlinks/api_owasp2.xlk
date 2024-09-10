@@ -1,0 +1,404 @@
+#LastModifyDate:　2024-01-08T09:19:07    Author:   superFBI
+#LastModifyDate:　2024-01-06T16:06:03    Author:   superFBI
+#LastModifyDate:　2024-01-05T10:08:31.700410    Author:   superFBI
+#LastModifyDate:　2024-01-05T10:02:57.715988    Author:   superFBI
+#LastModifyDate:　2024-01-05T10:02:38.002294    Author:   superFBI
+#LastModifyDate:　2023-12-28T09:22:41.040593    Author:   superFBI
+#LastModifyDate:　2023-12-27T15:18:26.583282    Author:   superFBI
+#LastModifyDate:　2023-12-27T10:15:14.948515    Author:   superFBI
+#LastModifyDate:　2023-12-26T09:51:00.310150    Author:   superFBI
+#LastModifyDate:　2023-12-21T10:39:13.127102    Author:   superFBI
+#LastModifyDate:　2023-12-18T10:57:10.031600    Author:   superFBI
+
+#初始化
+init => {
+	stream["meta_name"] = "OWASP_API19-2处理进程"
+	stream["meta_desc"] = "从api_visit主题中消费数据，更新mariadb数据库表api19_risk"
+	a = load_ssdb_kv("setting")
+	stream["redis_link"] = a["kfk"]["redis"]["addr_r"]
+	stream["max_mem"]=4
+	#stream["source"]= {"link":stream["redis_link"]+":6382","topic":"api_visit1","redis":"pubsub"}
+	#stream["source"]= {"unix_udp":"/tmp/owp_2"}
+	stream["source"] = {"shm_name":"httpub","count":8}
+	stream["redis"]={"host":stream["redis_link"],"port":"6382"}
+	#stream["source"]= {"link":stream["link"],"topic":stream["topic"],"group":stream["group"],"start-0":stream["reset"]}
+	#stream["source"]= {"link":stream["link"],"topic":"lhq_test","group":stream["group"],"start-0":stream["reset"]}
+	# 定时函数
+	stream["stw"]["stw_flow"]={"times":30,"fun":"flow"}
+	stream["st"]["st_60s"]={"times":60,"fun":"print60"}
+	owasp = load_ssdb_kv("qh_owasp")
+	
+	stream["pwls"] = []
+	
+	if owasp['setting']['API19-2']['API19-2-2']:
+		for i in owasp['setting']['API19-2']['API19-2-2'].split('/'):
+			stream['pwls'].append(i)
+	if owasp['setting']['API19-7']['API19-7-2']:
+		for i in owasp['setting']['API19-7']['API19-7-2'].split('/'):
+			if i not in stream["pwls"]:
+				stream["pwls"].append(i)
+	stream["token_rule"] = ""
+	if owasp['setting']['API19-2']['API19-2-3-1']:
+		for i in owasp['setting']['API19-2']['API19-2-3-1'].split('/'):
+			stream["token_rule"] += i + "|"
+	stream["token_rule"] = '(' + stream["token_rule"].strip("|") + ')'
+	
+	stream["ak_rule"] = ""
+	if owasp['setting']['API19-2']['API19-2-3-2']:
+		for i in owasp['setting']['API19-2']['API19-2-3-2'].split('/'):
+			stream["ak_rule"] += i + "|"
+	stream["ak_rule"] = '(' + stream["ak_rule"].strip("|") + ')'
+	stream["basic_rule"] = "(?<=https://)([\w\W]*:[\w\W]*)(?=@)"
+	stream["soap_rule"] = "<(soap|soapenv):Envelope[\w\W]*<(soap|soapenv):Body"
+	
+	# 加载本地ip列表
+	stream['lan_ip'] = []
+	lan_ip_list = a["setting"]["lan"]["network"]
+	for ip in lan_ip_list:
+		stream['lan_ip'].append(ip['name'])
+	#printf('lan_ip',stream['lan_ip'])
+	# 加载cookie中保存密码配置项
+	owasp = load_ssdb_kv("qh_owasp")
+	stream["rules"] = ""
+	if owasp['setting']['API19-7']['API19-7-4']:
+		for i in owasp['setting']['API19-7']['API19-7-4'].split('/'):
+			stream["rules"] += i.replace('.', '\.') + "|"
+	stream["rules"] = '\.(' + stream["rules"].strip("|") + ')'
+	
+	#登录错误提示不合理
+	err_prompt="\\b("
+	if owasp["setting"]["API19-2"]["API19-2-5"]:
+		for i in owasp['setting']['API19-2']['API19-2-5'].split('/'):
+			err_prompt+=i+"|"
+	stream["err_prompt"]=err_prompt.rstrip("|")
+	stream["err_prompt"]+=")\\b"
+	
+	# 加载ip库
+	stream["ipdb"] = IPIPDatabase('/opt/openfbi/workspace/ipdb.datx')
+	
+	stream["ruo_list"]=[]
+	for i in open("/opt/openfbi/pylibs/ruo.csv",'r',encoding='utf-8'):
+		stream["ruo_list"].append(i.replace("\n",""))
+	weak_password=owasp["setting"]["weak_password"]
+	if weak_password:
+		pwd_list=weak_password.get("password")
+		for dic in pwd_list:
+			if dic not in stream["ruo_list"]:
+				stream["ruo_list"].append(dic["password"])
+		
+}
+
+#事件处理函数
+
+events => {
+	data_type=o.get("data_type")
+	if data_type == "XML" or data_type == "数据文件" or data_type == "JSON" or data_type == "动态脚本":
+		k = iso_to_timestamp(o["timestamp"])
+		parameter = o["parameter"]
+		dstip = o["dest_ip"]
+		dest_port = o["dest_port"]
+		method = o.get("http").get("http_method","")
+		content_length = o.get("http").get('length',0)
+		first_time = str(iso_to_datetime(o["timestamp"]))
+		last_time = str(iso_to_datetime(o["timestamp"]))
+		request_body=o.get("http_request_body")
+		response_body=o.get("http_response_body")
+		request_headers = o.get("http").get("request_headers")
+		# 判断是否有basic认证
+		# 初始化
+		have_basic = False
+		for i in request_headers:
+			if i.get("name") == "Authorization" and i.get("value") != "":
+				find_res = i.get("value")
+				if isinstance(find_res,str):
+				#对Authorization进行basic认证匹配
+					matchs=regex.findall('(?<=Basic\s)[\w\W]*',find_res,regex.I)
+					if matchs:
+						have_basic = True
+						have_site = "请求头authorization中"
+						break
+		#有base认证和返回数据包 API19-2-1与API19-7-3
+		if have_basic :
+
+			ip_is,res = ip_lookup(o["src_ip"])
+			ip_is2,res2 = ip_lookup(o["dest_ip"])
+			# API19-7-3 basic认证在公网暴露 判断是否有basic认证
+			if ip_is and ip_is2:
+				# 准备数据
+				temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-7-3")
+				temp['type'] = 'API19-7-3'
+				more_base = {
+					"存在位置": have_site,
+					"具体信息": matchs[0],
+					"请求头": request_headers
+				}
+				temp['more'] = ujson.dumps(more_base, ensure_ascii=False)#json.dumps({"访问来源":res,"认证信息":str(find_res)}, ensure_ascii=False)
+				push_stw("stw_flow",k,temp)
+				#to_redis("owasp_data",o)
+			#内网API19-2-1
+			else:
+				# 准备数据
+				#printf('authorization',base64.urlsafe_b64decode(res[0]))
+				temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-2-1")
+				more_base = {
+					"存在位置": have_site,
+					"具体信息": matchs[0],
+					"请求头": request_headers
+				}
+				temp['more'] = ujson.dumps(more_base, ensure_ascii=False)#json.dumps({"存在位置":have_site,"具体信息":str(find_res)}, ensure_ascii=False)
+				push_stw("stw_flow",k,temp)
+
+		#API19-2-2判断登陆接口是否含有明文密码 API19-2-4 OR API19-2-5
+		if o["api_type"] == 1 or o["api_type"] == 5:
+			weak_msg={}
+			plain_msg={}
+			par = {}
+			plain_pwd = {}
+			weak_res={}
+			weak_pwd=[]
+			pwd_where = []
+			if response_body:
+				res_match=regex.findall(stream["err_prompt"],response_body)
+				if res_match:
+					temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-2-5")
+					temp["more"]=ujson.dumps({"存在位置":"响应体","提示信息":res_match,"证据样例":response_body}, ensure_ascii=False)
+					push_stw("stw_flow",k,temp)
+			if request_body :
+				data=extract_username_password(request_body,response_body,stream["pwls"])
+				if data:
+					if "请求体" in data:
+						#取出密码
+						pwl=data["请求体"]["pwls"]
+						password=data["请求体"]["密码"]
+						pos="请求体"
+						en_pos="http_request_body"
+						weak_res,weak_pwd,weak_msg,plain_pwd,pwd_where,plain_msg=pwd_msgs(password,pwl,stream["ruo_list"],weak_res,weak_pwd,weak_msg,plain_pwd,pwd_where,plain_msg,request_body,pos,en_pos)
+			if parameter:
+				pwl_pwd=extract_password_from_parameter(stream["pwls"],parameter)
+				if pwl_pwd:
+					pwl=pwl_pwd[0]
+					pwd=pwl_pwd[1]
+					pos="参数"
+					en_pos="parameter"
+					weak_res,weak_pwd,weak_msg,plain_pwd,pwd_where,plain_msg=pwd_msgs(pwd,pwl,stream["ruo_list"],weak_res,weak_pwd,weak_msg,plain_pwd,pwd_where,plain_msg,parameter,pos,en_pos)
+			if weak_res:
+				temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-2-4")
+				temp['more'] = ujson.dumps({"存在位置":str(weak_pwd),"密码信息":str(weak_res),"证据样例":weak_msg}, ensure_ascii=False)
+				push_stw("stw_flow",k,temp)
+			if plain_pwd:
+				temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-2-2")
+				temp['more'] = ujson.dumps({"存在位置":str(pwd_where),"密码信息":str(plain_pwd),"证据样例":plain_msg}, ensure_ascii=False)
+				push_stw("stw_flow",k,temp)
+		# API19-7-2 cookie中存在密码
+		if "cookie" in o["http"]:
+			cookie=o['http']['cookie']
+			weak_cookie={}
+			weak_pwd=[]
+			weak_msg={}
+			cookie_msg={}
+			res_lst = []
+			pwl_pwd=extract_username_password_from_cookie(cookie,stream["pwls"])
+			if pwl_pwd:
+				pwl=pwl_pwd[0]
+				pwd=pwl_pwd[1]
+				if len(pwd)<15 and pwd !="":
+					res=pwl+"="+pwd
+					if pwd in stream["ruo_list"]:
+						#弱口令
+						weak_cookie["cookie"]=res
+						weak_pwd.append("cookie")
+						weak_msg["cookie"]=o["http"]["cookie"]
+					#cookie保存密码
+					res_lst.append(res)
+					cookie_msg["cookie"]=o["http"]["cookie"]
+			#存储mysql
+			if res_lst!=[]:
+				# 准备数据
+				temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-7-2")
+				temp['more'] =ujson.dumps({"具体信息":cookie,"密码信息":res_lst,"证据样例":cookie_msg}, ensure_ascii=False)
+				push_stw("stw_flow",k,temp)
+			if weak_cookie:
+				temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-2-4")
+				temp['more'] = ujson.dumps({"存在位置":str(weak_pwd),"密码信息":str(weak_cookie),"证据样例":weak_msg}, ensure_ascii=False)
+				push_stw("stw_flow",k,temp)
+		# API19-7-4 不安全的直接对象访问
+		if request_body and response_body:
+			if parameter:
+				msg_7_4={}
+				#msg_7_4["原始ID"]=id
+				msg_7_4["参数"]=parameter
+				res = regex.search(stream["rules"],parameter)
+				if res:
+					# 准备数据
+					temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-7-4")
+					#temp['type'] = 'API19-7-4'
+					req = "http://" + o.get("app",dstip) + ":" + str(dest_port) + o["http"]["url"]
+					temp['more'] =ujson.dumps({"不安全的直接对象访问":"直接对象访问","弱点请求":req,"证据样例":msg_7_4}, ensure_ascii=False)
+					push_stw("stw_flow",k,temp)
+				# API19-7-1 跨域访问
+				if '?' in o['http']['url']:
+					api = o['http']['url'].split('?')
+					http_uri = api[0]
+					parameter = api[1]
+					if http_uri != '/':
+						response_headers = o.get("http").get('response_headers')
+						risk_tissue = owasp_seven(response_headers, parameter)
+						if risk_tissue:
+							# 准备数据
+							temp=store_result(o,dstip,dest_port,method,content_length,first_time,last_time,"API19-7-1")
+							temp['more'] =ujson.dumps({"弱点类型":"跨域访问","存在原因":"响应头中Access-Control-Allow-Origin的值为*","证据样例":response_headers}, ensure_ascii=False)
+							push_stw("stw_flow",k,temp)
+							#to_redis("owasp_data",o)
+					
+}
+#系统定时函数
+print60 => {
+	owasp = load_ssdb_kv("qh_owasp")
+	stream["ruo_list"]=[]
+	for i in open("/opt/openfbi/pylibs/ruo.csv",'r',encoding='utf-8'):
+		stream["ruo_list"].append(i.replace("\n",""))
+	weak_password=owasp["setting"]["weak_password"]
+	if weak_password:
+		pwd_list=weak_password.get("password")
+		for dic in pwd_list:
+			if dic not in stream["ruo_list"]:
+				stream["ruo_list"].append(dic["password"])
+	stream["pwls"] = []
+	if owasp['setting']['API19-2']['API19-2-2']:
+		for i in owasp['setting']['API19-2']['API19-2-2'].split('/'):
+			stream['pwls'].append(i)
+	if owasp['setting']['API19-7']['API19-7-2']:
+		for i in owasp['setting']['API19-7']['API19-7-2'].split('/'):
+			if i not in stream["pwls"]:
+				stream["pwls"].append(i)
+	#登录错误提示不合理
+	err_prompt="\\b("
+	if owasp["setting"]["API19-2"]["API19-2-5"]:
+		for i in owasp['setting']['API19-2']['API19-2-5'].split('/'):
+			err_prompt+=i+"|"
+	stream["err_prompt"]=err_prompt.rstrip("|")
+	stream["err_prompt"]+=")\\b"
+}
+store_result => (o,dstip,dest_port,method,content_length,first_time,last_time,type){
+	temp = {
+		'api': o.get('url_c', ''),
+		'app': o["app"],
+		'dest_ip': dstip,
+		'dest_port': dest_port,
+		'method': method,
+		'length': content_length,
+		'first_time': first_time,
+		'last_time': last_time,
+		'state': '待确认',
+		'type': type
+	}
+	return temp
+}
+pwd_msgs => (password,pwl,ruo_list,weak_res,weak_pwd,weak_msg,pwd_plain,pwd_pos,pwd_msg,message,pos,en_pos){
+	if len(password) < 15 and password != "":
+		res = pwl + "=" + password
+		if password in ruo_list:
+			# 弱口令
+			weak_res[pos] = res
+			weak_pwd.append(en_pos)
+			weak_msg[pos] = message
+		pwd_plain[pos] = res
+		pwd_pos.append(en_pos)
+		pwd_msg[pos] = message
+	return weak_res,weak_pwd,weak_msg,pwd_plain,pwd_pos,pwd_msg
+}
+flow => stw{
+	# 测试
+	#store df to pkl by api19_321.pkl
+	#df= load pkl by api19_321.pkl
+	df = distinct df by (api,type)
+	size = eval df by (index.size)
+	if $size > 0 with """
+		API19 = @udf df by udf0.df_set with (state='待确认')
+		a = load db by mysql1 with select api,type,id,state states,length lengths from api19_risk where type like 'API19-2%%' or type like 'API19-7%%'
+		API19 = join API19,a by [api,type],[api,type] with left
+		API19 = @udf API19 by udf0.df_fillna with 0
+		API19 = @udf API19 by udf0.df_set_index with id
+		API191 = filter API19 by index == 0 and states !='忽略'
+		API191 = loc API191 drop states,lengths
+		@udf API191 by CRUD.save_table with (mysql1,api19_risk)
+		API192 = filter API19 by index != 0 and states !='忽略'
+		#API192_1 = filter API19 by type == 'API19-2-3'
+		#API192_1 = loc API192_1 by more,last_time,length,app,dest_ip,dest_port,method
+		#@udf API192_1 by CRUD.save_table with (mysql1,api19_risk)
+		alter API192.length as int
+		alter API192.lengths as int
+		API192 = @udf API192 by udf0.df_row_lambda with x: x["length"] if x["length"] > x["lengths"] else x["lengths"]
+		API193 = loc API192 drop first_time,state,states,length,lengths
+		API193= rename API193 as ('lambda1':'length')
+		# 保存
+		@udf API193 by CRUD.save_table with (mysql1,api19_risk,more,5)
+		API194 = loc API192 by last_time
+		@udf API194 by CRUD.save_table with (mysql1,api19_risk)
+	"""
+	drop API19
+	drop API191
+	drop API192
+	drop API193
+	drop API194
+	drop API192_1
+	drop a
+	drop df
+}
+#自定义python函数，必须有参数,可以在初始化函数，事件处理函数，和定时函数中使用
+ip_lookup =>(ip){
+	try:
+		result = stream["ipdb"].lookup(ip).split('	')[0]
+		if result not in ["局域网","本地链路","共享地址","本机地址","保留地址"]:
+			a = True
+		else:
+			a = False
+	except Exception as e:
+		pass
+	return a,result
+}
+#自定义python函数，必须有参数,可以在初始化函数，事件处理函数，和定时函数中使用
+owasp_seven => (response_headers, parameter){
+	if response_headers:
+		for x, response in enumerate(response_headers):
+			for response_values in response.values():
+				if response_values == 'Access-Control-Allow-Origin':
+					access = response_headers[x].values()
+					if list(access)[1] == '*':
+						return 1
+	else:
+		return 0
+}
+
+#自定义python函数，必须有参数,可以在初始化函数，事件处理函数，和定时函数中使用
+searchpwd => (cookie){
+	ow2 = 0
+	pwls = stream["pwls"]
+	for i in range(len(pwls)):
+		if re.findall(r'%s' % pwls[i], cookie, re.I):
+			pw = re.findall('%s=([a-zA-Z0-9]+);' % pwls[i], cookie, re.I)
+			if not pw:
+				pw = re.findall('&%s=([a-zA-Z0-9]+)&' % pwls[i], cookie, re.I)
+			if not pw:
+				pw = re.findall('\"%s\"\s*:\s*\"([a-zA-Z0-9]+)\"' % pwls[i], cookie, re.I)
+			if not pw:
+				pw = re.findall('\'%s\'\s*:\s*\'([a-zA-Z0-9]+)\'' % pwls[i], cookie, re.I)
+			if pw:
+				ow2 = pw[0]
+				return ow2,pwls[i]
+			else:
+				return ow2,pwls[i]
+	return ow2,""
+}
+#需要额外引入的包
+imports => {
+	import regex
+	import sys
+	import gc
+	import uuid
+	import html
+	from pyipip import IPIPDatabase
+	from API19_1_2 import *
+	import ujson
+	
+}

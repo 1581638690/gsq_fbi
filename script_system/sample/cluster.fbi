@@ -1,0 +1,28 @@
+#FBI脚本文件
+#文件名: sample/cluster.fbi
+#作者: admin
+
+
+#添加节点
+set cluster by addnode as node170 with 192.168.1.170,admin,IamFBI@2020
+set cluster by addnode as node172 with 192.168.1.172,admin,IamFBI@2020
+set cluster by addnode as node173 with 192.168.1.173,admin,IamFBI@2020
+
+#新建SSDB实例(master)
+m = @udf FBI.ssdb_master with m.conf,./var,0.0.0.0,19999
+t = @udf FBI.ssdb_start with m.conf
+t2 = @udf FBI.ssdb_stop with m.conf
+i = @udf FBI.ssdb_info with m.conf
+
+#定义master自己的链接
+define ssdb_my as 192.168.1.22:19999
+#新建slaver
+run sample/SSDB.fbi@node173 with data=/var,host=192.168.1.173,port=1999,id=node173,mip=192.168.1.22,mport=19999
+run sample/SSDB.fbi@node172:9001 with data=/var,host=192.168.1.172,port=1999,id=node172,mip=192.168.1.22,mport=19999
+
+#获取结果
+i2 = load ssdb by ssdb_my with SSDB:node173
+
+store i2 to ssdb by ssdb_my with SSDB:0 as Q
+i3 = load ssdb by ssdb_my query2 qpop,SSDB:0,10,-
+

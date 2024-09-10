@@ -1,0 +1,152 @@
+#LastModifyDate:　2024-01-18T17:57:42    Author:   chw
+#LastModifyDate:　2023-10-12T18:07:53.942278    Author:   superFBI
+#LastModifyDate:　2023-07-14T15:15:01.285953    Author:   superFBI
+#LastModifyDate:　2023-06-19T18:18:06.099491    Author:   pjb
+#LastModifyDate:　2023-04-27T09:26:11.954824    Author:   superFBI
+#LastModifyDate:　2023-03-10T14:29:48.726170    Author:   pjb
+#LastModifyDate:　2023-03-09T16:40:47.972270    Author:   pjb
+#LastModifyDate:　2023-03-09T10:06:51.590893    Author:   pjb
+#LastModifyDate:　2023-03-08T18:46:32.245268    Author:   superFBI
+#LastModifyDate:　2023-03-08T14:08:43.427956    Author:   pjb
+#LastModifyDate:　2023-03-08T10:31:09.041092    Author:   pjb
+use @FID
+
+#Delete 注释 by superFBI on 2023-10-12 18:06:30
+#api_list = load db by mysql1 with select app,url api,dstip from data_api_new where merge_state = 0 order by app
+#app_api = load db by mysql1 with select app,id from data_app_new where merge_state = 0 and app_type =1
+#api_list2 = join api_list,app_api by app,app with left
+#api_list2 = @udf api_list2 by udf0.df_fillna
+##api_list = filter api_list2 by id !=''
+#api_list = loc api_list by app,api,dstip
+#api_list.api = lambda api by x:x[0: None if x.find("/{")==-1 else x.find("/{")+1]
+#api_list.api = lambda api by x:x[x.find("//")+2:]
+#api_list.api = lambda api by x:x[x.find("/"):]
+#api_list.api = lambda api by x:x.split("?")[0]
+#api_list1 = filter api_list by api !='/'
+#api_list2 = group api_list by app agg api:count
+#api_list2 = @udf api_list2 by udf0.df_reset_index
+#api_list2 = filter api_list2 by api_count >10
+#api_list3 = join api_list2,api_list1 by app,app
+#api_list1 = loc api_list3 by app,api,dstip
+#api_list2 = loc api_list3 by app,api,dstip
+#api_count = loc api_list3 by app,api_count
+#api_count = distinct api_count by app,api_count
+#
+#api_list = join api_list1,api_list2 by api,api 
+#api_list = @udf api_list by udf0.df_row_lambda with x:'t' if x[0] != x[3] else 'f'
+#api_dst1 = filter api_list by lambda1 =='t'
+#api_count2 = group api_dst1 by app_x,app_y agg lambda1:count
+#api_count2 = @udf api_count2 by udf0.df_reset_index
+#api_dst1 = join api_dst1,api_count2 by [app_x,app_y],[app_x,app_y]
+#api_dst1 = join api_dst1,api_count by app_x,app
+#api_dst = loc api_dst1 by app_x,app_y,dstip_y,lambda1_count,api_count
+#api_dst1 = @udf api_dst by udf0.df_row_lambda with x:x[3]/x[4]
+#api_dst1 = filter api_dst1 by lambda1 >= 0.8
+#api_dst1 = loc api_dst1 by app_x,app_y
+#api_dst1 = distinct api_dst1 by app_x,app_y
+#api_dst1.app_y = lambda app_y by x:x+','
+#api_dst1 = group api_dst1 by app_x agg app_y:sum
+#app_dst = @udf api_dst1 by udf0.df_reset_index
+#app_dst = add app_y_sum by app_dst["app_y_sum"] + app_dst["app_x"]
+#rename app_dst as ("app_x":"app","app_y_sum":"apps_sum")
+
+###########################################################
+app_dst = load db by mysql1 with select app apps,dstip from data_app_new where dstip not like '%%,%%' and merge_state = 0 and app_type =1
+alter app_dst by apps:string,dstip:string
+#alter app_dst.dstip as str
+app_dst.apps = lambda apps by x:x+','
+app_dst = group app_dst by dstip agg apps:sum
+app_dst.apps_sum = lambda apps_sum by x:x[0:-1]
+app_dst = @udf app_dst by udf0.df_reset_index
+app_dst.tf = lambda apps_sum by x:'t' if ',' in x  else 'f'
+app_dst = filter app_dst by tf == 't'
+app_dst = loc app_dst by dstip,apps_sum
+rename app_dst as ("dstip":"app")
+#Delete 注释 by pjb on 2023-06-19 18:18:02
+#api_dst2 = loc api_dst by app_x,app_y,dstip_y
+#api_dst2 = @udf api_dst2 by udf0.df_row_lambda with x:'t' if x[0] == x[2] else 'f'
+#api_dst2 = filter api_dst2 by lambda1 == 't'
+#api_dst2 = distinct api_dst2 by app_x,app_y
+#api_dst2 = loc api_dst2 by app_x,app_y
+#api_dst2.app_y = lambda app_y by x:x+','
+#api_dst2 = group api_dst2 by app_x agg app_y:sum
+#api_dst2 = @udf api_dst2 by udf0.df_reset_index
+#api_dst2 = add app_y_sum by api_dst2["app_y_sum"] + api_dst2["app_x"]
+#rename api_dst2 as ("app_x":"app","app_y_sum":"apps_sum")
+#app_dst = union api_dst1,api_dst2
+#app_dst.apps_sum = lambda apps_sum by x:x+','
+#app_dst = group app_dst by app agg apps_sum:sum
+#app_dst = @udf app_dst by udf0.df_reset_index
+#rename app_dst as ("apps_sum_sum":"apps_sum")
+#app_dst.apps_sum = lambda apps_sum by x:x[0:-1]
+app_dst.apps_sum = lambda apps_sum by x:set(x.split(","))
+alter app_dst by apps_sum:string
+app_dst.apps_sum = lambda apps_sum by x:x.replace("{","")
+app_dst.apps_sum = lambda apps_sum by x:x.replace("}","")
+app_dst.apps_sum = lambda apps_sum by x:x.replace("'","")
+app_dst.apps_sum = lambda apps_sum by x:x.replace(" ","")
+app_dsts = loc app_dst by app,apps_sum
+app_dstss = @udf udf0.new_df with app,apps_sum
+foreach app_dst run """
+	app_dsts.tf = lambda apps_sum by x:'t' if set('@apps_sum'.split(',')).intersection(x.split(","))  else 'f'
+	app_dsts2 = filter app_dsts by tf =='t'
+	app_dsts = filter app_dsts by tf =='f'
+	app_dsts2.tf = lambda app by x:'t' if '@app' == x else 'f'
+	app_dsts3 = filter app_dsts2 by tf =='t'
+	app_dstss = union app_dstss,app_dsts3
+""" with (app=$1,apps_sum=$2)
+
+
+
+app_dst3 = loc app_dstss by app,apps_sum
+foreach app_dst3 run """
+	apps = @sdf sys_eval with ('@apps_sum'.split(','))
+	apps = @sdf sys_eval with (str($apps)[1:-1])
+	api_all = load db by mysql1 with select id,app_merges app from data_api_new where app in ($apps)
+	api_all = add app_merges by ('')
+	api_all = @udf api_all by udf0.df_set_index with id
+	@udf api_all by CRUD.save_table with (mysql1,data_api_new)
+	app_all = load db by mysql1 with select id,merge_state,visits_num,visits_flow,sj_num,monitor_flow,api_num,imp_api_num,srcip_num,account_num,dstip_num,sensitive_label,app_type,app_status,active from data_app_new where app in ($apps) and merge_state =0 and app_type =1
+	app = loc app_all by id,merge_state
+	app = add merge_state by 1
+	app = @udf app by udf0.df_set_index with id
+	app = add app_merges by ('@app')
+	@udf app by CRUD.save_table with (mysql1,data_app_new)
+	app2 = loc app_all by visits_num,visits_flow,sj_num,monitor_flow,api_num,imp_api_num,srcip_num,account_num,dstip_num,sensitive_label,app_type,app_status,active
+	app2 = add app_merges by ('@app')
+	app2 = add app by ('@app')
+	alter app2.active as str
+	alter app2.app_type as str
+	app2 = group app2 by app agg visits_num:sum,visits_flow:sum,sj_num:sum,monitor_flow:sum,api_num:sum,imp_api_num:sum,srcip_num:sum,account_num:sum,dstip_num:sum,sensitive_label:sum,app_type:sum,app_status:sum,active:sum
+	app2 = @udf app2 by udf0.df_reset_index
+	rename app2 by ("visits_num_sum":"visits_num","visits_flow_sum":"visits_flow","sj_num_sum":"sj_num","monitor_flow_sum":"monitor_flow","api_num_sum":"api_num","imp_api_num_sum":"imp_api_num","srcip_num_sum":"srcip_num","account_num_sum":"account_num","dstip_num_sum":"dstip_num","sensitive_label_sum":"sensitive_label","app_type_sum":"app_type","app_status_sum":"app_status","active_sum":"active")
+	app2 = add merge_state by 2
+	app2.sensitive_label = lambda sensitive_label by x:1 if "1" in x  else 0
+	app2.app_type = lambda app_type by x:1 if "1" in x  else 0
+	app2.app_status = lambda app_status by x:1 if "1" in x  else 0
+	app2.active = lambda active by x:'3' if "3" in x  else '0'
+	app2.active = lambda active by x:'1' if "1" in x  else '0'
+	alter app2 by active:int,app_status:string,sensitive_label:string
+	#alter app2.app_status as str
+	#alter app2.sensitive_label as str
+	app2 = add app_sum by ('@apps_sum')
+	app2 = add first_time by str(datetime.now())
+	app_merges = load db by mysql1 with select id,app from data_app_new where app = '@app' and merge_state = 2 and app_type =1
+	app2 = join app2,app_merges by app,app with left
+	app2 = @udf app2 by udf0.df_fillna with 0
+	app2 = @udf app2 by udf0.df_set_index with id
+	@udf app2 by CRUD.save_table with (mysql1,data_app_new)
+	
+""" with (app=$1,apps_sum=$2)
+# 添加ssdb
+app =  @udf RS.load_mysql_sql with (mysql1,select app,app_sum from data_app_new where merge_state = 2)
+app = @udf app by udf0.df_set_index with app
+app = add app by (app.index)
+a=@udf SSDB.hclear with app_merge
+store app to ssdb by ssdb0 with app_merge as H
+#app = @udf RS.exec_mysql_sql with (mysql1,alter table data_api_new add dstip text)
+#app = @udf RS.exec_mysql_sql with (mysql1,alter table data_app_new add app_sum text)
+#app = @udf RS.exec_mysql_sql with (mysql1,alter table data_app_new add merge_state INT default 0)
+#app = @udf RS.exec_mysql_sql with (mysql1,alter table data_app_new add app_merges text)
+
+clear @FID

@@ -1,0 +1,19 @@
+#LastModifyDate:　2023-09-14T10:53:57.289224    Author:   pjb
+#LastModifyDate:　2023-08-19T16:18:21.098600    Author:   pjb
+#LastModifyDate:　2023-08-18T18:26:28.864908    Author:   pjb
+use @FID
+
+a = load db by mysql1 with select * from data_app_new
+a = @udf a by udf0.df_fillna with ""
+store a to pkl by back_mysql/data_app_new.pkl
+a = load db by mysql1 with select * from data_api_new
+a = @udf a by udf0.df_fillna with ""
+store a to pkl by back_mysql/data_api_new.pkl
+a = load db by mysql1 with select * from data_account_new
+a = @udf a by udf0.df_fillna with ""
+store a to pkl by back_mysql/data_account_new.pkl
+a = load db by mysql1 with select * from data_ip_new
+a = @udf a by udf0.df_fillna with ""
+store a to pkl by back_mysql/data_ip_new.pkl
+
+clear @FID

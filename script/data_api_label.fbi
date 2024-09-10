@@ -1,0 +1,31 @@
+#LastModifyDate:　2022-10-26T16:51:46.308211    Author:   gsp
+#LastModifyDate:　2022-10-26T16:49:01.666143    Author:   gsp
+#LastModifyDate:　2022-10-26T16:48:10.731525    Author:   gsp
+#LastModifyDate:　2022-10-26T16:47:18.541266    Author:   gsp
+#LastModifyDate:　2022-10-26T16:46:41.413343    Author:   gsp
+use @FID
+
+api = load db by mysql1 with select sx,dstip from data_app_new where app='@app'
+sx= eval api by iloc[0,0]
+dst= eval api by iloc[0,1]
+
+sx = load db by mysql1 with select * from app_sx where id=$sx
+sx = loc sx by drop id,gmt_create,gmt_modified,creator,owner,a,b,c
+ind = eval sx by index.size
+#sx=@udf sx by udf0.df_append with (,,,,,,,,,,,)
+#if $ind ==0 with  sx=@udf sx by udf0.df_append with (,,,,,,,,,,,)
+ynw=load ssdb by ssdb0 with data_app_ynw
+sx1 = filter ynw by ip =='$dst'
+sx1 = @udf sx1 by udf0.df_zero_index
+sx = join sx,sx1 by index with right
+rename sx as ('sysname':'应用系统名称','usearea':'使用范围','yz':'业主单位','yz_zrr':'责任人','jsh':'建设单位','jsh_zrr':'责任人','sysdp':'系统开发商','sysdp_zrr':'责任人','sysyw':'系统运维服务商','sysyw_zrr':'责任人','db':'等保等级','safearea':'安全域','net1':'一类网用途','net2':'二类网用途','net3':'三类网用途')
+sx = loc sx by drop ip
+sx = @udf sx by udf0.df_fillna
+push sx as table
+
+
+
+
+clear @FID
+
+

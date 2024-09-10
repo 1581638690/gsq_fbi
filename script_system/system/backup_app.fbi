@@ -1,0 +1,13 @@
+#LastModifyDate:　2022-10-21T10:33:43.467693    Author:   gjw
+
+#备份所有应用, 凌晨和12点各备份一次
+# settimer backup-1 by "0 0 0,12 * * * " run backup_app.fbi
+
+
+app = @udf SSDB.scan_keys with use:,use:~
+
+foreach app run """
+
+	a = @udf udfA.dump_app with @id,New
+
+""" with id=$1

@@ -1,0 +1,13 @@
+#LastModifyDate:　2023-08-17T15:28:43.742825    Author:   qh
+use @FID
+#更改分配给AI的资源时重启
+zz = load ssdb by ssdb0 with writelist as json
+cpu = jaas zz by zz["AI_cpu"] as sdf
+a = load ssdb with ai_cpu
+s = eval a by iloc[0,0]
+if $cpu != $s with """
+	a = @udf FBI.x_finder3_stop2 with api_ai_nlp
+	a = @udf FBI.x_finder3_start2 with api_ai_nlp
+"""
+
+clear @FID

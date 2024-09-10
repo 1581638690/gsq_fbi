@@ -1,0 +1,30 @@
+#LastModifyDate:　2024-01-18T17:33:18    Author:   chw
+#LastModifyDate:　2024-01-18T17:29:25    Author:   chw
+#LastModifyDate:　2023-08-31T11:07:39.334608    Author:   pjb
+#LastModifyDate:　2023-02-06T10:18:32.134460    Author:   pjb
+#LastModifyDate:　2023-02-03T11:45:11.281380    Author:   pjb
+use @FID
+
+a = load db by mysql1 with select id,left(first_time,10) first_time,left(last_time,10) last_time,curdate() now,active from data_api_new where last_time != ''
+alter a by first_time:datetime64,last_time:datetime64,now:datetime64
+#alter a.last_time as datetime64
+#alter a.now as datetime64
+a1 = @udf a by udf0.df_row_lambda with x:0 if x[2] == x[3] else 'f'
+a1 = rename a1 as ('lambda1':'active1')
+a1 = filter a1 by active1 == 0
+a1 = @udf a1 by udf0.df_row_lambda with x:'t' if x[4] == x[5] else 'f'
+a1 = filter a1 by lambda1 == 'f'
+a1 = loc a1 by id,active1
+a1 = rename a1 as ('active1':'active')
+a2 = @udf a by udf0.df_row_lambda with x:1 if x[2] != x[3] else 'f'
+a2 = rename a2 as ('lambda1':'active1')
+a2 = filter a2 by active1 == 1
+a2 = @udf a2 by udf0.df_row_lambda with x:'t' if x[4] == x[5] else 'f'
+a2 = filter a2 by lambda1 == 'f'
+a2 = loc a2 by id,active1
+a2 = rename a2 as ('active1':'active')
+a = union a1,a2
+a = @udf a by udf0.df_set_index with id
+@udf a by CRUD.save_table with (mysql1,data_api_new)
+
+clear @FID

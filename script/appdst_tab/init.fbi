@@ -1,0 +1,21 @@
+#LastModifyDate:　2023-03-08T11:41:35.482036    Author:   pjb
+#LastModifyDate:　2023-03-08T11:40:42.292556    Author:   pjb
+#LastModifyDate:　2023-03-03T11:16:43.886641    Author:   superFBI
+#FBI脚本文件
+#文件名: appdst_tab/init.fbi
+#作者: superFBI
+use @FID
+a = load ssdb by ssdb0 with @data_key
+
+assert a by df.index.size >1 as break with 请选中对应应用再进行修改
+
+a = loc a by app
+
+apps= @udf a by udf0.df_T
+apps = @udf apps by udf0.df_cs2l
+rename apps as ('s0':'app')
+
+store apps to ssdb by ssdb0 with appdst_tab:@FPS as 600
+push apps as table
+
+clear @FID

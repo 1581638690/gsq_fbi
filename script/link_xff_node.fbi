@@ -1,0 +1,167 @@
+#LastModifyDate:　2024-01-24T17:47:59    Author:   zwl
+#LastModifyDate:　2023-11-21T14:58:28.253293    Author:   zwl
+#LastModifyDate:　2023-11-21T14:53:59.844161    Author:   sj
+#LastModifyDate:　2023-11-17T15:33:56.365570    Author:   sj
+#LastModifyDate:　2023-11-17T15:12:18.453536    Author:   zwl
+#LastModifyDate:　2023-11-17T15:00:22.920660    Author:   superFBI
+#LastModifyDate:　2023-11-17T14:38:28.509705    Author:   superFBI
+#FBI脚本文件
+#文件名: link_xff_node.fbi
+#作者: superFBI
+use @FID
+edge = @udf GL.query_http_mkd with g.V().Tag('aaa').Out(['acc_xff','link_xff','xff_ip','link_x_http','link_x_http1'],'path').GetLimit(1000000)
+edge_text = if $edge != None with edge = @udf edge by FBI.json2df
+rename edge as ('aaa':'S','id':'O','path':'P')
+edge.P = str P by replace('1','')
+edge.P = str P by replace('link_xff','xff_ip')
+#edge = group edge by P agg P:count
+s11 = loc edge by S,P
+s = group s11 by S,P agg S:count
+s = loc s by index to id
+s1 = group s11 by S agg S:count
+s1 = loc s1 by index to id
+qw = @udf udf0.new_df with (id,http访问(出),代理(出),访问(从属)_1)
+foreach s run """
+	aa = filter s by id == '@id'
+	aa = loc aa by idx1 to index
+	aa = loc aa by S_count
+	aa = @udf aa by udf0.df_T
+	rename aa as ('xff_ip':'代理(出)','link_x_http':'http访问(出)','acc_xff':'访问(从属)_1')
+	aa = add id by ('@id')
+	qw = union qw,aa
+	qw = distinct qw by id,http访问(出),代理(出),访问(从属)_1
+""" with (id = $1)
+
+o11 = loc edge by O,P
+o = group o11 by O,P agg O:count
+o = loc o by index to id
+o1 = group o11 by O agg O:count
+o1 = loc o1 by index to id
+kkkk = join s1,o1 by id,id with outer
+kkkk = @udf kkkk by udf0.df_fillna with (0)
+store kkkk to pq by link/S_O_xff_count.pq
+qw1 = @udf udf0.new_df with (id,http访问(入),代理(入),访问(从属)_2)
+foreach o run """
+	aa1 = filter o by id == '@id'
+	aa1 = loc aa1 by idx1 to index
+	aa1 = loc aa1 by O_count
+	aa1 = @udf aa1 by udf0.df_T
+	rename aa1 as ('xff_ip':'代理(入)','link_x_http':'http访问(入)','acc_xff':'访问(从属)_2')
+	aa1 = add id by ('@id')
+	qw1 = union qw1 ,aa1
+	qw1 = distinct qw1 by id,http访问(入),代理(入),访问(从属)_2
+""" with (id = $1)
+zs = join qw,qw1 by id,id with  outer
+zs = @udf zs by udf0.df_fillna with (0)
+zs = add 访问(从属) by df['访问(从属)_1']+df['访问(从属)_2']
+zs = loc zs by id,http访问(出),代理(出),http访问(入),代理(入),访问(从属)
+###################
+###  节点信息
+ttt = load pq by link/ip_type.pq
+#ttt.id1 = str id by (replace("'",''))
+qqq = group ttt by type  agg type:count
+### 应用账号   ------------------------------------------------------------------------------------------------------------------
+ttt1 = filter ttt by type == '应用账号'
+rename ttt1 as ('id':'account')
+acc = load db by mysql1 with select account,dept,active,type 类型 from data_account_new
+active = load ssdb by ssdb0 with dd:api_active
+alter acc.active as str
+acc = @udf acc,active by SP.tag2dict with active
+account = join ttt1,acc by account,account with left
+account = @udf account by udf0.df_fillna with ''
+account = loc account by id,account,type,dept,active,类型
+account = join account ,zs by account,id with left
+account = @udf account by udf0.df_fillna with (0)
+account = loc account by account,type,dept,类型,active,http访问(出),代理(出),http访问(入),代理(入),访问(从属)
+rename account as ('account':'节点名称','type':'节点类型','dept':'部门','active':'活跃状态')
+foreach ttt1 run """
+	node = filter account by 节点名称 == '@id'
+	store node to ssdb by ssdb0 with link_xff:@id
+""" with (id = $1)
+
+### 终端   ------------------------------------------------------------------------------------------------------------------
+ttt2 = filter ttt by type == '终端'
+src = load db by mysql1 with select srcip id,visit_flow,dep,active,type type1,visit_num,flag 标签备注 from data_ip_new  
+active2 = load ssdb by ssdb0 with dd:api_active
+alter src.active as str
+src = @udf src,active2 by SP.tag2dict with active
+account = join ttt2,src by id,id with left
+account = @udf account by udf0.df_fillna with ''
+account = join account ,zs by id,id with left
+account = @udf account by udf0.df_fillna with (0)
+account = loc account by id,type,dep,type1,标签备注,http访问(出),代理(出),http访问(入),代理(入),访问(从属) 
+rename account as ('id':'节点名称','type':'节点类型','dep':'部门','type1':'终端类型','active':'活跃状态')
+foreach ttt2 run """
+	node = filter account by 节点名称 == '@id'
+	store node to ssdb by ssdb0 with link_xff:@id
+""" with (id = $1)
+
+
+
+###  接口    ------------------------------------------------------------------------------------------------------------------
+ttt3 = filter ttt by type == '接口'
+src = load db by mysql1 with select url id,method,active ,api_type from data_api_new 
+active2 = load ssdb by ssdb0 with dd:API-api_type
+alter src.api_type as str
+src = @udf src,active2 by SP.tag2dict with api_type
+src.id = lambda id by ( x:x.split('/')[2] )
+src.id = lambda id by ( x:x.split(':')[0] )
+active2 = load ssdb by ssdb0 with dd:api_active
+alter src.active as str
+src = @udf src,active2 by SP.tag2dict with active
+src_count = group src by id,api_type agg api_type:count
+src_count = loc src_count by index to id
+src_count = add id by (src_count.id  + '-' + src_count.idx1 +'接口'  )
+src_count = loc src_count by id ,api_type_count
+src = add id by (src.id  + '-' + src.api_type +'接口'  )
+src = join src ,src_count by id,id with inner
+src = distinct src by id,method,active ,api_type,api_type_count
+#src = filter src by id =='192.168.124.128-普通接口'
+account = join ttt3,src by id,id with left
+account = @udf account by udf0.df_fillna with ''
+account = join account ,zs by id,id with left
+account = @udf account by udf0.df_fillna with (0)
+account = loc account by id,type,method,api_type_count,active,http访问(出),代理(出),http访问(入),代理(入),访问(从属)
+rename account as ('id':'节点名称','type':'节点类型','method':'请求类型','api_type_count':'接口数量','active':'活跃状态')
+foreach ttt3 run """
+	node = filter account by 节点名称 == '@id'
+	store node to ssdb by ssdb0 with link_xff:@id
+""" with (id = $1)
+
+
+###  应用    ------------------------------------------------------------------------------------------------------------------
+ttt4 = filter ttt by type == '应用'
+src = load db by mysql1 with select app id,dstip_num,active,api_num from data_app_new 
+#src.id = lambda id by ( x:x.split('/')[2] )
+src.id = lambda id by ( x:x.split(':')[0] )
+active2 = load ssdb by ssdb0 with dd:api_active
+alter src.active as str
+src = @udf src,active2 by SP.tag2dict with active
+account = join ttt4,src by id,id with left
+account = @udf account by udf0.df_fillna with ''
+account = join account ,zs by id,id with left
+account = @udf account by udf0.df_fillna with (0)
+account = loc account by id,type,dstip_num,api_num,active,http访问(出),代理(出),http访问(入),代理(入),访问(从属)
+rename account as ('id':'节点名称','type':'节点类型','dstip_num':'部署数量','api_num':'接口数量','active':'活跃状态')
+foreach ttt4 run """
+	node = filter account by 节点名称 == '@id'
+	store node to ssdb by ssdb0 with link_xff:@id
+""" with (id = $1)
+
+##  代理-------------------------
+ttt5 = filter ttt by type == '代理'
+#ttt5 = add type by ('终端')
+#src = load db by mysql1 with select ip id,account 账号,ip_link AGENT路径,agent_ip AGENT_IP,app 应用名,url 接口名 from ip_datalink 
+src = load db by mysql1 with select srcip id,visit_flow,dep,active,type type1,visit_num,flag 标签备注 from data_ip_new  
+account = join ttt5,src by id,id with left
+account = @udf account by udf0.df_fillna with ''
+account = join account ,zs by id,id with left
+account = @udf account by udf0.df_fillna with (0)
+account = loc account by id,type,dep,type1,标签备注,http访问(出),代理(出),http访问(入),代理(入),访问(从属)
+rename account as ('id':'节点名称','type':'节点类型','dep':'部门','type1':'终端类型')
+foreach ttt5 run """
+	node = filter account by 节点名称 == '@id'
+	store node to ssdb by ssdb0 with link_xff:@id
+""" with (id = $1)
+
+clear @FID

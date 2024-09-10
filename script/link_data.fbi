@@ -1,0 +1,215 @@
+#LastModifyDate:　2024-03-14T16:43:11    Author:   zwl
+#LastModifyDate:　2023-12-08T10:12:54.170836    Author:   zwl
+#LastModifyDate:　2023-12-07T10:08:49.461472    Author:   zwl
+#LastModifyDate:　2023-12-06T19:00:32.963240    Author:   zwl
+#LastModifyDate:　2023-12-05T13:44:52.056363    Author:   zwl
+#LastModifyDate:　2023-11-23T15:29:21.484466    Author:   zwl
+#LastModifyDate:　2023-11-20T14:46:16.690250    Author:   zwl
+#LastModifyDate:　2023-11-17T16:28:37.363984    Author:   zwl
+#LastModifyDate:　2023-11-14T17:12:17.717455    Author:   sj
+#LastModifyDate:　2023-11-14T16:28:44.927337    Author:   zwl
+#LastModifyDate:　2023-11-14T13:48:52.497989    Author:   sj
+
+#FBI脚本文件
+#文件名: link_data.fbi
+#作者: zwl
+use @FID
+
+a = load ssdb by ssdb0 with @data_key
+if a.index.size == 1 with qw = eval a by iloc[0,1]
+if a.index.size == 1 with node_type = eval a by iloc[0,1]
+if '$qw' == 'app' with a.aaa = lambda aaa by ( x:x.split(':')[0] )
+
+
+q = eval a by index.size
+if $q > 0 with d =  eval a by iloc[0,0]
+
+if '$q' != '0' with """
+ 	 run app_query.fbi with @nodes = $d
+""" else """
+
+###节点
+node = load pq by link/link_type.pq
+
+## 节点出入度的和
+node_count = load pq by link/S_O_count.pq
+alter node_count.S_count.O_count as int
+node_count = add count1 by df['S_count']+df['O_count']
+node_count = loc node_count by id,count1
+
+##关系
+edges = @udf GL.query_http_mkd with g.V().Tag('aaa').Out(['link_sql','link_http','link_http1','link_belong','link_belong1'],'path').GetLimit(1000000)
+edge_text = if $edges != None with edges = @udf edges by FBI.json2df
+aa = if $edge_text == False with edges = @udf udf0.new_df with (aaa,id,path)
+rename edges as ('aaa':'S','id':'O','path':'P')
+###################################  数据库关系取 30
+limit5 = load db by mysql1 with select dbms_obj as nn from dbms_obj order by count desc limit 10
+########################################################  入度1  
+edge1 = join limit5,edges by nn,O with left
+edge1 = @udf edge1 by udf0.df_fillna with ''
+edge1 = filter edge1 by S != ''
+edge1 = loc edge1 by S,O,P
+	###取前100 的节点
+	edge1 = join edge1,node_count by S,id with left
+	edge1 = order edge1 by count1 with desc limit 100
+	edge1 = loc edge1 by S,O,P
+	edge1 = distinct edge1 by S,O,P
+########################################################  入度2
+dd = loc edge1 by S
+dd = distinct dd by S
+rename dd as ('S':'dd')
+edge2 = join dd,edges by dd,O with left
+edge2 = @udf edge2 by udf0.df_fillna with ''
+edge2 = filter edge2 by S != ''
+edge2 = loc edge2 by S,O,P
+edge2 = distinct edge2 by S,O,P
+	###取前100 的节点
+	edge2 = join edge2,node_count by S,id with left
+	edge2 = order edge2 by count1 with desc limit 100
+	edge2 = loc edge2 by S,O,P
+	edge2 = distinct edge2 by S,O,P
+########################################################  入度3
+dd = loc edge2 by S
+dd = distinct dd by S
+rename dd as ('S':'dd')
+edge3 = join dd,edges by dd,O with left
+edge3 = @udf edge3 by udf0.df_fillna with ''
+edge3 = filter edge3 by S != ''
+edge3 = loc edge3 by S,O,P
+	###取前100 的节点
+	edge3 = join edge3,node_count by S,id with left
+	edge3 = order edge3 by count1 with desc limit 100
+	edge3 = loc edge3 by S,O,P
+	edge3 = distinct edge3 by S,O,P
+########################################################  入度4
+dd = loc edge3 by S
+dd = distinct dd by S
+rename dd as ('S':'dd')
+edge4 = join dd,edges by dd,O with left
+edge4 = @udf edge4 by udf0.df_fillna with ''
+edge4 = filter edge4 by S != ''
+edge4 = loc edge4 by S,O,P
+	###取前100 的节点
+	edge4 = join edge4,node_count by S,id with left
+	edge4 = order edge4 by count1 with desc limit 100
+	edge4 = loc edge4 by S,O,P
+	edge4 = distinct edge4 by S,O,P
+########################### 合并==================合并==================合并==================合并==================
+edge = union edge1,edge2,edge3,edge4
+edge = loc edge by S,O,P
+############   遇到  管理终端  查数据库对象
+edge_sql = loc edge by S
+edge_sql = distinct edge_sql by S
+edge_sql = join edge_sql,node by S,id with left
+edge_sql = filter edge_sql by type == '管理终端' or type == '业务终端'
+if edge_sql.index.size <= 10 with """
+	edge_sql = filter edge_sql by type == '管理终端'
+	dd = loc edge_sql by S
+	rename dd as ('S':'dd')
+	edge_sql = join dd,edges by dd,S with left
+	edge_sql = loc edge_sql by S,O,P
+	edge = union edge,edge_sql
+"""
+############遇到  管理终端  查数据库对象
+edge = distinct edge by S,O,P
+###################################
+### http、sql关系线加字  D
+ddd = load pq by link/link_http_acc.pq
+edge = join edge,ddd by [S,O],[zd,url_name] with left
+edge = @udf edge by udf0.df_fillna with ''
+edge = loc edge by S,O,P,account
+ddd = load pq by link/link_http1_acc.pq
+edge = join edge,ddd by [S,O],[zd,app] with left
+edge = @udf edge by udf0.df_fillna with ''
+edge = loc edge by S,O,P,account,account1
+ddd = load pq by link/link_sql_user.pq
+edge = join edge,ddd by [S,O],[app,db] with left
+edge = @udf edge by udf0.df_fillna with ''
+edge = loc edge by S,O,P,account,account1,user
+edge = @udf edge by udf0.df_row_lambda with (x: x[3] if x[3] != '' else x[4])
+rename edge as ('lambda1':'D1')
+edge = @udf edge by udf0.df_row_lambda with (x: x[5] if x[5] != '' else x[6])
+rename edge as ('lambda1':'D')
+edge = loc edge by S,O,P,D
+edge = distinct edge by S,O,P,D
+
+push edge as edges
+store edge to ssdb by ssdb0 with link_edges 
+#edge = load ssdb by ssdb0 with link_edges
+
+
+
+##过滤节点
+tt1 = loc edge by S
+tt2 = loc edge by O 
+rename tt2 as ('O':'S')
+tt = union tt1,tt2
+node = join tt,node by S,id with left
+node = @udf node by udf0.df_fillna with ''
+##  计算节点关系数量
+num1 = group edge by S agg S:count
+num1 = loc num1 by index to id
+num2 = group edge by O agg O:count
+num2 = loc num2 by index to id
+node = join node,num1 by id,id with left
+node = join node,num2 by id,id with left
+node = @udf node by udf0.df_fillna with 0
+node = add num by (df["S_count"]+df["O_count"])
+##过滤节点
+node = add light by ('false')
+node.detail_type = lambda type by (x:x)
+node.detail_type = lambda detail_type by (x:x if x != '业务终端' else '终端')
+node.detail_type = lambda detail_type by (x:x if x != '管理终端' else '终端')
+node = add count by 10
+node = loc node by id,type,light,count,num,detail_type
+node = distinct node by id,type,light,count,num,detail_type
+################
+node_zh = filter node  by type =='应用账号'
+node_zh = order  node_zh  by num with desc limit 10
+node_zh = add top10 by ('true')
+node_zd2 = filter node  by type =='数据终端'
+node_zd2 = order  node_zd2  by num with desc limit 10
+node_zd2 = add top10 by ('true')
+node_zd3 = filter node  by type =='管理终端' or type == '业务终端'
+node_zd3 = order  node_zd3  by num with desc limit 10
+node_zd3 = add top10 by ('true')
+node_jk = filter node  by type =='接口'
+node_jk = order  node_jk  by num with desc limit 10
+node_jk = add top10 by ('true')
+node_yy = filter node  by type =='应用'
+node_yy = order  node_yy  by num with desc limit 10
+node_yy = add top10 by ('true')
+node_sjk= filter node  by type =='数据库'
+node_sjk = order  node_sjk  by num with desc limit 10
+node_sjk = add top10 by ('true')
+node_zs = union node_zh,node_zd1,node_zd2,node_zd3,node_jk,node_yy,node_sjk
+node_zs = loc node_zs by id ,type ,top10
+node_zs1 = join  node ,node_zs by [id,type],[id,type] with left 
+node_zs1.top10 = lambda top10 by (x:x if x == 'true' else 'false')
+node = loc node_zs1 by id,type,light,count,num,detail_type,top10
+node_type = group node by detail_type agg detail_type:count
+node_type = @udf node_type by udf0.df_reset_index
+node_type1 = filter node_type by detail_type=='终端'
+node_type1.detail_type = lambda detail_type by (x:x if x != '终端' else '业务终端')
+node_type.detail_type = lambda detail_type by (x:x if x != '终端' else '管理终端')
+node_type= union node_type,node_type1
+rename node_type as ('detail_type':'type')
+node = join node,node_type by type,type with left
+###################
+if edge.index.size == 0 with node = @udf udf0.new_df with id,type,light,count,num
+
+push node as nodes
+store node to ssdb by ssdb0 with link_nodes
+#node = load ssdb by ssdb0 with link_nodes
+
+"""
+
+
+###  清空展开的节点关系
+bb = @udf ZFile.rm_file with link/link_edge_open.pq
+bb = @udf ZFile.rm_file with link/link_node_open.pq
+
+
+
+
+clear @FID

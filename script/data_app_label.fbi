@@ -1,0 +1,25 @@
+#LastModifyDate:　2022-10-26T16:52:58.231364    Author:   gsp
+#LastModifyDate:　2022-10-26T11:36:39.942651    Author:   gsp
+#LastModifyDate:　2022-10-26T11:34:16.869540    Author:   gsp
+#LastModifyDate:　2022-10-26T11:24:06.229148    Author:   gsp
+use @FID
+
+sx = load db by mysql1 with select * from app_sx where id=@sx
+sx = loc sx by drop id,gmt_create,gmt_modified,creator,owner,a,b,c
+#ind = eval sx by index.size
+#if $ind ==0 with " sx=@udf sx by udf0.df_append with (,,,,,,,,,,,)"
+ynw=load ssdb by ssdb0 with data_app_ynw
+sx1 = filter ynw by ip =='@dstip'
+sx1 = @udf sx1 by udf0.df_zero_index
+sx = join sx,sx1 by index with right
+rename sx as ('sysname':'应用系统名称','usearea':'使用范围','yz':'业主单位','yz_zrr':'责任人','jsh':'建设单位','jsh_zrr':'责任人','sysdp':'系统开发商','sysdp_zrr':'责任人','sysyw':'系统运维服务商','sysyw_zrr':'责任人','db':'等保等级','safearea':'安全域','net1':'一类网用途','net2':'二类网用途','net3':'三类网用途')
+sx = loc sx by drop ip
+sx = @udf sx by udf0.df_fillna
+push sx as table
+
+
+
+
+clear @FID
+
+

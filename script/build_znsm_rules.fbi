@@ -1,0 +1,62 @@
+#LastModifyDate:　2022-09-02T02:47:26.705050    Author:   superFBI
+#LastModifyDate:　2022-09-02T00:37:32.927152    Author:   superFBI
+use @FID
+#### 获取所有规则
+df_rules = @udf CRUD.load_s3_sql with rules.db, select * from a1 union all select * from c1 union all select * from f1 union all select * from m1 union all select * from n1 
+df_rules_mining = @udf CRUD.load_s3_sql with rules.db, select * from mining_info
+# 矿池正则RUL
+df_rules_mining1 = filter df_rules_mining by classtype=="矿池正则RUL"
+df_rules_mining1 = add option by ('pcre:"'+df_rules_mining1['option']+'"; metadata:created_at '+df_rules_mining1['created']+', updated_at '+df_rules_mining1['modified']+';')
+df_rules_mining1 = loc df_rules_mining1 by drop created,modified
+# 矿池URL
+df_rules_mining2 = filter df_rules_mining by classtype=="矿池URL"
+df_rules_mining2 = add option by ('content:"'+df_rules_mining2['option']+'"; metadata:created_at '+df_rules_mining2['created']+', updated_at '+df_rules_mining2['modified']+';')
+df_rules_mining2 = loc df_rules_mining2 by drop created,modified
+
+df_rules = union df_rules,df_rules_mining1
+df_rules = union df_rules,df_rules_mining2
+df_rules = @udf df_rules by udf0.df_fillna with ()
+
+#### 更新规则类型 /opt/znsm/conf/cfg/classification.config
+df_classtype = group df_rules by classtype agg classtype:count
+df_classtype = loc df_classtype by index to classtype
+df_classtype = @udf df_classtype by udf0.df_fillna with ()
+df_classtype = filter df_classtype by classtype!=''
+#清空文件
+xx1 = @udf ZNSM_dyllan.clear_file with /opt/znsm/conf/cfg/classification.config
+#重新写入
+xx2 = @udf df_classtype by ZNSM_dyllan.build_classType_file_v1 with /opt/znsm/conf/cfg/classification.config
+
+#### 更新规则 /opt/znsm/rules/znsm.rules
+# 修改classtype列
+df_rules = @udf df_rules by ZNSM_dyllan.change_column_to_md5 with classtype
+df_rules.classtype = lambda classtype by (x:"zhcs"+x)
+
+#清空文件
+xx3 = @udf ZNSM_dyllan.clear_file with /opt/znsm/rules/znsm.rules
+#重新写入
+xx4 = @udf df_rules by ZNSM.build_rules_file_v1 with /opt/znsm/rules/znsm.rules
+
+#### 矿池IP /opt/znsm/iprep/mining_ip.csv
+df_rules_mining3 = filter df_rules_mining by classtype=="矿池IP"
+df_rules_mining3.option = lambda option by (x:str(x)+",2,80")
+xx = @udf ZNSM_dyllan.clear_file with /opt/znsm/iprep/mining_ip.csv
+xx = @udf df_rules_mining3 by ZNSM_dyllan.build_column_to_file with /opt/znsm/iprep/mining_ip.csv,option
+
+#### 矿池域名 列表 /opt/znsm/rules/mining_domain.list
+df_rules_mining4 = filter df_rules_mining by classtype=="矿池域名"
+df_rules_mining4 = @udf df_rules_mining4 by ZNSM_dyllan.change_column_to_md5 with option
+xx = @udf ZNSM_dyllan.clear_file with /opt/znsm/rules/mining_domain.list
+xx = @udf df_rules_mining4 by ZNSM_dyllan.build_column_to_file with /opt/znsm/rules/mining_domain.list,option
+
+#### 挖矿文件 列表 /opt/znsm/rules/md5_minerd.list
+df_rules_mining5 = filter df_rules_mining by classtype=="挖矿文件"
+xx = @udf ZNSM_dyllan.clear_file with /opt/znsm/rules/md5_minerd.list
+xx = @udf df_rules_mining5 by ZNSM_dyllan.build_column_to_file with /opt/znsm/rules/md5_minerd.list,option
+
+
+#### 启动ZNSM
+c = @udf FBI.local_cmd with /opt/znsm/bin/reload_rule_live.sh
+
+assert c by df.index.size >=1 as notice  to 更新规则,重启成功！ with 更新规则,重启失败！
+clear @FID

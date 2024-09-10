@@ -1,0 +1,20 @@
+#FEA脚本文件
+#文件名: pot_xtpz/保存.fea
+#作者: admin
+use @FID
+define retry_count as @sbcs
+define failed_session as @sbsj
+
+df1 = load ssdb by ssdb0 with dd:pot_xtpz_bc
+df1=add sbcs by ("@sbcs")
+df1=add sbsj by ("@sbsj")
+#df1=add pz by ("@pz")
+#df1=add yjfwq by ("@yjfwq")
+#df1=add dk by ("@dk")
+#df1=add yhm by ("@yhm")
+#df1=add mm by ("@mm")
+#df1=add dz by ("@dz")
+
+store df1 to ssdb by ssdb0 with dd:pot_xtpz_bc
+assert find_df_have_data('df1',ptree) as altert to 修改成功！ with 修改失败！
+clear @FID

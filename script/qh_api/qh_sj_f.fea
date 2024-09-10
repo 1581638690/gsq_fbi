@@ -1,0 +1,14 @@
+#LastModifyDate:　2022-04-12T14:16:03.943342
+#FBI脚本文件
+#文件名: qh_api/qh_sj_f.fea
+#作者: qiaohan
+use qh_sj_t
+
+a = load ssdb by ssdb0 with @data_key
+alter a.id as int
+a = add api_status by ('0')
+a = @udf a by udf0.df_set_index with id
+b = @udf a by CRUD.save_table with (@link,@table)
+push b as table
+
+clear qh_sj_t

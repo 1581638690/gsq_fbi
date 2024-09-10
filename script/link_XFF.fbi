@@ -1,0 +1,286 @@
+#LastModifyDate:　2024-01-24T17:47:35    Author:   zwl
+#LastModifyDate:　2023-12-07T18:15:11.704763    Author:   zwl
+#LastModifyDate:　2023-11-28T17:02:38.122128    Author:   zwl
+#LastModifyDate:　2023-11-18T11:07:54.502805    Author:   zwl
+#LastModifyDate:　2023-11-17T14:05:22.610337    Author:   zwl
+#LastModifyDate:　2023-11-16T15:31:40.259642    Author:   zwl
+#LastModifyDate:　2023-11-15T18:04:51.534530    Author:   zwl
+#LastModifyDate:　2023-11-14T18:52:41.764675    Author:   zwl
+#FBI脚本文件
+#文件名: link_XFF.fbi
+#作者: zwl
+
+use @FID
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with link_xff
+##判断key是否为空，若为空，
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load db by mysql1 with select min(gmt_create) as time from ip_datalink
+#aa = load db by mysql1 with select * from ip_datalink limit 1
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load db by mysql1 with select max(gmt_create) as time from ip_datalink
+time2 = eval aa by iloc[0,0]
+
+#####数据库未连接 或 无数据
+ccc = load db by mysql1 with select app from ip_datalink where gmt_create >= '$time1' and gmt_create < '$time2' limit 1
+assert find_df_have_data('ccc',ptree) as exit with 数据库未连接 或 无数据更新！
+
+store aa to ssdb by ssdb0 with link_xff
+
+############  应用账户  -- 》 Xff-ip  -----------------------------------------------------------------------------------------------------------------
+ff1 = load db by mysql1 with select distinct account as S,ip as O from ip_datalink where account != '' and ip != '127.0.0.1' and gmt_create >= '$time1' and gmt_create < '$time2'
+ff1 = add P by ("acc_xff")
+###节点信息  应用账户 、 Xff-ip 
+type1 = loc ff1 by S 
+type1 = add type by ('应用账号')
+type2 = loc ff1 by O
+rename type2 as ('O':'S')
+type2 = add type by ('XFF')
+
+
+############  终端代理链路 拆分  -----------------------------------------------------------------------------------------------------------------
+link = load db by mysql1 with select distinct ip,ip_link,agent_ip from ip_datalink where gmt_create >= '$time1' and gmt_create < '$time2'
+link.ip_link = str ip_link by (replace("'",""))
+link.ip_link = lambda ip_link by (x:x[1:-1])
+link.ip_link = lambda ip_link by (x:x.split(", "))
+#link.last_ip = lambda ip_link by x: x[-1] if isinstance(x,list) else x
+link = @udf link by udf0.df_l2cs with ip_link
+link = @udf link by udf0.df_reset_index
+link = @udf link by udf0.df_fillna with ''
+link = loc link drop ip_link,index
+###  xff - 代理
+nn = loc link by ip,n100
+rename nn as ('ip':'S','n100':'O')
+type_xff = loc nn by S
+type_xff = add type by ('XFF')
+####### 取 前5层 
+link = loc link by n100,n101,n102,n103,n104,agent_ip
+rename link as ('n100':'t1','n101':'t2','n102':'t3','n103':'t4','n104':'t5')
+link = @udf link by udf0.df_row_lambda with (x: x[5] if x[1] == '' else x[1])
+link = loc link drop t2
+rename link as ('lambda1':'t2')
+link = loc link by t1,t2,t3,t4,t5,agent_ip
+link = @udf link by udf0.df_row_lambda with (x: x[5] if x[2] == '' else x[2])
+link = loc link drop t3
+rename link as ('lambda1':'t3')
+link = loc link by t1,t2,t3,t4,t5,agent_ip
+link = @udf link by udf0.df_row_lambda with (x: x[5] if x[3] == '' else x[3])
+link = loc link drop t4
+rename link as ('lambda1':'t4')
+link = loc link by t1,t2,t3,t4,t5,agent_ip
+link = @udf link by udf0.df_row_lambda with (x: x[5] if x[4] == '' else x[4])
+link = loc link drop t5
+rename link as ('lambda1':'t5')
+link = loc link by t1,t2,t3,t4,t5,agent_ip
+nn1 = loc link by t1,t2
+nn1 = distinct nn1 by t1,t2
+rename nn1 as ('t1':'S','t2':'O')
+nn2 = loc link by t2,t3
+nn2 = distinct nn2 by t2,t3
+rename nn2 as ('t2':'S','t3':'O')
+nn3 = loc link by t3,t4
+nn3 = distinct nn3 by t3,t4
+rename nn3 as ('t3':'S','t4':'O')
+nn4 = loc link by t4,t5
+nn4 = distinct nn4 by t4,t5
+rename nn4 as ('t4':'S','t5':'O')
+####### 取 前8层 
+ff2 = union nn1,nn2,nn3,nn4,nn5
+ff2 = distinct ff2 by S,O
+ff2 = loc ff2 by S,O
+##  判断 S与 O是否相同
+ff2 = union ff2,nn
+ff2 = @udf ff2 by udf0.df_row_lambda with (x: 0 if x[0] != x[1] else 1)
+ff2 = filter ff2 by lambda1 == 0
+ff2 = add P by ("link_xff")
+ff2 = filter ff2 by S != '127.0.0.1'
+ff2 = filter ff2 by O != '127.0.0.1'
+ff2 = loc ff2 by S,O,P
+###节点信息  代理
+type3 = loc ff2 by S 
+type3 = add type by ('代理')
+type4 = loc ff2 by O
+rename type4 as ('O':'S')
+type4 = add type by ('代理')
+
+############  代理  -- 》 真实终端 -------------------------------------------------------------------------------------------------
+nn8 = loc link by t5,agent_ip
+ff3 = distinct nn8 by t5,agent_ip
+ff3 = filter ff3 by t5 != '' and agent_ip != ''
+rename ff3 as ('t5':'S','agent_ip':'O')
+ff3 = @udf ff3 by udf0.df_row_lambda with (x: 0 if x[0] != x[1] else 1)
+ff3 = filter ff3 by lambda1 == 0
+ff3 = add P by ("xff_ip")
+ff3 = filter ff3 by S != '127.0.0.1'
+ff3 = filter ff3 by O != '127.0.0.1'
+ff3 = loc ff3 by S,O,P
+###节点信息  代理
+type5 = loc ff3 by S 
+type5 = add type by ('代理')
+type6 = loc ff3 by O
+rename type6 as ('O':'S')
+type6 = add type by ('终端')
+
+#############  真实终端  -- 》 应用 -------------------------------------------------------------------------------------------------
+tt = load db by mysql1 with select distinct agent_ip,app,url from ip_datalink where gmt_create >= '$time1' and gmt_create < '$time2'
+api = load db by mysql1 with select distinct url,data_type,api_type from data_api_new where data_type in ('XML','JSON','数据文件')
+###数据接口
+ff = join tt,api by url,url with left
+#ff = filter ff by data_type != ''
+ff = @udf ff by udf0.df_fillna with ''
+ff = @udf ff by udf0.df_fillna with 0
+#ff4 = filter ff by data_type == ''
+ff4 = loc ff by agent_ip,app
+rename ff4 as ('agent_ip':'S','app':'O')
+ff4 = @udf ff4 by udf0.df_row_lambda with (x: 0 if x[0] != x[1] else 1)
+ff4 = filter ff4 by lambda1 == 0
+ff4 = add P by ("link_x_http")
+ff4 = loc ff4 by S,O,P
+ff4 = distinct ff4 by S,O,P
+ff4 = filter ff4 by S != '127.0.0.1'
+ff4 = filter ff4 by O != '127.0.0.1'
+###节点信息  代理
+type7 = loc ff4 by S 
+type7 = add type by ('终端')
+type8 = loc ff4 by O
+rename type8 as ('O':'S')
+type8 = add type by ('应用')
+
+#############  应用  -- 》 接口 -------------------------------------------------------------------------------------------------
+api_type = load ssdb by ssdb0 with dd:API-api_type
+alter ff.api_type as str
+ff = @udf ff,api_type by SP.tag2dict with api_type
+app = loc ff by app
+app = distinct app by app
+ff5 = @udf udf0.new_df
+foreach app run """
+	tt = filter ff by app == '@app'
+	tt = @udf tt by udf0.df_reset_index
+	tt = add url_name by (df["app"]+"-"+df["api_type"]+"接口")
+	tt = loc tt by url,app,url_name
+	ff5 = union ff5,tt
+""" with (app = $1)
+###接口名称
+aa1 = load pq by link/xff_url_name.pq
+a1 = loc ff5 by url,url_name
+a1 = union a1,aa1
+a1 = distinct a1 by url,url_name
+store a1 to pq by link/xff_url_name.pq
+link_url = loc a1 by url,url_name
+###接口名称
+ff5 = loc ff5 by app,url_name
+ff5 = distinct ff5 by app,url_name
+rename ff5 as ('app':'S','url_name':'O')
+ff5 = add P by ("app_url")
+ff5 = loc ff5 by S,O,P
+ff5 = filter ff5 by S != '127.0.0.1'
+###节点信息  代理
+type9 = loc ff5 by S 
+type9 = add type by ('应用')
+type10 = loc ff5 by O
+rename type10 as ('O':'S')
+type10 = add type by ('接口')
+
+##############  真实终端  -- 》 接口 -------------------------------------------------------------------------------------------------
+#ff6 = load db by mysql1 with select distinct agent_ip,url from ip_datalink where gmt_create >= '$time1' and gmt_create < '$time2'
+#ff6 = join ff6,link_url by url,url with left
+#ff6 = loc ff6 by agent_ip,url_name 
+#ff6 = distinct ff6 by agent_ip,url_name 
+#ff6 = @udf ff6 by udf0.df_fillna with ''
+#ff6 = filter ff6 by url_name != ''
+#rename ff6 as ('agent_ip':'S','url_name':'O')
+#ff6 = add P by ('link_x_http1')
+#ff6 = filter ff6 by S != '127.0.0.1'
+####节点信息  代理
+#type11 = loc ff6 by S 
+#type11 = add type by ('终端')
+#type12 = loc ff6 by O
+#rename type12 as ('O':'S')
+#type12 = add type by ('接口')
+
+
+###图谱关系数据=======================图谱关系数据=======================图谱关系数据=======================图谱关系数据=======================图谱关系数据=======
+ff = union ff1,ff2,ff3,ff4,ff5
+ff = distinct ff by S,O,P
+ff.P = lambda P by (x:x+',')
+ff = group ff by S,O agg P:sum
+ff = @udf ff by udf0.df_reset_index
+ff.P = lambda P_sum by (x:x[:-1])
+#dd = group ff by P agg P:count
+ff.P = str P by (replace('link_xff,xff_ip','xff_ip'))
+ff.P = str P by (replace('xff_ip,link_xff','xff_ip'))
+ff = loc ff by S,O,P
+data = load ckh by ckh with select distinct S,O,P from link_xff
+data = add aa by 1
+ff = join ff,data by [S,O,P],[S,O,P] with left
+ff = @udf ff by udf0.df_fillna with 0
+alter ff.aa as int
+ff = filter ff by aa == 0
+ff = distinct ff by S,O,P
+ff = @udf ff by udf0.df_reset_index
+ff = loc ff by S,O,P
+
+
+## 新数据入图谱(计算数据写入次数)
+new_count = eval ff by index.size
+add_count = @sdf sys_eval with (int($new_count/5000) + 2)
+
+new_pd = @udf udf0.new_df
+new_pd = add num by (range(1,$add_count))
+
+foreach new_pd run """
+	add1 = filter ff by index >= 5000 * (@num -1) and index < 5000 * @num
+	ret = @udf add1 by GL.add_http_mkd
+	ret_pd = @sdf sys_lambda with ($ret,x: 'Successfully' in x )
+	#if $ret_pd == True with store add1 to ckh by ckh with link_xff
+""" with (num = $1)
+
+data = loc ff by S,O,P
+store data to ckh by ckh with link_xff
+
+
+####  图谱节点数据  =======================图谱节点数据=======================图谱节点数据=======================图谱节点数据=======================图谱节点数据=======
+type_1 = union type1,type2,type3,type4,type5,type6,type7,type8,type9,type10,type_xff
+rename type_1 as ('S':'id')
+type = load pq by link/ip_type.pq
+type = union type_1,type
+type = distinct type by id,type
+###########  终端、代理  判断
+tt = loc type by id,type
+tt = distinct tt by id,type
+alter tt.type as str
+tt.type = lambda type by (x:x+',')
+tt = group tt by id agg type:sum
+tt = @udf tt by udf0.df_reset_index
+tt.type = lambda type_sum by (x:x[:-1])
+tt.type = str type by (replace('XFF,代理','代理'))
+tt.type = str type by (replace('代理,XFF','代理'))
+tt.type = str type by (replace('终端,代理','终端'))
+tt.type = str type by (replace('代理,终端','终端'))
+tt = loc tt by id,type
+###########  终端、代理  判断
+#ss = group tt by type agg type:count
+############  终端、应用  判断
+app = load db by mysql1 with select distinct app from data_app_new 
+tt1 = filter tt by type == '终端,应用' or type == '应用,终端'
+tt1 = join tt1,app by id,app with left
+tt1 = @udf tt1 by udf0.df_fillna with ''
+tt2 = filter tt1 by app == ''
+tt2 = loc tt2 by id
+tt2 = add type by ('终端')
+tt1 = filter tt1 by app != ''
+tt1 = loc tt1 by id
+tt1 = add type by ('应用')
+tt3 = filter tt by type != '终端,应用' and type != '应用,终端' 
+tt = union tt1,tt2,tt3
+#############  终端、应用  判断
+node = loc tt by id,type
+node = distinct node by id,type
+store node to pq by link/ip_type.pq 
+
+
+
+
+clear @FID

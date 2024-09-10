@@ -1,0 +1,228 @@
+{"user":"x_finder3","timestamp":"2024-08-27T16:27:57.645997","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-27T16:27:57.647069","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-27T16:27:57.648477","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-27T16:27:57.648663","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-27T16:27:57.648806","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.527814","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.539229","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.549495","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.559698","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.569897","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.580081","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.590272","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.600465","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.623041","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.637699","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.657691","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.677687","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.691724","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.701936","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.712171","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.722389","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.732588","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.742771","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.752960","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.763181","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.773416","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.783617","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.793807","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.804042","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.814276","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.824505","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.834741","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.844975","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.855214","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.865470","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.875714","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.885934","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.896165","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.906418","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.916655","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.926854","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.937067","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.947307","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.957520","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.967733","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.977938","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:00.988127","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.007645","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.027684","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.047642","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.057835","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.068021","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.078207","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.088412","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.107666","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.127656","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.147654","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.167650","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.177885","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.188107","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.198345","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.208570","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.218803","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.229039","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.257750","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.273297","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.283501","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.303449","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.317650","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.327850","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.347674","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.357956","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.374225","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.384480","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.407673","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.417898","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.428090","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.438282","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.448477","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.458691","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.477765","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.487999","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.498225","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.508466","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.518672","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.538267","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.557665","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.575475","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.585708","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.597694","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.607915","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.618099","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.628304","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.638516","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.648698","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:01.658879","nav_name":"api_main_json2","action":"发送消息失败","params":"Unix_udp \/tmp\/api_object","operate_result":"错误","failed_reason":"[Errno 111] Connection refused"}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:02.855889","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:02.861907","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:02.862301","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:02.863472","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:02.863646","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-29T14:31:02.863797","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:04.372229","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:04.388425","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:04.388863","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:04.390243","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:04.390437","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:13:04.390594","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:53.646241","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:53.674141","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:53.675212","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:53.677574","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:53.677865","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:14:53.678127","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:38.592150","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:38.597851","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:38.598213","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:38.599417","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:38.599590","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:16:38.599742","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:38.544337","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:38.550908","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:38.551314","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:38.552711","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:38.552907","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:17:38.553090","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:19.569279","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:19.575736","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:19.576123","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:19.577498","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:19.577717","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:19.577905","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:59.267312","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:59.273974","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:59.274369","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:59.275707","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:59.275907","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:21:59.276061","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:44.433650","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:44.440215","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:44.440623","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:44.442062","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:44.442285","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:25:44.442465","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:34.741221","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:34.753338","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:34.753685","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:34.754777","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:34.754969","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:26:34.755129","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:34.752258","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:34.757986","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:34.758346","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:34.759311","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:34.759475","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:34:34.759647","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:11.945953","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:11.952745","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:11.953130","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:11.954310","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:11.954495","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:37:11.954650","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:39.497540","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:39.503738","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:39.504090","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:39.505296","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:39.505481","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:45:39.505643","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:55.003813","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:55.009864","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:55.010221","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:55.011389","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:55.011565","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T10:59:55.011709","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:59.518488","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:59.525462","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:59.525861","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:59.527132","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:59.527324","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:12:59.527483","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:04.284467","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:04.292745","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:04.293127","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:04.294375","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:04.294551","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:17:04.294701","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:16.774811","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:16.780397","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:16.780774","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:16.781928","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:16.782110","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T11:19:16.782255","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:25.897319","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:25.903185","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:25.903591","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:25.904579","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:25.904743","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:02:25.904915","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:07.970688","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:08.013709","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:08.014106","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:08.015143","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:08.015303","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:06:08.015480","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:27.018396","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:27.027816","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:27.028205","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:27.029204","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:27.029355","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:15:27.029501","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:30.884722","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:30.890560","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:30.890939","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:30.892563","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:30.892888","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:28:30.893063","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:03.782826","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:03.789500","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:03.789935","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:03.791473","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:03.791670","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T15:41:03.791832","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:08.984048","nav_name":"api_main_json2","action":"启动参数","params":"unix_udp: \/tmp\/main_json,","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:08.990051","nav_name":"api_main_json2","action":"组件启动","params":"开始验证授权....","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:08.990438","nav_name":"api_main_json2","action":"组件启动","params":"授权验证完成!","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:08.991376","nav_name":"api_main_json2","action":"组件启动","params":"数据窗口函数-0, 定时任务函数-2","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:08.991553","nav_name":"api_main_json2","action":"事件主循环","params":"Unix_UDP 建立中","operate_result":"信息","failed_reason":""}
+{"user":"x_finder3","timestamp":"2024-08-30T16:11:08.991710","nav_name":"api_main_json2","action":"启动完成","params":"Unix_UDP 准备完毕,开始接收消息!","operate_result":"信息","failed_reason":""}

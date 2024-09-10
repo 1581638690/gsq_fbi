@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <title>FEA-交互分析引擎</title>
+        <meta http-equiv="Content-Type" content="text/html;">
+    <!--
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>    
+    -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/jquery-ui-custom.css" />
+    <script type="text/javascript" src="/static/js/jquery-1.4.2.min.js"></script> 
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.1.custom.min.js"></script> 
+ 
+    
+    <script type="text/javascript">
+		
+      $(document).ready(function() {
+		
+		var ws=null;
+		var ip_addr = document.location.hostname;
+		
+		//var url = "ws://"+ip_addr+":8998/m:host_info";
+		var url = "ws://"+ip_addr+":8998/h:info";
+		if (ws !=null && ws.url !=url){
+			ws.close();
+			ws =null;
+		}
+		
+		if (ws==null){
+			ws = new WebSocket(url);
+			
+			ws.onopen = function() {
+				ws.send("Hello, world");
+			};
+			ws.onmessage = function (evt) {
+				//console.log(evt.data);
+				$("#log_buf").append(evt.data);
+				$("#log_buf").append("<br>");
+			};
+			ws.onclose = function(){
+				//alert("Connection is closed");
+				ws=null;
+			};
+			ws.error = function()
+			{
+				//alert("Error Happended");
+				ws.close();
+				ws=null;
+			};
+ 
+		}//end if
+        
+      });
+    </script>
+    <style>
+		#hhr {
+			margin:10px;
+			width:95%;
+			color:green;
+			border:1px solid;
+			border-radius:10px;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+		}
+		#upcsv,#upudf,#upfea {
+			margin : 5px 50px 15px 5px;
+			width: 150px;
+			float: left;
+			
+		}
+		#csvs,#feas{
+			margin : 10px 50px 10px 5px;
+			width: 400px;
+			height: 500px;
+			color:green;
+			border:1px solid;
+			border-radius:10px;
+			OVERFLOW-y:auto;
+			scrollbar-face-color:#F00;
+			scrollbar-track-color:#FFF;
+			scrollbar-arrow-color:#FFF;
+			float: left;
+		}
+		.t{
+			margin : 0px;
+		}
+		li{
+			margin : 5px;
+			list-style-type:none;
+		}
+    </style>
+  </head>
+  <body>
+	<div id="log_buf"></div>
+	
+</body> 
+</html>
+
+

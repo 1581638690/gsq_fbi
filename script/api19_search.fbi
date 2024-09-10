@@ -1,0 +1,42 @@
+#LastModifyDate:　2022-12-09T14:26:26.289982    Author:   zwl
+#LastModifyDate:　2022-11-14T15:44:47.696836    Author:   zwl
+#LastModifyDate:　2022-11-14T15:37:01.301952    Author:   zwl
+use @FID
+
+#api19_risk = load db by mysql1 with select id,api,app,dest_ip,dest_port,method,last_time,state,type from api19_risk
+api19_risk = load db by mysql1 with select id,api,app,dest_ip,dest_port,method,last_time,state,type from api19_risk
+api19_risk = filter api19_risk by api like @api
+
+#type = eval api19_risk by iloc[0,8]
+api = load db by mysql1 with select type1,weakness,possibility,influence,advise from api19_type where type1 = '@type'
+
+
+####自定义容器   (文本标签    弱点描述,漏洞被利用可能性,漏洞被利用后影响,整改建议)
+aa = loc api by type1,weakness,possibility,influence,advise
+push aa as aa_data
+
+##布局容器
+layout = @udf udf0.new_df with (key)
+layout = @udf layout by udf0.df_append with ('aa_data')
+push layout as bj_layout_data
+
+##表格
+api19_risk_type = load ssdb by ssdb0 with dd:api19_risk_type
+api19_risk_type = loc api19_risk_type by index to type
+api19_risk = join api19_risk,api19_risk_type by type,type
+api19_risk = filter api19_risk by value == '@type'
+#api19_risk = filter api19_risk by type == '$type'
+api19_risk = loc api19_risk by id,api,app,dest_ip,dest_port,method,last_time,state
+api19_risk_count = eval api19_risk by index.size
+acount = @udf udf0.new_df with count
+acount = @udf acount by udf0.df_append with ($api19_risk_count)
+rename api19_risk as ('id':'_id','api':'接口','app':'应用','dest_ip':'部署IP','dest_port':'部署端口','method':'请求类型','last_time':'最新监测时间','state':'弱点状态','value':'弱点类型')
+##表格
+push api19_risk as api19_risk
+##总数
+push acount as api19_risk_count
+
+
+
+
+clear @FID

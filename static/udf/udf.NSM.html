@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module udf.NSM</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title"><a href="udf.html" class="white">udf</a>.NSM</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/opt/openfbi/fbi-bin/udf/NSM.py">/opt/openfbi/fbi-bin/udf/NSM.py</a></td></tr></table>
+    <p><span class="code">#coding:utf-8</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="datetime.html">datetime</a><br>
+<a href="lxml.etree.html">lxml.etree</a><br>
+<a href="json.html">json</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td class="multicolumn"><a href="os.html">os</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="re.html">re</a><br>
+<a href="requests.html">requests</a><br>
+</td><td class="multicolumn"><a href="shutil.html">shutil</a><br>
+<a href="socket.html">socket</a><br>
+<a href="struct.html">struct</a><br>
+<a href="sys.html">sys</a><br>
+</td><td class="multicolumn"><a href="tarfile.html">tarfile</a><br>
+<a href="time.html">time</a><br>
+<a href="traceback.html">traceback</a><br>
+<a href="urllib.html">urllib</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-classification_report"><strong>classification_report</strong></a>(dfx, dfy, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161219<br>
+@函数：classification_report,<br>
+@参数：<br>
+@描述：执行命令<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-collection_files"><strong>collection_files</strong></a>(mainfolder)</dt></dl>
+ <dl><dt><a name="-collection_files2"><strong>collection_files2</strong></a>(mainfolder)</dt></dl>
+ <dl><dt><a name="-collection_files3"><strong>collection_files3</strong></a>(mainfolder)</dt></dl>
+ <dl><dt><a name="-convert_df"><strong>convert_df</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161216<br>
+@函数：exe_cmd,<br>
+@参数：<br>
+@描述:执行命令<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-copyFiles"><strong>copyFiles</strong></a>(sourceDir, targetDir)</dt><dd><span class="code">#拷贝文件</span></dd></dl>
+ <dl><dt><a name="-dateRange"><strong>dateRange</strong></a>(start_date, end_date, current_date)</dt></dl>
+ <dl><dt><a name="-deal_data"><strong>deal_data</strong></a>(ip, info)</dt></dl>
+ <dl><dt><a name="-domain2ip"><strong>domain2ip</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161024<br>
+@函数：domain2ip,<br>
+@描述：将域名信息转换为ip<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-download_tgz"><strong>download_tgz</strong></a>(url, mainfolder, filename)</dt><dd><span class="code">#下载并解压tgz文件到本地目录的watcherlab文件夹中,并删除tgz文件</span></dd></dl>
+ <dl><dt><a name="-exchange_maskint"><strong>exchange_maskint</strong></a>(mask_int)</dt><dd><span class="code">##################################################################geoip############################################<br>
+#将数字转换为掩码格式</span></dd></dl>
+ <dl><dt><a name="-exe_os_cmd"><strong>exe_os_cmd</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161125<br>
+@函数：exe_cmd,<br>
+@参数：<br>
+@描述：执行命令<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-geolite_iplist"><strong>geolite_iplist</strong></a>(df, ip_col)</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161020<br>
+@函数：sina_ip_list,<br>
+@参数：<br>
+@描述：根据geolite文件获取对应ip的地理位置信息<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-getIP"><strong>getIP</strong></a>(df, columnName)</dt><dd><span class="code">@date&nbsp;:&nbsp;2018/01/03<br>
+@author&nbsp;:&nbsp;zqh<br>
+@函数&nbsp;:&nbsp;getIP<br>
+@描述&nbsp;:&nbsp;通过url获取网址得域名<br>
+@返回&nbsp;:&nbsp;df&nbsp;domain&nbsp;:&nbsp;域名<br>
+@示例：df1=@udf&nbsp;df&nbsp;by&nbsp;NSM.getIP&nbsp;with&nbsp;(columnName)</span></dd></dl>
+ <dl><dt><a name="-getOrgByDomain"><strong>getOrgByDomain</strong></a>(df, columnName)</dt><dd><span class="code">@author&nbsp;:&nbsp;zqh<br>
+@date&nbsp;&nbsp;&nbsp;:&nbsp;2018/03/06<br>
+@func&nbsp;&nbsp;&nbsp;:&nbsp;getOrgByDomain<br>
+@des&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;通过域名获取机构名称<br>
+@param&nbsp;&nbsp;:&nbsp;df,&nbsp;columnName&nbsp;:&nbsp;域名列<br>
+@示例：&nbsp;&nbsp;df1=@udf&nbsp;df&nbsp;by&nbsp;NSM.getOrgByDomain&nbsp;with&nbsp;(columnName)</span></dd></dl>
+ <dl><dt><a name="-get_province"><strong>get_province</strong></a>(df, p='')</dt></dl>
+ <dl><dt><a name="-get_watcherlab"><strong>get_watcherlab</strong></a>(p='')</dt></dl>
+ <dl><dt><a name="-http_load"><strong>http_load</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;gjw<br>
+@date:&nbsp;20160706<br>
+@函数：http_load,从http资源中下载文件<br>
+@参数：url,下载资源的url<br>
+@描述：http资源中下载文件<br>
+@返回：df表,文件名<br>
+@示例：df1=@udf&nbsp;NSM.http_load&nbsp;with&nbsp;(url)</span></dd></dl>
+ <dl><dt><a name="-ip2domain"><strong>ip2domain</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161024<br>
+@函数：ip2domain,<br>
+@参数：<br>
+@描述：<br>
+将ip信息转换为域名<br>
+@返回：<br>
+df表</span></dd></dl>
+ <dl><dt><a name="-ip_city"><strong>ip_city</strong></a>(df, ip_list, p='')</dt><dd><span class="code">@函数：ip_city<br>
+@参数："df,ip_list"(df为包含有ip列的表，ip格式为“123.456.789.000”,ip_list为装载的ip区段列表，现在有一份山东的在文件列表里面，名字是“ip_address.csv”)<br>
+@返回：joined&nbsp;DateFrame,即在df表增加一列(列名city)<br>
+@示例：new_df&nbsp;=&nbsp;@udf&nbsp;df,ip_list&nbsp;by&nbsp;NSM.ip_city&nbsp;with&nbsp;(col_name1,col_name2)</span></dd></dl>
+ <dl><dt><a name="-ip_search"><strong>ip_search</strong></a>(df, ip_col)</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161022<br>
+@函数：ip_search,<br>
+@参数：<br>
+@描述：<br>
+根据ip2region.db文件获取对应ip的地理位置信息<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-scp_dir"><strong>scp_dir</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161105<br>
+@函数：scp_dir,<br>
+@参数：<br>
+@描述：通过ssh拷贝远程文件夹到本地<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-sina_by_ip"><strong>sina_by_ip</strong></a>(ip)</dt><dd><span class="code">#sina&nbsp;ip接口</span></dd></dl>
+ <dl><dt><a name="-ssh_scp"><strong>ssh_scp</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161105<br>
+@函数：scp_file,<br>
+@参数：<br>
+@描述：通过ssh拷贝远程文件到本地<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-taobao_ip_list"><strong>taobao_ip_list</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;wly<br>
+@date:&nbsp;20161018<br>
+@函数：taobao_ip_list,<br>
+@参数：<br>
+@描述：从淘宝接口中获取对应ip的地理位置信息<br>
+@返回：df表</span></dd></dl>
+ <dl><dt><a name="-taobaocity_by_ip"><strong>taobaocity_by_ip</strong></a>(ip)</dt></dl>
+ <dl><dt><a name="-who"><strong>who</strong></a>(df, p='')</dt><dd><span class="code">@author：&nbsp;jf<br>
+@date:&nbsp;20181101<br>
+@函数：who<br>
+@参数：df,p(域名所在的列名)<br>
+@描述：查看域名注册信息<br>
+@返回：df表<br>
+@示例:&nbsp;df1=@udf&nbsp;df&nbsp;by&nbsp;NSM.who&nbsp;with&nbsp;(@p)</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>ip_dict</strong> = {}<br>
+<strong>sina_ip_dict</strong> = {}</td></tr></table>
+</body></html>

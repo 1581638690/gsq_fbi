@@ -1,0 +1,11 @@
+#LastModifyDate:　2024-04-07T16:58:31    Author:   pjb
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 10
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 9
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 8
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 7
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 6
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 5
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 4
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 3
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 2
+a =  load db by mysql1 with select * from dbms_obj order by count desc limit 1

@@ -1,0 +1,19 @@
+#LastModifyDate:　2023-07-28T17:26:09.097771    Author:   superFBI
+#LastModifyDate:　2023-07-04T09:50:49.122148    Author:   qh
+#LastModifyDate:　2023-07-04T09:31:31.262859    Author:   qh
+#LastModifyDate:　2023-07-03T14:46:55.421873    Author:   superFBI
+#LastModifyDate:　2023-07-03T12:01:26.191439    Author:   superFBI
+#LastModifyDate:　2023-06-30T15:39:11.563902    Author:   superFBI
+#LastModifyDate:　2023-06-30T15:29:46.749779    Author:   superFBI
+s = load ssdb by ssdb0 with @data_key
+code = eval s by (iloc[0,0])
+type = eval s by iloc[0,1]
+entry = eval s by iloc[0,2]
+a = @udf udf0.new_df
+b = @udf a by cvs.cvs with $entry,$code,$type
+#b = @udf a by cvs.cvs with dGhpcyBpcyBhIGV4YW1wbGU=,base64解码,自动
+#b = @udf a by cvs.cvs with 6L+Z5piv5Liq5L6L5a2Q,base64解码,utf-8
+#b = @udf a by cvs.cvs with 1687154881,时间戳转时间,dd
+#b = @udf a by cvs.cvs with 1-1687154881.841981-0.63313,id转时间,dd
+#b = @udf a by cvs.cvs with 6L+Z5piv5Liq5L6L5a2Q,base64解码,utf-8
+push b as table

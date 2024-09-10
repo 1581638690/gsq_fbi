@@ -1,0 +1,14 @@
+use @FID
+a = load ssdb by ssdb0 with atemp
+df= @udf a by Rule.splitA with @val
+con=eval df by (get_value(0,'con'))
+level=eval df by (get_value(0,'level'))
+a= @udf a by Rule.sql with $con
+sql_df = @udf a by CRUD.get_sql with (event*)
+sql_str= eval sql_df by (iloc[0,0])
+nowq=load es by es7 with $sql_str
+nowq= add level by ('$level')
+base_df= load ssdb by ssdb0 with base_df
+base_df= union (base_df,nowq)
+store base_df to ssdb by ssdb0 with base_df
+clear@FID

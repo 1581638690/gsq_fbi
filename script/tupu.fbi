@@ -1,0 +1,15 @@
+#LastModifyDate:　2024-03-14T16:06:41    Author:   zwl
+
+###全链路数据图谱
+run link_tupu.fbi 
+
+###图谱节点信息
+run link_node.fbi
+
+###  终端 XFF  图谱
+run link_XFF.fbi
+
+###  终端 XFF  图谱 节点信息
+run link_xff_node.fbi
+
+

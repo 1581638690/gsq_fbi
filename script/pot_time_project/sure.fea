@@ -1,0 +1,37 @@
+#FBI脚本文件
+#文件名: pot_time_project/sure.fea
+#作者: admin
+
+use @FID
+
+a = load ssdb by ssdb0 with @data_key
+a.pd = lambda updata_time by (x:True if x!='' else False)
+
+
+
+df_new = loc a by ntp
+df_old = load ssdb by ssdb0 with key:pot_time_project_ntp
+store df_new to ssdb by ssdb0 with key:pot_time_project_ntp
+df = join df_new,df_old by index,index
+alter df.ntp_x.ntp_y as int
+df = add is_change by (df["ntp_x"]-df["ntp_y"])
+df.pd2 = lambda is_change by (x:True if x!=0 else False)
+pd2 = eval df by (get_value(0,'pd2'))
+
+# 变量NTP
+NTP =eval a by (get_value(0,'ntp'))
+# 判断
+pd = eval a by (get_value(0,'pd'))
+
+if_run = @sdf sys_if_run with ($NTP, """
+ if_run2 = @sdf sys_if_run with ($pd2, "cmd1 = @udf df0@sys by NSM.exe_os_cmd with (timedatectl set-ntp true)")
+""")
+
+unif_run = @sdf sys_unif_run with ($NTP,  """
+ 	if_run3 = @sdf sys_if_run with ($pd2, "cmd2= @udf df0@sys by NSM.exe_os_cmd with (timedatectl set-ntp false)")
+ 	a.updata_time = lambda updata_time by (x:'"' + x + '"')
+    updata_time = eval a by (get_value(0,'updata_time'))
+    is_pd_true = @sdf sys_if_run with ($pd,"cmd3= @udf df0@sys by NSM.exe_os_cmd with (date -s $updata_time)")
+""")
+assert not_have_error() as altert to 时间修改成功! with 修改失败!
+clear @FID

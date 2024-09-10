@@ -1,0 +1,11 @@
+#LastModifyDate:　2024-03-14T16:46:49    Author:   zwl
+#LastModifyDate:　2023-03-15T15:25:57.573968    Author:   zwl
+#LastModifyDate:　2023-02-09T14:48:12.155229    Author:   zwl
+use @FID
+
+b = load pq by dt_table/visit_account_@id.pq
+b = filter b by _id == @_id
+rename b as ("account":"账号","url":"接口","url_num":"接口访问数量","flow":"接口访问流量","app":"应用IP/域名","app_num":"应用访问数量","dstip":"目的IP","dstip_num":"服务器访问数量","srcip":"源IP","srcip_num":"终端访问数量")
+push b as look
+
+clear @FID

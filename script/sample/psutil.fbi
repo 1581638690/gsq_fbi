@@ -1,0 +1,75 @@
+#FBI脚本文件
+#文件名: psutil.fbi
+#作者: admin
+
+#系统启动时间
+a = @udf PS.sys_time
+
+#硬盘使用情况
+d = @udf PS.disk_usage
+d1 = @udf PS.disk_usage with /
+#空闲容量
+disk = eval d by iloc[0,3]
+assert $disk >10 as notice with 警告: 磁盘剩余容量不足10G
+
+#内存/dev/shm的监控
+d2 = @udf PS.disk_usage with /dev/shm
+shm = eval d2 by iloc[0,3]
+assert $shm >1 as notice with 警告: /dev/shm剩余容量不足1G
+
+#系统基本信息
+c = @udf PS.sys_baseinfo
+c = loc c by name to index
+c = @udf c by udf0.df_T
+store c to ssdb with sysinfo
+
+#系统状态
+s = @udf PS.sys_stats
+mem = eval s by iloc[3,1]
+assert $mem < 0.8 as notice with 警告: 内存使用超过80%
+
+cpu = eval s by iloc[0,1]
+assert $cpu < 95 as notice with 警告: CPU使用超过95%
+
+#网络链接信息
+n = @udf PS.net_conns
+
+#监听的服务
+l = @udf PS.net_listens
+
+#FBI引擎
+fbi = filter l by 本地端口>= 9000 and 本地端口<  9999
+assert fbi by df.index.size >=8 as notice with 警告: FBI引擎异常，小于最低数量8个
+
+#redis 引擎
+redis =  filter l by 本地端口==6379
+assert redis by df.index.size ==1 as notice with 警告: Redis服务异常，没有启动
+
+#ssdb 引擎
+ssdb =  filter l by 本地端口==8888
+assert ssdb by df.index.size ==1 as notice with 警告: SSDB服务异常，没有启动
+
+#只查看一个端口
+port = @udf PS.net_open_port with 9001
+
+#查看进程信息
+#p = @udf PS.proc_pid with 25487
+
+#打开的文件信息
+#pf = @udf PS.proc_files_pid with 25487
+
+#网络链接信息
+#pn = @udf PS.proc_conns_pid with 25487
+
+#线程数
+#pt = @udf PS.proc_threads_pid with 25487
+
+#lg = @udf PS.lg_m_pipeline with 10001
+
+#根据进程名获取进程信息,只能获取名称匹配的一个进程
+p = @udf PS.proc_name with json_out.py
+
+#根据进程名获取进程信息,可以得到所有匹配的进程信息
+p = @udf PS.pids_name with json_out.py
+
+

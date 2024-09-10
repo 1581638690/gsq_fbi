@@ -1,0 +1,7 @@
+#FBI删除面板id对应的目录，删除的目录是workSpace/temp_word/@id
+#@id 面板id的名称
+#例子run word_temp/delete_id.fbi with (id=fff)
+#删除目录
+use @FID
+@udf doc.dele_board with @id
+clear @FID

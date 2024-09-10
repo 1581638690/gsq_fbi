@@ -1,0 +1,59 @@
+#LastModifyDate:　2024-02-29T10:09:00    Author:   zwl
+#LastModifyDate:　2023-08-23T16:59:34.854346    Author:   zwl
+#LastModifyDate:　2023-07-26T11:31:50.994551    Author:   zwl
+#LastModifyDate:　2023-07-25T15:11:35.012010    Author:   zwl
+#LastModifyDate:　2023-07-21T11:50:32.752483    Author:   zwl
+#LastModifyDate:　2023-06-20T17:30:15.371119    Author:   zwl
+#LastModifyDate:　2023-06-08T14:54:26.293339    Author:   zwl
+#FBI脚本文件
+#文件名: dsaw_ overview.fbi
+#作者: liuhouqi
+
+###可视化   首页抬头--HTTP协议统计信息    
+run api_shouye.fbi
+
+###可视化   对象管理
+run lhq_visit_flow.fbi
+
+##主体统计  
+###可视化  对象管理->应用概览
+run lhq_app.fbi
+
+###可视化  对象管理->接口概览
+run lhq_api.fbi
+
+###可视化  对象管理->终端概览
+run lhq_ip.fbi
+
+###可视化  对象管理->账号概览
+run lhq_account.fbi
+
+
+###可视化  审计管理、协议审计    新增定时器 
+#run zts_Audit_overview.fbi
+
+###可视化   数据流动、敏感数据分布 10-31     --转移到定时器【敏感数据分布_动态表格】
+#run data_sensitive_portal.fbi
+
+###可视化  风险监控
+run lhq_risk_ov_type.fbi
+
+###可视化  风险监控->风险趋势   --转移到定时器【敏感数据分布_动态表格】
+#run lhq_risk_ov_time.fbi
+
+###可视化  风险监控->风险告警
+run lhq_risk_ov_today.fbi
+
+###可视化     风险监控 -> 弱点分析  树型容器脚本   ---3.14增加[动态表格]脚本    --转移到定时器【敏感数据分布_动态表格】
+#run api19_tree.fbi
+
+###可视化    态势感知（大屏展示）
+run qh_show.fbi
+
+## 大屏地图
+run api_view1.fbi
+
+
+
+
+

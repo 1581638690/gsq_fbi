@@ -1,0 +1,43 @@
+#LastModifyDate:　2023-06-19T16:34:05.349203    Author:   rzc
+#LastModifyDate:　2023-06-19T11:58:30.158455    Author:   rzc
+#LastModifyDate:　2023-06-19T11:27:14.957167    Author:   rzc
+#LastModifyDate:　2023-06-19T11:26:04.331207    Author:   rzc
+###导入ssdb开关进行判断###
+df=load ssdb by ssdb0 with protocol_data as json
+merge_off=jaas df by df["function"]["event"]["merge_off"] as sdf
+if $merge_off=="true" with """
+	apilist11 = load db by mysql1 with  (select id,url,ltten_url from data_api_new)
+	apilist1=loc apilist11 by id,url,ltten_url
+	merge_urls=load ckh by ckh with select url,y_url from merge_urls
+	rename apilist11 as {"url":"y_url"}
+	#通过join进行合并数据
+	mergeurls=join apilist11,merge_urls by y_url,y_url
+	apilist11 =loc mergeurls drop ltten_url
+	rename apilist11 as {"url":"ltten_url"}
+	rename apilist11 as {"y_url":"url"}
+	#更新到data_api_new的表中
+	api = @udf apilist11 by udf0.df_set_index with id
+	api = @udf api by CRUD.save_table with (mysql1,data_api_new)
+
+	###################进行更新数据###################
+	#查出mysql表  找到{dst}中两个不同的数据，然后提取出url  将ltten_url给替换上 删除掉 url,
+	filter_df=@udf apilist1 by handi_merge.drop_dst
+	#先进行去重
+	dis=distinct filter_df by ltten_url
+	#全连接
+	merge=join dis,filter_df by id,id with right
+	#筛选出值为空的NaN
+	drop_url=filter merge by url_x isnull
+	drop_url = @udf drop_url by udf0.df_set_index with id
+	#删除表数据
+	@udf drop_url by CRUD.delete_mobject_mtable with (mysql1,data_api_new)
+
+	update_url=filter merge by url_x notnull
+	#取出url列
+
+	update_url=loc update_url by id,ltten_url_x
+	rename update_url as {"ltten_url_x":"url"}
+	update_url = @udf update_url by udf0.df_set_index with id
+	update_url = @udf update_url by CRUD.save_table with (mysql1,data_api_new)
+	##################
+"""

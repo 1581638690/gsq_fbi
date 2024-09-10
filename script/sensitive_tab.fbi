@@ -1,0 +1,76 @@
+#LastModifyDate:　2024-03-01T18:13:35    Author:   zwl
+#LastModifyDate:　2024-01-17T10:45:52    Author:   zwl
+#LastModifyDate:　2024-01-16T18:33:47    Author:   zwl
+#LastModifyDate:　2024-01-16T17:16:25    Author:   zwl
+#LastModifyDate:　2024-01-16T15:50:44    Author:   gjw
+#LastModifyDate:　2024-01-16T14:43:36    Author:   zwl
+#LastModifyDate:　2024-01-15T19:00:09    Author:   zwl
+#LastModifyDate:　2024-01-12T10:42:36    Author:   zwl
+#LastModifyDate:　2024-01-11T15:10:15    Author:   zwl
+#LastModifyDate:　2023-09-06T18:21:06.990250    Author:   zwl
+#LastModifyDate:　2023-08-24T17:24:59.864291    Author:   zwl
+#FBI脚本文件
+#文件名: sensitive_tab.fbi
+#作者: zwl
+
+use @FID
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with sensitive_tab
+##判断key是否为空，若为空，取api_visit_hour的最小值
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(timestamp) as time from sen_http_count
+#aa = load ckh by ckh with select min(timestamp) as time from sen_http_count
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(timestamp) as time from sen_http_count
+time2 = eval aa by iloc[0,0]
+
+
+ccc = load ckh by ckh with select app from sen_http_count where timestamp >= '$time1' and timestamp < '$time2' limit 1
+assert find_df('ccc',ptree) as exit with 无数据更新 或者 数据库未连接！
+
+store aa to ssdb by ssdb0 with sensitive_tab
+
+
+
+#####################################接口管理--画像--风险--敏感信息########################################22222222222222222222222222222222222222222222
+##计算响应体
+sens = load ckh by ckh with select app,url,src_ip,account,response_count as res_type,count(*) as num from sen_http_count where timestamp > '$time1' and timestamp <= '$time2' group by app,url,src_ip,account,res_type
+alter sens by app:str,url:str,src_ip:str,account:str,res_type:str,num:int
+sens = filter sens by res_type != '' and res_type != 'null' and res_type != '{}' and res_type != 'None'
+sens.res_type = str res_type by replace(' ','')
+sens = filter sens by res_type unlike name
+sens = @udf sens by udf0.df_d2df with res_type
+alter sens by num:int,value:int
+sens = add num by df["num"] * df["value"]
+sens = add type by ('响应体')
+sens1 = loc sens by app,url,src_ip,account,type,key,num
+##计算请求体  
+sens = load ckh by ckh with select app,url,src_ip,account,request_count as req_type,count(*) as num from sen_http_count where timestamp >= '$time1' and timestamp < '$time2' group by app,url,src_ip,account,req_type
+alter sens by app:str,url:str,src_ip:str,account:str,req_type:str,num:int
+sens = filter sens by req_type != '' and req_type != 'null' and req_type != '{}' and req_type != 'None'
+sens.req_type = str req_type by replace(' ','')
+sens = filter sens by req_type unlike name
+sens = @udf sens by udf0.df_d2df with req_type
+alter sens by num:int,value:int
+sens = add num by df["num"] * df["value"]
+sens = add type by ('请求体')
+sens2 = loc sens by app,url,src_ip,account,type,key,num
+###合并请求体响应体
+sens = union sens1,sens2
+##合并历史（断点之前）数据
+#sss = load pkl by sensitive/sens_data.pkl
+sss = load pq by sensitive/sens_data.pq
+alter sss.num as int
+sens = union sens,sss
+sens = group sens by app,url,src_ip,account,type,key agg num:sum
+sens = @udf sens by udf0.df_reset_index
+rename sens as ('num_sum':'num')
+#store sens to pkl by sensitive/sens_data.pkl
+store sens to pq by sensitive/sens_data.pq
+
+#####################################接口管理--画像--风险--敏感信息########################################22222222222222222222222222222222222222222222
+
+
+clear @FID

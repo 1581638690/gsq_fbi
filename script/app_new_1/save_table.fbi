@@ -1,0 +1,64 @@
+#LastModifyDate:　2023-11-27T11:32:34.421775    Author:   pjb
+#LastModifyDate:　2023-06-08T18:20:12.013904    Author:   pjb
+#LastModifyDate:　2023-03-18T14:27:18.908796    Author:   pjb
+#LastModifyDate:　2023-03-18T14:25:49.292671    Author:   pjb
+#LastModifyDate:　2023-03-18T14:24:51.243031    Author:   pjb
+#LastModifyDate:　2023-03-18T14:23:49.880889    Author:   pjb
+#LastModifyDate:　2023-03-18T11:11:08.672502    Author:   pjb
+#LastModifyDate:　2023-03-18T11:05:12.587882    Author:   pjb
+#LastModifyDate:　2023-03-18T10:42:33.441785    Author:   pjb
+#LastModifyDate:　2023-03-18T09:37:25.488053    Author:   pjb
+#LastModifyDate:　2023-03-17T15:24:24.685555    Author:   pjb
+#LastModifyDate:　2023-03-17T15:22:54.432033    Author:   pjb
+#LastModifyDate:　2023-03-17T15:19:21.249862    Author:   pjb
+#LastModifyDate:　2023-03-17T09:44:08.748179    Author:   pjb
+#LastModifyDate:　2023-03-16T16:50:12.959884    Author:   pjb
+#LastModifyDate:　2023-03-16T16:47:47.191658    Author:   pjb
+#LastModifyDate:　2023-03-16T16:44:32.444948    Author:   pjb
+#LastModifyDate:　2023-03-16T16:42:50.742434    Author:   pjb
+#LastModifyDate:　2023-03-16T16:35:52.648089    Author:   pjb
+#FBI脚本文件
+
+#保存语句
+#@data_key  表结构
+#@link 链接
+#@table 表名
+
+#构建唯一工作区，处理并发
+use @FID
+
+#获取表单数据
+a = load ssdb by ssdb0 with @data_key
+app = eval a by (iloc[0,0])
+qq = load db by mysql1 with select app from data_app_new where app='$app'
+assert qq by df.index.size <=0 as break with 应用已存在！
+a = loc a by app,name,app_type,api_num,imp_api_num,visits_num,visits_flow,sj_num,monitor_flow,first_time,dstip_num,srcip_num,account_num,sensitive_label,app_status,active,merge_state,dstip,sx,scope
+a = add api_num by 0
+a = add imp_api_num by 0
+a = add visits_num by 0
+a = add visits_flow by 0
+a = add sj_num by 0
+a = add monitor_flow by 0
+a = add first_time by str(datetime.now())
+a = add dstip_num by 0
+a = add srcip_num by 0
+a = add account_num by 0
+a = add sensitive_label by 0
+a = add app_status by 0
+a = add active by 3
+a = add sx by 0
+a = add merge_state by 0
+a = add app_sum by ('')
+
+#保存
+b = @udf a by CRUD.save_table with (@link,@table)
+assert find_df('b',ptree) as  alert  to 保存成功！ with 保存失败！
+b = add btn_show by ('1,1,1,1,0')
+#返回结果
+#id = eval b by index[0]
+#b = @udf CRUD.get_object_table with (@link,@table,$id)
+#b = loc b by app,name,app_type,api_num,imp_api_num,visits_num,visits_flow,sj_num,monitor_flow,first_time,dstip_num,srcip_num,account_num,sensitive_label,app_status,active,sx
+
+push b as table
+#清除工作区
+clear @FID

@@ -1,0 +1,28 @@
+#LastModifyDate:　2023-08-29T18:24:52.230304    Author:   zwl
+#LastModifyDate:　2023-06-20T16:57:34.919380    Author:   zwl
+#LastModifyDate:　2023-06-12T18:41:37.251724    Author:   zwl
+#FBI脚本文件
+#文件名: hx_f.fbi
+#作者: zwl
+use hx_t
+
+##概览界面的接口
+gl_api = load ssdb by ssdb0 with gl_api
+gl_api = add aa by 1
+a = load ssdb by ssdb0 with @data_key
+a = join a,gl_api by url,url with left
+aa = loc a by aa
+aa = filter aa by aa != 1
+assert find_df_have_data('aa',ptree) as break with 接口概览界面的接口默认开启画像！
+
+###修改
+a = loc a by id,url
+alter a.id as int
+a = add portrait_status by (0)
+a = @udf a by udf0.df_set_index with id
+b = @udf a by CRUD.save_table with (@link,@table)
+push b as table
+
+
+
+clear hx_t

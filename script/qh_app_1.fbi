@@ -1,0 +1,324 @@
+#LastModifyDate:　2024-03-08T15:09:28    Author:   zwl
+#LastModifyDate:　2024-01-20T15:30:40    Author:   zwl
+#LastModifyDate:　2023-11-06T18:14:42.293691    Author:   zwl
+#LastModifyDate:　2023-08-23T17:13:49.372916    Author:   zwl
+#LastModifyDate:　2023-08-01T17:02:52.130538    Author:   zwl
+#LastModifyDate:　2023-07-25T16:22:46.321708    Author:   zwl
+#LastModifyDate:　2023-07-24T17:41:21.739695    Author:   zwl
+#LastModifyDate:　2023-07-21T18:46:11.542190    Author:   zwl
+#LastModifyDate:　2023-06-15T18:02:49.304073    Author:   zwl
+#LastModifyDate:　2023-06-14T15:28:55.754701    Author:   zwl
+#LastModifyDate:　2023-06-13T16:09:06.760908    Author:   zwl
+#FBI脚本文件
+#文件名: qh_app_1.fbi
+#作者: qiaohan
+#整合脚本-确保数据准确
+
+use @FID
+
+#####数据库未连接 或 无数据
+ccc = load ckh by ckh with select app from api_hx limit 1
+assert find_df_have_data('ccc',ptree) as exit with 数据库未连接 或者 无数据更新！
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with app_hx
+##判断key是否为空，若为空，api_hx
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_hx
+#aa = load ckh by ckh with select min(time) as time from api_hx
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(time) as time from api_hx
+time2 = eval aa by iloc[0,0]
+store aa to ssdb by ssdb0 with app_hx
+
+#月时间
+month1 = @sdf sys_now with -1m
+month = @sdf format_now with ($month1,"%Y-%m-%dT00:00:00")
+month1 = @sdf format_now with ($month1,"%Y-%m-%d")
+month2 = @sdf sys_now 
+month2 = @sdf format_now with ($month2,"%Y-%m-%d")
+time_date = @udf udf0.new_df_timerange with ($month1,$month2,1D)
+time_date = loc time_date by end_time 
+time_date.end_time = lambda end_time by (x:x[5:10])
+time_date = loc time_date by end_time to index
+
+##近24小时
+day = @sdf sys_now with -1d
+day2 = @sdf sys_now 
+day1 = @sdf format_now with ($day,"%Y-%m-%d %H:00:00")
+day2 = @sdf format_now with ($day2,"%Y-%m-%d %H:00:00")
+j_hour = @udf udf0.new_df_timerange with ($day1,$day2,1H)
+j_hour.times = lambda end_time by (x:x[0:13])
+j_hour = loc j_hour by times
+
+## 取与应用管理 同一个表的数据（合并状态：未合并：0，被合并：1，合并之后：2）
+applist = load db by mysql1 with select app,app_sum,merge_state from data_app_new where merge_state != 1 and app_type = 1 and portrait_status = 1
+applist = @udf applist by udf0.df_fillna_cols with app:'',app_sum:'',merge_state:0
+alter applist by app:str,app_sum:str,merge_state:int
+applist = loc applist by app,app_sum,merge_state
+
+###月流量数据
+mon_ll = load ckh by ckh with select app,SUBSTRING(toString(time),6,5) as times,sum(visit_num) as time_count,sum(visit_flow) as llk from api_hx where time > '$month' group by app,times
+alter mon_ll by app:str,times:str,time_count:int,llk:int
+mon_ll = order mon_ll by times with asc
+mon_ll.llk = lambda llk by (x:round(x/1024,2))
+##清单
+visit_url = load ckh by ckh with select app,url,sum(visit_num) as url_num from api_hx where time >= '$time1' and time < '$time2' group by app,url
+alter visit_url by app:str,url:str,url_num:int
+visit_dest = load ckh by ckh with select app,dstip,sum(visit_num) as dstip_num from api_hx where time >= '$time1' and time < '$time2' group by app,dstip
+alter visit_dest by app:str,dstip:str,dstip_num:int
+visit_src = load ckh by ckh with select app,srcip,sum(visit_num) as src_num from api_hx where time >= '$time1' and time < '$time2' group by app,srcip
+alter visit_src by app:str,srcip:str,src_num:int
+visit_account = load ckh by ckh with select app,account,sum(visit_num) as account_num from api_hx where time >= '$time1' and time < '$time2' and account != '' and account != '未知' group by app,account
+alter visit_account by app:str,account:str,account_num:int
+#  应用概览》应用管理》画像》 风险》   弱点应用
+app_data = load db by mysql1 with select a.app,a.api,a.dest_ip,a.dest_port,a.state,b.type1,a.last_time from api19_risk a left join api19_type b on a.type = b.type
+alter app_data by app:str,api:str,dest_ip:str,dest_port:int,state:str,type1:str,last_time:datetime64
+app_data = order app_data by last_time with desc
+##应用管理-> 画像 -> 风险-> 高风险接口、高、中、低风险
+app_api = @udf RS.load_mysql_sql with (mysql1,select app,url,risk_level,first_time,api_type,risk_label,api_status from data_api_new)
+alter app_api by app:str,url:str,risk_level:int,first_time:datetime64,api_type:int,risk_label:str,api_state:int
+##敏感数据类型
+sens = load db by mysql1 with select risk_label,risk_name as value from data_api_risk
+alter sens by risk_label:str,value:str
+sens = loc sens by risk_label to index
+##近24小时 访问次数
+app_24 = load ckh by ckh with select app,SUBSTRING(toString(time),1,13) as times,sum(visit_num) as count from api_hx where time > '$day1' group by app,times
+alter app_24 by app:str,times:str,count:int
+
+foreach applist run """
+
+	#月访问趋势 192.168.1.201  ----------------------------------------------------------------------------------
+	v1 = filter mon_ll by app == '@app'
+	#v1 = filter mon_ll by app == 'www.gearsandgears.com'
+	v1 = loc v1 by times,time_count,llk
+	v1 = loc v1 by times to index
+	vs = join v1,time_date by index,index with right
+	vs = @udf vs by udf0.df_fillna_cols with time_count:0,llk:0
+	vs = loc vs by time_count,llk
+	vs = add ss by 1
+	ss_mean = group vs by ss agg time_count:mean,llk:mean
+	vs = loc vs drop ss
+	time_count_mean = eval ss_mean by iloc[0,0]
+	if $time_count_mean > 10000 with vs.time_count = lambda time_count by (x:round(x/10000,2))
+	if $time_count_mean > 10000 with rename vs by ("time_count":"访问数量(万)")
+	if $time_count_mean <= 10000 with rename vs by ("time_count":"访问数量")
+	llk_mean = eval ss_mean by iloc[0,1]
+	if $llk_mean <= 1024 with rename vs by ("llk":"流量(B)")
+	if 1024 < $llk_mean <= 1048576 with vs.llk = lambda llk by (x:round(x/1024,2))
+	if 1024 < $llk_mean <= 1048576 with rename vs by ("llk":"流量(k)")
+	if $llk_mean >1048576  with vs.llk = lambda llk by (x:round(x/1048576,2))
+	if $llk_mean > 1048576 with rename vs by ("llk":"流量(M)")
+	store vs to ssdb with z:@app:timeh
+	##近24小时平均访问次数  ----------------------------------------------------------------------------------
+	app24 = filter app_24 by app == '@app'
+	#app24 = filter app_24 by app == '100.78.76.36'
+	app24 = join j_hour,app24 by times,times with left
+	app24 = @udf app24 by udf0.df_fillna_cols with count:0
+	app24.times = lambda times by (x:x[11:])
+	app24.times = lambda times by (x:x+'时')
+	app24 = loc app24 by times to index
+	app24 = loc app24 by count
+	rename app24 as ('count':'每小时访问数量')
+	store app24 to ssdb by ssdb0 with z:@app:time_24
+	##清单IP   ----------------------------------------------------------------------------------
+	ipls = filter visit_dest by app == '@app'
+	ipls_ll = load pq by dt_table/app_visit_dstip1_@app.pq
+	ipls = union ipls,ipls_ll
+	ipls = group ipls by app,dstip agg dstip_num:sum
+	ipls = @udf ipls by udf0.df_reset_index
+	rename ipls as ('dstip_num_sum':'dstip_num')
+	##动态表格
+	visit_dstip1 = loc ipls by app,dstip,dstip_num
+	visit_dstip1 = order visit_dstip1 by dstip_num with desc limit 1000
+	#保存为pq文件
+	store visit_dstip1 to pq by dt_table/app_visit_dstip1_@app.pq
+	## 清单
+	ipls = loc ipls by dstip,dstip_num
+	ipls = order ipls by dstip_num with desc limit 10
+	rename ipls by ("dstip":"部署服务器IP",'dstip_num':'访问数量')
+	store ipls to ssdb with z:@app:ipls
+	#访问账号清单   ----------------------------------------------------------------------------------
+	accountls = filter visit_account by app == '@app'
+	accountls_ll = load pq by dt_table/app_visit_account1_@app.pq
+	accountls = union accountls,accountls_ll
+	accountls = group accountls by app,account agg account_num:sum
+	accountls = @udf accountls by udf0.df_reset_index
+	rename accountls as ('account_num_sum':'account_num')
+	##动态表格
+	visit_account1 = loc accountls by app,account,account_num
+	visit_account1 = order visit_account1 by account_num with desc limit 1000
+	#保存为pq文件
+	store visit_account1 to pq by dt_table/app_visit_account1_@app.pq
+	#重命名
+	rename visit_account1 as ("app":"应用IP/域名","account":"访问账号","account_num":"访问数量")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,app_visit_account1_@app,-,-
+	#保存Q
+	store visit_account1 to ssdb by ssdb0 with app_visit_account1_@app as Q
+	drop visit_account1
+	##清单
+	accountls = loc accountls by account,account_num
+	accountls = order accountls by account_num with desc limit 10
+	rename accountls by ("account":"访问账号",'account_num':'访问数量')
+	store accountls to ssdb with z:@app:accountls
+	#终端访问清单  ----------------------------------------------------------------------------------
+	srcipls = filter visit_src by app == '@app'
+	srcipls_ll = load pq by dt_table/app_visit_src1_@app.pq
+	srcipls = union srcipls,srcipls_ll
+	srcipls = group srcipls by app,srcip agg src_num:sum
+	srcipls = @udf srcipls by udf0.df_reset_index
+	rename srcipls as ('src_num_sum':'src_num')
+	##动态表格
+	visit_src1 = loc srcipls by app,srcip,src_num
+	visit_src1 = order visit_src1 by src_num with desc limit 1000
+	#保存为pq文件
+	store visit_src1 to pq by dt_table/app_visit_src1_@app.pq
+	#重命名
+	rename visit_src1 as ("app":"应用IP/域名","srcip":"终端访问","src_num":"访问数量")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,app_visit_src1_@app,-,-
+	#保存Q
+	store visit_src1 to ssdb by ssdb0 with app_visit_src1_@app as Q
+	drop visit_src1
+	##清单
+	srcipls = loc srcipls by srcip,src_num
+	srcipls = order srcipls by src_num with desc limit 10
+	rename srcipls by ("srcip":"终端访问",'src_num':'访问数量')
+	store srcipls to ssdb with z:@app:srcipls
+	#接口清单 '192.168.10.50'   ----------------------------------------------------------------------------------
+	urlls = filter visit_url by app == '@app'
+	urlls_ll = load pq by dt_table/app_visit_url1_@app.pq
+	urlls = union urlls,urlls_ll
+	urlls = group urlls by app,url agg url_num:sum
+	urlls = @udf urlls by udf0.df_reset_index
+	rename urlls as ('url_num_sum':'url_num')
+	##动态表格
+	visit_url1 = loc urlls by app,url,url_num
+	visit_url1 = order visit_url1 by url_num with desc limit 1000
+	#保存为pq文件
+	store visit_url1 to pq by dt_table/app_visit_url1_@app.pq
+	#重命名
+	rename visit_url1 as ("app":"应用IP/域名","url":"接口","url_num":"访问数量")
+	#清空Q
+	b = load ssdb by ssdb0 query qclear,app_visit_url1_@app,-,-
+	#保存Q
+	store visit_url1 to ssdb by ssdb0 with app_visit_url1_@app as Q
+	drop visit_url1
+	##清单
+	urlls = loc urlls by url,url_num
+	urlls = order urlls by url_num with desc limit 10
+	rename urlls by ("url":"接口",'url_num':'访问数量')
+	store urlls to ssdb with z:@app:urlls
+	#原应用    ----------------------------------------------------------------------------------
+	t = filter applist by app == '@app'
+	#t = filter applist by app == '100.78.76.36'
+	t = loc t by app,app_sum
+	t.app_sum = lambda app_sum by (x:x.split(","))
+	t = @udf t by udf0.df_l2cs with app_sum
+	t = @udf t by udf0.df_reset_index 
+	t = loc t drop index,app,app_sum
+	t = @udf t by udf0.df_T
+	rename t as (0:'原应用')
+	t = filter t by 原应用 != ''
+	store t to ssdb with z:@app:origin_app
+	###弱点接口   ----------------------------------------------------------------------------------
+	app = filter app_data by app == '@app'
+	#app = filter app_data by app == '100.78.76.36'
+	app = @udf app by udf0.df_reset_index
+	app = loc app by app,api,dest_ip,dest_port,state,type1,last_time
+######################动态表格111111111111111111111111111动态表格111111111111111111111111111动态表格111111111111111111111111111动态表格111111111111111111111111111动态表格111111111111111111111111111
+	risk = loc app by index to _id
+	risk = loc risk by _id,app,api,dest_ip,dest_port,state,type1,last_time
+	risk = order risk by last_time with desc limit 1000
+	alter risk.last_time as str 
+	risk.last_time = str last_time by [0:19]
+	risk.last_time = str last_time by (replace('T', ' '))
+	##保存为pq文件
+	store risk to pq by dt_table/app_19risk_@app.pq
+	##重命名
+	rename risk as ("app":"应用","api":"接口","dest_ip":"部署IP","dest_port":"部署端口","method":"请求类型","state":"弱点状态","type1":"弱点类型","last_time":"最新监测时间")
+	##清空Q
+	b = load ssdb by ssdb0 query qclear,app_19risk_@app,-,-
+	#data,count =load ssdb by ssdb0 query qrange,app_19risk_205.174.165.68,0,30
+	##保存Q
+	store risk to ssdb by ssdb0 with app_19risk_@app as Q
+##################动态表格111111111111111111111111111动态表格111111111111111111111111111动态表格111111111111111111111111111动态表格111111111111111111111111111动态表格111111111111111111111111111
+	app = loc app by api,dest_ip,dest_port,state,type1,last_time
+	app = order app by last_time with desc limit 500
+	alter app.last_time as str 
+	app.last_time = str last_time by [0:19]
+	app.last_time = str last_time by (replace('T', ' '))
+	app = @udf app by VL.set_col_width with (360,130,110,110,200,200)
+	app = @udf app by VL.set_col_color with (#000,#000,#000,#f00,#000,#000)
+	rename app by ("api":"接口","dest_ip":"部署IP","dest_port":"部署端口","method":"请求类型","state":"弱点状态","type1":"弱点类型","last_time":"最新监测时间")
+	store app to ssdb with appriskall:@app
+	
+	##应用管理-> 画像 -> 风险-> 高风险接口、高、中、低风险   ----------------------------------------------------------------------------------
+	a = filter app_api by app== "@app"
+	#a = filter app_api by app=="www.clipshack.com"
+	#低风险数量---------------------------------
+	t = filter a by risk_level == '0'
+	t = group t by risk_level agg risk_level:count
+	a_num = eval t by index.size
+	if $a_num == 0 with t = @udf t by udf0.df_append with (0)
+	t = add aa by 1000
+	store t to ssdb with risk:@app:1
+	#中风险数量
+	s = filter a by risk_level == '1'
+	s = group s by risk_level agg risk_level:count
+	a_num = eval s by index.size
+	if $a_num == 0 with s = @udf s by udf0.df_append with (0)
+	s = add aa by 1000
+	store s to ssdb with risk:@app:2
+	#高风险数量
+	z = filter a by risk_level == '2'
+	z = group z by risk_level agg risk_level:count
+	a_num = eval z by index.size
+	if $a_num == 0 with z = @udf z by udf0.df_append with (0)
+	z = add aa by 1000
+	store z to ssdb with risk:@app:3
+	#风险表格     ----------------------------------------------------------------------------------
+    a = filter a by risk_level == "2"
+    a.first_time = str first_time by [0:19]
+    a.first_time = str first_time by (replace('T',' '))
+	alter a.api_type as int
+    alter a.api_type as str
+	type = load ssdb by ssdb0 with dd:API-api_type
+	a = @udf a,type by SP.tag2dict with api_type
+    a.api_status = str api_status by (replace('0','未监控'))
+    a.api_status = str api_status by (replace('1','已监控'))
+	a.risk_level = str risk_level by ( replace('0','低风险'))
+	a.risk_level = str risk_level by ( replace('1','中风险'))
+	a.risk_level = str risk_level by ( replace('2','高风险'))
+	a = @udf a,sens by SP.tag2dict with risk_label
+######################动态表格22222222222222222222222222222动态表格22222222222222222222222222222动态表格22222222222222222222222222222动态表格22222222222222222222222222222动态表格22222222222222222222222222222
+	a = @udf a by udf0.df_reset_index
+	a = loc a drop index
+	risk_g = loc a by index to _id
+	risk_g = loc risk_g by _id,app,url,risk_level,first_time,api_type,risk_label,api_status
+	risk_g = order risk_g by first_time with desc limit 1000
+	##保存为pq文件
+	store risk_g to pq by dt_table/app_g_risk_@app.pq
+	##重命名
+	rename risk_g as ("app":"应用","url":"风险接口","risk_level":"风险等级","first_time":"首次发现时间","api_type":"接口类型","risk_label":"风险内容","api_status":"监控状态")
+	##清空Q
+	b = load ssdb by ssdb0 query qclear,app_g_risk_@app,-,-
+	##保存Q
+	store risk_g to ssdb by ssdb0 with app_g_risk_@app as Q
+##################动态表格22222222222222222222222222222动态表格22222222222222222222222222222动态表格22222222222222222222222222222动态表格22222222222222222222222222222动态表格22222222222222222222222222222 
+	a = order a by first_time with desc limit 500
+	a = loc a drop app
+    a = @udf a by VL.set_col_width with (550,100,200,100,300,100)
+    a = @udf a by VL.set_col_color with (#f00,#f00,#000,#000,#f00,#000)
+    rename a by ("url":"风险接口","risk_level":"风险等级","first_time":"首次发现时间","api_type":"接口类型","risk_label":"风险内容","api_status":"监控状态")
+	store a to ssdb with z:@app:api
+	
+""" with (app = $1)
+
+
+
+
+
+clear @FID

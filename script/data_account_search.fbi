@@ -1,0 +1,39 @@
+#LastModifyDate:　2024-01-18T11:08:33    Author:   zwl
+#LastModifyDate:　2023-08-23T17:19:31.836662    Author:   zwl
+#LastModifyDate:　2023-03-30T17:22:03.919674    Author:   zwl
+#LastModifyDate:　2023-03-15T15:16:11.703010    Author:   zwl
+#LastModifyDate:　2023-03-07T15:26:42.309676    Author:   zwl
+use @FID
+
+ss = load ssdb by ssdb0 with @datakey
+
+a = load pq by dt_table/data_account_new.pq
+a = loc a by index to __index
+
+##判断是否进行   搜索--------------------------------------------
+ppp = load ssdb by ssdb0 with @filterKey
+ppp = filter ppp by account != ''
+ppp_num = eval ppp by index.size
+ppp_num = @sdf sys_eval with $ppp_num != 0
+#全文检索
+q = @sdf sys_if_run with ($ppp_num, "account = eval ppp by iloc[0,0]")
+q = @sdf sys_if_run with ($ppp_num, "a = filter a with $account")
+
+##判断是否进行   筛选--------------------------------------------
+sss_num = eval ss by index.size 
+sss_num = @sdf sys_eval with $sss_num != 0
+q = @sdf sys_if_run with ($sss_num, "ss1 = eval ss by iloc[0,0]")
+q = @sdf sys_if_run with ($sss_num, "a = filter a by $ss1")
+
+
+b = loc a by _id,account,visit_num,visit_flow,app_num,api_num,ip_num,type,active
+count = eval b by index.size
+c = @udf udf0.new_df with count
+c = @udf c by udf0.df_append with $count
+b = limit b by 1000
+rename b as ('account':'账号','visit_num':'访问次数','visit_flow':'访问流量(M)','app_num':'访问应用数量','api_num':'访问接口数量','ip_num':'访问终端数量','dept':'部门','type':'类型','active':'活跃状态')
+
+push b as table
+push c as count
+
+clear @FID

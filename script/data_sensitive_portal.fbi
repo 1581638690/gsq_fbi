@@ -1,0 +1,411 @@
+#LastModifyDate:　2024-01-16T14:43:02    Author:   zwl
+#LastModifyDate:　2024-01-15T18:59:53    Author:   zwl
+#LastModifyDate:　2024-01-11T15:10:24    Author:   zwl
+#LastModifyDate:　2023-08-23T17:05:48.081322    Author:   zwl
+#LastModifyDate:　2023-08-01T16:54:26.008434    Author:   zwl
+#LastModifyDate:　2023-07-25T15:26:23.983327    Author:   zwl
+#LastModifyDate:　2023-06-29T15:42:19.244328    Author:   zwl
+#LastModifyDate:　2023-06-14T15:27:58.609194    Author:   zwl
+#LastModifyDate:　2023-05-30T14:53:59.594518    Author:   zwl
+#LastModifyDate:　2023-05-26T15:07:30.249619    Author:   zwl
+#LastModifyDate:　2023-05-20T15:46:19.597700    Author:   zwl
+
+use @FID
+
+ccc = load ckh by ckh with select app from sen_http_count limit 1
+assert find_df('ccc',ptree) as exit with 数据库未连接！
+
+##数据敏感信息总数
+##涉及敏感类型数-------------------------------------------------------------
+#sen_key = load ckh by ckh with select key data,count(*) count from sensitive_data where key != ''  group  by key
+#sen_key = load pkl by sensitive/sens_data.pkl
+sen_key = load pq by sensitive/sens_data.pq
+if sen_key.index.size == 0 with sen_key = @udf udf0.new_df with app,url,src_ip,account,type,key,num 
+sen_key = group sen_key by key agg num:sum
+sen_key = @udf sen_key by udf0.df_reset_index
+rename sen_key as ('key':'data','num_sum':'count')
+
+label = load ssdb by ssdb0 with dd:reqs_label
+sen_key0 = join label,sen_key by data,data with left
+#sen_key0 = @udf sen_key0 by udf0.df_fillna
+sen_key0 = @udf sen_key0 by udf0.df_fillna_cols with count:0
+sen_key0 = filter sen_key0 by count != ''
+sen_key0 = eval sen_key0 by index.size
+sen_key1 = @udf udf0.new_df with 敏感数据类型
+sen_key1 = @udf sen_key1 by udf0.df_append with $sen_key0
+store sen_key1 to ssdb by ssdb0 with data_sensitive_keycount
+##今日涉及敏感信息数(数据)------------------------------------------------------
+#sen_today = load ckh by ckh with select count(*) as count from sensitive_data where key != '' and toDate(time) > toDate(today()-1)
+sen_today = load ckh by ckh with select count(*) as count from sen_http_count where timestamp > toDate(today())
+ccc = loc sen_today by count
+aa = eval sen_today by (iloc[0,0])
+aa = @sdf sys_eval with $aa > 10000
+aa = @sdf sys_if_run with ($aa,"sen_today.count = lambda count by (x:round(x/10000,2))")
+alter sen_today.count as str
+aa = @sdf sys_if_run with ($aa,"sen_today.count = lambda count by (x:x+'万')")
+rename sen_today by ("count":"今日发现敏感信息数")
+store sen_today to ssdb by ssdb0 with data_sensitive_today
+##敏感信息数量分布--------------------------------------------------------------
+label = load ssdb by ssdb0 with dd:reqs_label
+rename label as ('value':'data')
+label = join label,sen_key by data,data with left
+#label = @udf label by udf0.df_fillna with 0
+label = @udf label by udf0.df_fillna_cols with count:0
+label.详情 = lambda data by (x:x)
+label1 = filter label by count > 0
+label1 = loc label1 by data to index
+label1 = order label1 by count with asc
+rename label1 by ('count':'敏感类型数量')
+store label1 to ssdb by ssdb0 with data_senstive_label
+
+##数据敏感信息条数------------------------------------------------------------------------
+#sensitive_data = load ckh by ckh with select count(*) as sens from sensitive_data
+sensitive_data = load ckh by ckh with select count(*) as sens from sen_http_count
+alter sensitive_data by sens:int
+aaa = loc sensitive_data by sens
+aa = eval sensitive_data by (iloc[0,0])
+aa = @sdf sys_eval with $aa > 10000
+aa = @sdf sys_if_run with ($aa,"sensitive_data.sens = lambda sens by (x:round(x/10000,2))")
+alter sensitive_data.sens as str
+aa = @sdf sys_if_run with ($aa,"sensitive_data.sens = lambda sens by (x:x+'万')")
+rename sensitive_data by ('sens':'应用敏感数据总数')
+store sensitive_data to ssdb by ssdb0 with sens:data
+
+##文件敏感信息条数------------------------------------------------------------------------
+datafilter = load ckh by ckh with select rekey as data,count(*) as count from datafilter group by rekey
+alter datafilter by data:str,count:int
+#datafilter = @udf datafilter by udf0.df_fillna
+datafilter = @udf datafilter by udf0.df_fillna_cols with data:'',count:0
+datafilter1 = loc datafilter by count
+datafilter1 = add aa by 1
+datafilter1 = group datafilter1 by aa agg count:sum
+aa_num = eval datafilter1 by index.size
+if $aa_num == 0 with datafilter1 = @udf datafilter1 by udf0.df_append with 0
+rename datafilter1 by ("count_sum":"敏感文件数据总数")
+datafilter1 = add tips by ("敏感文件包含敏感信息的总数")
+store datafilter1 to ssdb by ssdb0 with wj:data
+
+###文件敏感类型分布 ----------------------------------------------------------------
+#datafilter = load ckh by ckh with select rekey as data,count(*) as count from datafilter where rekey != '' group by rekey
+datafilter = filter datafilter by data != ''
+datafilter.详情 = lambda data by (x:x)
+datafilter = loc datafilter by data to index
+datafilter = order datafilter by count with asc
+rename datafilter by ('count':'敏感类型数量')
+store datafilter to ssdb by ssdb0 with datafilter_label
+###文件敏感信息 datafilter----------------------------------------------------------------
+sens1 = eval datafilter by index.size
+sens = @udf udf0.new_df with 敏感文件所含数据类型
+sens = @udf sens by udf0.df_append with $sens1
+store sens to ssdb by ssdb0 with datafilter_keycount
+##今日涉及敏感信息数(文件)------------------------------------------------------
+sen_today1 = load ckh by ckh with select count(*) as count from datafilter where rekey != '' and toDate(timestamp) > toDate(today()-1)
+alter sen_today1 by count:int
+rename sen_today1 by ("count":"今日发现敏感文件数")
+store sen_today1 to ssdb by ssdb0 with datafilter_today
+
+###信息块合并  ###应用数据########################################################################################################################3
+#敏感数据-----------------------------------------------------------------------
+##敏感应用
+#sensitive_data = load ckh by ckh with select count(distinct app) as value,count(distinct url_c) as value1 from sensitive_data 
+#sens_app = load pkl by sensitive/sensitive_app.pkl
+sens_app = load pq by sensitive/sensitive_app.pq
+alter sens_app by app:str,url_count:int,srcip_count:int,account_count:int,sensitive_count:int,s_num_sum:str
+num = eval sens_app by index.size
+sens_app = @udf udf0.new_df with value
+sens_app = @udf sens_app by udf0.df_append with $num
+sens_app = add name by ('敏感应用数')
+sens_app = add details by ('敏感数据所含敏感应用数量')
+sens_app = add icon by ('F150')
+##敏感接口
+#sens_api = load pkl by sensitive/sensitive_api.pkl
+sens_api = load pq by sensitive/sensitive_api.pq
+alter sens_api by url:str,srcip_count:int,account_count:int,sensitive_count:int,s_num_sum:str
+num = eval sens_api by index.size
+sens_api = @udf udf0.new_df with value
+sens_api = @udf sens_api by udf0.df_append with $num
+sens_api = add name by ('敏感接口数')
+sens_api = add details by ('敏感数据所含敏感接口数量')
+sens_api = add icon by ('F307')
+##敏感数据
+sens_1 = load ckh by ckh with select count(*) as value from sen_http_count
+aa_num = eval sens_1 by iloc[0,0]
+if $aa_num > 100000 with sens_1.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with sens_1 = add name by ('敏感数据访问数(万)')
+if $aa_num <= 100000 with sens_1 = add name by ('敏感数据访问数')
+sens_1 = add details by ('')
+sens_1 = add icon by ('F209')
+##应用敏感数据总数
+#aaa = loc sensitive_data by sens
+rename aaa as ('sens':'value')
+aa_num = eval aaa by iloc[0,0]
+if $aa_num > 100000 with aaa.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with aaa = add name by ('应用敏感数据数(万)')
+if $aa_num <= 100000 with aaa = add name by ('应用敏感数据数')
+aaa = add details by ('')
+aaa = add icon by ('F353')
+##敏感数据类型
+bbb = @udf udf0.new_df with value
+bbb = @udf bbb by udf0.df_append with $sen_key0
+bbb = add name by ('数据敏感类型')
+bbb = add details by ('应用数据所包含的敏感数据类型')
+bbb = add icon by ('F133')
+##今日发现敏感数据数
+#ccc = loc sen_today by count
+rename ccc as ('count':'value')
+aa_num = eval ccc by iloc[0,0]
+if $aa_num > 100000 with ccc.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with ccc = add name by ('今日敏感数据数(万)')
+if $aa_num <= 100000 with ccc = add name by ('今日发现敏感数据数')
+ccc = add details by ('')
+ccc = add icon by ('F457')
+##敏感文件--------------------------------------------------------------------------
+datafilter = load ckh by ckh with select count(distinct src_ip) as value,count(distinct app_proto) as value1,min(timestamp) as time from datafilter
+#fw_ip = loc datafilter by value
+#fw_ip = add name by ('文件服务器IP')
+#fw_ip = add details by ('敏感文件存在的服务器IP数')
+#fw_ip = add icon by ('F349')
+##敏感文件
+#sens_xy = loc datafilter by value1
+#rename sens_xy as ('value1':'value')
+#sens_xy = add name by ('敏感文件传输类型')
+#sens_xy = add details by ('')
+#sens_xy = add icon by ('F185')
+##敏感文件
+#sens_2 = load ckh by ckh with select count(*) as value from filter_count
+#aa_num = eval sens_2 by iloc[0,0]
+#if $aa_num > 100000 with sens_2.value = lambda value by (x:round(x/10000,2))
+#if $aa_num > 100000 with sens_2 = add name by ('敏感文件数(万)')
+#if $aa_num <= 100000 with sens_2 = add name by ('敏感文件数')
+#sens_2 = add details by ('')
+#sens_2 = add icon by ('F186')
+##文件敏感数据总数
+ddd = loc datafilter1 by 敏感文件数据总数
+rename ddd as ('敏感文件数据总数':'value')
+aa_num = eval ddd by iloc[0,0]
+if $aa_num > 100000 with ddd.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with ddd = add name by ('敏感文件数据数(万)')
+if $aa_num <= 100000 with ddd = add name by ('敏感文件数据数')
+ddd = add details by ('')
+ddd = add icon by ('F182')
+##敏感文件所含数据类型
+eee = @udf udf0.new_df with value
+eee = @udf eee by udf0.df_append with $sens1
+eee = add name by ('文件敏感类型')
+eee = add details by ('敏感文件所包含的敏感数据类型')
+eee = add icon by ('F203')
+##今日发现敏感文件数
+fff = loc sen_today1 by 今日发现敏感文件数
+rename fff as ('今日发现敏感文件数':'value')
+aa_num = eval fff by iloc[0,0]
+if $aa_num > 100000 with fff.value = lambda value by (x:round(x/10000,2))
+if $aa_num > 100000 with fff = add name by ('今日敏感文件数(万)') 
+if $aa_num <= 100000 with fff = add name by ('今日发现敏感文件数') 
+fff = add details by ('')
+fff = add icon by ('F360')
+##合并
+sss = union aaa,bbb,ccc,ddd,eee,fff
+sss = loc sss by name,value,icon,details
+sss = add pageid by ('qes:sen_http_count','','','qes:datafilter','','')
+store sss to ssdb by ssdb0 with data_sensitive_sss
+##首页合并信息块
+sensitive = union sens_app,sens_api,sens_1,aaa,bbb,ccc
+#,fw_ip,sens_xy,sens_2,ddd,eee,fff
+sensitive = loc sensitive by name,value,icon,details
+sensitive = add pageid by ('dashboard7:sensitive_app2','dashboard7:sensitive_url2','qes:sen_http_count','qes:sen_http_count','','')
+#sensitive = add pageid by ('dashboard7:sensitive_app2','dashboard7:sensitive_url2','qes:sen_http_count','qes:sen_http_count','','','qes:datafilter','qes:datafilter','qes:filter_count','qes:datafilter','','')
+store sensitive to ssdb by ssdb0 with data_sensitive
+###信息块合并  ###应用数据########################################################################################################################3
+
+###涉及敏感应用数-------------------------------------------------------------------------
+#sen_app = load ckh by ckh with select app,count(*) count from sensitive_data  group  by app order by count desc
+#sen_app = load pkl by sensitive/sensitive_app.pkl
+sen_app = load pq by sensitive/sensitive_app.pq
+alter sen_app by app:str,url_count:int,srcip_count:int,account_count:int,sensitive_count:int,s_num_sum:str
+sen_app = loc sen_app by app,sensitive_count
+rename sen_app as ('sensitive_count':'count')
+sen_app0 = eval sen_app by index.size
+sen_app1 = @udf udf0.new_df with 敏感应用数
+sen_app1 = @udf sen_app1 by udf0.df_append with $sen_app0
+store sen_app1 to ssdb by ssdb0 with data_sensitive_appcount
+sen_app = loc sen_app by index to aa
+sen_app = loc sen_app drop aa
+sen_apptop10 = filter sen_app by index <10
+rename sen_apptop10 as ('app':'应用名','count':'数量')
+store sen_apptop10 to ssdb by ssdb0 with data_sensitive_apptop
+
+###涉及敏感接口数------------------------------------------------------
+#sen_url = load ckh by ckh with select url_c,count(*) count from sensitive_data  group by url_c order by count desc
+#sen_url = load pkl by sensitive/sensitive_api.pkl
+sen_url = load pq by sensitive/sensitive_api.pq
+alter sen_url by url:str,srcip_count:int,account_count:int,sensitive_count:int,s_num_sum:str
+sen_url = loc sen_url by url,sensitive_count
+rename sen_url as ('sensitive_count':'count')
+sen_url0 = eval sen_url by index.size
+sen_url1 = @udf udf0.new_df with 敏感接口数
+sen_url1 = @udf sen_url1 by udf0.df_append with $sen_url0
+store sen_url1 to ssdb by ssdb0 with data_sensitive_urlcount
+sen_url = loc sen_url by index to aa
+sen_url = loc sen_url drop aa
+sen_urltop10 = filter sen_url by index <10
+rename sen_urltop10 as ('url':'接口','count':'数量')
+store sen_urltop10 to ssdb by ssdb0 with data_sensitive_urltop
+
+###涉及敏感终端数--------------------------------------------------
+#sen_srcip = load ckh by ckh with select srcip,count(*) count from sensitive_data  group by srcip order by count desc
+#sen_srcip = load pkl by sensitive/sensitive_ip.pkl
+sen_srcip = load pq by sensitive/sensitive_ip.pq
+alter sen_srcip by srcip:str,url_count:int,app_count:int,account:int,sensitive_count:int,s_num_sum:str
+sen_srcip = loc sen_srcip by srcip,sensitive_count
+rename sen_srcip as ('sensitive_count':'count')
+sen_srcip0 = eval sen_srcip by index.size
+sen_srcip1 = @udf udf0.new_df with 敏感终端数
+sen_srcip1 = @udf sen_srcip1 by udf0.df_append with $sen_srcip0
+store sen_srcip1 to ssdb by ssdb0 with data_sensitive_srcipcount
+sen_srcip = loc sen_srcip by index to aa
+sen_srcip = loc sen_srcip drop aa
+sen_srciptop10 = filter sen_srcip by index <10
+rename sen_srciptop10 as ('srcip':'终端IP','count':'数量')
+store sen_srciptop10 to ssdb by ssdb0 with data_sens_top10
+sen_srciptop10.详情 = lambda 终端IP by (x:x)
+sen_srciptop10 = @udf sen_srciptop10 by udf0.df_set_index with 终端IP
+sen_srciptop10 = order  sen_srciptop10 by 数量 with asc
+store sen_srciptop10 to ssdb by ssdb0 with data_sensitive_srctop
+
+##涉及敏感账号数------------------------------------------------------------------
+#sen_account = load ckh by ckh with select account,count(*) count from sensitive_data where account != '' group  by account order by count desc
+#sen_account = load pkl by sensitive/sensitive_account.pkl
+sen_account = load pq by sensitive/sensitive_account.pq
+alter sen_account by account:str,url_count:int,srcip_count:int,app_count:int,sensitive_count:int,s_num_sum:str
+sen_account = loc sen_account by account,sensitive_count
+rename sen_account as ('sensitive_count':'count')
+sen_account0 = eval sen_account by index.size
+sen_account1 = @udf udf0.new_df with 敏感账号数
+sen_account1 = @udf sen_account1 by udf0.df_append with $sen_account0
+store sen_account1 to ssdb by ssdb0 with data_sensitive_accountcount
+sen_account = loc sen_account by index to aa
+sen_account = loc sen_account drop aa
+sen_accounttop10 = filter sen_account by index <10
+rename sen_accounttop10 as ('account':'账号','count':'数量')
+store sen_accounttop10 to ssdb by ssdb0 with data_sensitive_accounttop
+##首页  账号 涉及敏感信息数量分布
+sen_accounttop10.详情 = lambda 账号 by (x:x)
+sens = loc sen_accounttop10 by 账号 to index
+sens = order sens by 数量 with asc
+store sens to ssdb by ssdb0 with sensxx:data
+#域内外判断
+#run data_ynw.fbi
+
+###############首页############首页######################首页##############首页############首页#########首页###################首页#################首页######################近24小时敏感数据分布
+hour1 = @sdf sys_now with -1d
+hour1 = @sdf format_now with ($hour1,"%Y-%m-%d %H:00:00")
+hour2 = @sdf sys_now 
+hour2 = @sdf format_now with ($hour2,"%Y-%m-%d %H:00:00")
+hour = @udf udf0.new_df_timerange with ($hour1,$hour2,1H)
+hour.hour = lambda end_time by (x:x[11:13])
+hour.hour1 = lambda hour by (x:x+'时')
+hour = loc hour by hour1,hour
+###堆叠图：数据流动 》 近24小时敏感信息分布-------------------------------------------
+sens = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,response_count as res_type,count(*) as num from sen_http_count where timestamp >= toDate(today()) group by hour,res_type
+sens.res_type = str res_type by replace(' ','')
+#sens = @udf sens by udf0.df_fillna with ''
+sens = @udf sens by udf0.df_fillna_cols with res_type:'',num:0
+sens = filter sens by res_type != '' and res_type != 'null' and res_type != 'None' 
+sens.res_type = lambda res_type by (x:x[1:-1])
+sens.res_type = lambda res_type by (x:x.split(","))
+sens_1 = @udf sens by udf0.df_l2df with res_type
+rename sens_1 as ('res_type':'res')
+sens = join sens,sens_1 by index,index with outer
+sens.res = lambda res by (x:x.split(":"))
+sens = @udf sens by udf0.df_l2cs with res
+rename sens as ('n100':'key','n101':'res_key_num')
+sens = loc sens by hour,num,key,res_key_num
+sens.key = lambda key by (x:x[1:-1])
+alter sens.num.res_key_num as int
+sens = add key_num by df["num"] * df["res_key_num"]
+sens1 = loc sens by hour,key,key_num
+##计算请求体  
+sens = load ckh by ckh with select substring(toString(timestamp),12,2) as hour,request_count as req_type,count(*) as num from sen_http_count where timestamp >= toDate(today()) group by hour,req_type
+sens.req_type = str req_type by replace(' ','')
+#sens = @udf sens by udf0.df_fillna with ''
+sens = @udf sens by udf0.df_fillna_cols with req_type:'',num:0
+sens = filter sens by req_type != '' and req_type != 'null' and req_type != 'None' 
+sens.req_type = lambda req_type by (x:x[1:-1])
+sens.req_type = lambda req_type by (x:x.split(","))
+sens_1 = @udf sens by udf0.df_l2df with req_type
+rename sens_1 as ('req_type':'req')
+sens = join sens,sens_1 by index,index with outer
+sens.req = lambda req by (x:x.split(":"))
+sens = @udf sens by udf0.df_l2cs with req
+rename sens as ('n100':'key','n101':'req_key_num')
+sens = loc sens by hour,num,key,req_key_num
+sens.key = lambda key by (x:x[1:-1])
+alter sens.num.req_key_num as int
+sens = add key_num by df["num"] * df["req_key_num"]
+sens2 = loc sens by hour,key,key_num
+###合并请求体响应体
+sens = union sens1,sens2
+sens = group sens by hour,key agg key_num:sum
+sens = @udf sens by udf0.df_reset_index
+rename sens as ('key':'data','key_num_sum':'num')
+sens = filter sens by data !='婚姻状况' and data !='宗教信仰'
+sens0 = @udf udf0.new_df with hour1,hour,data,num
+data = group sens by data agg data:count
+data = loc data by index to data 
+foreach data run """
+	sens1 = filter sens by data == '@data'
+	#sens1 = filter sens by data == '手机号'
+	sens1 = join hour,sens1 by hour,hour with left
+	#sens1 = @udf sens1 by udf0.df_fillna with 0
+	#sens1.data = lambda data by (x:'@data' if x == 0 else x)
+	sens1 = @udf sens1 by udf0.df_fillna_cols with data:'@data',num:0
+	sens0 = union sens0,sens1
+""" with (data = $1)
+sens = group sens0 by hour,data agg num:sum
+sens = @udf sens by udf0.df_unstack with num_sum
+sens = loc sens by index to hour
+sens = join hour,sens by hour,hour with left
+sens = loc sens by hour1 to index
+sens = loc sens drop hour
+sens = @udf sens by udf0.df_fillna with (0)
+store sens to ssdb by ssdb0 with sens_24l:data
+
+###########################################################################敏感数据分布面板###################################################################
+##敏感数据类型 排名前四  这四个类型的终端前十分布
+id = @udf udf0.new_df with (id)
+id = @udf id by udf0.df_append with 0
+id = @udf id by udf0.df_append with 1
+id = @udf id by udf0.df_append with 2
+id = @udf id by udf0.df_append with 3
+sen_key_4 = order sen_key by count limit 4
+sen_key_4 = loc sen_key_4 by index to aa
+sen_key_4 = join id,sen_key_4 by index,index with left
+sen_key_4 = loc sen_key_4 by data,id
+#sen_key_4 = @udf sen_key_4 by udf0.df_fillna with ('')
+sen_key_4 = @udf sen_key_4 by udf0.df_fillna_cols with data:''
+#sen_srcip = load pkl by sensitive/sensitive_ip.pkl
+sen_srcip = load pq by sensitive/sensitive_ip.pq
+alter sen_srcip by srcip:str,url_count:int,app_count:int,account:int,sensitive_count:int,s_num_sum:str
+if sen_srcip.index.size == 0 with sen_srcip = @udf udf0.new_df with srcip,app_count,url_count,account_count,sensitive_count,s_num_sum,_id
+
+foreach sen_key_4 run """
+	## 排名分布
+	sen_srcip_4 = filter sen_srcip by s_num_sum like @data
+	sen_srcip_4 = order sen_srcip_4 by sensitive_count with desc limit 10
+	sen_srcip_4 = loc sen_srcip_4 by srcip,sensitive_count
+	rename sen_srcip_4 as ('sensitive_count':'数量')
+	sen_srcip_4 = order sen_srcip_4 by 数量 with asc
+	sen_srcip_4.详情 = lambda srcip by (x:x)
+	sen_srcip_4 = loc sen_srcip_4 by srcip to index
+	store sen_srcip_4 to ssdb by ssdb0 with sen_srcip_4:@id
+	##：标题
+	aa = @udf udf0.new_df with (title)
+	if '@data' != '' with aa = @udf aa by udf0.df_append with @data
+	if '@data' != '' with aa.title = str title by (slice(0,6))
+	if '@data' != '' with aa.title = lambda title by (x:'涉及'+x+'的终端分布')
+	store aa to ssdb by ssdb0 with title:@id 
+""" with (data = $1,id = $2)
+
+
+
+clear @FID

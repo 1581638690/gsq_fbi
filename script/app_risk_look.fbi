@@ -1,0 +1,13 @@
+#LastModifyDate:　2024-01-16T17:33:40    Author:   zwl
+#LastModifyDate:　2023-07-06T10:25:04.472817    Author:   zwl
+use @FID
+
+b = load pq by dt_table/app_risk.pq
+b = filter b by _id == @_id
+b = loc b by drop _id
+
+
+rename b as ('app':'应用','app_name':'应用名','dest_ip_sum':'服务器IP','api_num':'接口总数','api_count':'接口弱点量','state_num':'弱点状态分布','type_num':'弱点类型分布')
+push b as look
+
+clear @FID

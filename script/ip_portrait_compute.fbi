@@ -1,0 +1,60 @@
+#LastModifyDate:　2024-01-18T18:01:45    Author:   superFBI
+#LastModifyDate:　2023-08-23T17:15:09.333929    Author:   zwl
+#LastModifyDate:　2023-07-17T14:32:44.189829    Author:   zwl
+#LastModifyDate:　2023-05-26T14:01:22.143906    Author:   zwl
+#LastModifyDate:　2023-05-12T15:01:15.616418    Author:   zwl
+#LastModifyDate:　2023-05-11T18:15:49.452445    Author:   zwl
+#LastModifyDate:　2022-11-02T15:02:08.828139    Author:   pjb
+use @FID
+
+##断点取数据的时间区间
+aa = load ssdb by ssdb0 with ip_portrait_compute
+##判断key是否为空，若为空，取api_visit_hour的最小值
+a_num = eval aa by index.size
+if $a_num == 0 with aa = load ckh by ckh with select min(time) as time from api_visit_hour
+#aa = load ckh by ckh with select min(time) as time from api_visit_hour
+time1 = eval aa by iloc[0,0]
+##取已有数据的最大值
+aa = load ckh by ckh with select max(time) as time from api_visit_hour
+time2 = eval aa by iloc[0,0]
+store aa to ssdb by ssdb0 with ip_portrait_compute
+
+
+#从访问表中 统计终端IP的基本信息
+#1、通过ip访问次数
+srcip_visits_num = load ckh by ckh with select srcip ,sum(visit_num) as visit_num1 from api_visit_hour where time >= '$time1' and time < '$time2' group by srcip
+#2、ip访问接口的数量
+srcip_api_num = load ckh by ckh with select a.srcip, count(a.srcip) as api_num from (select url,srcip from api_visit_hour group by url,srcip ) a group by a.srcip
+srcip_api = join srcip_visits_num,srcip_api_num by srcip,srcip
+drop srcip_visits_num
+drop srcip_api_num
+#3、ip访问的账号数量
+srcip_account_num = load ckh by ckh with select a.srcip, count(a.srcip) as account_num from (select srcip,account from api_visit_hour where account != '' group by srcip,account ) a group by a.srcip
+srcip_api = join srcip_api,srcip_account_num by srcip,srcip with outer
+drop srcip_account_num
+#4、ip访问应用数量
+srcip_app_num = load ckh by ckh with select a.srcip, count(a.srcip) as app_num from (select app,srcip from api_visit_hour group by app,srcip ) a group by a.srcip
+srcip_api = join srcip_api,srcip_app_num by srcip,srcip
+drop srcip_app_num
+#5、ip总访问流量
+srcip_visits_flow = load ckh by ckh with select srcip, sum(visit_flow) as visit_flow1 from api_visit_hour where time >= '$time1' and time < '$time2' group by srcip
+srcip_api = join srcip_api,srcip_visits_flow by srcip,srcip
+drop srcip_visits_flow
+srcip_api = @udf srcip_api by udf0.df_fillna_cols with visit_num1:0,api_num:0,srcip:0,account_num:0,app_num:0,visit_flow1:0
+# 6.最后访问时间
+srcip_lasttime = load ckh by ckh with select srcip, MAX(`time`) as lasttime from api_visit_hour group by srcip
+alter srcip_lasttime by lasttime:str
+srcip_api = join srcip_api,srcip_lasttime by srcip,srcip
+drop srcip_visits_flow
+#连接
+srciplist1 = @udf RS.load_mysql_sql with (mysql1,select id,srcip,region,type,flag,firsttime,network,visit_num as visit_num2,visit_flow as visit_flow2 from data_ip_new)
+srciplist1 = @udf srciplist1 by udf0.df_fillna_cols with visit_num2:0,network:0,srcip:0,visit_flow2:0
+srciplist1 = join srciplist1,srcip_api by srcip,srcip
+srciplist1 = add visit_num by df["visit_num1"]+df["visit_num2"]
+srciplist1 = add visit_flow by df["visit_flow1"]+df["visit_flow2"]
+srciplist1 = loc srciplist1 by id,srcip,region,type,flag,firsttime,network,visit_num,visit_flow,app_num,api_num,account_num,lasttime
+drop srcip_api
+srciplist1 = @udf srciplist1 by udf0.df_set_index with id
+srciplist1 = @udf srciplist1 by CRUD.save_table with (mysql1,data_ip_new)
+
+clear @FID
