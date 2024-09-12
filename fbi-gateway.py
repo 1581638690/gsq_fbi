@@ -15,7 +15,7 @@ sys.path.append("lib")
 from multiprocessing import Process,current_process
 from urllib.parse import quote
 
-import traceback  
+import traceback
 import os, signal,shutil
 
 import time
@@ -103,7 +103,7 @@ def app_mianmi():
 	ak = request.query.AK
 	#类型分为几种,可以是应用,可以是dashboad
 	key = request.query.key
-	#add by gjw on 2021-10-14,可以传递其他参数 
+	#add by gjw on 2021-10-14,可以传递其他参数
 	others=[]
 	for k,v in request.query.items():
 		if k not in ["user","AK","key","port"]:
@@ -133,9 +133,9 @@ def app_mianmi():
 		response.set_cookie("userName", user,path="/")
 
 		response.set_cookie("eng", str(eng), path="/")
-		fea_session_key = "fbi_session:%s" % (session)		
+		fea_session_key = "fbi_session:%s" % (session)
 		user_info = fbi_user_mgr.get_user_by_name(user)
-		ssdb0.set(fea_session_key, "%s:%s"%(user,user_info["isadmin"])) 
+		ssdb0.set(fea_session_key, "%s:%s"%(user,user_info["isadmin"]))
 		build_sysrule(ssdb0,user_info)
 		if "port"  not in request.query:
 			path = "/wap.h5?key=%s&%s" % (key,other_p)
@@ -156,7 +156,7 @@ def up_auth_key():
 	try:
 		data=request.params.get("data")
 		user = json.loads(data)
-		
+
 		#校验老密码
 		if "old_auth_key" not in user:
 			raise Exception("不能修改密码，请升级UI版本到2022-0324之后!")
@@ -167,7 +167,7 @@ def up_auth_key():
 		pwd = base64.b64decode(pwd).decode("utf8")
 		if len(pwd) <8: raise Exception("新密码不能少于8位!")
 		session= get_session(request)
-		
+
 		if user["name"]== get_user_by_session(session)[0]:
 			auth_code = fbi_user_mgr.auth2_user(user["name"],old_pwd, request.remote_addr) #任意用户都可以修改
 			if auth_code == 1:
@@ -223,7 +223,7 @@ def list_alltable():
 
 
 
-#add by gjw on 20200829, 保存智能事件分析器的配置 
+#add by gjw on 20200829, 保存智能事件分析器的配置
 @route('/ev/<key>', method="POST")
 def events(key):
 	ret = check_session(request,response)
@@ -290,7 +290,7 @@ def evs_start_task(key,port,user,debug=False):
 	else:
 		a=[key,"","ev/model%s.fbi"%(key)]
 	timer_meta = ssdb0.get("#timer_meta:event%s"%(a[0]))
-	
+
 	if timer_meta !=None and timer_meta !="":
 		meta = json.loads(timer_meta)
 		now = datetime.now()
@@ -301,7 +301,7 @@ def evs_start_task(key,port,user,debug=False):
 		else:
 			meta["beginT"] = (now - timedelta(minutes=meta["timer"])).isoformat()
 
-		#准备运行		
+		#准备运行
 		prmtv = "run "+a[2]+" with @model={model}, @version={version},@timestamp={@timestamp},@beginT={beginT},@endT={endT}".format(**meta)
 		d = local_run("127.0.0.1",port,prmtv,"",user)
 
@@ -311,7 +311,7 @@ def evs_start_task(key,port,user,debug=False):
 
 		ssdb0.set("#timer_meta:%sevent"%(a[0]),json.dumps(meta))
 		return d
-	#end if 
+	#end if
 	return {"error":"没有找到相应的配置信息!"}
 #end  evs_start_task
 
@@ -369,35 +369,35 @@ def logstash_moniter(key):
 	try:
 		action = request.query.action
 		if action == "cfg":
-			ret = lg_m_cfg(key)	
+			ret = lg_m_cfg(key)
 		elif action == "pipeline":
 			ret = lg_m_pipeline(key)
 		else: #update
 			ret = lg_m_pipeline(key)
 		result["ret"] = ret
-	except Exception as e:		
+	except Exception as e:
 		result["success"]=0
 		result["err"]=e.__str__()
 
 	return json.dumps(result)
 
-		
+
 #日志跟踪
 @route('/putlog',method="POST")
 def put_log():
 	try:
 		value=request.params.get("value")
 		session= get_session(request)
-		
+
 		user = get_user_by_session(session)[0]
 		if user==None or user=="":  return "you can't access data!"
 		#日志详情
 		putlog_ssdb(user,value,request.remote_addr)
-		response.set_header("Content-Type", 'application/json; charset=UTF-8')		
+		response.set_header("Content-Type", 'application/json; charset=UTF-8')
 		return '{"success":1}'
 	except:
 		return '{"success":false,"err":"未知的格式"}'
-		
+
 def putlog_ssdb(user,value,remote_addr,operate_result=None,failed_reason=None):
 	d = json.loads(value)
 	d["user"] = user
@@ -409,7 +409,7 @@ def putlog_ssdb(user,value,remote_addr,operate_result=None,failed_reason=None):
 	if failed_reason:
 		d["failed_reason"] = failed_reason
 	ssdb0.qpush( "Q_log_%s"%(d["timestamp"][0:10]),json.dumps(d) )
-		
+
 #临时key数据
 @route('/put300/<db>/<key>',method="POST")
 def ssdb_put300(db,key):
@@ -470,7 +470,7 @@ def check_session(request,response):
 def get_session(request):
 	if request.get_header("fbi_area"):
 		return  request.get_cookie("fbi_session_{}".format(request.get_header("fbi_area")))
-	
+
 	session= request.query.fbi_session or request.params.fbi_session or request.cookies.fbi_session
 	return session
 
@@ -492,7 +492,7 @@ def check_isadmin(request):
 	session= get_session(request)
 	if not session:
 		raise Exception("you can't access data!")
-	user,isadmin = get_user_by_session(session)	
+	user,isadmin = get_user_by_session(session)
 	if (isadmin!="Y"):
 		raise Exception("{}没有权限，不能操作!".format(user))
 	return user
@@ -532,7 +532,7 @@ def KA():
 		if session=="": return "you can't access data!"
 		#add by gjw on 2023-1207 是否强制超时判断force_session_timeout
 		force_session_timeout = get_key("force_session_timeout")
-		
+
 		if force_session_timeout=="true":
 			return json.dumps({"success":True,"fbi_session":session})
 		#进入保活流程
@@ -545,7 +545,7 @@ def KA():
 		key="fbi_session:%s"%(session)
 
 		#add by gjw on 2022-0516 记录用户最后的会话
-		last_Key = "{}:last_fbisession".format(user)		
+		last_Key = "{}:last_fbisession".format(user)
 
 		#删除改为５秒后超时
 		#ssdb0.delete(fbi_session)
@@ -554,7 +554,7 @@ def KA():
 		ssdb0.set(key, user+":"+isadmin) #当前session
 		ssdb0.set(last_Key, session)
 		ssdb0.expire(key, itimeout)
-		
+
 		if request.get_header("fbi_area"):
 			response.set_cookie("fbi_session_{}".format(request.get_header("fbi_area")), session,max_age=itimeout,path="/")
 		else:
@@ -562,7 +562,7 @@ def KA():
 		return json.dumps({"success":True,"fbi_session":session})
 	except Exception as e :
 		return '{"success":false,"err":"%s","traceback":"%s"}' %(e,traceback.format_exc())
-		
+
 # 门户应用的登出
 @route('/logout')
 def logout2():
@@ -589,7 +589,7 @@ def system_now():
 	curtime = {"now":now,"timestamp":int(time.time()*1000)}
 	return json.dumps(curtime)
 
-#add by gjw on 20210421 
+#add by gjw on 20210421
 # 开发平台的注销
 @route('/logout2')
 def logout():
@@ -610,7 +610,7 @@ def logout():
 			user,name,session= user_session.split(":")
 			ssdb0.delete( user_session)
 			ssdb0.delete( "fbi_session:{}".format(session))
-		"""		
+		"""
 
 		response.delete_cookie("fbi_session",path="/")
 		log_session(user_name,request.remote_addr,";".join(request.remote_route),"注销","平台",\
@@ -643,7 +643,7 @@ def check_sysrule_dbds_failed(session,key_string):
 		if user==None or user=="": return True
 		if isadmin=="Y": return False
 		if user =="admin": return False
-		
+
 		SysRule = ssdb0.get("SysRule:dbds:%s"%(user))
 		SysRule_list = json.loads(SysRule)
 
@@ -651,7 +651,7 @@ def check_sysrule_dbds_failed(session,key_string):
 		for key in keys:
 			if check_ssdb_key_is_cfg(key):
 				if key not in SysRule_list:
-					return True				
+					return True
 		#False 为成功
 		return False
 	except:
@@ -676,7 +676,7 @@ def ssdb_query_json_one(db,key):
 		ret = ssdb0.get( b64(key) )
 	if ret==None:ret={}
 	return "%s"%(ret)
-	
+
 #获取数据key
 @route('/query/<db>', method=['POST', 'GET'])
 def ssdb_query_json(db):
@@ -689,19 +689,19 @@ def ssdb_query_json(db):
 
 	def get_hashitem(key):
 		name, subkey = key.split('=>')
-		if key.endswith('=>*'):		
+		if key.endswith('=>*'):
 			hvalue = ssdb0.hgetall(b64(name))
 			name_key = [b64(name) + "=>" + k for k in hvalue[::2]]
-			r_key = [name+"=>"+ db64(k) for k in hvalue[::2]]			
-			subvalue = hvalue[1::2]			
+			r_key = [name+"=>"+ db64(k) for k in hvalue[::2]]
+			subvalue = hvalue[1::2]
 			newvalue = []
 			for value in subvalue:
 				if value == None:
 					value1 = {}
 				else:
-					try:						
-						value1 = json.loads(value)						
-					except ValueError as e:						
+					try:
+						value1 = json.loads(value)
+					except ValueError as e:
 						value1 = value
 				newvalue.append(value1)
 			return dict(zip(r_key, newvalue))
@@ -715,7 +715,7 @@ def ssdb_query_json(db):
 				except ValueError as e:
 					subvalue1 = subvalue
 			return {key: subvalue1}
-	
+
 	def get_item(key):
 		value = ssdb0.get(b64(key))
 		if value==None: value="{}"
@@ -730,7 +730,7 @@ def ssdb_query_json(db):
 			keys = key.split(',')
 			for key in keys:
 				result.append(f'"{key}":{get_item(key)}')
-			return "{%s}"%(",".join(result))	
+			return "{%s}"%(",".join(result))
 	else:# hash的查找
 		return json.dumps(get_hashitem(key))
 
@@ -753,7 +753,7 @@ def udf_fun(pkg_fun):
 			df = pd.DataFrame()
 		else:
 			df = pd.read_json(df_json)
-		
+
 		# exec("from udf.%s import %s "%(pkg,fun))
 		# dfs = eval("%s(df,p)"%(fun))
 
@@ -769,8 +769,8 @@ def udf_fun(pkg_fun):
 		result["status"] = 1
 		result["errors"] = e.__str__()
 	finally:
-		if "udf.%s"%(pkg) in sys.modules:  
-			del(sys.modules["udf.%s"%(pkg)]) 
+		if "udf.%s"%(pkg) in sys.modules:
+			del(sys.modules["udf.%s"%(pkg)])
 	return json.dumps(result)
 
 
@@ -783,7 +783,7 @@ def check_xss(callback):
 
 #扫描多个key
 @route('/scan/<db>/<skey>/<ekey>')
-def ssdb_scan_json(db,skey,ekey,count=100):	
+def ssdb_scan_json(db,skey,ekey,count=100):
 	try:
 		user = check_isadmin(request)
 	except Exception as e:
@@ -799,7 +799,7 @@ def ssdb_scan_json(db,skey,ekey,count=100):
 		b.append(d)
 	ret = json.dumps(b)
 	return ret
-	
+
 
 #全文检索面板内容
 @route('/full/<db>/<skey>/<ekey>/<text>')
@@ -832,7 +832,7 @@ def ssdb_scan_dd():
 	a = ssdb0.keys("dd:","dd:~",10000)
 	ret = json.dumps(a)
 	return ret
-	
+
 #面板数量的统计
 @route('/dbd_sum')
 def dbd_sum():
@@ -895,7 +895,7 @@ def get_PK():
 	if PK=="":
 		PK = get_key( "PK" )
 	return PK
-	
+
 #所有用户信息
 @route('/list_user')
 def list_user():
@@ -903,7 +903,7 @@ def list_user():
 		user = check_isadmin(request)
 	except Exception as e:
 		return e.__str__()
-	res = fbi_user_mgr.get_all_user(user)	
+	res = fbi_user_mgr.get_all_user(user)
 	return json.dumps(res)
 
 #单个用户信息
@@ -932,16 +932,16 @@ def auth():
 			retry_count = 3
 		data=request.params.get("data")
 		user = json.loads(data)
-		
+
 		pwd = user["auth_key"]
 		pwd = base64.b64decode(pwd).decode("utf8")
 		pwd = pwd.strip()
-		if fail_cnt !=None and int(fail_cnt) >= retry_count:			
+		if fail_cnt !=None and int(fail_cnt) >= retry_count:
 			log_session(user["name"],request.remote_addr,";".join(request.remote_route),"登录","平台",\
 					"user:%s "%(user["name"] ),"失败","连续[%s]次登录失败,请过会再试!"%(retry_count))
 			raise Exception("连续登录失败,请过会再试!")
 
-		if len(pwd) <8:			
+		if len(pwd) <8:
 			log_session(user["name"],request.remote_addr,";".join(request.remote_route),"登录","平台",\
 					"user:%s,auth_key:%s"%(user["name"],pwd),"失败","验证失败，密码小于8位!")
 			raise Exception("验证失败，请确认用户名和密码有效再登录!")
@@ -954,33 +954,33 @@ def auth():
 			# 获取session
 			session = get_session_id(user["name"])
 			key = "fbi_session:%s" % (session)
-			
+
 			"""
 			#add by gjw on 2022-0213　可以有多个相同用户同时登录后台
 			user_sessions = "user_session:{}:{}".format(user["name"],session)
 			ssdb0.set(user_sessions, session)
 			ssdb0.expire(user_sessions, itimeout)
 			"""
-			
+
 			#add by gjw on 2024-0108 记录用户最后的会话
 			last_Key = "{}:last_fbisession".format(user["name"])
 			last_session = ssdb0.get(last_Key)
 			if last_session !=None and last_session !="":
 				ssdb0.delete("fbi_session:%s" % (last_session))
 			ssdb0.set(last_Key, session)
-			
+
 			#记录本次session
-			ssdb0.set(key, user["name"]+":"+ret["isadmin"])			
+			ssdb0.set(key, user["name"]+":"+ret["isadmin"])
 			ssdb0.expire(key, itimeout)
-			
+
 			#add by gjw on 2022-0519 返回eng
 			eng = fbi_eng_mgr.get_user_eng(user["name"])
-			
+
 			#固化到前端
 			response.set_cookie("fbi_session",session,max_age=itimeout,path="/")
 			response.set_cookie("eng",eng,max_age=itimeout,path="/")
 			response.set_cookie("work_space","public",max_age=itimeout,path="/")
-		
+
 			log_session(user["name"],request.remote_addr,";".join(request.remote_route),"登录","平台",\
 					"user:%s"%(user["name"]),"成功","")
 			return json.dumps({"success":True,"fbi_session":session})
@@ -1062,14 +1062,14 @@ def node_run():
 	elif block=="block":
 		d = local_run_block("127.0.0.1",eng,data,"public",node_info[2])
 	elif eng=="9000": #采用本地定时调度引擎执行， 2022-0318
-		
+
 		put_timer("{}_{}".format(node,time.time()),"* * * * * *",data)
 		d["ret"]=0
 		d["error"]=""
 		d["result"]=[]
 	else:#异步执行
 		d = local_run("127.0.0.1",eng,data,"public",node_info[2])
-	
+
 	if "result" in d and  isinstance(d["result"],list) and len(d["result"])>0:
 		d["result"][0]["TI"] = "%s:%s"%(d["result"][0]["TI"],node)
 	return New_encrypt(node_info[1],json.dumps(d))
@@ -1091,7 +1091,7 @@ def ssdb_rw():
 		d["msg"] = "[%s]master主机信息不匹配!"%(request.remote_addr)
 		return New_encrypt(node_info[1],json.dumps(d))
 	try:
-		data = New_decrypt(node_info[1],datas)		
+		data = New_decrypt(node_info[1],datas)
 	except:
 		d["msg"] = "不能识别的通信回话!"
 		return New_encrypt(node_info[1],json.dumps(d))
@@ -1113,11 +1113,11 @@ def ssdb_rw():
 	except:
 		d["ret"] = -1
 		d["msg"] = "原语执行出错"
-	
+
 	return New_encrypt(node_info[1],json.dumps(d))
 
 
-#使用队列记录操作日志 
+#使用队列记录操作日志
 def loglog(user,ip,route,action,nav,params,result,reason):
 	d={}
 	d["user"] = user
@@ -1129,8 +1129,8 @@ def loglog(user,ip,route,action,nav,params,result,reason):
 	d["params"] = params
 	d["operate_result"] = result
 	d["failed_reason"] = reason
-	ssdb0.qpush( "Q_log_%s"%(d["timestamp"][0:10]),json.dumps(d) ) 
-	
+	ssdb0.qpush( "Q_log_%s"%(d["timestamp"][0:10]),json.dumps(d) )
+
 #使用队列记录回话日志（登录和登出）
 #add 登录登出会同时记录到操作日志中
 def log_session(user,ip,route,action,nav,params,result,reason):
@@ -1145,7 +1145,7 @@ def log_session(user,ip,route,action,nav,params,result,reason):
 	d["operate_result"] = result
 	d["failed_reason"] = reason
 	ssdb0.qpush( "Q_log2_%s"%(d["timestamp"][0:10]),json.dumps(d) )
-	ssdb0.qpush( "Q_log_%s"%(d["timestamp"][0:10]),json.dumps(d) ) 
+	ssdb0.qpush( "Q_log_%s"%(d["timestamp"][0:10]),json.dumps(d) )
 
 #add by gjw on 20200319,获取登录token
 @route('/login_token')
@@ -1175,7 +1175,7 @@ def auth2():
 			retry_count = int(retry_count)
 		except:
 			retry_count = 3
-		
+
 		fail_key = "FAIL:%s" % (request.remote_addr)
 		fail_cnt = ssdb0.get(fail_key)
 
@@ -1188,21 +1188,21 @@ def auth2():
 			long_time = int(long_time)
 		except:
 			long_time = 0
-		
-		
+
+
 		pwd = user["auth_key"]
 		pwd = base64.b64decode(pwd).decode("utf8")
-		pwd = pwd.strip()		
-		if fail_cnt != None and int(fail_cnt) >= retry_count:			
+		pwd = pwd.strip()
+		if fail_cnt != None and int(fail_cnt) >= retry_count:
 			log_session(user["name"], request.remote_addr, ";".join(request.remote_route), "登录", "应用", \
 				   "user:%s " % (user["name"]), "失败", "连续[%s]次登录失败,请过会再试!"%(retry_count))
 			raise Exception("连续登录失败,请过会再试!")
 
 		if len(pwd) < 6:
 			log_session(user["name"], request.remote_addr, ";".join(request.remote_route), "登录", "应用", \
-				   "user:%s,auth_key:%s" % (user["name"], pwd), "失败", "验证失败，密码小于6位!")		
+				   "user:%s,auth_key:%s" % (user["name"], pwd), "失败", "验证失败，密码小于6位!")
 			raise Exception("验证失败，请确认用户名和密码有效再登录!")
-		
+
 		auth2_code = fbi_user_mgr.auth2_user(user["name"], pwd, request.remote_addr)
 		if auth2_code == 1:
 			# 返回portal和nav,其实是port和app
@@ -1212,7 +1212,7 @@ def auth2():
 				#账户修改的时间
 				if "modificationdate" in ret:
 					timestamp_ = ret["modificationdate"]
-				else:					
+				else:
 					timestamp_ = 0
 				#当前时间
 				current_time = time.time()
@@ -1224,7 +1224,7 @@ def auth2():
 			#max_age=itimeout,
 			if ret["nav"]=="":
 				raise Exception("没有指定的应用，无法登录!")
-			
+
 			# 获取session
 			session = get_session_id(user["name"])
 			key = "fbi_session:%s" % (session)
@@ -1239,7 +1239,7 @@ def auth2():
 			ssdb0.set(key, user["name"]+":"+ret["isadmin"])
 			ssdb0.expire(key, itimeout)
 
-			#add by gjw on 2020-1222 增加系统规则的生成函数	
+			#add by gjw on 2020-1222 增加系统规则的生成函数
 			try:
 				build_sysrule(ssdb0,ret)
 			except:
@@ -1249,18 +1249,18 @@ def auth2():
 			eng = ""
 			if ret["isadmin"]=="Y":
 				eng = fbi_eng_mgr.get_user_eng(user["name"])
-				
+
 			#是否初始化密码
 			initial = False
 			if pwd == "ABC@2020":
 				initial = True
-				
+
 			#add by gjw on 2023-01010 fbi的area
 			if request.get_header("fbi_area"):
 				response.set_cookie("fbi_session_{}".format(request.get_header("fbi_area")), session,  path="/")
 			else:
 				response.set_cookie("fbi_session", session,  path="/")
-			response.set_cookie("eng", eng, path="/")			
+			response.set_cookie("eng", eng, path="/")
 			response.set_cookie("work_space","public",path="/")
 			log_session(
 				user["name"],
@@ -1275,7 +1275,7 @@ def auth2():
 			)
 			return json.dumps(
 				{"success": True, "fbi_session": session, "portal": eng, "nav": ret.get('nav', ''),"loginday":loginday,"initial":initial})
-		elif auth2_code == 0:		
+		elif auth2_code == 0:
 			log_session(
 				user["name"],
 				request.remote_addr,
@@ -1285,9 +1285,9 @@ def auth2():
 				"user:%s,auth_key:%s" % (user["name"], pwd),
 				"失败",
 				"验证失败，请确认用户名和密码有效再登录!"
-			)	   
+			)
 			raise Exception("验证失败，请确认用户名和密码有效再登录!")
-		else:			
+		else:
 			log_session(
 				user["name"],
 				request.remote_addr,
@@ -1324,7 +1324,7 @@ def get_SN():
 		return get_key("PK")
 	else:
 		return '{"success":1}'
-		
+
 #授权状态
 @route('/aks')
 def get_aks():
@@ -1335,7 +1335,7 @@ def get_aks():
 	y = get_key("SN")
 	aks = yyy(x,y)
 	return "{'state':%s}"%(aks[0])
-	
+
 #授权状态
 @route('/days')
 def get_days():
@@ -1378,7 +1378,7 @@ def new_xlink():
 		return json.dumps({'success':-1,'error':e.__str__()})
 
 
-#上传文件 
+#上传文件
 @route('/putfile',method="POST")
 def putfile():
 	try:
@@ -1435,7 +1435,7 @@ def putfile2():
 		portal = request.params.get("portal")
 		upload = request.files.get('jUploaderFile')
 		nums = upload.raw_filename.rfind(".")
-		if (nums==-1):raise Exception("非法的文件!")	
+		if (nums==-1):raise Exception("非法的文件!")
 		upload.save(image_path,True)
 		os.rename(image_path+upload.filename,image_path+portal+".gif")
 		return json.dumps({"success":True})
@@ -1450,13 +1450,13 @@ def putfile3():
 		ret2 = check_session(request,response)
 		if ret2!=0:
 			raise Exception("没有认证，无法操作！")
-		upload = request.files.get('jUploaderFile')	
+		upload = request.files.get('jUploaderFile')
 		nums = upload.raw_filename.rfind(".")
 		if (nums==-1):raise Exception("非法的文件!")
 		if upload.raw_filename[nums:] not in [".gif",".png",".jpeg",".jpg"]:
 			raise Exception("非法的文件格式！")
 		upload.save(image_path,True)
-		ret["filename"] = upload.filename	
+		ret["filename"] = upload.filename
 		df={"index":[1],"columns":["image"],"data":[["/images/logo/"+ret["filename"]]]}
 		ssdb0.set("IMG:"+ret["filename"],json.dumps(df))
 		return  json.dumps(ret)
@@ -1464,9 +1464,9 @@ def putfile3():
 		ret["success"] = False
 		ret["error"] = e.__str__()
 		return json.dumps(ret)
-		
-		
-#上传文件 
+
+
+#上传文件
 @route('/putfile4',method="POST")
 def putfile4():
 	#加上时间标记的文件
@@ -1477,7 +1477,7 @@ def putfile4():
 		a = int(time.time())
 		ftype = request.params.get("filetype")
 		subdir = request.params.get("subdir") or ""
-		upload = request.files.get('jUploaderFile')		
+		upload = request.files.get('jUploaderFile')
 		nums = upload.raw_filename.rfind(".")
 		if (nums==-1):raise Exception("非法的文件!")
 		if upload.raw_filename[nums:] not in [".gif",".png",".jpeg",".jpg"]:
@@ -1490,14 +1490,14 @@ def putfile4():
 		return json.dumps({'success':-1,'error':e.__str__()})
 
 
-#复制脚本 
+#复制脚本
 @route('/cp_fbi', method="POST")
 def copy_script():
 	try:
 		ret = check_session(request, response)
 		if ret != 0:
 			raise Exception("没有认证，无法操作！")
-		
+
 		check_isadmin(request)
 
 		src_file = request.params.get("src")
@@ -1507,7 +1507,7 @@ def copy_script():
 			dir_v = src_file.split("--")[0]
 			if dir_v in syss:
 				src_file = "system/" + src_file
-		src_file = src_file.replace("--", "/")		
+		src_file = src_file.replace("--", "/")
 		if name.find("--") > 0:
 			os.makedirs(file_path["fbi"] + "/".join(name.split("--")[0:-1]), exist_ok=True)
 			name = name.replace("--", "/")
@@ -1521,7 +1521,7 @@ def copy_script():
 #defines的编辑
 @route('/DFEditing',method="POST")
 def post_DFEditing():
-	
+
 	try:
 		ret = check_session(request,response)
 		if ret!=0:
@@ -1547,16 +1547,16 @@ def put_fbi():
 		ret = check_session(request,response)
 		if ret!=0:
 			raise Exception("没有认证，无法保存！")
-		
+
 		user = check_isadmin(request)
 		name = request.params.get("name")
 		if name[0]=='"' and name[-1]=='"':
 			name = name[1:-1]
-		
+
 		if name.startswith("-"):raise Exception("文件名不合法!")
 		if name.startswith("/"):raise Exception("文件名不合法!")
 		if name.find("..") >0:raise Exception("文件名不合法!")
-		
+
 		data = request.params.get("data")
 		data = base64.b64decode(data.encode("utf8")).decode("utf8")
 
@@ -1568,9 +1568,9 @@ def put_fbi():
 		if (nums==-1):raise Exception("不能识别的脚本文件!")
 		#if name[nums:] not in [".fbi",".xlk"] :raise Exception("文件名不合法,只能以.fbi或.xlk结尾!")
 
-		#add by gjw on 2021-0820 
+		#add by gjw on 2021-0820
 		if name.startswith("system"):
-			raise Exception("系统脚本,不能在线编辑! [%s]"%(name)); 
+			raise Exception("系统脚本,不能在线编辑! [%s]"%(name));
 
 		now = datetime.now().isoformat()[0:19]
 
@@ -1590,10 +1590,10 @@ def put_fbi():
 			else:
 				contents.append(line)
 		data = "\n".join(contents)
-		with open(file_path["fbi"]+name,"wb+") as f:			
+		with open(file_path["fbi"]+name,"wb+") as f:
 			f.write("#LastModifyDate:　{}    Author:   {}\n".format(now,user).encode("utf8"))
 			f.write(data.encode("utf8"))
-		
+
 		if name[nums:]==".xlk":
 			from avenger.xlink import compile_xlk
 			compile_xlk(name)
@@ -1658,7 +1658,7 @@ def put_images():
 		if ret2 != 0:
 			raise Exception("没有认证，无法操作！")
 		upload = request.files.get('jUploaderFile')
-	
+
 		nums = upload.raw_filename.rfind(".")
 		if (nums==-1):raise Exception("非法的文件!")
 		if upload.raw_filename[nums:] not in [".gif", ".png", ".jpeg", ".jpg", ".zip"]:
@@ -1723,7 +1723,7 @@ def put_login():
 #更新cookie
 @route('/ch_cookie',method="POST")
 def ch_cookie():
-	try:	
+	try:
 		ret = check_session(request,response)
 		if ret!=0:
 			raise Exception("没有认证，无法更新！")
@@ -1750,7 +1750,7 @@ def run_block():
 	work_space = request.params.get("work_space") or request.cookies.work_space or "public"
 	if work_space[0]=='"' and work_space[-1]=='"':
 		work_space = work_space[1:-1]
-	
+
 	session= get_session(request)
 
 	if server=="127.0.0.1":
@@ -1759,26 +1759,26 @@ def run_block():
 	else:
 		#remote_run 会调用远程机器的remote_run,所以需要session
 		d = local_run_block(server,port,block_code,work_space,session)
-	
+
 	d["server"] = server
 	d["port"] = port
-	
+
 	if "work_space" in d:
 		response.set_cookie("work_space",d["work_space"])
 	response.set_cookie("eng",port)
 	if "name" in d:
 		response.set_cookie("cur_df",d["name"])
 	return json.dumps(d)
-	
-	
+
+
 
 @route('/run_blocks',method="POST")
 def run_blocks():
-	#add by gjw on 20200915 增加对后台引擎的同步代码块执行功能	
+	#add by gjw on 20200915 增加对后台引擎的同步代码块执行功能
 	ret = check_session(request,response)
 	if ret!=0:
 		return {"prmtv":"block code","ret":1,"error":"身份未验证，不能执行！","action":0,"result":0}
-	
+
 	server = "127.0.0.1"
 	port = request.params.get("eng") or request.cookies.eng or "9002"
 
@@ -1792,17 +1792,17 @@ def run_blocks():
 
 	session= get_session(request)
 	d = local_run_blocks(server,port,block_code,work_space,get_user_by_session(session)[0])
-	
+
 	d["server"] = server
 	d["port"] = port
-	
+
 	if "work_space" in d:
 		response.set_cookie("work_space",d["work_space"])
 	response.set_cookie("eng",port)
 	if "name" in d:
 		response.set_cookie("cur_df",d["name"])
 	return json.dumps(d)
-		
+
 
 @route('/run_blockp',method="POST")
 def run_blockp():
@@ -1819,15 +1819,15 @@ def run_blockp():
 	if work_space[0]=='"' and work_space[-1]=='"':
 		work_space = work_space[1:-1]
 
-	#add by gjw on 20231214 放置参数			
+	#add by gjw on 20231214 放置参数
 	for name,value in request.params.items():
 		if name not in ["block","work_space","putlog"]:
 			fbi_global.put_param(name,value)
-	
+
 	if "putlog" in request.params:
 		putlog_ssdb(user,request.params.putlog,request.remote_addr)
 	#end for
-	
+
 	ret,error,datas = run_block_in_sync(block_code,work_space,user)
 	d = {"prmtv":"","ret":ret,"error_info":error,'error_count':ret,"action":0,"result":[],"datas":datas}
 	fbi_global.clear_params()
@@ -1835,9 +1835,9 @@ def run_blockp():
 	if "work_space" in d:
 		response.set_cookie("work_space",d["work_space"])
 	return json.dumps(d)
-	
 
-#显示工作区的数据文件 
+
+#显示工作区的数据文件
 @route('/list_data')
 def list_data():
 	ret = check_session(request,response)
@@ -1864,9 +1864,9 @@ def fbi_history():
 	filename = request.query.filename
 	filename = filename.replace("--","/")
 	a = []
-	for filepath in glob.glob(file_path['ffdb']+"/"+filename+"*"):		
+	for filepath in glob.glob(file_path['ffdb']+"/"+filename+"*"):
 		a.append(filepath)
-	
+
 	a.sort(reverse=True)
 	return json.dumps(a)
 
@@ -1881,7 +1881,7 @@ def fbi_version():
 	with open(filename,"r") as f:
 		a = f.read()
 	return a
-	
+
 #返回xlink的运行日志
 @route('/xlink_log/<name>',method="GET")
 def xlink_log(name):
@@ -1900,9 +1900,9 @@ def xlink_log(name):
 	a.reverse()
 	return json.dumps(a)
 
-#显示工作区的数据文件 
+#显示工作区的数据文件
 @route('/list_data3')
-def list_data3():	
+def list_data3():
 	ret = check_session(request,response)
 	if ret!=0:
 		return "{}"
@@ -1945,9 +1945,9 @@ def list_data3():
 	d={"data":ids}
 	return json.dumps(d)
 
-#显示工作区的数据文件 
-@route('/list_data2')
-def list_data2():	
+#显示工作区的数据文件
+# @route('/list_data3')
+def zhushi_list_data2():
 	ret = check_session(request,response)
 	if ret!=0:
 		return "{}"
@@ -1968,7 +1968,7 @@ def list_data2():
 		nodeid = int(nodeid)
 		i= nodeid*1000
 		node = request.query.node
-		
+
 	path = file_path['data']+node
 
 	dir_list=[]
@@ -1989,15 +1989,61 @@ def list_data2():
 		if os.path.isdir(real_path):
 			dir_name = real_path[len( file_path['data']):]+"/"
 			ids.append({"id":i,"pId":nodeid,"name":filename,"isParent": "true","dir_name":dir_name,"url":real_path})
-			i += 1			
+			i += 1
 		else:
 			if filename.find(".")!=0:
 				filesize = os.path.getsize(real_path)/1024/1024
 				ids.append({"id":i,"pId":nodeid,"name":"%s [%sM]"%(filename,round(filesize,2)),"url":real_path})
-				i +=1				
+				i +=1
 	#end for
 	d={"data":ids}
 	return json.dumps(d)
+
+@route("/list_data2")
+def list_data2():
+    ret = check_session(request, response)
+    if ret != 0:
+        return "{}"
+    session = get_session(request)
+    user = get_user_by_session(session)[0]
+    # 开始
+    ids = []
+    nodeid = request.query.nodeid
+
+    if nodeid == None or nodeid == "":
+        nodeid = 0
+        ids.append({"id": 0, "pId": nodeid, "name": "数据目录", "open": "true", "dir_name": "/", "chkDisabled": "true"})
+        i = 1
+        node = ""
+    else:
+        nodeid = int(nodeid)
+        i = nodeid * 1000
+        node = request.query.node
+
+    path = file_path["data"] + node
+    try:
+        # 判断如果是文件夹走那个，文件走这个
+        for dpath, d, filenames in os.walk(path, True):
+            d.sort()  # 获取当前目录下目录文件
+            for name in d:
+                real_path = os.path.join(dpath, name)
+                dir_name = real_path[len(file_path['data']):] + "/"
+                ids.append(
+                    {"id": i, "pId": nodeid, "name": name, "isParent": "true", "dir_name": dir_name, "url": real_path})
+                i += 1
+            filenames.sort()  # 获取当前目录下文件
+            for filename in filenames:
+                if filename.find(".") != 0:
+                    real_path = os.path.join(dpath, filename)
+                    filesize = os.path.getsize(real_path) / 1024 / 1024
+                    ids.append(
+                        {"id": i, "pId": nodeid, "name": "%s [%sM]" % (filename, round(filesize, 2)), "url": real_path})
+                    i += 1
+            break
+        dd = {"data": ids}
+        return json.dumps(dd)
+    except Exception as e:
+        return e.__str__()
 
 #显示所有脚本
 @route('/list_fbi')
@@ -2015,10 +2061,10 @@ def list_fbi():
 	ids.append({"id":i,"pId":i,"name":"脚本目录","open":"true","dir_name":"/","chkDisabled":"true"})
 	pids[file_path['fbi']]=i
 	i += 1
-	for path,d,files in os.walk(file_path['fbi'],True): 
+	for path,d,files in os.walk(file_path['fbi'],True):
 		d.sort()
 		for name in d:
-			dir_name = os.path.join(path, name)[len(file_path['fbi']):]+"/"			
+			dir_name = os.path.join(path, name)[len(file_path['fbi']):]+"/"
 			if name.find("__") == 0 and name[2:] != user and user != "superFBI": #不是自己的私有目录不能添加,superFBI可以看全部
 				no_access_dirs.append(os.path.join(path, name))
 			else:
@@ -2028,8 +2074,8 @@ def list_fbi():
 				i += 1
 			#endif
 		files.sort()
-		for filename in files:					
-			if path not in no_access_dirs :				
+		for filename in files:
+			if path not in no_access_dirs :
 				ids.append({"id":i,"pId":pids[path],"name":filename,"url":"/db/dls/"+os.path.join(path, filename)[7:].replace("/","--"),"target":"_blank"})
 				i +=1
 		#endfor
@@ -2051,15 +2097,15 @@ def search_fbi():
 	no_access_dirs= [] #不能访问的目录
 	result = []	#结果列表
 
-	for path,d,files in os.walk(file_path['fbi'],True): 
+	for path,d,files in os.walk(file_path['fbi'],True):
 		d.sort()
-		for name in d: #目录					
+		for name in d: #目录
 			if name.find("__") == 0 and name[2:] != user and user != "superFBI": #不是自己的私有目录不能添加,superFBI可以看全部
-				no_access_dirs.append(os.path.join(path, name))			
+				no_access_dirs.append(os.path.join(path, name))
 			#endif
 		files.sort()
-		for filename in files:	#文件				
-			if path not in no_access_dirs :				
+		for filename in files:	#文件
+			if path not in no_access_dirs :
 				#ids.append({"id":i,"pId":pids[path],"name":filename,"url":"/db/dls/"+os.path.join(path, filename)[7:].replace("/","--"),"target":"_blank"})
 				with open(os.path.join(path, filename)) as f:
 					try:
@@ -2073,9 +2119,9 @@ def search_fbi():
 							result.append({"name":filename,"url":os.path.join(path, filename)[7:].replace("/","--"),"hits":file_hits,"mtime":mtime})
 					except:
 						pass
-				#end with 			
+				#end with
 		#endfor
-	#endfor	
+	#endfor
 	result.sort(key=lambda x:x["mtime"],reverse=True)
 	return json.dumps(result)
 
@@ -2087,31 +2133,31 @@ def modified_fbi():
 		return "{}"
 	session= get_session(request)
 	user = get_user_by_session(session)[0]
-	
+
 	#开始
 	no_access_dirs= [] #不能访问的目录
-	result = []	
+	result = []
 
-	for path,d,files in os.walk(file_path['fbi'],True): 
+	for path,d,files in os.walk(file_path['fbi'],True):
 		d.sort()
-		for name in d: #目录					
+		for name in d: #目录
 			if name.find("__") == 0 and name[2:] != user and user != "superFBI": #不是自己的私有目录不能添加,superFBI可以看全部
-				no_access_dirs.append(os.path.join(path, name))			
+				no_access_dirs.append(os.path.join(path, name))
 			#endif
 		files.sort()
-		for filename in files:	#文件				
-			if path not in no_access_dirs :				
+		for filename in files:	#文件
+			if path not in no_access_dirs :
 				#ids.append({"id":i,"pId":pids[path],"name":filename,"url":"/db/dls/"+os.path.join(path, filename)[7:].replace("/","--"),"target":"_blank"})
 				with open(os.path.join(path, filename)) as f:
 					try:
 						line = f.readline()
-						file_hits = []			
-						file_hits.append({"num":1,"line":line})					
+						file_hits = []
+						file_hits.append({"num":1,"line":line})
 						mtime = os.path.getmtime(os.path.join(path, filename))
 						result.append({"name":filename,"url":os.path.join(path, filename)[7:].replace("/","--"),"hits":file_hits,"mtime":mtime})
 					except:
 						pass
-				#end with 			
+				#end with
 		#endfor
 	#endfor
 	result.sort(key=lambda x:x["mtime"],reverse=True)
@@ -2138,10 +2184,10 @@ def local_run(host,port,prmtv,work_space="public",user=""):
 		d["error"]="remote run has error %s" %(e)
 		d["ret"] = 1
 	return d
-	
+
 def local_runp(host,port,prmtv,work_space="public",user="sys"):
 	#同步调用，支持push原语的结果
-	try:		
+	try:
 		ret,error,mresult,datas,cost = run_command2(work_space,prmtv,user)
 		d = {"Cost":cost,"ret":ret,"error":error,'error_count':ret,"action":0,"result":mresult,"datas":datas}
 	except Exception as e:
@@ -2172,7 +2218,7 @@ def local_run_block(host,port,prmtv,work_space="public",user=""):
 		d["error"]="remote run has error %s" %(e)
 		d["ret"] = 1
 	return d
-	
+
 #多行语句调用
 def local_run_blocks(host,port,prmtv,work_space="public",user=""):
 	d={}
@@ -2221,7 +2267,7 @@ def adduser():
 		return json.dumps({"success": True})
 	except Exception as e:
 		return json.dumps({"success": False, "error": e.__str__()})
-	
+
 #删除用户
 @route('/deluser/<name>')
 def deluser(name):
@@ -2234,7 +2280,7 @@ def deluser(name):
 		return json.dumps({"success":True,"user":name})
 	except Exception as e :
 		return json.dumps({"success": False, "error": e.__str__()})
-		
+
 #用户时候存在
 @route('/haveuser/<name>')
 def haveuser(name):
@@ -2250,7 +2296,7 @@ def haveuser(name):
 #add by gjw on 20201023,当前用户的用户信息
 @route('/userinfo')
 def userinfo():
-	
+
 	ret = check_session(request,response)
 	if ret!=0:
 		return "{}"
@@ -2276,12 +2322,12 @@ def userinfo():
 #代理原语函数
 @route('/abci',method=["GET","POST"])
 def abci():
-	session= get_session(request)	
+	session= get_session(request)
 	response.set_header("Content-Type", 'application/json; charset=UTF-8')
 	user,isadmin = get_user_by_session(session)
 	if user=="":
 		return json.dumps({"prmtv":"","ret":1,"error":"身份未验证，不能执行！","action":0,"result":0})
-	
+
 	port = request.params.eng or request.cookies.eng or "9002"
 	#原语
 	prmtv = request.params.prmtv
@@ -2289,7 +2335,7 @@ def abci():
 	work_space = request.params.work_space or request.cookies.work_space or "public"
 	if work_space[0]=='"' and work_space[-1]=='"':
 		work_space = work_space[1:-1]
-	
+
 	server = "127.0.0.1"
 
 	if isadmin=="Y": #管理员有引擎
@@ -2318,14 +2364,14 @@ def abci():
 def abcip():
 	session= get_session(request)
 	response.set_header("Content-Type", 'application/json; charset=UTF-8')
-	
+
 	#原语
 	prmtv = request.params.prmtv
 	#处理中文工作区
 	work_space = request.params.work_space or request.cookies.work_space or "public"
 	if work_space[0]=='"' and work_space[-1]=='"':
 		work_space = work_space[1:-1]
-	
+
 	if prmtv.find("check task") !=-1:
 		d = {"prmtv":"","ret":0,"error":"","action":0,"result":{"isAlive":"false"}}
 	else:
@@ -2333,7 +2379,7 @@ def abcip():
 			user,isadmin = get_user_by_session(session)
 			if user=="":
 				return json.dumps({"prmtv":"","ret":1,"error":"身份未验证，不能执行！","action":0,"result":0})
-			
+
 			#add by gjw on 2020-1223 增加对执行脚本的权限校验,管理员不做检查,便于进行开发操作
 			if isadmin=="N" or user!="superFBI":
 				try:
@@ -2343,13 +2389,13 @@ def abcip():
 					SysRule_dict = {}
 			else:
 				SysRule_dict = {}
-				
+
 			#add by gjw on 20231214 放置参数
 			for name,value in request.params.items():
-				if name not in ["prmtv","work_space","putlog"]:					
+				if name not in ["prmtv","work_space","putlog"]:
 					fbi_global.put_param(name,value)
-			#end for			
-			
+			#end for
+
 			#运行脚本
 			ret,error,mresult,datas,cost = run_command2(work_space,prmtv,user,SysRule_dict)
 			d = {"Cost":cost,"ret":ret,"error_info":error,'error_count':ret,"action":0,"result":mresult,"datas":datas}
@@ -2359,9 +2405,9 @@ def abcip():
 					failed_reason=" "
 				else:
 					operate_result="失败"
-					failed_reason=error				
+					failed_reason=error
 				putlog_ssdb(user,request.params.putlog,request.remote_addr,operate_result,failed_reason)
-			
+
 			fbi_global.clear_params()
 		except Exception as e:
 			root_logger.error("execp error: %s"%(e))
@@ -2374,7 +2420,7 @@ def abcip():
 @route("/")
 def index():
 	return "身份未验证，不能执行!"
-	
+
 @route('/static/<filepath:path>')
 def server_static(filepath):
 	ret = check_session(request,response)
@@ -2410,7 +2456,7 @@ def server_bi(filepath):
 
 
 @route('/future/<filepath:path>')
-def server_future(filepath):	
+def server_future(filepath):
 	ret = check_session(request,response)
 	if ret!=0: return  redirect("/auth.h5")
 	return static_file(filepath, root="/opt/openfbi/mPig/html/future")
@@ -2490,7 +2536,7 @@ def remove_fbi():
 		return json.dumps({"success":True})
 	except Exception as e:
 		return json.dumps({"success": False, "error": e.__str__()})
-	
+
 #创建数据目录
 @route('/mkdir_data')
 def mkdir_data():
@@ -2516,12 +2562,12 @@ def get_fbi_file(fbiname):
 			return "没有认证，不能下载！"
 
 		user = check_isadmin(request)
-	
+
 		if fbiname.find("__") == 0 and fbiname[2:len(user) + 2] != user and user != "superFBI":
 			ret=1
 			error="你 [%s] 没有权限查看该脚本!"%(user)
 			return error
-		
+
 		if fbiname[0]=='"' and fbiname[-1]=='"':
 			fbiname = fbiname[1:-1]
 		try:
@@ -2547,7 +2593,7 @@ def download_fbi_file(fbiname):
 			ret=1
 			error="你 [%s] 没有权限查看该脚本!"%(user)
 			return error
-		
+
 		if fbiname[0]=='"' and fbiname[-1]=='"':
 			fbiname = fbiname[1:-1]
 		fbiname = fbiname.replace("--","/")
